@@ -37,7 +37,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\collect-hardw
 
 The execution-policy override applies only to this PowerShell process; it does not persistently change system policy. Copy the complete JSON printed to the console and provide it with [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md). Also tell me how much free storage you can dedicate to Plex, your compute/spending budget, and the acceptable duration for the first training experiment. If you have inference RAM or latency limits, include them; otherwise leave them `unknown`. Run this on your Windows computer—the development host's hardware has not been used as your profile.
 
-Training and inference limits are separate in the profile. Training capacity, budget, and duration are unknown pending your report. The eventual inference goal is local Windows operation with CPU support required and GPU acceleration optional. Model size, memory ceiling, and latency targets remain unknown. Plex starts from random weights; Qwen is only a possible evaluation baseline.
+Training and inference limits are separate in the [profile](docs/HARDWARE-AND-TRAINING-PROFILE.md). The owner-provided hardware inventory is recorded there; practical training capacity, compute/spending budget, and duration remain unknown. The eventual inference goal is local Windows operation with CPU support required and GPU acceleration optional. Model size, memory ceiling, and latency targets remain unknown. Plex starts from random weights; Qwen is only a possible evaluation baseline.
 
 ## Current CLI behavior
 

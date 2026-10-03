@@ -27,7 +27,7 @@ The first milestone is a small model that learns from data, saves a checkpoint, 
 
 | Task | Work | Completion check |
 |---|---|---|
-| **P1-11 — Record hardware and training limits** | Provide a read-only Windows hardware collector and profile; record GPU, VRAM, RAM, available storage, training budget, and acceptable duration. Separate local inference requirements from training requirements. | Owner hardware profile recorded; the first experiment fits available resources. |
+| **P1-11 — Record hardware and training limits** | Provide a read-only Windows hardware collector and profile; record GPU, VRAM, RAM, available storage, training budget, and acceptable duration. Separate local inference requirements from training requirements. | Hardware recorded; training limits captured and the first experiment's fit is checked against available resources. |
 | **P1-12 — Define the first model experiment** | Choose a small transformer configuration, context length, and training settings. Start substantially below the eventual 0.5B–1.5B target. | Configuration records parameter count; resource estimates are checked with a short measured run before committing to long training. |
 | **P1-13 — Add model training tools** | Introduce a Python training workspace alongside the CLI, with commands for preparing data, training, evaluating, and generating output. | Commands run with a tiny test dataset; environment and dependency versions are recorded. |
 | **P1-14 — Build the dataset pipeline** | Collect suitable code and programming explanations. Record sources and permissions; remove duplicates, secrets, and broken examples. | Reproducible dataset manifest and training/validation splits exist. Split related repositories or examples together to reduce leakage. |
@@ -38,7 +38,7 @@ The first milestone is a small model that learns from data, saves a checkpoint, 
 | **P1-19 — Save, resume, and generate** | Save weights, tokenizer, optimizer state, schedule, random-generator state, settings, and training progress. Add a basic completion command. | Training resumes correctly; a saved checkpoint generates output independently. |
 | **P1-20 — Write the experiment report** | Record data, tokens processed, hardware, elapsed time, validation results, and sample outputs. | Results explain what Plex learned and where it fails. |
 
-P1-11 implementation status: [`scripts/collect-hardware.ps1`](scripts/collect-hardware.ps1) and [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md) are ready. The profile is awaiting owner-provided hardware results, compute/spending budget, and acceptable first-run duration; no experiment size or training schedule is selected yet.
+P1-11 implementation status: the owner-provided hardware inventory is recorded in [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md). Compute/spending budget, acceptable first-run duration, and storage allocation remain unknown, so the first experiment has not yet been sized or checked against a budget.
 
 **Phase 1 gate:** A reproducible Plex checkpoint trained from random initialization, with evidence that it learned.
 
