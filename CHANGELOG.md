@@ -3,7 +3,7 @@
 ## 0.1.0 — development scaffold
 
 - Began P1-11 with a read-only Windows hardware collector and a separate training/inference profile template.
-- Recorded the owner-provided CPU, RAM, GPU/VRAM, and free-drive inventory in the P1-11 profile; budget and acceptable duration remain unknown.
+- Recorded the owner-provided CPU, RAM, GPU/VRAM, and free-drive inventory plus limits: 200 GiB storage, $0 paid services, a 10-minute smoke test, a two-hour pilot, and longer runs with resumable checkpoints.
 - Replaced the previous post-P1-10 plan with `Plex-ROADMAP.md`, establishing Plex’s scratch-trained, randomly initialized model goal and keeping Qwen as an optional evaluation baseline.
 - Added P1-10 in-memory UTF-8 proposals and unified diffs, preserving original BOM/line endings and unchanged bytes, with file/diff/changed-line limits and a pinned `diff` dependency.
 - Added P1-09 selected-path validation, unique anchor and editable-span checks, overlap rejection, and stale-file rechecks before accepting located edits.

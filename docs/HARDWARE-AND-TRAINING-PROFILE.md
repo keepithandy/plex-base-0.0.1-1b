@@ -1,6 +1,6 @@
 # Plex hardware and training profile
 
-Status: **hardware inventory received; awaiting training limits and first-experiment sizing**. Hardware values below were provided by the owner, not inferred from the development host.
+Status: **hardware and owner-set training limits recorded; first-experiment resource fit will be checked in P1-12**. Hardware values below were provided by the owner, not inferred from the development host.
 
 ## Collected Windows hardware
 
@@ -61,12 +61,13 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 - Installed GPU model(s): NVIDIA GeForce RTX 4080 SUPER.
 - GPU memory: 16,376 MiB total; 14,532 MiB free at collection time. The free amount is transient.
 - Total system RAM: 34,034,339,840 bytes (31.7 GiB reported).
-- Free storage by local drive: C: 745,373,954,048 bytes (694.18 GiB) free of 998,951,038,976 bytes (930.35 GiB) total. Amount available to dedicate to Plex: `unknown`.
-- Storage reserved for datasets, checkpoints, and logs: `unknown`
-- Compute or spending budget: `unknown`
-- Acceptable training duration for the first experiment: `unknown`
+- Free storage at collection time: C: 745,373,954,048 bytes (694.18 GiB) free of 998,951,038,976 bytes (930.35 GiB) total. The owner allocated 200 GiB to Plex.
+- Plex storage allocation: 200 GiB total for datasets, checkpoints, and logs. This is an initial allocation and can be revised after P1-12 measures actual use.
+- Paid services, datasets, APIs, or cloud compute budget: $0.
+- Training duration: run a 10-minute smoke test, followed by a pilot capped at two hours. After those checks, longer training runs may continue without a fixed time cap, with resumable checkpoints and progress monitoring.
+- Local electricity cost allowance: `unknown`; no separate allowance was specified.
 - Maximum acceptable RAM/VRAM use during training: `unknown`
-- First experiment configuration and estimated resource use: `unknown`; set after dedicated storage, training budget, and acceptable duration are known.
+- First experiment configuration and estimated resource use: `unknown`; define and check against the recorded hardware and limits in P1-12 before any longer run.
 
 ## Local inference requirements
 
@@ -80,8 +81,8 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 
 ## Decisions after collection
 
-1. Confirm how much free space may be allocated to Plex, then review it against the planned dataset, checkpoints, and logs.
+1. Fit the first model and dataset within the 200 GiB allocation; revise the allocation only if measured needs justify it.
 2. Choose a small initial random-initialized model and estimate RAM/VRAM needs.
-3. Run a short measured training smoke test before setting a longer run or duration estimate.
-4. Record the measured training configuration, throughput, memory, and elapsed time in the experiment history.
+3. Run the 10-minute smoke test and the two-hour pilot before authorizing longer training.
+4. Save resumable checkpoints and record the measured training configuration, throughput, memory, and elapsed time in the experiment history.
 5. Assess local CPU inference separately from training performance; optional GPU support does not replace CPU support.
