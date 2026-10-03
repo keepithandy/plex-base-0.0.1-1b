@@ -2,7 +2,7 @@
 
 Plex is a small coding model project. Its goal is to train Plex Code from randomly initialized weights and keep its own checkpoints and training history. Pretrained Qwen weights are not an initialization source; Qwen may be used as an evaluation baseline. The authoritative direction is in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 
-P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. No Plex model has been trained, and inference has not been demonstrated. P1-11 records the actual hardware and training limits before experiment size or duration is chosen.
+P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. No Plex model has been trained, and inference has not been demonstrated. P1-11 records the actual hardware and training limits; P1-12 now defines the first small model experiment.
 
 ## Development on Windows
 
@@ -38,6 +38,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\collect-hardw
 The execution-policy override applies only to this PowerShell process; it does not persistently change system policy. Copy the complete JSON printed to the console and provide it with [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md) when refreshing the hardware snapshot. Also record how much space Plex may use, any paid-services budget, and the first experiment's time limit. If you have inference RAM or latency limits, include them; otherwise leave them `unknown`. Run this on your Windows computer—the development host's hardware has not been used as your profile.
 
 Training and inference limits are separate in the [profile](docs/HARDWARE-AND-TRAINING-PROFILE.md). The hardware inventory and owner-set limits are recorded there: 200 GiB of storage, $0 paid services, a 10-minute smoke test, and a two-hour pilot. Practical training capacity will be measured before longer checkpointed runs. The eventual inference goal is local Windows operation with CPU support required and GPU acceleration optional. Model size, memory ceiling, and latency targets remain unknown. Plex starts from random weights; Qwen is only a possible evaluation baseline.
+
+## P1-12 first experiment
+
+P1-12 has started with a proposed 27.6-million-parameter decoder-only Transformer, 512-token context, and conservative FP32 AdamW settings. The full configuration and analytic memory estimate are in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). These estimates are not a measured fit: the repository does not yet include the Python training runner. P1-13 must provide the local runner before the 10-minute synthetic-data smoke test and two-hour pilot can measure GPU/RAM use and throughput. Before longer training, P1-19 must verify checkpoint resumption. No pretrained weights are used.
 
 ## Current CLI behavior
 
@@ -139,4 +143,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-The next task is P1-11: record hardware and training limits. The collector and profile template are ready; P1-11 awaits your Windows hardware results and the training budget/duration values. HTML validation is now scheduled as P3-03 in the updated roadmap.
+P1-11 is complete, and P1-12 has started. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), and [first experiment definition](docs/FIRST-EXPERIMENT.md). HTML validation is scheduled as P3-03.
