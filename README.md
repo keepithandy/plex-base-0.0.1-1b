@@ -1,8 +1,8 @@
 # Plex
 
-Plex is a lightweight local coding system for focused repository changes. The current implementation completes **P1-01 through P1-10** from [the roadmap](ROADMAP.md): a compiled TypeScript CLI scaffold, npm executable entry, validated data contracts, a three-file web fixture, project-root detection, safe enumeration/ranking, bounded prompt construction, selection snapshots, strict model-response parsing, edit-path and anchor validation, in-memory proposals and unified diffs, and automated tests.
+Plex is a small coding model project. Its goal is to train Plex Code from randomly initialized weights and keep its own checkpoints and training history. Pretrained Qwen weights are not an initialization source; Qwen may be used as an evaluation baseline. The authoritative direction is in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 
-Model inference and end-to-end task execution are not implemented yet. A task detects its project root, enumerates/ranks source files, and constructs a bounded prompt plus an original-file snapshot for one selected candidate. A supplied valid response can be converted into a proposed buffer and diff. Ambiguous, missing, stale, or over-budget context stops safely. Project files remain unchanged.
+P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. No Plex model has been trained, and inference has not been demonstrated. P1-11 records the actual hardware and training limits before experiment size or duration is chosen.
 
 ## Development on Windows
 
@@ -24,6 +24,20 @@ npm install --prefix ".test-artifacts\local install" --omit=dev --ignore-scripts
 ```
 
 The package is private to prevent accidental registry publication. Build output, dependencies, local test installs, archives, and weights are ignored by Git. Runtime dependencies are Ajv for JSON contracts and `ignore` for non-Git ignore rules; both operate locally.
+
+## P1-11 hardware collection
+
+[`scripts/collect-hardware.ps1`](scripts/collect-hardware.ps1) prints CPU model and logical processor count, total RAM, Windows GPU names, fixed-drive free/total space, and available GPU memory when an installed NVIDIA `nvidia-smi` can report it. Windows CIM supplies hardware names and memory/storage details; the script deliberately ignores `Win32_VideoController.AdapterRAM` because that value may be capped or inaccurate. If `nvidia-smi` is absent or cannot query memory, GPU memory is labeled unavailable. No software is installed, no persistent settings are changed, and no files are written. Hostname and username are omitted.
+
+From the repository root in PowerShell, run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\collect-hardware.ps1"
+```
+
+The execution-policy override applies only to this PowerShell process; it does not persistently change system policy. Copy the complete JSON printed to the console and provide it with [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md). Also tell me how much free storage you can dedicate to Plex, your compute/spending budget, and the acceptable duration for the first training experiment. If you have inference RAM or latency limits, include them; otherwise leave them `unknown`. Run this on your Windows computer—the development host's hardware has not been used as your profile.
+
+Training and inference limits are separate in the profile. Training capacity, budget, and duration are unknown pending your report. The eventual inference goal is local Windows operation with CPU support required and GPU acceleration optional. Model size, memory ceiling, and latency targets remain unknown. Plex starts from random weights; Qwen is only a possible evaluation baseline.
 
 ## Current CLI behavior
 
@@ -117,7 +131,7 @@ Each nonempty old string must occur exactly once in the original selected source
 
 `buildProposal(response, bundle)` in `src/core/proposal.ts` applies validated edits to a copy of the original UTF-8 bytes in reverse source-position order. The original bytes stay untouched. It preserves a UTF-8 BOM and every byte outside edited ranges, including unchanged CRLF and Unicode text. On single-style files, new replacement line breaks are normalized to the original LF, CRLF, or CR style. Mixed-style files require the replacement's line-break sequence to match the old anchor's sequence. Files without an original line break use LF for added lines. Invalid UTF-16, NUL, and new BOM characters in replacements are rejected.
 
-The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pinned [`diff` 9.0.0](https://www.npmjs.com/package/diff) to generate a unified diff from original and proposed text. A proposal is limited to 100 added/deleted diff lines and a 256 KiB diff; changed-line counts include both removed and added lines. The returned preview includes its proposed bytes, decoded source, SHA-256 hashes, diff, and changed-line count. The byte buffer remains mutable like any Node buffer; downstream checks must recheck its hash before trusting it. HTML correctness and task-specific behavior are validated in P1-11.
+The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pinned [`diff` 9.0.0](https://www.npmjs.com/package/diff) to generate a unified diff from original and proposed text. A proposal is limited to 100 added/deleted diff lines and a 256 KiB diff; changed-line counts include both removed and added lines. The returned preview includes its proposed bytes, decoded source, SHA-256 hashes, diff, and changed-line count. The byte buffer remains mutable like any Node buffer; downstream checks must recheck its hash before trusting it. Proposed HTML validation is scheduled as P3-03.
 
 ## Web fixture
 
@@ -125,4 +139,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-The next task is P1-11: proposed HTML and title-fixture validation. No local-model capability has been demonstrated by this scaffold.
+The next task is P1-11: record hardware and training limits. The collector and profile template are ready; P1-11 awaits your Windows hardware results and the training budget/duration values. HTML validation is now scheduled as P3-03 in the updated roadmap.

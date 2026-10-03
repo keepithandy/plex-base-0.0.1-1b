@@ -2,6 +2,8 @@
 
 ## 0.1.0 — development scaffold
 
+- Began P1-11 with a read-only Windows hardware collector and a training/inference profile template. Hardware and user-set training limits are explicitly pending.
+- Replaced the previous post-P1-10 plan with `Plex-ROADMAP.md`, establishing Plex’s scratch-trained, randomly initialized model goal and keeping Qwen as an optional evaluation baseline.
 - Added P1-10 in-memory UTF-8 proposals and unified diffs, preserving original BOM/line endings and unchanged bytes, with file/diff/changed-line limits and a pinned `diff` dependency.
 - Added P1-09 selected-path validation, unique anchor and editable-span checks, overlap rejection, and stale-file rechecks before accepting located edits.
 - Added P1-08 bounded strict JSON response parsing, duplicate-key rejection, canonical schema enforcement, sanitized failure codes, and parser regression tests.
