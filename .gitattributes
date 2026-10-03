@@ -1,0 +1,2 @@
+# Stable fixture bytes for hash-based assertions on Windows and other platforms.
+fixtures/simple-web-project/* text eol=lf

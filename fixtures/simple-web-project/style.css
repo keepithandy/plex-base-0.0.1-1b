@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+}

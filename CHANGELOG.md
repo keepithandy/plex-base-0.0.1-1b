@@ -1,0 +1,16 @@
+# Changelog
+
+## 0.1.0 — development scaffold
+
+- Added P1-10 in-memory UTF-8 proposals and unified diffs, preserving original BOM/line endings and unchanged bytes, with file/diff/changed-line limits and a pinned `diff` dependency.
+- Added P1-09 selected-path validation, unique anchor and editable-span checks, overlap rejection, and stale-file rechecks before accepting located edits.
+- Added P1-08 bounded strict JSON response parsing, duplicate-key rejection, canonical schema enforcement, sanitized failure codes, and parser regression tests.
+- Added P1-07 focused prompt assembly, selected-file byte/hash/BOM/newline snapshots, full-file edit spans, budget accounting, stale-snapshot checks, and packaged system rules.
+- Added P1-06 deterministic file ranking with inspectable signals, bounded UTF-8 source inspection, explicit target hints, ambiguity refusal, and CLI ranking output.
+- Added P1-05 bounded Git/directory enumeration, nested ignore handling, hard exclusions, link/submodule protection, source metadata display, and scanner regression tests.
+- Added P1-04 explicit, Git, and non-Git project-root detection, the CLI `--repo` option, and boundary/error tests.
+- Added P1-03 HTML/CSS/JavaScript fixture, initial title/reference assertions, and SHA-256 baselines for all three files. CLI tests verify temporary fixture copies remain unchanged.
+- Added P1-02 request, repository manifest, model response, and preview result contracts with strict Ajv validation and contract tests.
+- Added the P1-01 TypeScript build and npm `plex` executable entry.
+- Added help/version commands, explicit unsupported task reporting, and CLI integration tests.
+- Documented local Windows setup and the remaining implementation scope.
