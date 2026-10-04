@@ -1,5 +1,7 @@
 # P2-02: approve the curated request-following candidate
 
+**Completed:** the owner approved these exact 180 examples. The separate corpus, training-only tokenizer, random initialization, 100-step run, and matched development scoring are recorded in the [result report](PHASE-2-CURATED-100-STEP-REPORT.md). It passed 0/30 complete tasks despite lower held-out loss. The approval instructions below are historical; no second approval or run is needed.
+
 The diversity and supplied-answer review is complete. The candidate is ready for **exact-record approval for a small local experiment**, not yet included in training. Your prior approval remains attached to the twelve original samples; this separate version contains 180 revised examples.
 
 ## What you would approve

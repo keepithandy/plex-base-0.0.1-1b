@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write doubleValues(items) for an array of numbers; return a new array with each number doubled. Return code only.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function doubleValues(items) {
+  return items.map(item => item * 2);
+}

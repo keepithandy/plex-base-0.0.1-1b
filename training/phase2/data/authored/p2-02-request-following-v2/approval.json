@@ -1,0 +1,13 @@
+{
+  "approvalRecordedAtUtc": "2026-10-04T22:55:48Z",
+  "approvalStatement": "Approve the 180 curated examples for local training.",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "candidate": "p2-02-request-following-v2",
+  "candidateJsonlSha256": "9f6ad8eff96298f45880f9bfe831648364e2a7ed11996e7a7d91d5e984eb3d0b",
+  "externalSourceTextIncluded": false,
+  "publicLicenseGranted": false,
+  "records": 180,
+  "schemaVersion": 1,
+  "scope": "local-P2-training"
+}

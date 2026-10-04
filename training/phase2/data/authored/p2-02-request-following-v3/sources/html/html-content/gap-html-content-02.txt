@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make an article with a heading Shipping update and one paragraph Packages leave tomorrow. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<article><h2>Shipping update</h2><p>Packages leave tomorrow.</p></article>

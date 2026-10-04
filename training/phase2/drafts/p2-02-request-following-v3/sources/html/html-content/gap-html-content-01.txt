@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Create a figure with a diagram image diagram.png, descriptive alt text Flow diagram, and caption Process flow. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<figure><img src="diagram.png" alt="Flow diagram"><figcaption>Process flow</figcaption></figure>

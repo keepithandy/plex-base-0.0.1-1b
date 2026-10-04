@@ -1,0 +1,5 @@
+Write a small CSS coding solution.
+Request: On .menu-link:hover, underline the text and change color to navy. Return code only.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.menu-link:hover { text-decoration: underline; color: navy; }

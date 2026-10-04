@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write dropLastCodeUnits(text, count) for a string text and a nonnegative integer count; count UTF-16 code units; remove at most the last count code units, returning text unchanged for zero. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function dropLastCodeUnits(text, count) {
+  return count === 0 ? text : text.slice(0, -count);
+}

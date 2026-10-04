@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write distanceFromLimit(value, limit) for finite numbers value and limit; return the absolute distance using a conditional expression. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function distanceFromLimit(value, limit) {
+  return value > limit ? value - limit : limit - value;
+}

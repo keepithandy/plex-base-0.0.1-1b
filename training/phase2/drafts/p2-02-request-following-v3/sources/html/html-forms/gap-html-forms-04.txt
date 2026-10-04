@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make a labeled number input id quantity with minimum 1 and a Place order submit button. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<form><label for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1"><button type="submit">Place order</button></form>

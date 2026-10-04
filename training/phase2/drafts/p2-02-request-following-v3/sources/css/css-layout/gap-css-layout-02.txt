@@ -1,0 +1,5 @@
+Write a small CSS coding solution.
+Request: Make .tile-list a three-column grid with 16px gaps. Return code only.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.tile-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }

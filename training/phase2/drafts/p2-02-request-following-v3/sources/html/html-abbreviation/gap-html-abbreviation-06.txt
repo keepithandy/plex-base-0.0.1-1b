@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put that titled abbreviation inside a one-item unordered list. Use word "I/O"; sentence "Input and output". Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<ul><li><abbr title="Input and output">I/O</abbr></li></ul>

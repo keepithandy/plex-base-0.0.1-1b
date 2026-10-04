@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write listObjectValues(record, key) for a plain object record and a string key; return results without mutation; return all own enumerable values; key is unused. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function listObjectValues(record, key) {
+  return Object.values(record);
+}

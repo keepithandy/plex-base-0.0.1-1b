@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Use ruby with an rt reading. Use word "Kyoto"; reading "Kyo-to". Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<ruby>Kyoto<rt>Kyo-to</rt></ruby>

@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write trimOuterSpace(text) for a string text; return text with outer whitespace removed. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function trimOuterSpace(text) {
+  return text.trim();
+}

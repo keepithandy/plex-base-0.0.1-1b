@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make an image of mountains with a descriptive alt inside a linked figure captioned Trail map. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<figure><a href="/trails"><img src="mountains.png" alt="Mountain trail"></a><figcaption>Trail map</figcaption></figure>

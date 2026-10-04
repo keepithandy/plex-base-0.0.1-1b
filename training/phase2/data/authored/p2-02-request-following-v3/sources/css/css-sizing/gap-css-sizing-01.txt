@@ -1,0 +1,5 @@
+Write a small CSS coding solution.
+Request: Make .reading-pane at most 60ch wide with 16px inline padding. Return code only.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.reading-pane { max-width: 60ch; padding-inline: 16px; }

@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make a footer navigation named Resources with links to Guides and Support. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<nav aria-label="Resources"><a href="/guides">Guides</a><a href="/support">Support</a></nav>

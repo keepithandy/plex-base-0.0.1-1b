@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write countEmpty(items) for an array of strings; count the empty strings. Return code only.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function countEmpty(items) {
+  return items.filter(item => item === '').length;
+}

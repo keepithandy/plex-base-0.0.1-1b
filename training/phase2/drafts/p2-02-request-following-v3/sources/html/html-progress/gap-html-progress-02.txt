@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make determinate progress with value 35, max 100, and the word as fallback text. Use word "Kyoto". Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<progress value="35" max="100">Kyoto</progress>

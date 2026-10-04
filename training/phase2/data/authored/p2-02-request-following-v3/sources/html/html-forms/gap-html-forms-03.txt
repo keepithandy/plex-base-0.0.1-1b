@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make a form with a label for a select id region with North and South options. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<form><label for="region">Region</label><select id="region" name="region"><option value="north">North</option><option value="south">South</option></select></form>

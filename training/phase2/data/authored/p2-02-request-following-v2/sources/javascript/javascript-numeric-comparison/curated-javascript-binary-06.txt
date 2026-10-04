@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformAlpha(a, b) for finite numbers a and b; return the absolute difference. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformAlpha(a, b) {
+  return Math.abs(a - b);
+}

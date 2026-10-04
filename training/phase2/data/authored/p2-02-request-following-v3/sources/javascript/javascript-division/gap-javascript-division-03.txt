@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write quotientUp(a, b) for integers a and b with b nonzero and small enough for exact arithmetic; return the quotient rounded up. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function quotientUp(a, b) {
+  return Math.ceil(a / b);
+}

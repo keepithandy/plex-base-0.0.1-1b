@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make a form with two radio choices named size, Small and Large, each wrapped in its own label. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<form><label><input type="radio" name="size" value="small">Small</label><label><input type="radio" name="size" value="large">Large</label></form>

@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "groupId": "plex-request-following-html-v3",
+      "id": "plex-request-following-html-v3",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/html",
+      "origin": "urn:plex:codex-authored:p2-02-request-following-v3",
+      "revision": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T23:18:08Z",
+      "sourceFamilyId": "plex-request-following-html-v3",
+      "splitGroupRules": [
+        {
+          "id": "html-abbreviation",
+          "pathPrefixes": [
+            "html-abbreviation/"
+          ]
+        },
+        {
+          "id": "html-bidi",
+          "pathPrefixes": [
+            "html-bidi/"
+          ]
+        },
+        {
+          "id": "html-contact",
+          "pathPrefixes": [
+            "html-contact/"
+          ]
+        },
+        {
+          "id": "html-content",
+          "pathPrefixes": [
+            "html-content/"
+          ]
+        },
+        {
+          "id": "html-description",
+          "pathPrefixes": [
+            "html-description/"
+          ]
+        },
+        {
+          "id": "html-disclosure",
+          "pathPrefixes": [
+            "html-disclosure/"
+          ]
+        },
+        {
+          "id": "html-forms",
+          "pathPrefixes": [
+            "html-forms/"
+          ]
+        },
+        {
+          "id": "html-heading-group",
+          "pathPrefixes": [
+            "html-heading-group/"
+          ]
+        },
+        {
+          "id": "html-meter",
+          "pathPrefixes": [
+            "html-meter/"
+          ]
+        },
+        {
+          "id": "html-navigation",
+          "pathPrefixes": [
+            "html-navigation/"
+          ]
+        },
+        {
+          "id": "html-progress",
+          "pathPrefixes": [
+            "html-progress/"
+          ]
+        },
+        {
+          "id": "html-quote",
+          "pathPrefixes": [
+            "html-quote/"
+          ]
+        },
+        {
+          "id": "html-ruby",
+          "pathPrefixes": [
+            "html-ruby/"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "plex-request-following-css-v3",
+      "id": "plex-request-following-css-v3",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css",
+      "origin": "urn:plex:codex-authored:p2-02-request-following-v3",
+      "revision": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T23:18:08Z",
+      "sourceFamilyId": "plex-request-following-css-v3",
+      "splitGroupRules": [
+        {
+          "id": "css-aspect",
+          "pathPrefixes": [
+            "css-aspect/"
+          ]
+        },
+        {
+          "id": "css-columns",
+          "pathPrefixes": [
+            "css-columns/"
+          ]
+        },
+        {
+          "id": "css-cursor",
+          "pathPrefixes": [
+            "css-cursor/"
+          ]
+        },
+        {
+          "id": "css-decoration",
+          "pathPrefixes": [
+            "css-decoration/"
+          ]
+        },
+        {
+          "id": "css-layout",
+          "pathPrefixes": [
+            "css-layout/"
+          ]
+        },
+        {
+          "id": "css-logical-border",
+          "pathPrefixes": [
+            "css-logical-border/"
+          ]
+        },
+        {
+          "id": "css-object-fit",
+          "pathPrefixes": [
+            "css-object-fit/"
+          ]
+        },
+        {
+          "id": "css-outline",
+          "pathPrefixes": [
+            "css-outline/"
+          ]
+        },
+        {
+          "id": "css-overflow",
+          "pathPrefixes": [
+            "css-overflow/"
+          ]
+        },
+        {
+          "id": "css-sizing",
+          "pathPrefixes": [
+            "css-sizing/"
+          ]
+        },
+        {
+          "id": "css-state",
+          "pathPrefixes": [
+            "css-state/"
+          ]
+        },
+        {
+          "id": "css-table",
+          "pathPrefixes": [
+            "css-table/"
+          ]
+        },
+        {
+          "id": "css-whitespace",
+          "pathPrefixes": [
+            "css-whitespace/"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "plex-request-following-javascript-v3",
+      "id": "plex-request-following-javascript-v3",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/javascript",
+      "origin": "urn:plex:codex-authored:p2-02-request-following-v3",
+      "revision": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T23:18:08Z",
+      "sourceFamilyId": "plex-request-following-javascript-v3",
+      "splitGroupRules": [
+        {
+          "id": "javascript-array-copy",
+          "pathPrefixes": [
+            "javascript-array-copy/"
+          ]
+        },
+        {
+          "id": "javascript-array-lookup",
+          "pathPrefixes": [
+            "javascript-array-lookup/"
+          ]
+        },
+        {
+          "id": "javascript-arrays",
+          "pathPrefixes": [
+            "javascript-arrays/"
+          ]
+        },
+        {
+          "id": "javascript-classification",
+          "pathPrefixes": [
+            "javascript-classification/"
+          ]
+        },
+        {
+          "id": "javascript-conversion",
+          "pathPrefixes": [
+            "javascript-conversion/"
+          ]
+        },
+        {
+          "id": "javascript-division",
+          "pathPrefixes": [
+            "javascript-division/"
+          ]
+        },
+        {
+          "id": "javascript-numeric-comparison",
+          "pathPrefixes": [
+            "javascript-numeric-comparison/"
+          ]
+        },
+        {
+          "id": "javascript-object-lookup",
+          "pathPrefixes": [
+            "javascript-object-lookup/"
+          ]
+        },
+        {
+          "id": "javascript-objects",
+          "pathPrefixes": [
+            "javascript-objects/"
+          ]
+        },
+        {
+          "id": "javascript-string-build",
+          "pathPrefixes": [
+            "javascript-string-build/"
+          ]
+        },
+        {
+          "id": "javascript-string-slice",
+          "pathPrefixes": [
+            "javascript-string-slice/"
+          ]
+        },
+        {
+          "id": "javascript-strings",
+          "pathPrefixes": [
+            "javascript-strings/"
+          ]
+        }
+      ]
+    }
+  ],
+  "splitStrategy": "family-stratified-groups-v1"
+}

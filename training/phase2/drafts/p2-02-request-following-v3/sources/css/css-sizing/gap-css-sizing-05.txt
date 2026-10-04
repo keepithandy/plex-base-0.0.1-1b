@@ -1,0 +1,5 @@
+Write a small CSS coding solution.
+Request: Make .scroll-region at most 240px tall with vertical auto scrolling. Return code only.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.scroll-region { max-height: 240px; overflow-y: auto; }

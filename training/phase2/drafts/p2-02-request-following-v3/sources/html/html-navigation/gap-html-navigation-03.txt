@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Create a navigation named Account with Sign in and Help links, separated by a span containing a vertical bar. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<nav aria-label="Account"><a href="/signin">Sign in</a><span>|</span><a href="/help">Help</a></nav>

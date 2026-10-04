@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write displayLabel(item) for an object with a label property; return that label in square brackets. Return code only.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function displayLabel(item) {
+  return '[' + item.label + ']';
+}

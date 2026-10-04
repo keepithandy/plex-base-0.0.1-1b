@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .fixed-table: Use fixed table layout and width 100%. Return one rule with only the requested declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.fixed-table {
+  table-layout: fixed;
+  width: 100%;
+}

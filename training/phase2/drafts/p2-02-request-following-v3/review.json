@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-request-following-v3",
+  "approvalStatus": "pending-owner-review",
+  "records": 234,
+  "revisedApprovedRecordCount": 180,
+  "newRecordCount": 54,
+  "recordsByLanguage": {
+    "html": 78,
+    "css": 78,
+    "javascript": 78
+  },
+  "recordsBySplit": {
+    "train": 156,
+    "validation": 78
+  },
+  "newRecordsBySplitAndLanguage": {
+    "train/html": 12,
+    "validation/html": 6,
+    "train/css": 12,
+    "validation/css": 6,
+    "train/javascript": 12,
+    "validation/javascript": 6
+  },
+  "splitGroups": 38,
+  "uniqueCssSelectors": 78,
+  "uniqueJavascriptFunctionNames": 78,
+  "staticSolutionsPassed": 234,
+  "staticChecksPassed": 1007,
+  "developmentRequestDuplicates": 0,
+  "sourceV2Sha256": "9f6ad8eff96298f45880f9bfe831648364e2a7ed11996e7a7d91d5e984eb3d0b",
+  "developmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+  "splitSeed": 51,
+  "validationPercentOfGroups": 30,
+  "javascriptBehaviorExecuted": false,
+  "finalHoldoutOpened": false,
+  "modelTrained": false,
+  "limitations": [
+    "Static answer checks do not establish behavior or model capability.",
+    "JavaScript examples were syntax-checked but never executed.",
+    "The development failures informed broad skill families; this is not an independent evaluation.",
+    "The candidate needs exact-record owner approval, a build, tokenization, and a new bounded training/evaluation comparison."
+  ],
+  "candidateJsonlSha256": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016"
+}

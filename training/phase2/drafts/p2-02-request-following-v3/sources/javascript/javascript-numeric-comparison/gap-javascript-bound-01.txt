@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write capAtLimit(value, limit) for finite numbers value and limit; cap value at the upper limit using a conditional expression. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function capAtLimit(value, limit) {
+  return value > limit ? limit : value;
+}

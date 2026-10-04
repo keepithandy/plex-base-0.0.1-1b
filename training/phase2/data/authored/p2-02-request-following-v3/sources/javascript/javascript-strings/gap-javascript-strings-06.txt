@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write lineParts(text) for a string; return an array split at newline characters. Return code only.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function lineParts(text) {
+  return text.split('\n');
+}

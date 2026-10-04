@@ -1,0 +1,13 @@
+{
+  "approvalRecordedAtUtc": "2026-10-04T23:18:08Z",
+  "approvalStatement": "Approve the 234-example v3 candidate for local training.",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "candidate": "p2-02-request-following-v3",
+  "candidateJsonlSha256": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+  "externalSourceTextIncluded": false,
+  "publicLicenseGranted": false,
+  "records": 234,
+  "schemaVersion": 1,
+  "scope": "local-P2-training"
+}

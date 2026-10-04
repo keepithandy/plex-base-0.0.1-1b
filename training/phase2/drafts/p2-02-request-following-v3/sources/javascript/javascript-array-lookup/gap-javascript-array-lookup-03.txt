@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write lastItemIndex(items, value) for an array items and a value, with primitive elements; return the last index of value or -1. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function lastItemIndex(items, value) {
+  return items.lastIndexOf(value);
+}

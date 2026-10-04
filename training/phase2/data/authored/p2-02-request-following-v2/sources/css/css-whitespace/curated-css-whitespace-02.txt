@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .rf-whitespace-alpha: Preserve whitespace while allowing wraps, including breaks anywhere in long tokens. Return one rule with only the requested declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.rf-whitespace-alpha {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

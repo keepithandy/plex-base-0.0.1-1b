@@ -1,0 +1,68 @@
+{
+  "allBudgetsPassed": true,
+  "candidateJsonlSha256": "9f6ad8eff96298f45880f9bfe831648364e2a7ed11996e7a7d91d5e984eb3d0b",
+  "contextLength": 512,
+  "dataset": {
+    "sourceDatasetManifestSha256": "c6f4c86b545fdc555cdc78a471919a96d9273f81a320365af442eaaa8c4d3108",
+    "trainJsonlSha256": "6d416fe2375ce8948ddf5ccb463999d5f9914559900b14f549b096b604a726cd",
+    "trainRecords": 120,
+    "trainTokenCount": 11551,
+    "trainTokensSha256": "6f9ea4a04d8a9cc0fa1984815843216701d3d018805272877a20de76160fd791",
+    "validationJsonlSha256": "4aeca7cd8286066cd4c9217cff16869925087bdb8d0cc94e94525595286f3f01",
+    "validationRecords": 60,
+    "validationTokenCount": 6517,
+    "validationTokensSha256": "8a5b62b07fce1397f3cad6f1ef992f6133a2d3b8735ae2304ed5167438bf0d9b"
+  },
+  "maximumDevelopmentPromptTokens": 104,
+  "splits": {
+    "train": {
+      "answerShareOfTokenPositions": 0.225868,
+      "answerTokensIncludingLeadingNewline": 2609,
+      "eosMarkers": 120,
+      "maximumAnswerTokensIncludingEosByLanguage": {
+        "css": 35,
+        "html": 30,
+        "javascript": 31
+      },
+      "maximumPromptTokens": 91,
+      "maximumRecordTokensIncludingEos": 120,
+      "promptTokens": 8822,
+      "records": 120,
+      "recordsByLanguage": {
+        "css": 42,
+        "html": 42,
+        "javascript": 36
+      },
+      "tokens": 11551
+    },
+    "validation": {
+      "answerShareOfTokenPositions": 0.224029,
+      "answerTokensIncludingLeadingNewline": 1460,
+      "eosMarkers": 60,
+      "maximumAnswerTokensIncludingEosByLanguage": {
+        "css": 47,
+        "html": 27,
+        "javascript": 52
+      },
+      "maximumPromptTokens": 118,
+      "maximumRecordTokensIncludingEos": 159,
+      "promptTokens": 4997,
+      "records": 60,
+      "recordsByLanguage": {
+        "css": 18,
+        "html": 18,
+        "javascript": 24
+      },
+      "tokens": 6517
+    }
+  },
+  "tokenizer": {
+    "actualVocabularySize": 1064,
+    "bundleManifestSha256": "c58d91aac8c1703ca46bf1e1c4825a669f1914152be6301f49397ca43bd9e416",
+    "codec": "plex-byte-bpe-v1",
+    "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+    "modelVocabularyCapacity": 16384,
+    "tokenizerSha256": "374319ab8a7fa252742224efc09e3f11d28646bb6acfaa68d40ed37ca1d1d324"
+  },
+  "tokenizerFitSplit": "train"
+}

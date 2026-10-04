@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write propertyNames(item) for an object; return its own enumerable string keys sorted alphabetically. Return code only.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function propertyNames(item) {
+  return Object.keys(item).sort();
+}

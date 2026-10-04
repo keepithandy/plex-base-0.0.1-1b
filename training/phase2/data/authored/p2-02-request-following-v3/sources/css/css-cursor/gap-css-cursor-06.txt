@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .plain-target: Show a default cursor and display as a block. Return one rule with only the requested declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.plain-target {
+  cursor: default;
+  display: block;
+}

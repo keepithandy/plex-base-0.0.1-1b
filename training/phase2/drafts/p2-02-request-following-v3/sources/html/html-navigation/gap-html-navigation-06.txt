@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Create a header with a brand link named Atlas and navigation named Pages containing a Docs link. Return code only.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<header><a href="/">Atlas</a><nav aria-label="Pages"><a href="/docs">Docs</a></nav></header>

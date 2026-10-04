@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write metersToUnits(value) for a finite numeric value; return an object with centimeters and millimeters converted from meters. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function metersToUnits(value) {
+  return { centimeters: value * 100, millimeters: value * 1000 };
+}

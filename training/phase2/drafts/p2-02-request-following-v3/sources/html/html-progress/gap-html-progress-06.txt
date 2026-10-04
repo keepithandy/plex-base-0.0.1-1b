@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put determinate progress with value 35 and max 100 inside a div with class tracking. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<div class="tracking"><progress value="35" max="100"></progress></div>

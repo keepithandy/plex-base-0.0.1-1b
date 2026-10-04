@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .rf-outline-alpha: Use a dashed outline style and #334155 outline color. Return one rule with only the requested declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.rf-outline-alpha {
+  outline-style: dashed;
+  outline-color: #334155;
+}
