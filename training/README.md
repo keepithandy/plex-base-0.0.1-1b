@@ -56,7 +56,7 @@ uv run --project training python -m plex_training.cli generate `
   --device cuda
 ```
 
-Output paths for `prepare`, `smoke`, and `train` are relative to the artifact root (default `training/artifacts`). `train` defaults to ten minutes and accepts at most the two-hour pilot duration. The runner enforces the owner's 200 GiB storage allocation and saves a checkpoint every five minutes and on normal completion or Ctrl+C. Uncapped training stays unavailable until P1-19 verifies resume, and the two-hour pilot must wait for the documented dataset and tokenizer.
+Output paths for `prepare`, `smoke`, and `train` are relative to the artifact root (default `training/artifacts`). `train` defaults to ten minutes and accepts at most the two-hour pilot duration; it remains the byte-v1 plumbing command. The runner enforces the owner's 200 GiB storage allocation and saves a checkpoint every five minutes and on normal completion or Ctrl+C. Uncapped training stays unavailable until P1-19 verifies resume. Use `pilot` below for the approved BPE data.
 
 ## Curate a reproducible dataset (P1-14)
 
@@ -120,7 +120,32 @@ uv run --project training --no-sync python -m plex_training.cli learn-check `
   --steps 250 --sample-tokens 16 --minutes 10 --device auto
 ```
 
-Choose an unused output path. The command is capped at 500 optimizer steps and ten minutes; it uses one real training record and no validation text. Exact reproduction here is an overfit plumbing check only. A separate bounded BPE training/evaluation path using held-out validation is still needed for the P1-18 pilot.
+Choose an unused output path. The command is capped at 500 optimizer steps and ten minutes; it uses one real training record and no validation text. Exact reproduction here is an overfit plumbing check only. P1-18's separate bounded BPE path is documented below.
+
+## Prepare and run the held-out pilot (P1-18)
+
+`pilot` verifies both packed BPE splits, their reviewed source hashes, the tokenizer/model configuration, and the step-zero P1-16 checkpoint before training. It records the baseline and final held-out validation losses, throughput, memory use, tokenizer/data identities, and periodic checkpoints. A one-step preflight passed; the two-hour run remains pending. See the [pilot report](../docs/PLEX-PILOT.md).
+
+To reproduce the short preflight in a fresh output directory:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --minutes 1 --steps 1 --device auto `
+  --output-dir pilot\p1-18-my-preflight
+```
+
+For the full bounded run, use an unused output directory and omit `--steps`:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --minutes 120 --device cuda `
+  --output-dir pilot\p1-18-full-v1
+uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
+  --checkpoint training\artifacts\pilot\p1-18-full-v1\pilot-checkpoint.pt `
+  --device cuda
+```
+
+Training uses the approved train split; evaluation reads the distinct held-out split. The command refuses to overwrite an output directory and enforces a 120-minute maximum and the 200 GiB artifact allocation. The starter corpus is small, so final validation may not improve after a long run; record that outcome rather than treating one-step improvement as the pilot result. P1-19 remains the gate for verified checkpoint resumption before longer training.
 
 ## Run checks
 

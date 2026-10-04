@@ -48,4 +48,4 @@ The command selects one short indexed training record, strips its record-ending 
 
 ## Next milestone
 
-P1-17 is complete for this one-sample learning check. Before the two-hour P1-18 pilot, build a general bounded BPE training/evaluation path that uses the separate validation corpus and records its losses, token throughput, and resource use. The current general `train`, `evaluate`, and `generate` commands remain on the bootstrap byte-v1 format. P1-19 still needs to prove tokenizer-aware checkpoint resumption and generation before runs longer than the two-hour pilot.
+P1-17 is complete for this one-sample learning check. P1-18's bounded BPE training/evaluation path has since been prepared and passed a one-step preflight; see the [pilot preparation report](PLEX-PILOT.md). The general `train`, `evaluate`, and `generate` commands remain on the bootstrap byte-v1 format. P1-19 still needs to prove tokenizer-aware checkpoint resumption and generation before runs longer than the two-hour pilot.

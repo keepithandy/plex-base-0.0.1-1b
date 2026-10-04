@@ -83,6 +83,32 @@ def build_parser() -> argparse.ArgumentParser:
     learning.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(learning)
 
+    pilot = subparsers.add_parser(
+        "pilot", help="Train on approved BPE tokens with held-out validation (at most 120 minutes)"
+    )
+    pilot.add_argument("--bundle-dir", type=Path,
+                       default=Path("training/artifacts/tokenizers/p1-15-starter-v1"))
+    pilot.add_argument("--initialization", type=Path,
+                       default=Path("training/artifacts/initializations/p1-16-starter-v1/initialization.pt"))
+    pilot.add_argument("--output-dir", type=Path, default=Path("pilot/p1-18"))
+    pilot.add_argument("--minutes", type=float, required=True)
+    pilot.add_argument("--steps", type=int, default=None,
+                       help="Optional step bound for a short preflight")
+    pilot.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    pilot.add_argument("--micro-batch", type=int, default=1)
+    pilot.add_argument("--gradient-accumulation", type=int, default=16)
+    pilot.add_argument("--checkpoint-every-minutes", type=float, default=5.0)
+    _add_artifact_root(pilot)
+
+    pilot_evaluate = subparsers.add_parser(
+        "pilot-evaluate", help="Recheck a BPE pilot checkpoint on the held-out validation split"
+    )
+    pilot_evaluate.add_argument("--bundle-dir", type=Path,
+                                default=Path("training/artifacts/tokenizers/p1-15-starter-v1"))
+    pilot_evaluate.add_argument("--checkpoint", type=Path, required=True)
+    pilot_evaluate.add_argument("--max-batches", type=int, default=100)
+    pilot_evaluate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+
     smoke = subparsers.add_parser("smoke", help="Run the synthetic-data smoke test (at most 10 minutes)")
     smoke.add_argument("--minutes", type=float, default=MAX_SMOKE_MINUTES)
     smoke.add_argument("--steps", type=int, default=None, help="Optional quick test bound; does not replace timed smoke")
@@ -297,6 +323,25 @@ def _learn_check(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _pilot(args: argparse.Namespace) -> dict[str, Any]:
+    from .pilot import run_pilot
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_pilot(
+        bundle_dir=args.bundle_dir,
+        initialization=args.initialization,
+        output_dir=output,
+        artifact_root=root,
+        minutes=args.minutes,
+        steps=args.steps,
+        device_name=args.device,
+        micro_batch=args.micro_batch,
+        gradient_accumulation=args.gradient_accumulation,
+        checkpoint_every_minutes=args.checkpoint_every_minutes,
+    )
+
+
 def _train(args: argparse.Namespace) -> dict[str, Any]:
     from .data import TokenCorpus
     from .runner import run_training
@@ -357,6 +402,15 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_initialize(args))
         elif args.command == "learn-check":
             _json_print(_learn_check(args))
+        elif args.command == "pilot":
+            _json_print(_pilot(args))
+        elif args.command == "pilot-evaluate":
+            from .pilot import evaluate_pilot
+
+            _json_print(evaluate_pilot(
+                bundle_dir=args.bundle_dir, checkpoint_path=args.checkpoint,
+                device_name=args.device, maximum_batches=args.max_batches,
+            ))
         elif args.command == "smoke":
             _json_print(_smoke(args))
         elif args.command == "train":

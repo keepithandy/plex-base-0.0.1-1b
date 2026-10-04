@@ -53,6 +53,8 @@ Plex's own byte-level BPE tokenizer is trained and packaged with the model confi
 
 P1-16 created a step-zero random initialization checkpoint tied by hash to this tokenizer. P1-17 then trained from it on one short training record: loss fell from 9.438 to 0.0000224, and greedy decoding reproduced the 16-token sample from a two-token prompt in 250 steps. See the [learning check report](docs/PLEX-LEARNING-CHECK.md). This confirms the basic training path can learn and repeat one memorized sample; it does not measure coding ability. Next, P1-18 is the two-hour real-data pilot, using the separate train and held-out validation splits. Checkpoint/resume coverage and general-purpose tokenizer-aware train/evaluation/generation are still required before longer runs in P1-19.
 
+The [P1-18 pilot path](docs/PLEX-PILOT.md) now trains with the BPE corpus and measures held-out loss. A one-step preflight completed and independent evaluation matched its final validation result. The **two-hour run remains pending**; the pilot report documents the exact local command and its completion check. P1-19 remains the gate for tokenizer-aware checkpoint resumption and generation before longer runs.
+
 ## Current CLI behavior
 
 | Command | Result | Exit code |

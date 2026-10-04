@@ -50,7 +50,9 @@ P1-15 status: **complete for the approved starter corpus**. Plex's byte-level BP
 
 P1-16 status: **complete**. Created a 27,566,080-parameter, step-zero Plex checkpoint from random weights, tied to the P1-15 tokenizer (9,976 learned IDs in the 16,384 model capacity). Seed 1337, initialization recipe/version, CPU initialization device, PyTorch/Python versions, full model settings, initial weights SHA-256, tokenizer/config hashes, and `pretrainedCheckpointLoaded: false` are recorded with the 110,303,036-byte checkpoint. The weights live at `training/artifacts/initializations/p1-16-starter-v1/initialization.pt`; the ignored artifact can be recreated with the command in [`docs/PLEX-INITIALIZATION.md`](docs/PLEX-INITIALIZATION.md). This step performed no training. The regular runner remains byte-v1; P1-17 must add tokenizer-aware training to prove learning on a tiny real-text sample.
 
-P1-17 status: **complete for the tiny learning check**. Starting from the P1-16 checkpoint, the new `learn-check` command trained on the first 16 ordinary BPE tokens of one approved training record. Over 250 updates, loss fell from 9.437925 to 0.0000224 and token accuracy rose from 0% to 100%. Greedy decoding reproduced all 16 tokens from a two-token prompt. The run took 5.66 seconds on the selected CUDA device and saved a 330,897,243-byte checkpoint with optimizer state and tokenizer identity. The [learning report](docs/PLEX-LEARNING-CHECK.md) records hashes and details. This verifies one-sample overfitting only. P1-18 is the bounded two-hour train/held-out-validation pilot; it still needs its general BPE training/evaluation path completed.
+P1-17 status: **complete for the tiny learning check**. Starting from the P1-16 checkpoint, the new `learn-check` command trained on the first 16 ordinary BPE tokens of one approved training record. Over 250 updates, loss fell from 9.437925 to 0.0000224 and token accuracy rose from 0% to 100%. Greedy decoding reproduced all 16 tokens from a two-token prompt. The run took 5.66 seconds on the selected CUDA device and saved a 330,897,243-byte checkpoint with optimizer state and tokenizer identity. The [learning report](docs/PLEX-LEARNING-CHECK.md) records hashes and details. This verifies one-sample overfitting only.
+
+P1-18 status: **BPE training and held-out evaluation path prepared; two-hour pilot pending**. The new `pilot` command verifies the approved tokenizer, split hashes, source manifest, starting P1-16 checkpoint, token IDs, and storage/time bounds. A one-step preflight trained 8,192 token positions and lowered held-out loss from 9.33937 to 8.70955; `pilot-evaluate` independently reproduced the latter value over 17,920 targets. The checkpoint records tokenizer and both split identities. All 39 training-workspace tests pass. See [P1-18 pilot preparation](docs/PLEX-PILOT.md) for the bounded full-run command, measurements, and the remaining gate.
 
 **Phase 1 gate:** A reproducible Plex checkpoint trained from random initialization, with evidence that it learned.
 
@@ -105,6 +107,6 @@ P1-17 status: **complete for the tiny learning check**. Starting from the P1-16 
 
 ## Next task
 
-**P1-11 — Establish the hardware and training budget.**
+**P1-18 — Run and assess the bounded two-hour real-data pilot.** The BPE training/evaluation path and one-step preflight are ready; the full run and held-out outcome remain pending.
 
 This determines a realistic first model size and training run. The first success is a small, demonstrably learned Plex checkpoint; the eventual release must earn its capability claims through evaluation.

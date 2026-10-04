@@ -77,7 +77,10 @@ class PlexLanguageModel(nn.Module):
             nn.init.ones_(module.weight)
             nn.init.zeros_(module.bias)
 
-    def forward(self, input_ids: Tensor, targets: Tensor | None = None) -> tuple[Tensor, Tensor | None]:
+    def forward(
+        self, input_ids: Tensor, targets: Tensor | None = None,
+        *, loss_vocabulary_size: int | None = None,
+    ) -> tuple[Tensor, Tensor | None]:
         if input_ids.ndim != 2:
             raise ValueError("input_ids must have shape (batch, sequence)")
         batch, sequence = input_ids.shape
@@ -99,7 +102,14 @@ class PlexLanguageModel(nn.Module):
         if targets is not None:
             if targets.shape != (batch, sequence):
                 raise ValueError("targets must have the same shape as input_ids")
-            loss = F.cross_entropy(logits.reshape(-1, self.config.vocab_size), targets.reshape(-1))
+            vocabulary_size = loss_vocabulary_size or self.config.vocab_size
+            if not 1 <= vocabulary_size <= self.config.vocab_size:
+                raise ValueError("loss vocabulary size is outside the model capacity")
+            if torch.any(targets < 0) or torch.any(targets >= vocabulary_size):
+                raise ValueError("target token id is outside the loss vocabulary")
+            loss = F.cross_entropy(
+                logits[..., :vocabulary_size].reshape(-1, vocabulary_size), targets.reshape(-1)
+            )
         return logits, loss
 
 

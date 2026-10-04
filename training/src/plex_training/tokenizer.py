@@ -247,7 +247,8 @@ def train_tokenizer(dataset_dir: Path, output_dir: Path, *, vocab_size: int = 16
         }
         _write_json(staging / "tokenizer-config.json", settings)
         _write_json(staging / "model-config.json", DEFAULT_CONFIG.to_dict())
-        _write_json(staging / "source-dataset-manifest.json", manifest)
+        # Preserve the exact reviewed manifest bytes that its SHA-256 names.
+        shutil.copyfile(manifest_path, staging / "source-dataset-manifest.json")
         for relative, raw in notices.items():
             target = staging / relative
             target.resolve().relative_to(staging)

@@ -58,6 +58,7 @@ def _training_step(
     *,
     micro_batch: int,
     accumulation_steps: int,
+    loss_vocabulary_size: int | None = None,
 ) -> float:
     optimizer.zero_grad(set_to_none=True)
     total_loss = 0.0
@@ -67,7 +68,9 @@ def _training_step(
             batch_size=micro_batch,
             sequence_length=model.config.context_length,
         )
-        _, loss = model(inputs.to(device), targets.to(device))
+        _, loss = model(
+            inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size
+        )
         if loss is None:
             raise RuntimeError("Model did not produce a training loss")
         (loss / accumulation_steps).backward()
@@ -83,6 +86,7 @@ def _validation_loss(
     device: torch.device,
     *,
     maximum_batches: int = 16,
+    loss_vocabulary_size: int | None = None,
 ) -> float:
     model.eval()
     weighted_loss = 0.0
@@ -92,7 +96,9 @@ def _validation_loss(
             model.config.context_length, maximum_batches
         )
         for inputs, targets in batches:
-            _, loss = model(inputs.to(device), targets.to(device))
+            _, loss = model(
+                inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size
+            )
             if loss is None:
                 raise RuntimeError("Model did not produce a validation loss")
             amount = int(targets.numel())
@@ -121,10 +127,29 @@ def run_training(
     resume_from: Path | None = None,
     config: ModelConfig = DEFAULT_CONFIG,
     allow_tiny_config: bool = False,
+    codec: str = "byte-v1",
+    tokenizer_record: dict[str, Any] | None = None,
+    dataset_record: dict[str, Any] | None = None,
+    loss_vocabulary_size: int | None = None,
+    validation_maximum_batches: int = 16,
 ) -> dict[str, Any]:
-    for source in (train_source, validation):
-        if isinstance(source, TokenCorpus):
-            source.require_byte_codec()
+    if codec not in {"byte-v1", "plex-byte-bpe-v1"}:
+        raise ValueError("Unsupported training codec")
+    if codec == "byte-v1":
+        for source in (train_source, validation):
+            if isinstance(source, TokenCorpus):
+                source.require_byte_codec()
+        if tokenizer_record is not None or dataset_record is not None or loss_vocabulary_size is not None:
+            raise ValueError("byte-v1 runs cannot claim a Plex BPE tokenizer or dataset")
+    else:
+        if (not isinstance(train_source, TokenCorpus) or not isinstance(validation, TokenCorpus)
+                or not isinstance(tokenizer_record, dict) or not isinstance(dataset_record, dict)
+                or type(loss_vocabulary_size) is not int
+                or tokenizer_record.get("actualVocabularySize") != loss_vocabulary_size
+                or tokenizer_record.get("codec") != codec):
+            raise ValueError("BPE training needs separate verified corpora and tokenizer/dataset identities")
+    if validation_maximum_batches <= 0:
+        raise ValueError("validation batch limit must be positive")
     if not math.isfinite(minutes) or minutes <= 0:
         raise ValueError("minutes must be a positive finite number")
     if minutes > MAX_PILOT_MINUTES:
@@ -170,8 +195,25 @@ def run_training(
             weight_decay=0.1,
         )
         restore_optimizer(optimizer, payload)
-        restore_random_states(payload, rng, device)
+        if payload.get("codec") != codec:
+            raise ValueError("Starting checkpoint codec does not match this run")
+        if codec != "byte-v1":
+            if payload.get("seed") != seed:
+                raise ValueError("Starting checkpoint seed does not match this run")
+            if payload.get("tokenizerRecord") != tokenizer_record:
+                raise ValueError("Starting checkpoint tokenizer does not match this run")
+            if payload.get("step") != 0 and payload.get("datasetRecord") != dataset_record:
+                raise ValueError("Starting checkpoint dataset does not match this run")
+        if (codec != "byte-v1" and payload.get("step") == 0 and device.type == "cuda"
+                and payload.get("torchCudaRngStates") == []):
+            restore_random_states(payload, rng, torch.device("cpu"))
+            torch.cuda.manual_seed_all(seed)
+        else:
+            restore_random_states(payload, rng, device)
         start_step = int(payload.get("step", 0))
+        initialization_record = payload.get("initializationRecord")
+    if resume_from is None:
+        initialization_record = None
 
     actual_parameters = parameter_count(model)
     if config == DEFAULT_CONFIG and actual_parameters != 27_566_080:
@@ -194,9 +236,17 @@ def run_training(
         "resumedFromStep": start_step,
         "timeLimitSeconds": int(minutes * 60),
         "datasetTokens": train_source.token_count,
+        "codec": codec,
+        "tokenizerRecord": tokenizer_record,
+        "datasetRecord": dataset_record,
+        "lossVocabularySize": loss_vocabulary_size,
+        "validationMaximumBatches": validation_maximum_batches,
     }
     if validation is not None:
-        event["validationLossBefore"] = _validation_loss(model, validation, device)
+        event["validationLossBefore"] = _validation_loss(
+            model, validation, device, maximum_batches=validation_maximum_batches,
+            loss_vocabulary_size=loss_vocabulary_size,
+        )
     _write_event(metrics_path, artifact_root, event)
 
     interrupted = False
@@ -210,6 +260,7 @@ def run_training(
                 device,
                 micro_batch=micro_batch,
                 accumulation_steps=accumulation_steps,
+                loss_vocabulary_size=loss_vocabulary_size,
             )
             step += 1
             losses.append(loss)
@@ -231,12 +282,15 @@ def run_training(
                     optimizer,
                     step=step,
                     seed=seed,
-                    codec="byte-v1",
+                    codec=codec,
                     sampling_rng=rng,
                     device=device,
                     destination=output_checkpoint,
                     artifact_root=artifact_root,
                     overwrite=output_checkpoint.exists(),
+                    initialization_record=initialization_record,
+                    tokenizer_record=tokenizer_record,
+                    dataset_record=dataset_record,
                 )
                 _write_event(metrics_path, artifact_root, {"event": "checkpoint_saved", **saved})
                 last_checkpoint = now
@@ -245,19 +299,25 @@ def run_training(
 
     elapsed = time.perf_counter() - started
     validation_loss_after = (
-        _validation_loss(model, validation, device) if validation is not None else None
+        _validation_loss(
+            model, validation, device, maximum_batches=validation_maximum_batches,
+            loss_vocabulary_size=loss_vocabulary_size,
+        ) if validation is not None else None
     )
     final_checkpoint = save_checkpoint(
         model,
         optimizer,
         step=step,
         seed=seed,
-        codec="byte-v1",
+        codec=codec,
         sampling_rng=rng,
         device=device,
         destination=output_checkpoint,
         artifact_root=artifact_root,
         overwrite=output_checkpoint.exists(),
+        initialization_record=initialization_record,
+        tokenizer_record=tokenizer_record,
+        dataset_record=dataset_record,
     )
     summary = {
         "event": "run_finished",
@@ -272,6 +332,12 @@ def run_training(
         "checkpoint": final_checkpoint,
         "validationPending": validation is None,
         "validationLossAfter": validation_loss_after,
+        "validationLossBefore": event.get("validationLossBefore"),
+        "validationTokens": validation.token_count if validation is not None else None,
+        "codec": codec,
+        "tokensProcessedThisRun": (step - start_step) * micro_batch * accumulation_steps * config.context_length,
+        "tokenizerRecord": tokenizer_record,
+        "datasetRecord": dataset_record,
         "interrupted": interrupted,
     }
     _write_event(metrics_path, artifact_root, summary)
@@ -284,13 +350,29 @@ def evaluate_checkpoint(
     *,
     device_name: str = "auto",
     maximum_batches: int = 100,
+    codec: str = "byte-v1",
+    tokenizer_record: dict[str, Any] | None = None,
+    dataset_record: dict[str, Any] | None = None,
+    loss_vocabulary_size: int | None = None,
 ) -> dict[str, Any]:
     if maximum_batches <= 0:
         raise ValueError("maximum_batches must be positive")
-    with TokenCorpus(token_path) as corpus:
-        corpus.require_byte_codec()
+    if codec == "byte-v1":
+        with TokenCorpus(token_path) as corpus:
+            corpus.require_byte_codec()
+        if tokenizer_record is not None or dataset_record is not None or loss_vocabulary_size is not None:
+            raise ValueError("byte-v1 evaluation cannot claim a Plex BPE tokenizer or dataset")
+    elif (codec != "plex-byte-bpe-v1" or not isinstance(tokenizer_record, dict)
+          or not isinstance(dataset_record, dict) or type(loss_vocabulary_size) is not int):
+        raise ValueError("BPE evaluation requires verified tokenizer and dataset identities")
     device = select_device(device_name)
     model, payload = read_checkpoint(checkpoint_path, device)
+    if (payload.get("codec") != codec or
+            (codec != "byte-v1" and (
+                payload.get("tokenizerRecord") != tokenizer_record
+                or payload.get("datasetRecord") != dataset_record
+                or tokenizer_record.get("actualVocabularySize") != loss_vocabulary_size))):
+        raise ValueError("Checkpoint codec, tokenizer, or dataset does not match the evaluation corpus")
     model.eval()
     weighted_loss = 0.0
     token_count = 0
@@ -298,7 +380,9 @@ def evaluate_checkpoint(
         for inputs, targets in corpus.sequential_batches(
             model.config.context_length, maximum_batches
         ):
-            _, loss = model(inputs.to(device), targets.to(device))
+            _, loss = model(
+                inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size
+            )
             if loss is None:
                 raise RuntimeError("Model did not produce an evaluation loss")
             amount = int(targets.numel())
@@ -310,6 +394,7 @@ def evaluate_checkpoint(
         "tokens": token_count,
         "meanLoss": weighted_loss / token_count,
         "device": str(device),
+        "codec": codec,
     }
 
 

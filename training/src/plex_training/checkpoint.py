@@ -30,6 +30,7 @@ def save_checkpoint(
     overwrite: bool = False,
     initialization_record: dict[str, Any] | None = None,
     tokenizer_record: dict[str, Any] | None = None,
+    dataset_record: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     payload = {
         "formatVersion": CHECKPOINT_FORMAT_VERSION,
@@ -47,6 +48,7 @@ def save_checkpoint(
         "torchVersion": str(torch.__version__),
         "initializationRecord": initialization_record,
         "tokenizerRecord": tokenizer_record,
+        "datasetRecord": dataset_record,
     }
     size = atomic_write_checkpoint(
         payload,
