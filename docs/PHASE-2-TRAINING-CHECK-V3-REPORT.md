@@ -41,6 +41,19 @@ Lower held-out language-model loss shows that training reduced next-token predic
 
 ## Next step
 
-On 2026-10-04, the owner generated responses to all 30 development tasks from the step-922 checkpoint above, using CUDA and the same v3 tokenizer. The generation output confirms checkpoint SHA-256 `80287a0b5871bb13d61546aa3fd910a745270210e7b5a3872bf6a0fa15ff1608` and `pretrainedCheckpointLoaded: false`. The response file is `training/artifacts/evaluation/p2-dev-v3-10m-v1/responses.jsonl`, SHA-256 `8af1a30da91b45db19fe86065716d8faa59858a3e68a82edb7e9a8ed74cee95c`. The responses are awaiting static evaluation against the same versioned task set.
+On 2026-10-04, the owner generated responses to all 30 development tasks from the step-922 checkpoint above, using CUDA and the same v3 tokenizer. The generation output confirms checkpoint SHA-256 `80287a0b5871bb13d61546aa3fd910a745270210e7b5a3872bf6a0fa15ff1608` and `pretrainedCheckpointLoaded: false`. The response file is `training/artifacts/evaluation/p2-dev-v3-10m-v1/responses.jsonl`, SHA-256 `8af1a30da91b45db19fe86065716d8faa59858a3e68a82edb7e9a8ed74cee95c`.
 
-Score this run and compare its per-language results and truncation count with the step-zero baseline before starting the two-hour pilot. JavaScript behavior remains untested; the evaluator performs syntax checks only.
+The owner scored the responses against `p2-01b-dev-v1`, the same 30-task development set used for step-zero. The score file is `training/artifacts/evaluation/p2-dev-v3-10m-v1/score.json`, SHA-256 `c230cc5ec85835ce5452fb9e27448d21eb333fecfca032672dbb9727b615c34e`. It reports:
+
+| Metric | Trained step 922 | Step-zero baseline |
+|---|---:|---:|
+| Complete tasks passed | 0/30 | 0/30 |
+| Individual checks passed | 20/181 | 40/180 |
+| Truncated outputs | 30/30 | 29/30 |
+| HTML syntax | 10/10 | 10/10 |
+| CSS syntax | 0/10 | 0/10 |
+| JavaScript syntax | 0/10 | 0/10 |
+
+There were no missing, empty, over-limit, timed-out, or unavailable outputs. Ten outputs passed the no-Markdown-fence check; every output was still marked truncated because generation did not emit EOS within the task's configured token cap. Inspection of the first generated HTML responses shows Markdown/Mermaid tutorial text instead of the requested HTML fragment. The static checks show no complete-task improvement over step-zero and fewer passing checks overall. They do not test JavaScript behavior.
+
+The decrease in held-out language-model loss did not transfer to this coding-task check. Do not start the two-hour run yet. The measured v3 training split is 76.3% Markdown by tokenizer positions; its six authored task/solution records contribute only 719 tokens (0.7%). The model's first HTML responses begin with Markdown/Mermaid tutorial text, while the evaluator requests direct code output. Prepare a small, reviewed request-to-code data-mix proposal using only the development failures as guidance; preserve the final holdout and rerun step-zero plus a bounded training check before spending more training time. The exact split analysis is in the [P2 data-mix review](PHASE-2-DATA-MIX-REVIEW.md).

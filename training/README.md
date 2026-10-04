@@ -134,7 +134,7 @@ uv run --project training --locked python -m plex_training.cli task-generate `
   --device cuda
 ```
 
-The owner generated and scored all 30 development responses with the matching v3 step-zero checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). A 10-minute v3 training check reduced held-out language-model loss from 9.1694 to 6.4759; its configuration and run metrics are in the [training check report](../docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md). The trained checkpoint has generated its responses; score them against the same task set before deciding on the two-hour pilot.
+The owner generated and scored all 30 development responses with the matching v3 step-zero checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). A 10-minute v3 training check reduced held-out language-model loss from 9.1694 to 6.4759, but its matched coding-task score was 0/30, with 20/181 checks passed versus step-zero's 40/180; all 30 trained outputs were truncated. Do not start the two-hour pilot yet. The measured v3 train split is 76.3% Markdown by tokenizer positions, and the six authored task/solution records contribute 0.7%. Prepare a reviewed request-to-code data mix before training again; details are in the [data-mix review](../docs/PHASE-2-DATA-MIX-REVIEW.md) and [training check report](../docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md).
 
 For a manually supplied response, create a newline-delimited JSON file with one object per task:
 
@@ -153,7 +153,7 @@ uv run --project training --locked python -m plex_training.cli task-evaluate `
 
 `truncated` records whether generation reached its token cap; truncated responses do not pass. The evaluator refuses to overwrite an existing report.
 
-To compare the 10-minute trained v3 checkpoint against step-zero, generate a second response set into a fresh directory using the same tokenizer, task set, and decode defaults:
+The owner completed this matched comparison on 2026-10-04. The output and score report already exist at `training/artifacts/evaluation/p2-dev-v3-10m-v1`; the evaluator refuses to overwrite `score.json`. If the run must be reproduced, use fresh output and report directory names while keeping the checkpoint, tokenizer, task set, and decode defaults fixed:
 
 ```powershell
 uv run --project training --no-sync python -m plex_training.cli task-generate `
@@ -167,7 +167,7 @@ uv run --project training --no-sync python -m plex_training.cli task-evaluate `
   --report training\artifacts\evaluation\p2-dev-v3-10m-v1\score.json
 ```
 
-Compare pass counts, truncation, and per-language results with the step-zero report. These static scores do not execute JavaScript behavior.
+The trained report recorded 0/30 complete tasks, 20/181 checks passed, 30/30 truncated outputs, HTML syntax pass 10/10, CSS syntax pass 0/10, and JavaScript syntax pass 0/10. Compare pass counts, truncation, and per-language results with the step-zero report. These static scores do not execute JavaScript behavior.
 
 ## Train Plex's tokenizer (P1-15)
 
