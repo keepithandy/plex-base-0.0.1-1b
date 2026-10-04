@@ -1,8 +1,33 @@
-# Plex
+# Plex Base
 
-Plex is a small coding model project. Its goal is to train Plex Code from randomly initialized weights and keep its own checkpoints and training history. Pretrained Qwen weights are not an initialization source; Qwen may be used as an evaluation baseline. The authoritative direction is in [Plex-ROADMAP.md](Plex-ROADMAP.md).
+Plex Base is a small, locally trained coding model project focused on HTML, CSS, and JavaScript. It starts from randomly initialized weights and keeps its own tokenizer, checkpoints, provenance, and training history. The eventual Plex Code client will use the model for repository edits. Pretrained Qwen weights are not an initialization source; Qwen may be used as an evaluation baseline. The project direction and milestones are in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 
 P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. Plex's randomly initialized model has completed a synthetic CUDA smoke test, a two-hour real-data pilot, and a one-step checkpoint resume; its saved weights can generate text on CPU. Useful coding ability remains to be demonstrated. P1-11 records the actual hardware and training limits; P1-12 defines the first small model experiment.
+
+## Current status — October 4, 2026
+
+**Plex can train, save and resume checkpoints, and generate text. It has not yet demonstrated successful coding-task completion.** The model has 27,566,080 parameters and a 512-token context. Phase 1's training infrastructure is recorded through P1-20; Phase 2 is working on better request-to-code data and matched development evaluations.
+
+| Experiment | Recorded result | What it establishes |
+|---|---|---|
+| Phase 1 two-hour pilot | 43,632 updates; held-out loss 9.33937 → 6.53100; checkpoint resume and CPU generation verified afterward | The local training and checkpoint workflow works; the generated completion was incorrect. |
+| Phase 2 v3 ten-minute check | 922 updates; held-out loss 9.1694 → 6.4759; **0/30 complete tasks**, matching step zero; 30/30 outputs truncated | Lower language-model loss did not improve complete-task performance. |
+| Phase 2 code-pair ten-minute diagnostic | 3,197 updates; held-out loss 6.89080 → 8.42534; **0/30 complete tasks**, matching step zero; truncations fell from 28/30 to 0/30 | Answers now finish within the limits, but still miss the requested task. The loss pattern is consistent with overfitting. |
+
+The v3 corpus contains 56 records (36 training / 20 validation). The separate, owner-approved code-pair corpus contains 36 examples (24 training / 12 validation), balanced across HTML, CSS, and JavaScript, with a fresh 874-entry tokenizer fitted only on its training split. See the [v3 training and scoring report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) and [code-pair preparation and baseline report](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md).
+
+The code-pair diagnostic results above are also recorded in the local workspace report `docs/PHASE-2-CODE-PAIR-10M-REPORT.md`; that report is not yet committed. Local data preparation has produced a **360-record request-following draft**, with 120 examples per language and a proposed 252/108 training/validation split across 29 groups. The owner approved twelve expansion samples separately; the full draft still needs diversity/correctness curation and approval of its exact records. No expanded corpus, tokenizer, initialization, or training run has been built from that draft. These local draft files are not yet committed.
+
+The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met; another two-hour run remains deferred while the data improves.
+
+## Reports and training instructions
+
+- [Training workspace and commands](training/README.md)
+- [Phase 1 experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md)
+- [Phase 2 data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md)
+- [Evaluation design and remaining behavior checks](docs/PHASE-2-EVALUATION-DESIGN.md)
+- [Hardware and training limits](docs/HARDWARE-AND-TRAINING-PROFILE.md)
+- [Changelog](CHANGELOG.md) — historical implementation entries; the current status above includes later experiment reports and local draft work.
 
 ## Development on Windows
 
@@ -49,7 +74,7 @@ The separate Python workspace is in [`training/`](training/README.md). It provid
 
 ## P1-15 Plex tokenizer
 
-Plex's own byte-level BPE tokenizer is trained and packaged with the model configuration. It fitted only the approved training text and learned 9,976 token entries within the existing 16,384 model capacity. All 88 records round-trip exactly; a separate rebuild produced all 11 bundle files byte-identically. The bundle occupies about 0.99 MiB. All 35 training-workspace tests pass. Settings, artifact hashes, and reproduction commands are in the [tokenizer report](docs/PLEX-TOKENIZER.md).
+The Phase 1 byte-level BPE tokenizer is trained and packaged with the model configuration. It fitted only the approved training text and learned 9,976 token entries within the existing 16,384 model capacity. All 88 records round-tripped exactly; a separate rebuild produced all 11 bundle files byte-identically. The bundle occupies about 0.99 MiB. All 35 training-workspace tests passed at that milestone. Later Phase 2 corpora use separate tokenizers and matching checkpoints. Settings, artifact hashes, and reproduction commands are in the [tokenizer report](docs/PLEX-TOKENIZER.md).
 
 P1-16 created a step-zero random initialization checkpoint tied by hash to this tokenizer. P1-17 then trained from it on one short training record: loss fell from 9.438 to 0.0000224, and greedy decoding reproduced the 16-token sample from a two-token prompt in 250 steps. See the [learning check report](docs/PLEX-LEARNING-CHECK.md). This confirms the basic training path can learn and repeat one memorized sample; it does not measure coding ability. P1-18 completed a two-hour real-data pilot using separate train and held-out validation splits. P1-19 verified a one-step CUDA checkpoint resume and independent CPU generation from the saved Plex weights.
 
@@ -155,4 +180,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-P1-11 through P1-20 are recorded, including the approved starter corpus, scratch initialization, tiny learning check, two-hour pilot, verified resume/completion gate, and [P1-20 experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md). The approved nine-example supplement is included in the 56-record [P2 v3 corpus](docs/PHASE-2-DATASET-V3-REPORT.md) with its matching tokenizer. A 10-minute scratch-training check reduced v3 held-out language-model loss; the [training report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) records why coding-task quality still needs comparison against step-zero. P2-01 has an owner-approved +10 percentage-point overall improvement margin, an 11/20-per-language floor, and a 30-task static development evaluator; the [evaluation design](docs/PHASE-2-EVALUATION-DESIGN.md) records what it measures and which behavior checks remain unavailable. The 60-task final set is not built, the 120-minute training cap remains in place, and the trained v3 checkpoint has not yet been scored. See the [updated roadmap](Plex-ROADMAP.md), [data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.
+For the latest training results and data-review status, see [Current status](#current-status--october-4-2026). The CLI still does not invoke the trained model or apply repository edits. Proposed HTML validation remains scheduled as P3-03 in the [roadmap](Plex-ROADMAP.md).
