@@ -80,6 +80,8 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 **P2-02 failure review and v3 result:** the [30-response audit and v3 data review](docs/PHASE-2-FAILURE-GAP-REVIEW.md) identifies missing structures, seven repeated CSS selectors, and the single JavaScript function name across all 36 prior training examples. The owner approved the exact 234-record v3 candidate. Its separate corpus, training-fitted tokenizer, random initialization, 100-step CUDA run, and matched development scores are recorded in the [v3 result report](docs/PHASE-2-FAILURE-GAP-100-STEP-REPORT.md). Held-out text loss fell, but complete-task passes remained **0/30**. The approved v2 record remains intact; a longer run is not justified by these results.
 
+**P2-02 objective check:** the [controlled answer-weighted result](docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same approved v3 corpus, tokenizer, random initialization, 100 steps, and development tasks. Giving code-answer/EOS targets four times the prompt weight still passed **0/30** tasks (34/151 static checks versus 35/151 for ordinary loss). This does not justify a two-hour run.
+
 ## Phase 3 — Repository editing
 
 | Task | Work | Completion check |
@@ -119,6 +121,6 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 ## Next task
 
-**Next: design one controlled answer-learning experiment on the approved v3 corpus.** The [v3 100-step result](docs/PHASE-2-FAILURE-GAP-100-STEP-REPORT.md) reduced held-out text loss but passed no complete coding task. Measure an answer-weighted training objective or another narrowly scoped format change against the same step-zero and development tasks before spending more training time. Keep the final holdout closed. A two-hour run remains a later decision.
+**Next: diagnose prompt-to-answer learning on the approved v3 examples before another training run.** The [answer-weighted comparison](docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) changed loss emphasis without improving the 0/30 coding-task score. Check saved-model completions on approved training and validation prompts to distinguish failure to learn supplied answers from failure to generalize, then propose one bounded change. Keep the final holdout closed. A two-hour run remains a later decision.
 
 This determines a realistic first model size and training run. The first success is a small, demonstrably learned Plex checkpoint; the eventual release must earn its capability claims through evaluation.

@@ -140,6 +140,8 @@ The owner approved the [36-example request-to-code candidate](../docs/PHASE-2-CO
 
 The [failure audit and v3 review](../docs/PHASE-2-FAILURE-GAP-REVIEW.md) records what the 30 unsuccessful responses exposed. The owner approved the exact [234-record v3 candidate](phase2/drafts/p2-02-request-following-v3/REVIEW.md). Its separate corpus, tokenizer, scratch initialization, 100-step diagnostic, and matched development scores are recorded in the [v3 result report](../docs/PHASE-2-FAILURE-GAP-100-STEP-REPORT.md). Held-out text loss improved, but complete tasks remained 0/30; do not extend this checkpoint to a longer run on that evidence. The approved 180-record source and previous runs remain available for comparison.
 
+The `pilot` command accepts `--answer-weight 4` together with `--dataset-dir` for a controlled answer-focused comparison. It verifies the built dataset and tokenizer index before assigning weight 4 to answer/EOS targets and weight 1 to prompt targets; ordinary `pilot` runs keep their prior loss. The [100-step comparison](../docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same v3 initialization and development tasks and still passed 0/30 complete tasks. Its checkpoint records the weight map and cannot be resumed under the ordinary objective. A longer run remains deferred.
+
 For a manually supplied response, create a newline-delimited JSON file with one object per task:
 
 ```jsonl
@@ -269,4 +271,4 @@ The saved checkpoint generated text, but its example was incomplete and did not 
 uv run --project training --no-sync python -m unittest discover -s training/tests -v
 ```
 
-All 46 training-workspace tests pass. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, and generation controls; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.
+All 101 training-workspace tests pass. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, and answer-weighted span and checkpoint checks; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.

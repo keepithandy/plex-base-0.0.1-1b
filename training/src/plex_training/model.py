@@ -80,6 +80,7 @@ class PlexLanguageModel(nn.Module):
     def forward(
         self, input_ids: Tensor, targets: Tensor | None = None,
         *, loss_vocabulary_size: int | None = None,
+        target_weights: Tensor | None = None,
     ) -> tuple[Tensor, Tensor | None]:
         if input_ids.ndim != 2:
             raise ValueError("input_ids must have shape (batch, sequence)")
@@ -99,6 +100,8 @@ class PlexLanguageModel(nn.Module):
             hidden = block(hidden, causal_mask)
         logits = F.linear(self.final_norm(hidden), self.token_embeddings.weight)
         loss = None
+        if targets is None and target_weights is not None:
+            raise ValueError("target weights require targets")
         if targets is not None:
             if targets.shape != (batch, sequence):
                 raise ValueError("targets must have the same shape as input_ids")
@@ -107,9 +110,18 @@ class PlexLanguageModel(nn.Module):
                 raise ValueError("loss vocabulary size is outside the model capacity")
             if torch.any(targets < 0) or torch.any(targets >= vocabulary_size):
                 raise ValueError("target token id is outside the loss vocabulary")
-            loss = F.cross_entropy(
-                logits[..., :vocabulary_size].reshape(-1, vocabulary_size), targets.reshape(-1)
-            )
+            visible_logits = logits[..., :vocabulary_size].reshape(-1, vocabulary_size)
+            if target_weights is None:
+                loss = F.cross_entropy(visible_logits, targets.reshape(-1))
+            else:
+                if (target_weights.shape != targets.shape or not torch.is_floating_point(target_weights)
+                        or not bool(torch.isfinite(target_weights).all())
+                        or bool((target_weights < 0).any())
+                        or not bool((target_weights > 0).any())):
+                    raise ValueError("target weights must be finite, nonnegative, and positive somewhere")
+                weights = target_weights.to(device=logits.device).reshape(-1)
+                token_losses = F.cross_entropy(visible_logits, targets.reshape(-1), reduction="none")
+                loss = (token_losses * weights).sum() / weights.sum()
         return logits, loss
 
 

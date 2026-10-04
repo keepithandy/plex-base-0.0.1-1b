@@ -98,6 +98,10 @@ def build_parser() -> argparse.ArgumentParser:
     pilot.add_argument("--micro-batch", type=int, default=1)
     pilot.add_argument("--gradient-accumulation", type=int, default=16)
     pilot.add_argument("--checkpoint-every-minutes", type=float, default=5.0)
+    pilot.add_argument("--answer-weight", type=int, choices=(1, 4), default=1,
+                       help="1 keeps ordinary loss; 4 weights verified answer and EOS targets")
+    pilot.add_argument("--dataset-dir", type=Path, default=None,
+                       help="Matching built dataset; required only with --answer-weight 4")
     _add_artifact_root(pilot)
 
     pilot_evaluate = subparsers.add_parser(
@@ -391,6 +395,8 @@ def _pilot(args: argparse.Namespace) -> dict[str, Any]:
         micro_batch=args.micro_batch,
         gradient_accumulation=args.gradient_accumulation,
         checkpoint_every_minutes=args.checkpoint_every_minutes,
+        dataset_dir=args.dataset_dir,
+        answer_weight=args.answer_weight,
     )
 
 

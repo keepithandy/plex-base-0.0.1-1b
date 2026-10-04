@@ -13,6 +13,7 @@ from typing import Any, Protocol
 import torch
 from torch import Tensor
 
+from .answer_weighting import AnswerWeightedTokenCorpus
 from .artifacts import enforce_storage_limit, path_within_root
 from .checkpoint import read_checkpoint, restore_optimizer, restore_random_states, save_checkpoint
 from .config import DEFAULT_CONFIG, ModelConfig
@@ -64,17 +65,25 @@ def _training_step(
     micro_batch: int,
     accumulation_steps: int,
     loss_vocabulary_size: int | None = None,
+    answer_weighted: bool = False,
 ) -> float:
     optimizer.zero_grad(set_to_none=True)
     total_loss = 0.0
     for _ in range(accumulation_steps):
-        inputs, targets = source.sample_batch(
-            rng,
-            batch_size=micro_batch,
-            sequence_length=model.config.context_length,
-        )
+        if answer_weighted:
+            if not isinstance(source, AnswerWeightedTokenCorpus):
+                raise ValueError("Answer-weighted training requires verified answer spans")
+            inputs, targets, weights = source.sample_weighted_batch(
+                rng, batch_size=micro_batch, sequence_length=model.config.context_length,
+            )
+        else:
+            inputs, targets = source.sample_batch(
+                rng, batch_size=micro_batch, sequence_length=model.config.context_length,
+            )
+            weights = None
         _, loss = model(
-            inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size
+            inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size,
+            target_weights=weights.to(device) if weights is not None else None,
         )
         if loss is None:
             raise RuntimeError("Model did not produce a training loss")
@@ -118,8 +127,9 @@ def _validation_loss(
 def _bpe_training_settings(
     config: ModelConfig, micro_batch: int, accumulation_steps: int,
     loss_vocabulary_size: int, validation_maximum_batches: int,
+    answer_objective: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    return {
+    settings = {
         "schemaVersion": 1,
         "codec": "plex-byte-bpe-v1",
         "modelConfig": config.to_dict(),
@@ -134,6 +144,9 @@ def _bpe_training_settings(
         },
         "learningRateSchedule": SCHEDULE_KIND,
     }
+    if answer_objective is not None:
+        settings["answerObjective"] = answer_objective
+    return settings
 
 
 def _schedule_state(step: int) -> dict[str, Any]:
@@ -197,7 +210,15 @@ def run_training(
     dataset_record: dict[str, Any] | None = None,
     loss_vocabulary_size: int | None = None,
     validation_maximum_batches: int = 16,
+    answer_weight: int = 1,
 ) -> dict[str, Any]:
+    if type(answer_weight) is not int or answer_weight not in (1, 4):
+        raise ValueError("answer weight must be 1 or the controlled value 4")
+    if answer_weight == 4:
+        if codec != "plex-byte-bpe-v1" or not isinstance(train_source, AnswerWeightedTokenCorpus):
+            raise ValueError("Answer-weighted training requires verified Plex BPE answer spans")
+    elif isinstance(train_source, AnswerWeightedTokenCorpus):
+        raise ValueError("Verified answer spans require the answer-weighted objective")
     if codec not in {"byte-v1", "plex-byte-bpe-v1"}:
         raise ValueError("Unsupported training codec")
     if codec == "byte-v1":
@@ -230,7 +251,8 @@ def run_training(
 
     training_settings = (
         _bpe_training_settings(config, micro_batch, accumulation_steps,
-                               loss_vocabulary_size, validation_maximum_batches)
+                               loss_vocabulary_size, validation_maximum_batches,
+                               train_source.objective_record if answer_weight == 4 else None)
         if codec != "byte-v1" else None
     )
 
@@ -342,6 +364,7 @@ def run_training(
                 micro_batch=micro_batch,
                 accumulation_steps=accumulation_steps,
                 loss_vocabulary_size=loss_vocabulary_size,
+                answer_weighted=answer_weight == 4,
             )
             step += 1
             losses.append(loss)

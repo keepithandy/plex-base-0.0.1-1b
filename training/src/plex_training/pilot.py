@@ -13,6 +13,7 @@ from typing import Any
 
 import torch
 
+from .answer_weighting import AnswerWeightedTokenCorpus
 from .artifacts import enforce_storage_limit, path_within_root
 from .checkpoint import read_checkpoint
 from .config import DEFAULT_CONFIG
@@ -140,26 +141,45 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
               artifact_root: Path, minutes: float, steps: int | None = None,
               device_name: str = "auto", micro_batch: int = 1,
               gradient_accumulation: int = 16,
-              checkpoint_every_minutes: float = 5.0) -> dict[str, Any]:
+              checkpoint_every_minutes: float = 5.0,
+              dataset_dir: Path | None = None, answer_weight: int = 1) -> dict[str, Any]:
     if not math.isfinite(minutes) or not 0 < minutes <= 120:
         raise ValueError("P1-18 run duration must be greater than 0 and no more than 120 minutes")
     if steps is not None and (type(steps) is not int or steps <= 0):
         raise ValueError("steps must be positive")
     if micro_batch <= 0 or gradient_accumulation <= 0:
         raise ValueError("batch and accumulation settings must be positive")
+    if type(answer_weight) is not int or answer_weight not in (1, 4):
+        raise ValueError("answer weight must be 1 or the controlled value 4")
+    if (answer_weight == 4) != (dataset_dir is not None):
+        raise ValueError("The answer-weighted comparison requires its matching dataset directory")
     root = artifact_root.resolve()
     output_dir = path_within_root(output_dir, root)
     if output_dir.exists():
         raise FileExistsError("Pilot output directory already exists; choose a fresh path")
     bundle = inspect_pilot_bundle(bundle_dir)
+    if dataset_dir is not None:
+        if (not dataset_dir.is_dir() or dataset_dir.is_symlink()
+                or sha256_file(dataset_dir / "manifest.json") != bundle["dataset"]["sourceDatasetManifestSha256"]):
+            raise ValueError("Answer-weighted dataset manifest differs from the tokenizer bundle")
     seed = _initialization_seed(initialization, bundle["tokenizer"])
     # Saving a replacement checkpoint briefly keeps both copies on disk.
     estimated_checkpoint = DEFAULT_CONFIG.parameter_count() * 12 + 1024 * 1024
     enforce_storage_limit(root, additional_bytes=2 * estimated_checkpoint + 1024 * 1024,
                           limit_bytes=STORAGE_LIMIT_BYTES)
-    output_dir.parent.mkdir(parents=True, exist_ok=True)
-    output_dir.mkdir(exist_ok=False)
-    with TokenCorpus(bundle["trainPath"]) as train, TokenCorpus(bundle["validationPath"]) as validation:
+    if answer_weight == 4:
+        train_source = AnswerWeightedTokenCorpus(
+            bundle["trainPath"], dataset_jsonl=dataset_dir / "train.jsonl",
+            index_path=bundle["root"] / "train.index.json",
+            tokenizer=PlexTokenizer.load(bundle["root"]),
+            expected_jsonl_sha256=bundle["dataset"]["trainJsonlSha256"],
+            answer_weight=answer_weight,
+        )
+    else:
+        train_source = TokenCorpus(bundle["trainPath"])
+    with train_source as train, TokenCorpus(bundle["validationPath"]) as validation:
+        output_dir.parent.mkdir(parents=True, exist_ok=True)
+        output_dir.mkdir(exist_ok=False)
         result = run_training(
             train_source=train, validation=validation,
             device_name=device_name, minutes=minutes, step_limit=steps,
@@ -173,6 +193,7 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
             dataset_record=bundle["dataset"],
             loss_vocabulary_size=bundle["tokenizer"]["actualVocabularySize"],
             validation_maximum_batches=100,
+            answer_weight=answer_weight,
         )
     report = {
         "schemaVersion": 1,
@@ -180,6 +201,7 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
         "runKind": "preflight" if steps is not None else "pilot",
         "requestedMinutes": minutes,
         "requestedSteps": steps,
+        "answerObjective": result["trainingSettings"].get("answerObjective"),
         "initializationCheckpointSha256": sha256_file(initialization),
         "tokenizer": bundle["tokenizer"],
         "dataset": bundle["dataset"],

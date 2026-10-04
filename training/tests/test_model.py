@@ -20,6 +20,20 @@ class ModelTests(unittest.TestCase):
         loss.backward()
         self.assertTrue(all(parameter.grad is not None for parameter in self.model.parameters()))
 
+    def test_target_weights_focus_loss_without_changing_unweighted_behavior(self) -> None:
+        self.model.eval()
+        tokens = torch.randint(0, 256, (1, 8))
+        weights = torch.tensor([[1., 1., 1., 4., 4., 0., 0., 0.]])
+        changed_masked_targets = tokens.clone()
+        changed_masked_targets[:, 5:] = (changed_masked_targets[:, 5:] + 1) % 256
+        _, ordinary = self.model(tokens, tokens)
+        _, all_ones = self.model(tokens, tokens, target_weights=torch.ones_like(weights))
+        _, focused = self.model(tokens, tokens, target_weights=weights)
+        _, unchanged = self.model(tokens, changed_masked_targets, target_weights=weights)
+        self.assertTrue(torch.allclose(ordinary, all_ones, atol=1e-6))
+        self.assertTrue(torch.allclose(focused, unchanged, atol=1e-6))
+        self.assertFalse(torch.allclose(ordinary, focused, atol=1e-4))
+
     def test_causal_mask_hides_future_tokens(self) -> None:
         self.model.eval()
         first = torch.tensor([[1, 2, 3, 4]])
