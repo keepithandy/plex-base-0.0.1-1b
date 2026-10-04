@@ -1,0 +1,9 @@
+Write a small JavaScript coding solution.
+Request: Write firstNonblank(values), finding the first string with non-whitespace content in an array and returning it trimmed. Return an empty string when absent or input is not an array.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function firstNonblank(values) {
+  if (!Array.isArray(values)) return "";
+  const found = values.find(value => typeof value === "string" && value.trim().length > 0);
+  return found === undefined ? "" : found.trim();
+}

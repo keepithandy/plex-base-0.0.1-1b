@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "groupId": "plex-code-pairs-html-v2",
+      "id": "plex-code-pairs-html-v2",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/html",
+      "origin": "urn:plex:codex-authored:p2-02-code-pairs-v2",
+      "revision": "88c35a023b0093cb177552c4ddc45533e92d63e0d006f26dbcdad2bd0a2ef72a",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T21:37:31Z",
+      "sourceFamilyId": "plex-code-pairs-html-v2",
+      "splitGroupRules": [
+        {
+          "id": "html-abbreviation",
+          "pathPrefixes": [
+            "html-abbreviation/"
+          ]
+        },
+        {
+          "id": "html-contact",
+          "pathPrefixes": [
+            "html-contact/"
+          ]
+        },
+        {
+          "id": "html-definitions",
+          "pathPrefixes": [
+            "html-definitions/"
+          ]
+        },
+        {
+          "id": "html-meter",
+          "pathPrefixes": [
+            "html-meter/"
+          ]
+        },
+        {
+          "id": "html-progress",
+          "pathPrefixes": [
+            "html-progress/"
+          ]
+        },
+        {
+          "id": "html-quotation",
+          "pathPrefixes": [
+            "html-quotation/"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "plex-code-pairs-css-v2",
+      "id": "plex-code-pairs-css-v2",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css",
+      "origin": "urn:plex:codex-authored:p2-02-code-pairs-v2",
+      "revision": "88c35a023b0093cb177552c4ddc45533e92d63e0d006f26dbcdad2bd0a2ef72a",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T21:37:31Z",
+      "sourceFamilyId": "plex-code-pairs-css-v2",
+      "splitGroupRules": [
+        {
+          "id": "css-accent",
+          "pathPrefixes": [
+            "css-accent/"
+          ]
+        },
+        {
+          "id": "css-columns",
+          "pathPrefixes": [
+            "css-columns/"
+          ]
+        },
+        {
+          "id": "css-ellipsis",
+          "pathPrefixes": [
+            "css-ellipsis/"
+          ]
+        },
+        {
+          "id": "css-logical-spacing",
+          "pathPrefixes": [
+            "css-logical-spacing/"
+          ]
+        },
+        {
+          "id": "css-markers",
+          "pathPrefixes": [
+            "css-markers/"
+          ]
+        },
+        {
+          "id": "css-numeric",
+          "pathPrefixes": [
+            "css-numeric/"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "plex-code-pairs-javascript-v2",
+      "id": "plex-code-pairs-javascript-v2",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/javascript",
+      "origin": "urn:plex:codex-authored:p2-02-code-pairs-v2",
+      "revision": "88c35a023b0093cb177552c4ddc45533e92d63e0d006f26dbcdad2bd0a2ef72a",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T21:37:31Z",
+      "sourceFamilyId": "plex-code-pairs-javascript-v2",
+      "splitGroupRules": [
+        {
+          "id": "javascript-array-search",
+          "pathPrefixes": [
+            "javascript-array-search/"
+          ]
+        },
+        {
+          "id": "javascript-calendar",
+          "pathPrefixes": [
+            "javascript-calendar/"
+          ]
+        },
+        {
+          "id": "javascript-parity",
+          "pathPrefixes": [
+            "javascript-parity/"
+          ]
+        },
+        {
+          "id": "javascript-rectangle",
+          "pathPrefixes": [
+            "javascript-rectangle/"
+          ]
+        },
+        {
+          "id": "javascript-repetition",
+          "pathPrefixes": [
+            "javascript-repetition/"
+          ]
+        },
+        {
+          "id": "javascript-temperature",
+          "pathPrefixes": [
+            "javascript-temperature/"
+          ]
+        }
+      ]
+    }
+  ],
+  "splitStrategy": "family-stratified-groups-v1"
+}

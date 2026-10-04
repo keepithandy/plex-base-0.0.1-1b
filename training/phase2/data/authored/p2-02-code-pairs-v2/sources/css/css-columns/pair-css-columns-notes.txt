@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .reading-notes, set column-count to 2, column-gap to 2rem. Return one rule.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.reading-notes {
+  column-count: 2;
+  column-gap: 2rem;
+}

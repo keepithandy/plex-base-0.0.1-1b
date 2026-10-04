@@ -1,0 +1,6 @@
+Write a small HTML coding solution.
+Request: Show a labeled progress element named lesson-progress. Its visible label is Lessons completed; value is 6 and maximum is 12.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<label for="lesson-progress">Lessons completed</label>
+<progress id="lesson-progress" value="6" max="12">6 of 12</progress>

@@ -1,0 +1,9 @@
+Write a small JavaScript coding solution.
+Request: Write firstPositive(values), returning the first finite number greater than zero in an array. Ignore other values. Return null when absent or input is not an array.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function firstPositive(values) {
+  if (!Array.isArray(values)) return null;
+  const found = values.find(value => Number.isFinite(value) && value > 0);
+  return found === undefined ? null : found;
+}

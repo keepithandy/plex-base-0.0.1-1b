@@ -1,0 +1,8 @@
+Write a small JavaScript coding solution.
+Request: Write rectanglePerimeter(width, height). Return twice the sum of the sides for finite nonnegative numbers; otherwise return null.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function rectanglePerimeter(width, height) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width < 0 || height < 0) return null;
+  return 2 * (width + height);
+}

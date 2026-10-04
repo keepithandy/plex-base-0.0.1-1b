@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-code-pairs-v2",
+  "candidateJsonlSha256": "88c35a023b0093cb177552c4ddc45533e92d63e0d006f26dbcdad2bd0a2ef72a",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "Approve the 36 examples for local training.",
+  "approvalRecordedAtUtc": "2026-10-04T21:37:31Z",
+  "scope": "local-P2-training",
+  "records": 36,
+  "externalSourceTextIncluded": false,
+  "publicLicenseGranted": false
+}

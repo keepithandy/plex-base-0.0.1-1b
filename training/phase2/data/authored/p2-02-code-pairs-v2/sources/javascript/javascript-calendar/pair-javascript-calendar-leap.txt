@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write isLeapYear(year) for the Gregorian calendar. Positive integer years divisible by 400, or by 4 but not 100, are leap years; invalid years return false.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function isLeapYear(year) {
+  return Number.isInteger(year) && year > 0 && (year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0));
+}

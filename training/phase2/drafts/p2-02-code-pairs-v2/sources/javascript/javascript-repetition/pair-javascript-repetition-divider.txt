@@ -1,0 +1,8 @@
+Write a small JavaScript coding solution.
+Request: Write makeDivider(symbol, width), repeating a string whose JavaScript length is exactly 1 for integer widths from 0 through 64. Return an empty string for invalid arguments.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function makeDivider(symbol, width) {
+  if (typeof symbol !== "string" || symbol.length !== 1 || !Number.isInteger(width) || width < 0 || width > 64) return "";
+  return symbol.repeat(width);
+}

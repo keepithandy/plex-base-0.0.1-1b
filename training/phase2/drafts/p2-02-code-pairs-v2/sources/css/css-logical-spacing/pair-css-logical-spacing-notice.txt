@@ -1,0 +1,9 @@
+Write a small CSS coding solution.
+Request: For .notice-text, set margin-inline to auto, padding-inline to 1rem, padding-block to 0.5rem. Return one rule.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.notice-text {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+}

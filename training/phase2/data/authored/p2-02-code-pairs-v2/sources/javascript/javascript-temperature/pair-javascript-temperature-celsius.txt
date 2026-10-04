@@ -1,0 +1,8 @@
+Write a small JavaScript coding solution.
+Request: Write toCelsius(fahrenheit), converting a finite Fahrenheit number to Celsius. Return null for non-number or non-finite input.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function toCelsius(fahrenheit) {
+  if (!Number.isFinite(fahrenheit)) return null;
+  return (fahrenheit - 32) * 5 / 9;
+}

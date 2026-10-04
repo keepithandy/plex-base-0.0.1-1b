@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write isOdd(value), returning true only for odd integers, including negative odd integers. Return false for other inputs.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function isOdd(value) {
+  return Number.isInteger(value) && Math.abs(value % 2) === 1;
+}

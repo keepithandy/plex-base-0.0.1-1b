@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write isEven(value), returning true only for even integers. Return false for non-integers or non-number inputs.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function isEven(value) {
+  return Number.isInteger(value) && value % 2 === 0;
+}

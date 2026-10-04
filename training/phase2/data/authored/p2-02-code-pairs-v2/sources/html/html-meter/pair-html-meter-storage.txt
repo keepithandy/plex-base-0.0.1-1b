@@ -1,0 +1,6 @@
+Write a small HTML coding solution.
+Request: Create a labeled meter with id storage-used, label Storage used, minimum 0, maximum 100, and current value 70.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<label for="storage-used">Storage used</label>
+<meter id="storage-used" min="0" max="100" value="70">70 of 100</meter>

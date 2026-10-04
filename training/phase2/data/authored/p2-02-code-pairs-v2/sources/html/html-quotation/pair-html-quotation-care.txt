@@ -1,0 +1,7 @@
+Write a small HTML coding solution.
+Request: Create a blockquote containing a paragraph with the text "Clear names help the next reader." and a cite attribute of /notes/names.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<blockquote cite="/notes/names">
+  <p>Clear names help the next reader.</p>
+</blockquote>

@@ -1,0 +1,8 @@
+Write a small JavaScript coding solution.
+Request: Write repeatText(text, count). Repeat a string count times for integer counts from 0 through 100. Return an empty string for invalid arguments.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function repeatText(text, count) {
+  if (typeof text !== "string" || !Number.isInteger(count) || count < 0 || count > 100) return "";
+  return text.repeat(count);
+}

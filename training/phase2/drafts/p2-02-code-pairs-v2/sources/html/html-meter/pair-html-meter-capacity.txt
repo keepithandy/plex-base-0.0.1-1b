@@ -1,0 +1,6 @@
+Write a small HTML coding solution.
+Request: Create a labeled meter with id seats-used, label Seats occupied, minimum 0, maximum 30, and current value 18.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<label for="seats-used">Seats occupied</label>
+<meter id="seats-used" min="0" max="30" value="18">18 of 30</meter>

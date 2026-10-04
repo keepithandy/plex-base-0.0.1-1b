@@ -43,6 +43,8 @@ The step-zero results are the untrained reference: all languages scored 0/10 com
 
 The owner approved nine original Codex-authored task/solution examples for local P2 training on 2026-10-04. They are materialized into three language families with each request/solution pair kept in its own split group and added to [catalog v2](../training/phase2/dataset-sources.phase2-v2.json). The owner ran the combined build and tokenizer fit on Windows; the returned counts and hashes are recorded in the [v3 report](PHASE-2-DATASET-V3-REPORT.md). This approval added no external source paths beyond the exact Microsoft and MDN paths in the [P2 source lock](../training/phase2/dataset-source-lock.json).
 
+The next proposed mix is now concrete: [36 request-to-code examples](PHASE-2-CODE-PAIR-CANDIDATE.md), prepared as a separate small diagnostic corpus with a balanced 24/12 whole-group split. All supplied solutions passed 194 static checks and 36 targeted tests passed. The candidate catalog remains pending owner review, and none of these drafts have been used to train a model. This checks the readiness of examples, not coding capability or a new code-token target.
+
 ## JavaScript behavior checks
 
 The development evaluator currently runs `node --check` only; it does not execute generated code. The current Codex task runtime resolved Node.js v24.21.0. A runtime version is not proof of an execution sandbox. Node's `vm` module explicitly is not a security boundary, and Node's permission model does not promise protection from malicious code ([Node VM documentation](https://nodejs.org/docs/latest-v24.x/api/vm.html), [Node permission-model documentation](https://nodejs.org/docs/latest-v24.x/api/permissions.html)).

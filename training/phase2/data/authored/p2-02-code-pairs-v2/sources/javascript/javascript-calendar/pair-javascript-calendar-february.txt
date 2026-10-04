@@ -1,0 +1,9 @@
+Write a small JavaScript coding solution.
+Request: Write daysInFebruary(year) for positive integer Gregorian years: 29 in leap years, otherwise 28. Return null for invalid years.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function daysInFebruary(year) {
+  if (!Number.isInteger(year) || year <= 0) return null;
+  const leap = year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
+  return leap ? 29 : 28;
+}
