@@ -27,6 +27,7 @@ class DataAndRunnerTests(unittest.TestCase):
             packed = root / "train.tokens.u16le"
             info = write_byte_corpus([source], packed, storage_limit=1024)
             self.assertEqual(info["tokenCount"], 11)  # includes the file separator
+            self.assertEqual(packed.stat().st_size, info["tokenCount"] * 2)
             with TokenCorpus(packed) as corpus:
                 inputs, targets = corpus.sample_batch(random.Random(3), 2, 4)
                 self.assertEqual(tuple(inputs.shape), (2, 4))

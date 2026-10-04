@@ -68,7 +68,9 @@ def write_byte_corpus(inputs: list[Path], output: Path, storage_limit: int) -> d
                         total_bytes += len(chunk) * 2
                         if total_bytes > storage_limit:
                             raise ValueError("Prepared corpora exceed the configured storage allocation")
-                        token_ids = array("H", chunk)
+                        # Iterate byte values: passing bytes directly is treated as
+                        # a native uint16 buffer and would pack adjacent bytes together.
+                        token_ids = array("H", iter(chunk))
                         if sys.byteorder != "little":
                             token_ids.byteswap()
                         destination.write(token_ids.tobytes())
