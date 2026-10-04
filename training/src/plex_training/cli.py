@@ -177,6 +177,30 @@ def build_parser() -> argparse.ArgumentParser:
     generate.add_argument("--seed", type=int, default=1337)
     generate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
 
+    task_evaluate = subparsers.add_parser(
+        "task-evaluate", help="Score local responses against a versioned HTML/CSS/JavaScript task set"
+    )
+    task_evaluate.add_argument("--task-set", type=Path, required=True)
+    task_evaluate.add_argument("--responses", type=Path, required=True,
+                               help="JSONL objects with taskId and generated text")
+    task_evaluate.add_argument("--report", type=Path, default=None,
+                               help="Optional new JSON report path; existing files are never overwritten")
+    task_evaluate.add_argument("--node-timeout-seconds", type=float, default=5.0)
+    task_evaluate.add_argument("--response-limit-bytes", type=int, default=65_536)
+
+    task_generate = subparsers.add_parser(
+        "task-generate", help="Generate deterministic responses for the development task set"
+    )
+    task_generate.add_argument("--task-set", type=Path,
+                               default=Path("training/phase2/evaluation/p2-01b-dev-v1.json"))
+    task_generate.add_argument("--checkpoint", type=Path, required=True)
+    task_generate.add_argument("--bundle-dir", type=Path, required=True,
+                                help="Tokenizer bundle matching the scratch-initialized checkpoint")
+    task_generate.add_argument("--output-dir", type=Path, required=True,
+                               help="New directory for responses and run manifest")
+    task_generate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    _add_artifact_root(task_generate)
+
     return parser
 
 
@@ -400,6 +424,39 @@ def _train(args: argparse.Namespace) -> dict[str, Any]:
     return result
 
 
+def _task_evaluate(args: argparse.Namespace) -> dict[str, Any]:
+    from .benchmark import evaluate_files
+
+    report = evaluate_files(
+        args.task_set,
+        args.responses,
+        node_timeout_seconds=args.node_timeout_seconds,
+        response_limit_bytes=args.response_limit_bytes,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Evaluation report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+                              encoding="utf-8")
+    return report
+
+
+def _task_generate(args: argparse.Namespace) -> dict[str, Any]:
+    from .task_run import generate_development_responses
+
+    root = args.artifact_root.resolve()
+    output_dir = _under_artifact_root(args.output_dir, root)
+    return generate_development_responses(
+        task_set_path=args.task_set,
+        checkpoint_path=args.checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output_dir,
+        artifact_root=root,
+        device_name=args.device,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -485,6 +542,10 @@ def main(argv: list[str] | None = None) -> int:
                 temperature=args.temperature,
                 seed=args.seed,
             )})
+        elif args.command == "task-evaluate":
+            _json_print(_task_evaluate(args))
+        elif args.command == "task-generate":
+            _json_print(_task_generate(args))
         return 0
     except (FileExistsError, ImportError, OSError, RuntimeError, ValueError) as exc:
         print(f"plex-train: {exc}", file=sys.stderr)

@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "setId": "p2-01b-dev-v1",
+  "kind": "development",
+  "provenance": "owner-authored",
+  "outputContracts": {
+    "html": "Return one semantic HTML fragment only. Do not include Markdown fences or explanations.",
+    "css": "Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.",
+    "javascript": "Return one JavaScript function only. Do not include Markdown fences or explanations."
+  },
+  "inferenceDefaults": {
+    "temperature": 0.0,
+    "seed": 1337,
+    "maxNewTokens": { "html": 192, "css": 128, "javascript": 192 },
+    "promptTemplateVersion": "plex-coding-task-v1"
+  },
+  "tasks": [
+    {
+      "id": "p2dev-html-01-primary-navigation", "language": "html", "difficulty": "basic",
+      "request": "Create a primary navigation landmark named Primary with links to Home and Projects.",
+      "checks": [
+        { "kind": "html_element", "tag": "nav", "attrs": { "aria-label": "Primary" } },
+        { "kind": "html_element", "tag": "a", "attrs": { "href": "/" }, "minimumCount": 1 },
+        { "kind": "html_text_contains", "text": "Projects" }
+      ]
+    },
+    {
+      "id": "p2dev-html-02-email-form", "language": "html", "difficulty": "basic",
+      "request": "Create a labeled email field that is required and a submit button labeled Join.",
+      "checks": [
+        { "kind": "html_element", "tag": "label", "attrs": { "for": "email" } },
+        { "kind": "html_element", "tag": "input", "attrs": { "id": "email", "type": "email", "required": null } },
+        { "kind": "html_element", "tag": "button", "attrs": { "type": "submit" } },
+        { "kind": "html_text_contains", "text": "Join" }
+      ]
+    },
+    {
+      "id": "p2dev-html-03-article-date", "language": "html", "difficulty": "basic",
+      "request": "Create an article with a heading, a short paragraph, and a publication time using a machine-readable datetime.",
+      "checks": [
+        { "kind": "html_element", "tag": "article" },
+        { "kind": "html_element", "tag": "h2" },
+        { "kind": "html_element", "tag": "time", "attrs": { "datetime": null } },
+        { "kind": "html_text_contains", "text": "article" }
+      ]
+    },
+    {
+      "id": "p2dev-html-04-live-status", "language": "html", "difficulty": "basic",
+      "request": "Create a status message with id save-status and a button whose aria-describedby points to it.",
+      "checks": [
+        { "kind": "html_element", "tag": "p", "attrs": { "id": "save-status", "role": "status" } },
+        { "kind": "html_element", "tag": "button", "attrs": { "aria-describedby": "save-status" } }
+      ]
+    },
+    {
+      "id": "p2dev-html-05-three-steps", "language": "html", "difficulty": "basic",
+      "request": "Create an ordered list containing three steps for saving a document.",
+      "checks": [
+        { "kind": "html_element", "tag": "ol" },
+        { "kind": "html_element", "tag": "li", "minimumCount": 3 },
+        { "kind": "html_text_contains", "text": "save" }
+      ]
+    },
+    {
+      "id": "p2dev-html-06-figure-caption", "language": "html", "difficulty": "basic",
+      "request": "Create a figure with an image at /images/garden.jpg and a descriptive alt attribute, followed by a caption.",
+      "checks": [
+        { "kind": "html_element", "tag": "figure" },
+        { "kind": "html_element", "tag": "img", "attrs": { "src": "/images/garden.jpg", "alt": null } },
+        { "kind": "html_element", "tag": "figcaption" }
+      ]
+    },
+    {
+      "id": "p2dev-html-07-details-summary", "language": "html", "difficulty": "basic",
+      "request": "Create a disclosure widget with a details element, a summary labeled Shipping, and explanatory content.",
+      "checks": [
+        { "kind": "html_element", "tag": "details" },
+        { "kind": "html_element", "tag": "summary" },
+        { "kind": "html_text_contains", "text": "Shipping" }
+      ]
+    },
+    {
+      "id": "p2dev-html-08-data-table", "language": "html", "difficulty": "edge",
+      "request": "Create a small table with a caption, two column headers scoped to columns, and one data row.",
+      "checks": [
+        { "kind": "html_element", "tag": "table" },
+        { "kind": "html_element", "tag": "caption" },
+        { "kind": "html_element", "tag": "th", "attrs": { "scope": "col" }, "minimumCount": 2 },
+        { "kind": "html_element", "tag": "tbody" }
+      ]
+    },
+    {
+      "id": "p2dev-html-09-checkbox-fieldset", "language": "html", "difficulty": "edge",
+      "request": "Create a fieldset with a legend labeled Notifications and one labeled checkbox with id weekly.",
+      "checks": [
+        { "kind": "html_element", "tag": "fieldset" },
+        { "kind": "html_text_contains", "text": "Notifications" },
+        { "kind": "html_element", "tag": "input", "attrs": { "id": "weekly", "type": "checkbox" } },
+        { "kind": "html_element", "tag": "label", "attrs": { "for": "weekly" } }
+      ]
+    },
+    {
+      "id": "p2dev-html-10-breadcrumbs", "language": "html", "difficulty": "edge",
+      "request": "Create breadcrumb navigation named Breadcrumb with an ordered list and a current-page item for Settings.",
+      "checks": [
+        { "kind": "html_element", "tag": "nav", "attrs": { "aria-label": "Breadcrumb" } },
+        { "kind": "html_element", "tag": "ol" },
+        { "kind": "html_element", "tag": "a", "attrs": { "href": "/" } },
+        { "kind": "html_element", "tag": "span", "attrs": { "aria-current": "page" } },
+        { "kind": "html_text_contains", "text": "Settings" }
+      ]
+    },
+
+    {
+      "id": "p2dev-css-01-card-flex", "language": "css", "difficulty": "basic",
+      "request": "Style .card as a flex container with a 1rem gap and 1rem internal padding.",
+      "checks": [
+        { "kind": "css_declaration", "selector": ".card", "property": "display", "value": "flex" },
+        { "kind": "css_declaration", "selector": ".card", "property": "gap", "value": "1rem" },
+        { "kind": "css_declaration", "selector": ".card", "property": "padding", "value": "1rem" }
+      ]
+    },
+    {
+      "id": "p2dev-css-02-auto-grid", "language": "css", "difficulty": "basic",
+      "request": "Make .gallery a responsive grid using auto-fit columns with a 16rem minimum and a 1fr maximum, with a 1rem gap.",
+      "checks": [
+        { "kind": "css_declaration", "selector": ".gallery", "property": "display", "value": "grid" },
+        { "kind": "css_declaration", "selector": ".gallery", "property": "grid-template-columns", "value": "repeat(auto-fit, minmax(16rem, 1fr))" },
+        { "kind": "css_declaration", "selector": ".gallery", "property": "gap", "value": "1rem" }
+      ]
+    },
+    {
+      "id": "p2dev-css-03-keyboard-focus", "language": "css", "difficulty": "basic",
+      "request": "Give buttons a visible keyboard-focus outline with a 3px solid currentColor outline and a 3px offset.",
+      "checks": [
+        { "kind": "css_declaration", "selector": "button:focus-visible", "property": "outline", "value": "3px solid currentColor" },
+        { "kind": "css_declaration", "selector": "button:focus-visible", "property": "outline-offset", "value": "3px" }
+      ]
+    },
+    {
+      "id": "p2dev-css-04-fluid-heading", "language": "css", "difficulty": "basic",
+      "request": "Set h1 font size to clamp between 1.5rem and 2.5rem, using 4vw as its preferred value.",
+      "checks": [
+        { "kind": "css_declaration", "selector": "h1", "property": "font-size", "value": "clamp(1.5rem, 4vw, 2.5rem)" }
+      ]
+    },
+    {
+      "id": "p2dev-css-05-responsive-image", "language": "css", "difficulty": "basic",
+      "request": "Make images scale down within their parent while preserving their natural aspect ratio.",
+      "checks": [
+        { "kind": "css_declaration", "selector": "img", "property": "max-width", "value": "100%" },
+        { "kind": "css_declaration", "selector": "img", "property": "height", "value": "auto" }
+      ]
+    },
+    {
+      "id": "p2dev-css-06-button-hover", "language": "css", "difficulty": "basic",
+      "request": "Change the background color of a button to #234 when it is hovered.",
+      "checks": [
+        { "kind": "css_declaration", "selector": "button:hover", "property": "background-color", "value": "#234" }
+      ]
+    },
+    {
+      "id": "p2dev-css-07-visually-hidden", "language": "css", "difficulty": "edge",
+      "request": "Create a .visually-hidden utility that clips content to a 1px box, removes it from normal flow, and hides overflow.",
+      "checks": [
+        { "kind": "css_declaration", "selector": ".visually-hidden", "property": "position", "value": "absolute" },
+        { "kind": "css_declaration", "selector": ".visually-hidden", "property": "width", "value": "1px" },
+        { "kind": "css_declaration", "selector": ".visually-hidden", "property": "overflow", "value": "hidden" }
+      ]
+    },
+    {
+      "id": "p2dev-css-08-sticky-header", "language": "css", "difficulty": "edge",
+      "request": "Make .site-header stick to the top of its scroll container with a white background.",
+      "checks": [
+        { "kind": "css_declaration", "selector": ".site-header", "property": "position", "value": "sticky" },
+        { "kind": "css_declaration", "selector": ".site-header", "property": "top", "value": "0" },
+        { "kind": "css_declaration", "selector": ".site-header", "property": "background-color", "value": "white" }
+      ]
+    },
+    {
+      "id": "p2dev-css-09-expanded-panel", "language": "css", "difficulty": "edge",
+      "request": "When a button has aria-expanded=true, hide the adjacent .panel using display none.",
+      "checks": [
+        { "kind": "css_declaration", "selector": "button[aria-expanded=\"true\"] + .panel", "property": "display", "value": "none" }
+      ]
+    },
+    {
+      "id": "p2dev-css-10-wrapping-row", "language": "css", "difficulty": "edge",
+      "request": "Make .toolbar a flex row that wraps onto additional lines and keeps 0.5rem between items.",
+      "checks": [
+        { "kind": "css_declaration", "selector": ".toolbar", "property": "display", "value": "flex" },
+        { "kind": "css_declaration", "selector": ".toolbar", "property": "flex-wrap", "value": "wrap" },
+        { "kind": "css_declaration", "selector": ".toolbar", "property": "gap", "value": "0.5rem" }
+      ]
+    },
+
+    {
+      "id": "p2dev-js-01-clamp", "language": "javascript", "difficulty": "basic",
+      "request": "Write clamp(value, minimum, maximum), returning the value bounded inclusively by minimum and maximum.",
+      "checks": [
+        { "kind": "js_function", "name": "clamp" },
+        { "kind": "contains", "text": "Math.min" },
+        { "kind": "contains", "text": "Math.max" }
+      ]
+    },
+    {
+      "id": "p2dev-js-02-count-words", "language": "javascript", "difficulty": "basic",
+      "request": "Write countWords(text), returning zero for blank text and otherwise counting words separated by whitespace.",
+      "checks": [
+        { "kind": "js_function", "name": "countWords" },
+        { "kind": "contains", "text": ".trim()" },
+        { "kind": "contains", "text": "/\\s+/" }
+      ]
+    },
+    {
+      "id": "p2dev-js-03-unique-by-id", "language": "javascript", "difficulty": "basic",
+      "request": "Write uniqueById(items), keeping the first item for each id and preserving input order.",
+      "checks": [
+        { "kind": "js_function", "name": "uniqueById" },
+        { "kind": "contains", "text": "new Set" },
+        { "kind": "contains", "text": "item.id" }
+      ]
+    },
+    {
+      "id": "p2dev-js-04-group-by", "language": "javascript", "difficulty": "edge",
+      "request": "Write groupBy(items, key), returning an object of arrays grouped by the named item property, including an empty object for empty input.",
+      "checks": [
+        { "kind": "js_function", "name": "groupBy" },
+        { "kind": "contains", "text": "Object.create(null)" },
+        { "kind": "contains", "text": "item[key]" }
+      ]
+    },
+    {
+      "id": "p2dev-js-05-format-usd", "language": "javascript", "difficulty": "basic",
+      "request": "Write formatPrice(value), formatting a number as USD currency for the en-US locale.",
+      "checks": [
+        { "kind": "js_function", "name": "formatPrice" },
+        { "kind": "contains", "text": "Intl.NumberFormat" },
+        { "kind": "contains", "text": "currency: \"USD\"" }
+      ]
+    },
+    {
+      "id": "p2dev-js-06-email-shape", "language": "javascript", "difficulty": "basic",
+      "request": "Write isValidEmail(value), returning false for non-strings and checking for a simple local@domain.tld shape.",
+      "checks": [
+        { "kind": "js_function", "name": "isValidEmail" },
+        { "kind": "contains", "text": "typeof value" },
+        { "kind": "contains", "text": ".test(" }
+      ]
+    },
+    {
+      "id": "p2dev-js-07-initials", "language": "javascript", "difficulty": "edge",
+      "request": "Write getInitials(name), returning up to two uppercase initials and an empty string for blank input.",
+      "checks": [
+        { "kind": "js_function", "name": "getInitials" },
+        { "kind": "contains", "text": ".trim()" },
+        { "kind": "contains", "text": ".toUpperCase()" },
+        { "kind": "contains", "text": ".slice(0, 2)" }
+      ]
+    },
+    {
+      "id": "p2dev-js-08-toggle-item", "language": "javascript", "difficulty": "edge",
+      "request": "Write toggleItem(items, targetId), removing the matching id if present or appending targetId otherwise, without mutating items.",
+      "checks": [
+        { "kind": "js_function", "name": "toggleItem" },
+        { "kind": "contains", "text": "targetId" },
+        { "kind": "contains", "text": ".filter(" },
+        { "kind": "contains", "text": ".includes(" }
+      ]
+    },
+    {
+      "id": "p2dev-js-09-sum-by", "language": "javascript", "difficulty": "edge",
+      "request": "Write sumBy(items, key), summing finite numeric property values and ignoring missing or non-numeric values.",
+      "checks": [
+        { "kind": "js_function", "name": "sumBy" },
+        { "kind": "contains", "text": ".reduce(" },
+        { "kind": "contains", "text": "Number.isFinite" },
+        { "kind": "contains", "text": "item[key]" }
+      ]
+    },
+    {
+      "id": "p2dev-js-10-sort-by-name", "language": "javascript", "difficulty": "edge",
+      "request": "Write sortByName(items), returning a sorted copy using each item's name and localeCompare without mutating the input.",
+      "checks": [
+        { "kind": "js_function", "name": "sortByName" },
+        { "kind": "contains", "text": ".slice()" },
+        { "kind": "contains", "text": "localeCompare" },
+        { "kind": "contains", "text": ".name" }
+      ]
+    }
+  ]
+}

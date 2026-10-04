@@ -64,15 +64,15 @@ P1-19 status: **technical gate complete**. A bounded CUDA `pilot-resume` advance
 
 | Task | Work | Completion check |
 |---|---|---|
-| **P2-01 — Build coding evaluations** | Add withheld completion tasks for HTML, CSS, and JavaScript, including syntax and behavior checks. The owner accepted a 30-task development set, 60-task final set, and per-language majority plus meaningful improvement over step-zero as the starting gate. | Evaluation distinguishes plausible output from working code; define a numeric improvement margin before freezing the final set. |
+| **P2-01 — Build coding evaluations** | Add withheld completion tasks for HTML, CSS, and JavaScript, including syntax and behavior checks. The owner approved a 30-task development set, a 60-task final set, at least 11/20 final tasks passed per language, and at least +10 percentage points overall over the matching step-zero checkpoint. | P2-01a and the static development-only P2-01b harness/set are complete. The final set remains sealed; safe JavaScript behavior and browser-backed checks still need resolution or must be reported unavailable. |
 | **P2-02 — Improve training data** | Build a family-stratified train/development corpus from approved source groups, then adjust the code/explanation mix using measured development failures. | Data groups stay intact across splits, and changes improve development results without leaking evaluation examples into training. |
 | **P2-03 — Compare training configurations** | Test context length, model size, and training settings through bounded experiments. | Choose settings from measured quality, memory use, and speed; record experiment budgets. |
 | **P2-04 — Train the next Plex base checkpoint** | Increase the training run after the pipeline and smaller experiments work. | Coding results improve enough to justify the extra compute. |
 | **P2-05 — Document capability limits** | Identify supported languages, task sizes, and recurring failures. | Model report includes examples and measured limitations. |
 
-**Phase 2 gate:** Plex produces useful code on tasks it did not train on. Freeze a final evaluation set and reserve it for milestone decisions.
+**Phase 2 gate:** Plex produces useful code on tasks it did not train on. Freeze a final evaluation set and reserve it for milestone decisions. The development-only static evaluator does not establish JavaScript behavior.
 
-The accepted starting decisions, exact selected source paths, family-stratified split, corpus/tokenizer hashes, and current data-mix gap are recorded in the [Phase 2 data collection review](docs/PHASE-2-DATA-COLLECTION-REVIEW.md). The [Phase 2 proposal](docs/PHASE-2-DATA-AND-EVALUATION-PROPOSAL.md) remains the plan for the unfinished evaluation harness and later bounded comparisons. No Phase 2 model training has started.
+The accepted source decisions, family-stratified split, corpus/tokenizer hashes, and current data-mix gap are recorded in the [Phase 2 data collection review](docs/PHASE-2-DATA-COLLECTION-REVIEW.md). P2-01's approved numeric threshold, versioned development tasks, static evaluator, and remaining behavior-check limits are recorded in the [evaluation design](docs/PHASE-2-EVALUATION-DESIGN.md). No Phase 2 model training has started.
 
 ## Phase 3 — Repository editing
 
@@ -113,6 +113,6 @@ The accepted starting decisions, exact selected source paths, family-stratified 
 
 ## Next task
 
-**Next: define and build P2-01 coding evaluations.** The [proposal](docs/PHASE-2-DATA-AND-EVALUATION-PROPOSAL.md) records the accepted 30/60 task starting point; set the numeric improvement margin and output contracts, implement the safe checks, and author the development tasks before any Phase 2 training. Review the prose-heavy corpus mix in the [collection report](docs/PHASE-2-DATA-COLLECTION-REVIEW.md); keep training capped at 120 minutes.
+**Next: review the P2-02 data mix and confirm a safe local JavaScript behavior-test method.** The 30-task development set and static syntax/structure evaluator are ready for local model-response experiments, but scores cannot serve as a complete behavior gate. Do not start P2-03 training comparisons until the data mix and behavioral evaluation limits are reviewed; keep runs capped at 120 minutes.
 
 This determines a realistic first model size and training run. The first success is a small, demonstrably learned Plex checkpoint; the eventual release must earn its capability claims through evaluation.

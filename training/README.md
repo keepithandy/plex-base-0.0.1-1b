@@ -82,7 +82,40 @@ The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest
 
 The owner approved re-splitting the exact Microsoft P1-14 selection by project and a small MDN `learning-area` path selection. The pinned lock is [`phase2/dataset-source-lock.json`](phase2/dataset-source-lock.json); the approval catalog is [`phase2/dataset-sources.phase2-v1.json`](phase2/dataset-sources.phase2-v1.json). Raw snapshots stay beneath `training/phase2/data/raw` and are ignored by Git. See the [collection report](../docs/PHASE-2-DATA-COLLECTION-REVIEW.md) for exact files, license notices, and exclusions.
 
-The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: it is documentation-heavy relative to the proposed code mix, and the P2 evaluation harness/tasks still need to be completed before any model training.
+The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: it is documentation-heavy relative to the proposed code mix, so review the data mix before using it for Phase 2 model comparisons.
+
+## Score coding-task responses (P2-01)
+
+P2-01a records the owner-approved final-set gate: at least 11/20 complete tasks per language and at least a 10-percentage-point overall improvement above the matching step-zero checkpoint. P2-01b includes 30 owner-authored development tasks and a static local evaluator; the 60-task final holdout has not been built. The JavaScript checks parse syntax with `node --check` but never execute generated code. HTML and CSS checks are structural only; see the [evaluation design](../docs/PHASE-2-EVALUATION-DESIGN.md) for limitations and remaining gates.
+
+Once a matching scratch-initialized step-zero or trained checkpoint and tokenizer bundle are available, generate the development responses into a fresh directory:
+
+```powershell
+uv run --project training --locked python -m plex_training.cli task-generate `
+  --checkpoint training\artifacts\initializations\p2-step-zero\initialization.pt `
+  --bundle-dir training\artifacts\tokenizers\p2-02-data-v2 `
+  --output-dir evaluation\p2-dev-step-zero-v1 `
+  --device cuda
+```
+
+The command applies fixed prompt/decode settings, checks the checkpoint's scratch initialization and tokenizer identity, and writes `responses.jsonl` and a run manifest. It supports development sets only, refuses overwrite, and does not train.
+
+For a manually supplied response, create a newline-delimited JSON file with one object per task:
+
+```jsonl
+{"taskId":"p2dev-js-01-clamp","text":"function clamp(value, minimum, maximum) { return Math.min(maximum, Math.max(minimum, value)); }","truncated":false}
+```
+
+Score a generated response file, choosing a report path that does not already exist:
+
+```powershell
+uv run --project training --locked python -m plex_training.cli task-evaluate `
+  --task-set training\phase2\evaluation\p2-01b-dev-v1.json `
+  --responses training\artifacts\evaluation\p2-dev-step-zero-v1\responses.jsonl `
+  --report training\artifacts\evaluation\p2-dev-step-zero-v1\score.json
+```
+
+`truncated` records whether generation reached its token cap; truncated responses do not pass. The evaluator refuses to overwrite an existing report.
 
 ## Train Plex's tokenizer (P1-15)
 

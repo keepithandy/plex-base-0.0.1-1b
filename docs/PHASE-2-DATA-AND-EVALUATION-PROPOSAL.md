@@ -1,6 +1,6 @@
 # Phase 2 — Data and coding-evaluation proposal
 
-**Status: owner-approved starting decisions recorded; a small P2-02 corpus and tokenizer have been built.** The exact source review and artifacts are recorded in the [Phase 2 data collection review](PHASE-2-DATA-COLLECTION-REVIEW.md). P2-01 evaluation tasks and harness remain unfinished; no Phase 2 model initialization or training run has started.
+**Status: source selection and P2-02 pipeline baseline are recorded; P2-01a and development-only P2-01b are complete.** The exact source review and artifacts are recorded in the [Phase 2 data collection review](PHASE-2-DATA-COLLECTION-REVIEW.md), and the [evaluation design](PHASE-2-EVALUATION-DESIGN.md) records the owner-approved numeric gate and static development harness. The final task set remains unbuilt, the current P2-02 mix remains documentation-heavy, and no Phase 2 model initialization or training run has started.
 
 ## Recommendation
 
@@ -69,7 +69,7 @@ The P1-18 Traversy split remains a historical next-token validation result only.
 
 ### Checks and score
 
-The primary measure should be **complete task pass rate**: the output meets its format contract, parses, and passes every task-specific behavior/structure check. Report it overall and separately for HTML, CSS, and JavaScript. Also report syntax/parse pass rate, partial assertion counts, timeouts, empty/truncated outputs, and output length. Keep next-token loss as a training diagnostic, not the coding-quality score.
+The primary measure should be **complete task pass rate**: the output meets its format contract, parses, and passes every task-specific behavior/structure check. Report it overall and separately for HTML, CSS, and JavaScript. Also report syntax/parse pass rate, partial assertion counts, timeouts, empty/truncated outputs, and output length. Keep next-token loss as a training diagnostic, not the coding-quality score. P2-01b now implements a local static development score; it does not execute JavaScript or provide browser behavior checks, so those limits must be resolved or explicitly kept unavailable before a functional final gate.
 
 - JavaScript: parse with an installed Node.js `--check` where available, then run deterministic unit/DOM behavior checks in a separate temporary directory with a strict timeout and output cap. Do not execute generated code in the repository or expose credentials. Confirm a safe, local test setup before enabling execution; if isolation is unavailable, report behavioral checks as unavailable rather than calling static parsing a functional pass.
 - HTML: parse and check required semantic elements, labels, IDs, and relationships. Use a locally installed browser for rendering/DOM checks if one is available; state clearly which checks ran.
@@ -86,15 +86,15 @@ Run every task with the same prompt template, deterministic decoding settings, a
 3. An optional trivial baseline (for example, empty output or a fixed minimal template).
 4. Optionally, Qwen only if a suitable checkpoint is already present locally. Do not download it or use it to initialize Plex.
 
-Report raw task counts and pass rates per language, together with uncertainty intervals; a small task set supports only an early signal, not a broad capability claim. The owner accepted the starting decision rule that Plex must beat its step-zero checkpoint by a meaningful margin and pass a majority of final tasks in every language, with no language hidden by an aggregate score. The numeric margin and exact pass-oracle contract still need agreement before freezing the final task set.
+Report raw task counts and pass rates per language, together with uncertainty intervals; a small task set supports only an early signal, not a broad capability claim. The owner approved the starting decision rule that Plex must improve overall complete-task pass rate by at least **10 percentage points** over its matching step-zero checkpoint and pass at least **11 of 20 tasks in each language**, with no language hidden by an aggregate score. With 60 tasks, the overall threshold is a net increase of at least six passes. This is an early decision gate, not a statistical-significance claim. The static development oracle exists; the final pass oracle remains to be completed and reviewed before the final set is frozen.
 
 ## Order of work and stop gates
 
-1. **P2-01a — Evaluation design:** the owner accepted the 30/60 task counts and per-language majority rule as a starting gate. Set the numeric meaning of “meaningful improvement,” output contracts, task categories, local tool availability, and safety/timeout behavior before freezing the final tasks.
-2. **P2-01b — Evaluation harness and development set:** implement the checks, prove they reject known failures, and author/version the 30 development tasks. Keep the 60 final tasks sealed. Do not run a Phase 2 training experiment yet.
+1. **P2-01a — Evaluation design: complete.** The owner approved the 10-percentage-point overall improvement threshold and 11/20 per-language floor. Output contracts, deterministic decode defaults, task categories, and the current parser/time/output limits are versioned in the [evaluation design](PHASE-2-EVALUATION-DESIGN.md).
+2. **P2-01b — Static development evaluator: complete with explicit limits.** The 30-task development set and local scoring CLI pass known-good and failure-case tests. JavaScript behavior is not executed and browser checks are not implemented; keep those checks unavailable until a safe local method is confirmed. The 60 final tasks remain sealed and have not been authored.
 3. **Source review:** completed for the exact Microsoft subset and small MDN selection recorded in the [collection review](PHASE-2-DATA-COLLECTION-REVIEW.md). Other MDN paths and other source families remain unapproved.
 4. **P2-02 — New corpus build:** a deterministic family-stratified dataset and fresh tokenizer were built from training text only. The actual mix is more documentation-heavy than the proposed 70–80% code target; review and improve that mix before using it as the preferred Phase 2 training corpus.
-5. **P2-03 — Bounded comparisons:** after the evaluation harness and data mix pass review, establish a fresh random initialization, run controlled experiments against the development set with fixed budgets and settings, and compare task pass rates plus memory, throughput, and checkpoint integrity. Keep each run within the existing 120-minute cap.
+5. **P2-03 — Bounded comparisons:** after the behavior checks and data mix pass review, establish a fresh random initialization, run controlled experiments against the development set with fixed budgets and settings, and compare task pass rates plus memory, throughput, and checkpoint integrity. Keep each run within the existing 120-minute cap.
 6. **Freeze and gate:** finalize the 60-task holdout and its numeric threshold before viewing model scores. Proceed to P2-04's next bounded base-checkpoint run only if the harness is valid, data provenance/splits pass review, and development results justify the run.
 
 No uncapped run is proposed. Stay within the 200 GiB Plex allocation and $0 paid-services budget. Report any missing local runtime or unavailable check explicitly; decide on dependencies separately rather than silently installing them.
@@ -103,6 +103,6 @@ No uncapped run is proposed. Stay within the 200 GiB Plex allocation and $0 paid
 
 - MDN `learning-area` was approved for path review and the exact small selection listed in the [collection review](PHASE-2-DATA-COLLECTION-REVIEW.md).
 - The exact already approved Microsoft P1-14 subset may be re-split by project group for this new train/development corpus.
-- The proposed 30 development / 60 final tasks and the per-language majority plus meaningful-improvement-over-step-zero rule are accepted as a starting gate. A numeric improvement margin is still required before freezing the final tasks.
+- The proposed 30 development / 60 final tasks and the per-language majority rule are accepted as a starting gate; the owner set the numeric improvement margin at 10 percentage points overall and at least 11/20 passes per language.
 
-These decisions authorize only the reviewed source selection and starting evaluation design. The final benchmark is not frozen, the observed corpus mix needs review, and no P2 training run should begin yet.
+These decisions authorize only the reviewed source selection and starting evaluation design. The 30-task development set is available, but the final benchmark is not frozen, the observed corpus mix needs review, and no P2 training run should begin yet.

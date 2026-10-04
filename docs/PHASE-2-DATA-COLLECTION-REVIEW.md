@@ -1,6 +1,6 @@
 # Phase 2 data collection review
 
-**Status: source collection and tokenizer preparation complete; evaluation tasks and training are not started.** This record captures the approved small MDN selection, the exact previously approved Microsoft P1-14 subset re-split by project, and the resulting P2-02 data artifacts. P1 data, tokenizer, checkpoints, and experiment reports remain unchanged.
+**Status: source collection and tokenizer preparation complete; the P2-01 development-only evaluator is now prepared; no P2 model training has started.** This record captures the approved small MDN selection, the exact previously approved Microsoft P1-14 subset re-split by project, and the resulting P2-02 data artifacts. P1 data, tokenizer, checkpoints, and experiment reports remain unchanged.
 
 ## Recorded decisions
 
@@ -9,8 +9,9 @@ For this collection, the owner approved:
 - A path-by-path review of MDN's `learning-area` family and a small selection from the pinned snapshot below.
 - Re-splitting the exact 34-content-file Microsoft P1-14 subset by project group into P2 training and development.
 - Using 30 development tasks and 60 final tasks (10/20 each for HTML, CSS, and JavaScript), plus “majority of final tasks in every language and meaningful improvement over step-zero,” as the starting evaluation gate.
+- Setting the numeric gate to at least 11/20 tasks passed per language and at least +10 percentage points overall over matching step-zero.
 
-“Meaningful improvement” still needs a numeric margin before the final set is frozen. The final task set and harness are not present yet.
+The 30-task static development set and response-generation/scoring commands are recorded in the [evaluation design](PHASE-2-EVALUATION-DESIGN.md). The final task set and a JavaScript behavior sandbox are not present yet.
 
 ## Source snapshots
 
@@ -74,4 +75,4 @@ Markdown includes prose, diagrams, and fenced code; HTML can contain inline CSS/
 
 A new byte-level BPE tokenizer was fitted from the 30 training records only. It learned 8,143 entries within the 16,384 model capacity, encoded both splits, and round-tripped all 47 records. The bundle is [training/artifacts/tokenizers/p2-02-data-v2](../training/artifacts/tokenizers/p2-02-data-v2); `tokenizer.json` SHA-256 is `1f39127c1567031df51a8d8ba84e8c3a0a6549ff3bb080c92c9f9e94fd6cf0ac`, and the bundle manifest SHA-256 is `83ed9daec7eceffde20544183c69344c0c39ca46d24d9e479bc896c62a16651a`. This is a tokenizer artifact, not a pretrained model. No model weights were initialized or trained for P2.
 
-The 30/60 task sizes and per-language majority rule are accepted as a starting design, not a final benchmark. The next gate is P2-01: define a numeric improvement margin and output contracts, then build and test the development/final evaluation harness before any Phase 2 model comparison. Qwen remains only an optional evaluation baseline if already present locally; Plex stays scratch-initialized.
+The 30/60 task sizes and per-language majority rule are accepted as a starting design, not a final benchmark. The owner has since approved a 10-percentage-point overall improvement margin and a minimum of 11/20 tasks in each language; the 30-task development set and static evaluator are recorded in the [evaluation design](PHASE-2-EVALUATION-DESIGN.md). The final holdout remains unbuilt, the JavaScript behavior sandbox is not confirmed, and the actual corpus mix needs review before any Phase 2 model comparison. Qwen remains only an optional evaluation baseline if already present locally; Plex stays scratch-initialized.
