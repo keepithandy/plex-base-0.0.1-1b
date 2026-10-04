@@ -122,6 +122,9 @@ def run_training(
     config: ModelConfig = DEFAULT_CONFIG,
     allow_tiny_config: bool = False,
 ) -> dict[str, Any]:
+    for source in (train_source, validation):
+        if isinstance(source, TokenCorpus):
+            source.require_byte_codec()
     if not math.isfinite(minutes) or minutes <= 0:
         raise ValueError("minutes must be a positive finite number")
     if minutes > MAX_PILOT_MINUTES:
@@ -284,6 +287,8 @@ def evaluate_checkpoint(
 ) -> dict[str, Any]:
     if maximum_batches <= 0:
         raise ValueError("maximum_batches must be positive")
+    with TokenCorpus(token_path) as corpus:
+        corpus.require_byte_codec()
     device = select_device(device_name)
     model, payload = read_checkpoint(checkpoint_path, device)
     model.eval()

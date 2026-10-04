@@ -2,6 +2,8 @@
 
 ## 0.1.0 — development scaffold
 
+- Completed P1-15 with a scratch-fitted byte-level BPE tokenizer using only approved training text, pinned Tokenizers 0.23.2, packaged model/settings/provenance/license files, and encoded train/validation corpora. Learned 9,976 entries; all 88 records round-trip exactly and all 11 bundle files reproduce byte-identically. Added bootstrap codec safeguards and tokenizer integrity/holdout/storage tests; all 35 training-workspace tests pass. Random initialization and real-data learning remain upcoming milestones.
+
 - Recorded the owner's successful ten-minute CUDA smoke result: 4,199 steps, 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and a 330,894,811-byte checkpoint. Retained the raw result and updated measured-fit status; real-data pilot remains pending.
 - Completed P1-14's owner-approved starter corpus from two pinned MIT source subsets: 34 training records, 54 validation records, 746,848 packaged bytes, preserved license notices, and an identical second build. Added a bounded hash-verifying text downloader, approved source catalog, source lock, and review/build report; all 25 training-workspace tests passed. Fixed the advertised .cjs extension allowlist.
 

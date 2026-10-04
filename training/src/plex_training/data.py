@@ -148,6 +148,23 @@ class TokenCorpus:
         self._mapping.close()
         self._file.close()
 
+    def require_byte_codec(self) -> None:
+        """Prevent the bootstrap runner from mislabeling trained-tokenizer data."""
+        manifest_path = self.path.parent / "manifest.json"
+        if manifest_path.exists():
+            if manifest_path.stat().st_size > 1024 * 1024:
+                raise ValueError("Token corpus manifest exceeds 1 MiB")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict) or manifest.get("codec") != "byte-v1":
+                raise ValueError("Bootstrap runner requires byte-v1; Plex BPE checkpoint integration is pending")
+        for start in range(0, len(self._mapping), 1024 * 1024):
+            values = array("H")
+            values.frombytes(self._mapping[start:start + 1024 * 1024])
+            if sys.byteorder != "little":
+                values.byteswap()
+            if max(values) >= BYTE_VOCABULARY_SIZE:
+                raise ValueError("Bootstrap byte-v1 corpus contains an out-of-range token ID")
+
     def __enter__(self) -> "TokenCorpus":
         return self
 

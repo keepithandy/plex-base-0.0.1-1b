@@ -1,6 +1,6 @@
 # Local Plex training workspace
 
-This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The current `byte-v1` codec is a small bootstrap format for runner checks; the P1-14 local curation pipeline builds documented train/validation text splits, and P1-15 will train a tokenizer from the training split.
+This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The `byte-v1` codec remains a bootstrap format for runner checks. P1-14 builds reviewed train/validation text splits, and P1-15 has fitted Plex's own byte-level BPE tokenizer on the training split only. Its bundle and encoded corpora are ready; tokenizer-aware model/checkpoint integration follows in the initialization and learning milestones.
 
 ## Set up and inspect the runtime
 
@@ -35,7 +35,7 @@ The owner completed the regular ten-minute CUDA test on October 3, 2026. It save
 
 ## Prepare and use a small local corpus
 
-The bootstrap `prepare` command takes separate train and validation files so the same file cannot accidentally be used for both. It streams UTF-8 file bytes into little-endian uint16 token IDs and records source hashes without writing full source paths. Keep this format for pipeline checks only; the corpus pipeline and trained tokenizer come in P1-14/P1-15.
+The bootstrap `prepare` command takes separate train and validation files so the same file cannot accidentally be used for both. It streams UTF-8 file bytes into little-endian uint16 token IDs and records source hashes without writing full source paths. These examples are bootstrap plumbing checks; use the P1-15 tokenizer bundle for the upcoming real-text experiment after tokenizer-aware runner integration. The bootstrap runner rejects BPE token files to prevent mislabeled checkpoints.
 
 ```powershell
 uv run --project training python -m plex_training.cli prepare `
@@ -45,7 +45,7 @@ uv run --project training python -m plex_training.cli train `
   --train-tokens training\artifacts\data\train.tokens.u16le `
   --validation-tokens training\artifacts\data\validation.tokens.u16le `
   --checkpoint pilot\checkpoint.pt `
-  --minutes 120 `
+  --minutes 1 --steps 1 `
   --device cuda
 uv run --project training python -m plex_training.cli evaluate `
   --checkpoint training\artifacts\pilot\checkpoint.pt `
@@ -77,6 +77,21 @@ uv run --project training python -m plex_training.cli dataset-build `
 ```
 
 The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest under `training/artifacts/datasets/p1-14`. Exact duplicates, detected secret patterns, invalid UTF-8, oversized files, and detectable syntax failures are skipped with reason counts. Train/validation assignment is grouped by the catalog's `groupId`, so related repositories remain together. P1-15 consumes the training split to fit the tokenizer.
+
+## Train Plex's tokenizer (P1-15)
+
+The approved starter bundle is built at `training/artifacts/tokenizers/p1-15-starter-v1`. It contains a new byte-level BPE tokenizer, settings, the model configuration, encoded train/validation corpora, record indexes, provenance, and license notices. It has 9,976 learned token entries within the unchanged 16,384 model capacity. All 88 records preserve their text exactly. See the [tokenizer report](../docs/PLEX-TOKENIZER.md) for hashes, settings, limits, and results.
+
+The new pinned dependency is `tokenizers==0.23.2`; no pretrained tokenizer or weights are loaded. From the repository root, reproduce into a fresh directory:
+
+```powershell
+uv sync --project training --locked
+uv run --project training --no-sync python -m plex_training.cli tokenizer-train `
+  --dataset-dir training\artifacts\datasets\p1-14-starter-v1 `
+  --output-dir tokenizers\p1-15-my-rebuild
+```
+
+The command fits only training records' `text`, then encodes both splits. Every record gets one EOS boundary. It validates source/hash/group separation and remaining artifact storage and refuses existing outputs. It does not run model training. P1-16 records fresh random initialization; P1-17 checks tiny-sample learning; the two-hour real-data pilot remains P1-18. The historical byte-v1 smoke checkpoint uses different token meanings and cannot be resumed with this tokenizer.
 
 ## Run checks
 

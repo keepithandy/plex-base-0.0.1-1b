@@ -95,4 +95,4 @@ Verification confirmed pinned source blob hashes, source approvals, every record
 
 All **25 training-workspace tests passed** in the owner's installed Python/PyTorch environment. No dependencies were installed and no real-data training was started. Raw source snapshots and corpus outputs remain ignored by Git; the approved catalog, source lock, pipeline, and this report are reviewable repository files.
 
-P1-15 will train the tokenizer using the training split only. Keep the validation group withheld from tokenizer fitting and training.
+P1-15 has trained the tokenizer using the training split only; its [report](PLEX-TOKENIZER.md) records settings, exact-text checks, token counts, hashes, and reproduction. Keep the validation group withheld from tokenizer fitting and model training.

@@ -3,7 +3,7 @@ name = "plex-local-training"
 version = "0.1.0"
 description = "Local from-scratch training tools for Plex"
 requires-python = ">=3.10,<3.15"
-dependencies = ["torch==2.14.0"]
+dependencies = ["torch==2.14.0", "tokenizers==0.23.2"]
 
 [project.scripts]
 plex-train = "plex_training.cli:main"

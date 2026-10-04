@@ -40,4 +40,4 @@ Credential patterns are a defense-in-depth filter, not a guarantee that secrets 
 
 Exact duplicates are removed before splitting. A stable SHA-256 ranking of `seed` and `groupId` assigns complete repository groups to validation or training; at least two eligible groups are required. This reduces source leakage but does not identify every related repository automatically. Assign related sources the same `groupId` in the catalog.
 
-The output remains a text corpus for P1-14. P1-15 will train Plex's tokenizer using only `train.jsonl`, then encode both splits. No pretrained weights or external tokenizer checkpoints are used.
+The output remains a text corpus for P1-14. P1-15 has trained Plex's tokenizer using only the `text` fields of `train.jsonl`, then encoded both splits. The [tokenizer report](PLEX-TOKENIZER.md) records results and reproduction commands. No pretrained weights or external tokenizer checkpoints are used.

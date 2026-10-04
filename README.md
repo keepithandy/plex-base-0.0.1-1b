@@ -45,7 +45,13 @@ P1-12 defines a 27.6-million-parameter decoder-only Transformer, 512-token conte
 
 ## P1-13 local training runner
 
-The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. The owner's ten-minute CUDA smoke test passed. P1-14 is complete for the [approved starter corpus](docs/DATASET-SOURCE-REVIEW.md): 34 training records, 54 validation records, preserved MIT notices, and reproducible provenance, totaling under 1 MiB. All 25 training-workspace tests passed. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md). The Plex tokenizer and two-hour real-data pilot remain pending.
+The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. The owner's ten-minute CUDA smoke test passed. P1-14 is complete for the [approved starter corpus](docs/DATASET-SOURCE-REVIEW.md): 34 training records, 54 validation records, preserved MIT notices, and reproducible provenance, totaling under 1 MiB. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md).
+
+## P1-15 Plex tokenizer
+
+Plex's own byte-level BPE tokenizer is trained and packaged with the model configuration. It fitted only the approved training text and learned 9,976 token entries within the existing 16,384 model capacity. All 88 records round-trip exactly; a separate rebuild produced all 11 bundle files byte-identically. The bundle occupies about 0.99 MiB. All 35 training-workspace tests pass. Settings, artifact hashes, and reproduction commands are in the [tokenizer report](docs/PLEX-TOKENIZER.md).
+
+Next is P1-16: record fresh random initialization and connect the model to this tokenizer. The bootstrap runner rejects these BPE corpora until tokenizer-aware integration is implemented. Keep the successful synthetic byte-v1 smoke checkpoint as a historical test. P1-17 checks tiny-sample learning before the two-hour P1-18 pilot; longer runs await P1-19's resume gate.
 
 ## Current CLI behavior
 
