@@ -1,0 +1,7 @@
+# P2-02 authored example draft
+
+`p2-02-authored-examples-v1.jsonl` is a Codex-authored draft for owner review. It is **not approved, not in the source catalog, not part of the P2-02 corpus, and not authorized for training**. It has no external source material. Do not move it under a source root or add it to a training manifest until its content and provenance are approved.
+
+The nine examples pair a short HTML, CSS, or JavaScript request with a solution and a few small expected-behavior notes. There are three examples per language, each assigned its own `splitGroupId` so a future build can keep each task/solution pair intact. `candidateSplit` records seed 51's group-stratified proposal: one of three groups per language goes to data development (about 33%), and the other two go to training. The actual build must verify it. The draft deliberately uses topics and wording separate from the 30 P2-01 development prompts. The `smokeCases` are review notes only; they have not been executed, and they are not benchmark tasks.
+
+Before any use in training, review correctness and usefulness, decide the approved provenance label and split assignment, add compatible manifest support or convert the records through a documented deterministic build step, check overlap against every evaluation task, and measure actual token counts with the P2 tokenizer. This draft does not meet the proposed code/explanation percentage on its own and does not replace the need for a broader code-focused source mix.
