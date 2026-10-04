@@ -124,7 +124,7 @@ Choose an unused output path. The command is capped at 500 optimizer steps and t
 
 ## Prepare and run the held-out pilot (P1-18)
 
-`pilot` verifies both packed BPE splits, their reviewed source hashes, the tokenizer/model configuration, and the step-zero P1-16 checkpoint before training. It records the baseline and final held-out validation losses, throughput, memory use, tokenizer/data identities, and periodic checkpoints. A one-step preflight passed; the two-hour run remains pending. See the [pilot report](../docs/PLEX-PILOT.md).
+`pilot` verifies both packed BPE splits, their reviewed source hashes, the tokenizer/model configuration, and the step-zero P1-16 checkpoint before training. It records the baseline and final held-out validation losses, throughput, memory use, tokenizer/data identities, and periodic checkpoints. The owner's full two-hour CUDA run passed the bounded pilot gate: held-out loss improved from 9.33937 to 6.53100, independently confirmed from its checkpoint. See the [pilot report](../docs/PLEX-PILOT.md).
 
 To reproduce the short preflight in a fresh output directory:
 
@@ -134,18 +134,15 @@ uv run --project training --no-sync python -m plex_training.cli pilot `
   --output-dir pilot\p1-18-my-preflight
 ```
 
-For the full bounded run, use an unused output directory and omit `--steps`:
+To independently re-evaluate the completed run:
 
 ```powershell
-uv run --project training --no-sync python -m plex_training.cli pilot `
-  --minutes 120 --device cuda `
-  --output-dir pilot\p1-18-full-v1
 uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
-  --checkpoint training\artifacts\pilot\p1-18-full-v1\pilot-checkpoint.pt `
+  --checkpoint training\artifacts\pilot\p1-18-full-v2\pilot-checkpoint.pt `
   --device cuda
 ```
 
-Training uses the approved train split; evaluation reads the distinct held-out split. The command refuses to overwrite an output directory and enforces a 120-minute maximum and the 200 GiB artifact allocation. The starter corpus is small, so final validation may not improve after a long run; record that outcome rather than treating one-step improvement as the pilot result. P1-19 remains the gate for verified checkpoint resumption before longer training.
+Training uses the approved train split; evaluation reads the distinct held-out split. The command refuses to overwrite an output directory and enforces a 120-minute maximum and the 200 GiB artifact allocation. No further long run is needed for P1-18. The small starter corpus and large train/validation loss gap limit quality claims. P1-19 remains the gate for verified checkpoint resumption before longer training.
 
 ## Run checks
 

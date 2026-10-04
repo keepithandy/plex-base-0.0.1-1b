@@ -1,6 +1,6 @@
-# P1-18 — Tokenizer-aware pilot preparation
+# P1-18 — Two-hour tokenizer-aware pilot
 
-The bounded training and held-out evaluation path is ready. A one-step preflight completed from the P1-16 random initialization using the approved P1-15 BPE training and validation splits. The **two-hour pilot has not run**; P1-18's full training and outcome gate remain pending.
+**Status: complete for the bounded pilot.** The owner ran the full 120-minute CUDA pilot from the P1-16 random initialization on the approved P1-15 BPE corpus. The saved checkpoint and held-out result were independently verified. P1-19 must still prove tokenizer-aware checkpoint resumption and generation before any longer training.
 
 ## What the pilot command does
 
@@ -28,33 +28,50 @@ The command measures validation loss before and after training, logs training lo
 | Checkpoint SHA-256 | `043d2c85dab1dcc88efb96fd65d47a2359ee5677e6c6ce336c41edd0984829e0` |
 | Starting initialization SHA-256 | `7a06c575ba229cfbdf758cad6ae7d0c4e504236eeba1dd90c9d531ca4689c7b4` |
 
-These numbers describe one short run in the available execution runtime; they are not a two-hour throughput or memory prediction. One update lowered the measured held-out loss, but the full pilot must measure whether that improvement persists. The starter training set is small, so repeated exposure may overfit.
+These numbers describe the one-update preparation check, not the full pilot. The starter training set is small, so repeated exposure may overfit.
 
 The ignored preflight files are under `training/artifacts/pilot/p1-18-preflight-v1/`: `pilot-checkpoint.pt`, `metrics.jsonl`, and `pilot-report.json`. They count against the 200 GiB storage allocation. Existing P1-01–P1-17 work and the earlier synthetic smoke checkpoint remain intact.
 
-## Run the two-hour-capped pilot
+## Completed two-hour pilot
 
-From the repository root in PowerShell, after reviewing the above preflight and with enough uninterrupted time:
+The successful run is stored locally under `training/artifacts/pilot/p1-18-full-v2/`. Its `pilot-report.json`, `metrics.jsonl`, and `pilot-checkpoint.pt` are ignored by Git. The first `p1-18-full-v1` attempt ended without a final report and is not used for this result. The completed run was uninterrupted and stopped at its 120-minute cap.
 
-```powershell
-uv run --project training --no-sync python -m plex_training.cli pilot `
-  --minutes 120 `
-  --device cuda `
-  --output-dir pilot\p1-18-full-v1
-```
+| Measurement | Completed run |
+|---|---:|
+| Elapsed time | 7,200.018 seconds |
+| Optimizer updates | 43,632 |
+| Training token positions processed, including repeated sampling | 357,433,344 |
+| Reported throughput | 49,643.40 token positions/second |
+| Recent mean training loss | 0.02910 |
+| Held-out loss before training | 9.33937 |
+| Held-out loss after training | 6.53100 |
+| Independent held-out evaluation | 6.530996513366699 over 35 batches / 17,920 targets |
+| Peak GPU allocated / reserved | 801,311,232 / 878,706,688 bytes |
+| Peak process working set | 1,397,129,216 bytes |
+| Checkpoint size | 330,897,883 bytes |
+| Checkpoint SHA-256 | `8f00c895637a4062037f7a49fb7fdaf1193771243c3727bdd9b9059da93a1298` |
+| Starting initialization SHA-256 | `7a06c575ba229cfbdf758cad6ae7d0c4e504236eeba1dd90c9d531ca4689c7b4` |
 
-`--device auto` permits CPU fallback, though the prior CUDA smoke and preflight used CUDA. Choose a fresh output directory if `p1-18-full-v1` already exists. The command is a local run and uses no paid service or new dataset download. A shorter measured run can use `--minutes 10` or `--steps 100` with a fresh output name; these are development runs, not the completed two-hour pilot.
+The final held-out loss is lower by 2.80837 (about 30.1%) than the untrained baseline. The checkpoint's SHA-256 matches the saved report, and the independent evaluation matched its final loss exactly. The 147,948-token training split is tiny relative to 357 million sampled training positions; the low training loss and much higher held-out loss suggest memorization and weak transfer to the separate web-code source group, though the different source distributions also affect that gap. This is evidence of a working bounded training path and improvement on this particular held-out split, not evidence of useful general coding ability. Broader reviewed training data and stronger evaluation are still needed.
 
-After the run, independently re-evaluate the saved checkpoint:
+To independently recheck the completed checkpoint from the repository root in PowerShell:
 
 ```powershell
 uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
-  --checkpoint training\artifacts\pilot\p1-18-full-v1\pilot-checkpoint.pt `
+  --checkpoint training\artifacts\pilot\p1-18-full-v2\pilot-checkpoint.pt `
   --device cuda
 ```
 
-The output folder's `pilot-report.json` and `metrics.jsonl` hold the before/after validation losses, tokens processed, step count, throughput, memory peaks, checkpoint hash, and whether the run was interrupted. P1-18 is complete only after the bounded real-data run is measured and its held-out validation result is assessed against the untrained baseline. The one-step preflight does not establish coding ability.
+To reproduce the full experiment, use a fresh output directory; the command refuses overwrite and starts again from the scratch initialization:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --minutes 120 --device cuda `
+  --output-dir pilot\p1-18-reproduction-v1
+```
+
+No further long run is required for P1-18. The next gate is P1-19's resume and tokenizer-aware generation check.
 
 ## Verification
 
-The one-step command and independent evaluation completed on the approved bundle. All 39 training-workspace tests pass. New checks cover modified validation tokens, checkpoint/tokenizer mismatch, vocabulary masking, and rejection of durations above 120 minutes. `git diff --check` passes. The installed PyTorch build still prints a nonfatal missing-NumPy warning.
+The one-step command and independent evaluation completed on the approved bundle; all 39 training-workspace tests passed at implementation time. The owner completed the full two-hour run, and the saved report, checkpoint hash, and separate `pilot-evaluate` result were checked on the completed checkpoint. The installed PyTorch build still prints a nonfatal missing-NumPy warning.

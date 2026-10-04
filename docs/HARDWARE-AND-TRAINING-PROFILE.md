@@ -1,6 +1,6 @@
 # Plex hardware and training profile
 
-Status: **hardware and owner-set training limits recorded; ten-minute synthetic resource-fit test passed; real-data pilot pending**. Hardware values below were provided by the owner, not inferred from the development host.
+Status: **hardware and owner-set training limits recorded; ten-minute synthetic resource-fit test and two-hour real-data pilot passed**. Hardware values below were provided by the owner, not inferred from the development host.
 
 ## Collected Windows hardware
 
@@ -67,7 +67,7 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 - Training duration: run a 10-minute smoke test, followed by a pilot capped at two hours. After those checks, longer training runs may continue without a fixed time cap, with resumable checkpoints and progress monitoring.
 - Local electricity cost allowance: `unknown`; no separate allowance was specified.
 - Maximum acceptable RAM/VRAM use during training: `unknown`
-- First experiment: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner's original 13 tests and ten-minute CUDA smoke test passed on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. The [observed smoke result](SMOKE-TEST-2026-10-03.md) was 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and 57,327.61 synthetic token positions/second. Real-data pilot resource use and CPU inference remain unmeasured.
+- First experiment: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner's original 13 tests and ten-minute CUDA smoke test passed on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. The [observed smoke result](SMOKE-TEST-2026-10-03.md) was 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and 57,327.61 synthetic token positions/second. The [two-hour real-data pilot](PLEX-PILOT.md) reached 878,706,688 bytes peak GPU reservation, 1,397,129,216 bytes peak process working set, and 49,643.40 sampled token positions/second. CPU inference remains unmeasured.
 
 ## Local inference requirements
 
@@ -83,6 +83,6 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 
 1. Fit the first model and dataset within the 200 GiB allocation; revise the allocation only if measured needs justify it.
 2. Choose a small initial random-initialized model and estimate RAM/VRAM needs.
-3. Run the 10-minute smoke test and the two-hour pilot before authorizing longer training.
+3. The 10-minute smoke test and two-hour pilot are complete; pass P1-19 checkpoint resumption before any longer training.
 4. Save resumable checkpoints and record the measured training configuration, throughput, memory, and elapsed time in the experiment history.
 5. Assess local CPU inference separately from training performance; optional GPU support does not replace CPU support.
