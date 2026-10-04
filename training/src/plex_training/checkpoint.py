@@ -28,6 +28,8 @@ def save_checkpoint(
     destination: Path,
     artifact_root: Path,
     overwrite: bool = False,
+    initialization_record: dict[str, Any] | None = None,
+    tokenizer_record: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     payload = {
         "formatVersion": CHECKPOINT_FORMAT_VERSION,
@@ -43,6 +45,8 @@ def save_checkpoint(
         "torchCudaRngStates": torch.cuda.get_rng_state_all() if device.type == "cuda" else [],
         "pythonVersion": platform.python_version(),
         "torchVersion": str(torch.__version__),
+        "initializationRecord": initialization_record,
+        "tokenizerRecord": tokenizer_record,
     }
     size = atomic_write_checkpoint(
         payload,

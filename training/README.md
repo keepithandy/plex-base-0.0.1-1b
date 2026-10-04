@@ -91,7 +91,20 @@ uv run --project training --no-sync python -m plex_training.cli tokenizer-train 
   --output-dir tokenizers\p1-15-my-rebuild
 ```
 
-The command fits only training records' `text`, then encodes both splits. Every record gets one EOS boundary. It validates source/hash/group separation and remaining artifact storage and refuses existing outputs. It does not run model training. P1-16 records fresh random initialization; P1-17 checks tiny-sample learning; the two-hour real-data pilot remains P1-18. The historical byte-v1 smoke checkpoint uses different token meanings and cannot be resumed with this tokenizer.
+The command fits only training records' `text`, then encodes both splits. Every record gets one EOS boundary. It validates source/hash/group separation and remaining artifact storage and refuses existing outputs. It does not run model training. P1-16 has created and recorded fresh random weights tied to this tokenizer; P1-17 must add tokenizer-aware tiny-sample learning before the two-hour real-data pilot in P1-18. The historical byte-v1 smoke checkpoint uses different token meanings and cannot be resumed with this tokenizer.
+
+## Initialize fresh Plex weights (P1-16)
+
+The P1-16 command creates a safe, step-zero Plex checkpoint with CPU-initialized random weights and records the seed, initializer, model settings, tokenizer hash, weight hash, and Python/PyTorch versions. It does not train or use a pretrained model. The [initialization report](../docs/PLEX-INITIALIZATION.md) has the recorded hashes and limitations.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli initialize `
+  --tokenizer-dir training\artifacts\tokenizers\p1-15-starter-v1 `
+  --output-dir initializations\p1-16-my-run `
+  --seed 1337
+```
+
+Use a new output directory for each initialization. Output is kept under `training/artifacts` and counted against the 200 GiB allocation. P1-17 will use these weights to check learning with a deliberately tiny real-text sample; the existing training runner still accepts only `byte-v1` corpora.
 
 ## Run checks
 

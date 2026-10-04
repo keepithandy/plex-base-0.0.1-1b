@@ -35,7 +35,7 @@ This model is about 18 times smaller than the low end of the eventual 0.5B–1.5
 | Gradient clipping | Global norm 1.0 |
 | Micro-batch | 1 sequence |
 | Gradient accumulation | 16 steps (effective batch: 16 sequences / 8,192 token positions) |
-| Initialization | Random; exact scheme and seed recorded in P1-16 |
+| Initialization | Fresh CPU initialization, scheme `plex-normal-0.02-v1`, seed 1337; see [P1-16 initialization record](PLEX-INITIALIZATION.md) |
 
 The 10-minute smoke test uses generated deterministic token sequences, needs no dataset download, and measures that forward/backward training runs while reporting elapsed time, tokens per second, peak VRAM, and peak system RAM. The owner completed it successfully; its settings, raw result, and interpretation are in [SMOKE-TEST-2026-10-03.md](SMOKE-TEST-2026-10-03.md). It checks runtime and resource use only; the separate P1-17 tiny-sample test checks reproduction of a real text sample.
 
@@ -55,5 +55,5 @@ Do not proceed from the two-hour pilot to longer training if the process exceeds
 
 - The P1-13 project pins Python 3.12 and PyTorch 2.14.0 with CUDA 12.6. The owner resolved the environment on Windows; the reported runtime is Python 3.12.10, PyTorch 2.14.0+cu126, and CUDA 12.6. The original 13 tests and ten-minute CUDA smoke test passed. Real-data throughput and validation remain unmeasured until P1-18.
 - The tokenizer, data sources, and validation split are defined by P1-14 and P1-15; no dataset download is part of P1-12.
-- The exact random initialization scheme and seed are recorded in P1-16.
+- P1-16 created a 27,566,080-parameter step-zero initialization checkpoint with seed 1337, scheme `plex-normal-0.02-v1`, and the P1-15 tokenizer identity. Its initial weights hash is recorded in [PLEX-INITIALIZATION.md](PLEX-INITIALIZATION.md). No pretrained checkpoint was loaded.
 - CPU inference memory and latency targets remain separate and unmeasured; test them after a Plex checkpoint exists.

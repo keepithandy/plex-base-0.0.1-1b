@@ -8,6 +8,15 @@ from torch.nn import functional as F
 
 from .config import ModelConfig
 
+INITIALIZATION_SCHEME_VERSION = "plex-normal-0.02-v1"
+INITIALIZATION_SCHEME = {
+    "linearAndEmbeddingWeights": "normal(mean=0, std=0.02)",
+    "attentionInputProjectionWeights": "normal(mean=0, std=0.02)",
+    "layerNormWeights": "constant(1)",
+    "allLinearAndLayerNormBiases": "constant(0)",
+    "tiedOutputProjection": "reuse token embedding weight; no separate output matrix",
+}
+
 
 class TransformerBlock(nn.Module):
     def __init__(self, config: ModelConfig) -> None:
@@ -46,7 +55,7 @@ class TransformerBlock(nn.Module):
 
 
 class PlexLanguageModel(nn.Module):
-    """Decoder-only pre-layer-norm Transformer with tied token embeddings."""
+    """Decoder-only pre-layer-norm Transformer with explicit scratch initialization."""
 
     def __init__(self, config: ModelConfig) -> None:
         super().__init__()

@@ -57,4 +57,4 @@ The low loss reflects learning the predictable synthetic pattern. This is eviden
 
 PyTorch warned that NumPy was unavailable, but the run completed. No NumPy-dependent operation was needed in this smoke test; dependency installation is not required to interpret this result.
 
-Source approval and the starter corpus build are now complete; see the [P1-14 source/build report](DATASET-SOURCE-REVIEW.md). Next are the Plex tokenizer (P1-15), recorded random initialization (P1-16), and the tiny learning check (P1-17). The two-hour real-data pilot remains P1-18. Checkpoint resumption must still pass P1-19 before uncapped longer runs.
+Source approval, tokenizer training, and fresh random initialization are recorded in the [P1-14 source/build report](DATASET-SOURCE-REVIEW.md), [P1-15 tokenizer report](PLEX-TOKENIZER.md), and [P1-16 initialization report](PLEX-INITIALIZATION.md). Next is the tokenizer-aware tiny learning check (P1-17). The two-hour real-data pilot remains P1-18. Checkpoint resumption must still pass P1-19 before uncapped longer runs.

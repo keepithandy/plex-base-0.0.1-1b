@@ -56,6 +56,15 @@ def build_parser() -> argparse.ArgumentParser:
     tokenizer.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(tokenizer)
 
+    initialize = subparsers.add_parser(
+        "initialize", help="Create and record a fresh, randomly initialized Plex checkpoint"
+    )
+    initialize.add_argument("--tokenizer-dir", type=Path, default=Path("tokenizers/p1-15-starter-v1"))
+    initialize.add_argument("--output-dir", type=Path, default=Path("initializations/p1-16-starter-v1"))
+    initialize.add_argument("--seed", type=int, default=1337)
+    initialize.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(initialize)
+
     smoke = subparsers.add_parser("smoke", help="Run the synthetic-data smoke test (at most 10 minutes)")
     smoke.add_argument("--minutes", type=float, default=MAX_SMOKE_MINUTES)
     smoke.add_argument("--steps", type=int, default=None, help="Optional quick test bound; does not replace timed smoke")
@@ -231,6 +240,20 @@ def _tokenizer_train(args: argparse.Namespace) -> dict[str, Any]:
     return {**result, "outputDirectory": str(output.relative_to(root)), "storageLimitBytes": limit}
 
 
+def _initialize(args: argparse.Namespace) -> dict[str, Any]:
+    from .initialization import initialize_model
+    from .artifacts import artifact_bytes
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - artifact_bytes(root)
+    return initialize_model(args.tokenizer_dir, output, seed=args.seed,
+                            artifact_root=root, storage_limit_bytes=remaining)
+
+
 def _train(args: argparse.Namespace) -> dict[str, Any]:
     from .data import TokenCorpus
     from .runner import run_training
@@ -287,6 +310,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_dataset_build(args))
         elif args.command == "tokenizer-train":
             _json_print(_tokenizer_train(args))
+        elif args.command == "initialize":
+            _json_print(_initialize(args))
         elif args.command == "smoke":
             _json_print(_smoke(args))
         elif args.command == "train":
