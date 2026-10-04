@@ -1,6 +1,6 @@
 # Phase 2 — Data and coding-evaluation proposal
 
-**Status: source selection and P2-02 pipeline baseline are recorded; P2-01a and development-only P2-01b are complete.** The exact source review and artifacts are recorded in the [Phase 2 data collection review](PHASE-2-DATA-COLLECTION-REVIEW.md), and the [evaluation design](PHASE-2-EVALUATION-DESIGN.md) records the owner-approved numeric gate and static development harness. The final task set remains unbuilt, the current P2-02 mix remains documentation-heavy, and no Phase 2 model initialization or training run has started.
+**Status: source selection and P2-02 pipeline baseline are recorded; its data mix has been reviewed; P2-01a and development-only P2-01b are complete.** The exact source review and artifacts are recorded in the [Phase 2 data collection review](PHASE-2-DATA-COLLECTION-REVIEW.md), the [data-mix review](PHASE-2-DATA-MIX-REVIEW.md) records why the current mix is not yet preferred for coding training, and the [evaluation design](PHASE-2-EVALUATION-DESIGN.md) records the owner-approved numeric gate and static development harness. The final task set remains unbuilt, and no Phase 2 model initialization or training run has started.
 
 ## Recommendation
 
@@ -105,4 +105,4 @@ No uncapped run is proposed. Stay within the 200 GiB Plex allocation and $0 paid
 - The exact already approved Microsoft P1-14 subset may be re-split by project group for this new train/development corpus.
 - The proposed 30 development / 60 final tasks and the per-language majority rule are accepted as a starting gate; the owner set the numeric improvement margin at 10 percentage points overall and at least 11/20 passes per language.
 
-These decisions authorize only the reviewed source selection and starting evaluation design. The 30-task development set is available, but the final benchmark is not frozen, the observed corpus mix needs review, and no P2 training run should begin yet.
+These decisions authorize only the reviewed source selection and starting evaluation design. The 30-task development set is available, but the final benchmark is not frozen, the preferred coding mix remains to be built, and no P2 training run should begin yet.

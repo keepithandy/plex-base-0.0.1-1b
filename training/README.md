@@ -82,7 +82,7 @@ The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest
 
 The owner approved re-splitting the exact Microsoft P1-14 selection by project and a small MDN `learning-area` path selection. The pinned lock is [`phase2/dataset-source-lock.json`](phase2/dataset-source-lock.json); the approval catalog is [`phase2/dataset-sources.phase2-v1.json`](phase2/dataset-sources.phase2-v1.json). Raw snapshots stay beneath `training/phase2/data/raw` and are ignored by Git. See the [collection report](../docs/PHASE-2-DATA-COLLECTION-REVIEW.md) for exact files, license notices, and exclusions.
 
-The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: it is documentation-heavy relative to the proposed code mix, so review the data mix before using it for Phase 2 model comparisons.
+The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: the [P2-02 data-mix review](../docs/PHASE-2-DATA-MIX-REVIEW.md) records that code-file extensions account for 23.9% of training tokens and 8.7% of development tokens. Do not treat it as the preferred coding-training mix until a new reviewed selection is built and a matching step-zero development score provides failure evidence.
 
 ## Score coding-task responses (P2-01)
 
