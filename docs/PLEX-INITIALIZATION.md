@@ -46,4 +46,4 @@ The result is placed under `training/artifacts/initializations/p1-16-my-run/`. I
 
 ## Next step
 
-P1-16 is complete as initialization. P1-17 must make training/evaluation consume `plex-byte-bpe-v1`, preserve this tokenizer identity in trained checkpoints, mask unused output IDs, and show falling loss plus reproduction on a deliberately tiny real-text sample. The current general `train`, `evaluate`, and `generate` commands remain restricted to `byte-v1`; do not pass the BPE token files to them. The two-hour pilot follows P1-17.
+P1-17 has since used this checkpoint in a bounded one-record learning check and saved its trained result; see the [P1-17 learning report](PLEX-LEARNING-CHECK.md). The current general `train`, `evaluate`, and `generate` commands remain restricted to `byte-v1`; the two-hour pilot needs a tokenizer-aware training/evaluation path. Do not pass BPE token files to the general byte-v1 commands.

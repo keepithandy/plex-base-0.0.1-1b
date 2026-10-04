@@ -51,7 +51,7 @@ The separate Python workspace is in [`training/`](training/README.md). It provid
 
 Plex's own byte-level BPE tokenizer is trained and packaged with the model configuration. It fitted only the approved training text and learned 9,976 token entries within the existing 16,384 model capacity. All 88 records round-trip exactly; a separate rebuild produced all 11 bundle files byte-identically. The bundle occupies about 0.99 MiB. All 35 training-workspace tests pass. Settings, artifact hashes, and reproduction commands are in the [tokenizer report](docs/PLEX-TOKENIZER.md).
 
-P1-16 has created a step-zero random initialization checkpoint tied by hash to this tokenizer. The artifact records seed 1337, the initialization scheme, model/tokenizer sizes, software version, and weight hash; no pretrained checkpoint was loaded. The regular train/evaluate/generate commands still use the earlier byte-v1 checkpoint format. P1-17 adds tokenizer-aware tiny-sample learning before the two-hour P1-18 pilot; longer runs await P1-19's resume gate.
+P1-16 created a step-zero random initialization checkpoint tied by hash to this tokenizer. P1-17 then trained from it on one short training record: loss fell from 9.438 to 0.0000224, and greedy decoding reproduced the 16-token sample from a two-token prompt in 250 steps. See the [learning check report](docs/PLEX-LEARNING-CHECK.md). This confirms the basic training path can learn and repeat one memorized sample; it does not measure coding ability. Next, P1-18 is the two-hour real-data pilot, using the separate train and held-out validation splits. Checkpoint/resume coverage and general-purpose tokenizer-aware train/evaluation/generation are still required before longer runs in P1-19.
 
 ## Current CLI behavior
 

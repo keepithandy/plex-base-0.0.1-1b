@@ -91,7 +91,7 @@ uv run --project training --no-sync python -m plex_training.cli tokenizer-train 
   --output-dir tokenizers\p1-15-my-rebuild
 ```
 
-The command fits only training records' `text`, then encodes both splits. Every record gets one EOS boundary. It validates source/hash/group separation and remaining artifact storage and refuses existing outputs. It does not run model training. P1-16 has created and recorded fresh random weights tied to this tokenizer; P1-17 must add tokenizer-aware tiny-sample learning before the two-hour real-data pilot in P1-18. The historical byte-v1 smoke checkpoint uses different token meanings and cannot be resumed with this tokenizer.
+The command fits only training records' `text`, then encodes both splits. Every record gets one EOS boundary. It validates source/hash/group separation and remaining artifact storage and refuses existing outputs. It does not run model training. P1-16 created and recorded fresh random weights tied to this tokenizer; P1-17's one-record learning check is complete. The historical byte-v1 smoke checkpoint uses different token meanings and cannot be resumed with this tokenizer.
 
 ## Initialize fresh Plex weights (P1-16)
 
@@ -105,6 +105,22 @@ uv run --project training --no-sync python -m plex_training.cli initialize `
 ```
 
 Use a new output directory for each initialization. Output is kept under `training/artifacts` and counted against the 200 GiB allocation. P1-17 will use these weights to check learning with a deliberately tiny real-text sample; the existing training runner still accepts only `byte-v1` corpora.
+
+## Prove the model can learn (P1-17)
+
+P1-17's one-record overfit check is implemented by `learn-check`. The successful run reduced loss from 9.437925 to 0.00002242 and reproduced all 16 sample tokens from a two-token prompt in 250 steps. The checkpoint preserves the tokenizer identity and optimizer state. See the [P1-17 report](../docs/PLEX-LEARNING-CHECK.md).
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli learn-check `
+  --initialization training\artifacts\initializations\p1-16-starter-v1\initialization.pt `
+  --tokenizer-dir training\artifacts\tokenizers\p1-15-starter-v1 `
+  --train-tokens training\artifacts\tokenizers\p1-15-starter-v1\train.tokens.u16le `
+  --train-index training\artifacts\tokenizers\p1-15-starter-v1\train.index.json `
+  --output-dir learning\p1-17-my-run `
+  --steps 250 --sample-tokens 16 --minutes 10 --device auto
+```
+
+Choose an unused output path. The command is capped at 500 optimizer steps and ten minutes; it uses one real training record and no validation text. Exact reproduction here is an overfit plumbing check only. A separate bounded BPE training/evaluation path using held-out validation is still needed for the P1-18 pilot.
 
 ## Run checks
 

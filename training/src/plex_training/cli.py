@@ -65,6 +65,24 @@ def build_parser() -> argparse.ArgumentParser:
     initialize.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(initialize)
 
+    learning = subparsers.add_parser(
+        "learn-check", help="Overfit one short approved training record from the P1-16 checkpoint"
+    )
+    learning.add_argument("--initialization", type=Path,
+                          default=Path("initializations/p1-16-starter-v1/initialization.pt"))
+    learning.add_argument("--tokenizer-dir", type=Path, default=Path("tokenizers/p1-15-starter-v1"))
+    learning.add_argument("--train-tokens", type=Path,
+                          default=Path("tokenizers/p1-15-starter-v1/train.tokens.u16le"))
+    learning.add_argument("--train-index", type=Path,
+                          default=Path("tokenizers/p1-15-starter-v1/train.index.json"))
+    learning.add_argument("--output-dir", type=Path, default=Path("learning/p1-17-tiny-v1"))
+    learning.add_argument("--steps", type=int, default=250)
+    learning.add_argument("--sample-tokens", type=int, default=16)
+    learning.add_argument("--minutes", type=float, default=10.0)
+    learning.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    learning.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(learning)
+
     smoke = subparsers.add_parser("smoke", help="Run the synthetic-data smoke test (at most 10 minutes)")
     smoke.add_argument("--minutes", type=float, default=MAX_SMOKE_MINUTES)
     smoke.add_argument("--steps", type=int, default=None, help="Optional quick test bound; does not replace timed smoke")
@@ -254,6 +272,31 @@ def _initialize(args: argparse.Namespace) -> dict[str, Any]:
                             artifact_root=root, storage_limit_bytes=remaining)
 
 
+def _learn_check(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .learning import run_learning_check
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - artifact_bytes(root)
+    return run_learning_check(
+        initialization_path=args.initialization,
+        tokenizer_dir=args.tokenizer_dir,
+        training_tokens=args.train_tokens,
+        training_index=args.train_index,
+        output_dir=output,
+        artifact_root=root,
+        steps=args.steps,
+        sample_tokens=args.sample_tokens,
+        minutes=args.minutes,
+        device_name=args.device,
+        storage_limit_bytes=remaining,
+    )
+
+
 def _train(args: argparse.Namespace) -> dict[str, Any]:
     from .data import TokenCorpus
     from .runner import run_training
@@ -312,6 +355,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_tokenizer_train(args))
         elif args.command == "initialize":
             _json_print(_initialize(args))
+        elif args.command == "learn-check":
+            _json_print(_learn_check(args))
         elif args.command == "smoke":
             _json_print(_smoke(args))
         elif args.command == "train":
