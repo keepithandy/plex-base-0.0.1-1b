@@ -1,6 +1,6 @@
 # Phase 2 coding evaluation — P2-01
 
-**Status: P2-01a and the development-only portion of P2-01b are complete.** The 30-task development set is versioned at [`training/phase2/evaluation/p2-01b-dev-v1.json`](../training/phase2/evaluation/p2-01b-dev-v1.json). The v3-matched step-zero checkpoint generated and scored all 30 responses: 0 complete tasks passed, with 29 outputs truncated. A 10-minute trained v3 checkpoint now exists; its coding-task comparison is pending. See the [v3 report](PHASE-2-DATASET-V3-REPORT.md) and [training check report](PHASE-2-TRAINING-CHECK-V3-REPORT.md). The 60-task final holdout remains unbuilt.
+**Status: P2-01a and the development-only portion of P2-01b are complete.** The 30-task development set is versioned at [`training/phase2/evaluation/p2-01b-dev-v1.json`](../training/phase2/evaluation/p2-01b-dev-v1.json). The v3-matched step-zero checkpoint generated and scored all 30 responses: 0 complete tasks passed, with 29 outputs truncated. A 10-minute trained v3 checkpoint has also generated all 30 responses; its coding-task score is pending. See the [v3 report](PHASE-2-DATASET-V3-REPORT.md) and [training check report](PHASE-2-TRAINING-CHECK-V3-REPORT.md). The 60-task final holdout remains unbuilt.
 
 ## Owner-approved decision rule
 

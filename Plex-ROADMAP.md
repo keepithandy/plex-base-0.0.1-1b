@@ -113,6 +113,6 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 ## Next task
 
-**Next: generate and score responses from the 10-minute v3 checkpoint on the same 30 development tasks.** Keep the step-zero and trained comparisons on identical tasks, tokenizer, prompt, and decoding settings. The evaluator checks JavaScript syntax but does not execute generated code, so scores remain an early static signal. Review this result before starting a two-hour pilot; all training remains capped at 120 minutes.
+**Next: score the generated responses from the 10-minute v3 checkpoint against the step-zero baseline.** Both use the same 30 development tasks, tokenizer, prompt, and decoding settings. The evaluator checks JavaScript syntax but does not execute generated code, so scores remain an early static signal. Review this result before starting a two-hour pilot; all training remains capped at 120 minutes.
 
 This determines a realistic first model size and training run. The first success is a small, demonstrably learned Plex checkpoint; the eventual release must earn its capability claims through evaluation.

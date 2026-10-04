@@ -41,4 +41,6 @@ Lower held-out language-model loss shows that training reduced next-token predic
 
 ## Next step
 
-Generate and score development responses from the checkpoint above, using the v3 tokenizer and the same development task set. JavaScript behavior remains untested; the evaluator performs syntax checks only. Review that comparison before starting the two-hour pilot.
+On 2026-10-04, the owner generated responses to all 30 development tasks from the step-922 checkpoint above, using CUDA and the same v3 tokenizer. The generation output confirms checkpoint SHA-256 `80287a0b5871bb13d61546aa3fd910a745270210e7b5a3872bf6a0fa15ff1608` and `pretrainedCheckpointLoaded: false`. The response file is `training/artifacts/evaluation/p2-dev-v3-10m-v1/responses.jsonl`, SHA-256 `8af1a30da91b45db19fe86065716d8faa59858a3e68a82edb7e9a8ed74cee95c`. The responses are awaiting static evaluation against the same versioned task set.
+
+Score this run and compare its per-language results and truncation count with the step-zero baseline before starting the two-hour pilot. JavaScript behavior remains untested; the evaluator performs syntax checks only.

@@ -134,7 +134,7 @@ uv run --project training --locked python -m plex_training.cli task-generate `
   --device cuda
 ```
 
-The owner generated and scored all 30 development responses with the matching v3 step-zero checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). A 10-minute v3 training check reduced held-out language-model loss from 9.1694 to 6.4759; its configuration and run metrics are in the [training check report](../docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md). Evaluate the trained checkpoint on this same task set before deciding on the two-hour pilot.
+The owner generated and scored all 30 development responses with the matching v3 step-zero checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). A 10-minute v3 training check reduced held-out language-model loss from 9.1694 to 6.4759; its configuration and run metrics are in the [training check report](../docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md). The trained checkpoint has generated its responses; score them against the same task set before deciding on the two-hour pilot.
 
 For a manually supplied response, create a newline-delimited JSON file with one object per task:
 

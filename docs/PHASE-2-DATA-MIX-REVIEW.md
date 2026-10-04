@@ -1,6 +1,6 @@
 # Phase 2 data-mix review — P2-02
 
-**Status: the v2 P2-02 corpus remains the reproducible baseline; the approved nine-record supplement is included in a built v3 corpus and matching tokenizer. Its v3-matched step-zero baseline scored 0/30 complete tasks, with 29 outputs truncated. A 10-minute trained v3 checkpoint improved held-out language-model loss; its coding-task score is pending.** This review adds no external source material or downloads.
+**Status: the v2 P2-02 corpus remains the reproducible baseline; the approved nine-record supplement is included in a built v3 corpus and matching tokenizer. Its v3-matched step-zero baseline scored 0/30 complete tasks, with 29 outputs truncated. A 10-minute trained v3 checkpoint improved held-out language-model loss; its 30 development responses are awaiting scoring.** This review adds no external source material or downloads.
 
 ## Measured composition
 
