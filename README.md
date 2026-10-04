@@ -41,7 +41,11 @@ Training and inference limits are separate in the [profile](docs/HARDWARE-AND-TR
 
 ## P1-12 first experiment
 
-P1-12 has started with a proposed 27.6-million-parameter decoder-only Transformer, 512-token context, and conservative FP32 AdamW settings. The full configuration and analytic memory estimate are in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). These estimates are not a measured fit: the repository does not yet include the Python training runner. P1-13 must provide the local runner before the 10-minute synthetic-data smoke test and two-hour pilot can measure GPU/RAM use and throughput. Before longer training, P1-19 must verify checkpoint resumption. No pretrained weights are used.
+P1-12 has started with a proposed 27.6-million-parameter decoder-only Transformer, 512-token context, and conservative FP32 AdamW settings. The full configuration and analytic memory estimate are in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). The P1-13 runner is now implemented, but its measured fit remains unverified until its PyTorch environment is resolved and the 10-minute synthetic-data smoke test runs on the owner's Windows machine. The two-hour pilot follows the data/tokenizer milestones. Before longer training, P1-19 must verify checkpoint resumption. No pretrained weights are used.
+
+## P1-13 local training runner
+
+The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. Set up the local environment and run checks using the instructions there. The bootstrap byte codec is temporary until P1-14/P1-15 deliver the curated corpus and trained tokenizer. The two-hour pilot and measured model fit remain pending execution on the owner's Windows machine.
 
 ## Current CLI behavior
 
@@ -143,4 +147,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-P1-11 is complete, and P1-12 has started. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), and [first experiment definition](docs/FIRST-EXPERIMENT.md). HTML validation is scheduled as P3-03.
+P1-11 is complete; P1-12 and P1-13 are in progress. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), [first experiment definition](docs/FIRST-EXPERIMENT.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.

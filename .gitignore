@@ -7,3 +7,9 @@ models/
 *.gguf
 .env
 .env.*
+training/.venv/
+training/.uv-cache/
+training/artifacts/
+training/src/*.egg-info/
+training/**/__pycache__/
+training/**/*.py[cod]

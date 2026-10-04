@@ -40,7 +40,9 @@ The first milestone is a small model that learns from data, saves a checkpoint, 
 
 P1-11 status: **complete**. The owner-provided hardware inventory and training limits are recorded in [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md): 200 GiB allocated storage, $0 paid-services budget, a 10-minute smoke test, and a two-hour pilot.
 
-P1-12 status: **started**. A proposed 27,566,080-parameter configuration, training settings, and analytic state-memory estimate are documented in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). The repository has no training runner yet, so measured GPU/RAM use and throughput remain pending P1-13. The smoke test and two-hour-capped pilot must pass, and P1-19 must verify checkpoint resumption, before any uncapped longer run.
+P1-12 status: **started**. A proposed 27,566,080-parameter configuration, training settings, and analytic state-memory estimate are documented in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). Measured GPU/RAM use and throughput remain pending the ten-minute smoke test and two-hour-capped pilot. P1-19 must verify checkpoint resumption before any uncapped longer run.
+
+P1-13 status: **implementation started**. The local workspace, randomly initialized GPT model, bounded smoke/train commands, byte-v1 corpus packing, evaluation, generation, checkpoint writing, and environment telemetry are in [`training/`](training/README.md). Dependency resolution and runtime tests remain pending because this environment cannot reach the official PyTorch wheel index; do not treat its available Python runtime as the owner's installed Python or hardware. The two-hour pilot waits for P1-14/P1-15 data and tokenizer work.
 
 **Phase 1 gate:** A reproducible Plex checkpoint trained from random initialization, with evidence that it learned.
 
