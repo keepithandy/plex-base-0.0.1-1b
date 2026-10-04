@@ -1,6 +1,6 @@
 # P2-02 request-to-code candidate: review before the next experiment
 
-The next candidate is ready for review in [the complete example guide](../training/phase2/drafts/p2-02-code-pairs-v2/REVIEW.md). It contains 36 original Codex-authored request/answer pairs, 12 each for HTML, CSS, and JavaScript. No external source text was added. These exact records have not yet been approved for training; the earlier approval covered only the nine-record supplement.
+The owner has approved these exact 36 original Codex-authored request/answer pairs for local training, 12 each for HTML, CSS, and JavaScript. No external source text was added. The [build and baseline report](PHASE-2-CODE-PAIR-BUILD-REPORT.md) records the completed separate corpus, training-fitted tokenizer, random initialization, baseline score, and next ten-minute command. [The complete example guide](../training/phase2/drafts/p2-02-code-pairs-v2/REVIEW.md) remains the original review snapshot; its pending status is historical, and approval is recorded separately.
 
 The v3 trained checkpoint scored 0/30 development tasks and produced Markdown/Mermaid tutorial text in its first HTML responses. Its data was 76.3% Markdown by **file-format token count**, which includes code fences as well as prose; the six authored request/solution examples contributed just 0.7%. That motivates a format-alignment experiment, but does not establish that the mix alone caused the failed score. The [v3 training report](PHASE-2-TRAINING-CHECK-V3-REPORT.md) and [mix review](PHASE-2-DATA-MIX-REVIEW.md) retain the results.
 
@@ -49,7 +49,9 @@ uv run --project training --no-sync python training\phase2\prepare_code_pair_can
 
 No command above trains a model or marks sources approved. The proposed catalog deliberately has `rightsReviewStatus: pending-owner-review`, which the dataset builder rejects. Missing Node prevents full static review and is reported as an error; nothing is installed automatically.
 
-## Decision and next run
+## Original proposal and accepted decision
+
+The owner accepted the following local-use proposal. Promotion, corpus construction, fresh tokenizer checks, random initialization, and matching step-zero scoring are complete; training has not started. Use the current [build report](PHASE-2-CODE-PAIR-BUILD-REPORT.md) for actual new-tokenizer measurements and commands. The proposal below preserves the reviewed scope.
 
 Review the requests, answers, and group split in the full guide. Approving these exact 36 examples authorizes their inclusion in a **separate local P2 diagnostic corpus**. This review step comes from our agreed plan to show the new examples before using them. It does not authorize a public dataset license, a new external download, paid resources, or a two-hour training run.
 

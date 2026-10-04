@@ -1,0 +1,59 @@
+{
+  "allBudgetsPassed": true,
+  "candidateJsonlSha256": "88c35a023b0093cb177552c4ddc45533e92d63e0d006f26dbcdad2bd0a2ef72a",
+  "contextLength": 512,
+  "dataset": {
+    "sourceDatasetManifestSha256": "63ed4adf0e31f5b2fc770f9bb6b838318e88cc2848b396a72c2419f3c88cc45d",
+    "trainJsonlSha256": "e3f135c9bc957737bffab2ea97359016f1771ba9396bcc79d7022f93c6aa88c1",
+    "trainRecords": 24,
+    "trainTokenCount": 2523,
+    "trainTokensSha256": "d5485cf54df165de9babf76cbe2ef25f3c5befacbfb1753063433c38ea3ad30b",
+    "validationJsonlSha256": "9023e6dfadcf909c5dfcf74d01d8fe5e44a6241436de85a1104e214ffbf6fa7f",
+    "validationRecords": 12,
+    "validationTokenCount": 2083,
+    "validationTokensSha256": "7868c3b9eb1652e56df0490192fe4647e3931284a25296e1408426129d38c28f"
+  },
+  "maximumDevelopmentPromptTokens": 116,
+  "promptTemplateVersion": "plex-coding-task-v1",
+  "splits": {
+    "train": {
+      "answerShareOfTokenPositions": 0.31629,
+      "answerTokensIncludingLeadingNewline": 798,
+      "eosMarkers": 24,
+      "maximumAnswerTokensIncludingEosByLanguage": {
+        "css": 36,
+        "html": 53,
+        "javascript": 64
+      },
+      "maximumPromptTokens": 85,
+      "maximumRecordTokensIncludingEos": 131,
+      "promptTokens": 1701,
+      "records": 24,
+      "tokens": 2523
+    },
+    "validation": {
+      "answerShareOfTokenPositions": 0.398464,
+      "answerTokensIncludingLeadingNewline": 830,
+      "eosMarkers": 12,
+      "maximumAnswerTokensIncludingEosByLanguage": {
+        "css": 63,
+        "html": 68,
+        "javascript": 127
+      },
+      "maximumPromptTokens": 122,
+      "maximumRecordTokensIncludingEos": 249,
+      "promptTokens": 1241,
+      "records": 12,
+      "tokens": 2083
+    }
+  },
+  "tokenizer": {
+    "actualVocabularySize": 874,
+    "bundleManifestSha256": "eaa51ba7265017c0a691d72d204e95b7b1318f32a140e772fd550ece74d63c73",
+    "codec": "plex-byte-bpe-v1",
+    "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+    "modelVocabularyCapacity": 16384,
+    "tokenizerSha256": "0099457ad9b5384a2a9122a9d9ad654a78183af0013b2c5f670f182cb4c8d71b"
+  },
+  "tokenizerFitSplit": "train"
+}

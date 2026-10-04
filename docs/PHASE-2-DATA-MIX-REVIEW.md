@@ -43,7 +43,7 @@ The step-zero results are the untrained reference: all languages scored 0/10 com
 
 The owner approved nine original Codex-authored task/solution examples for local P2 training on 2026-10-04. They are materialized into three language families with each request/solution pair kept in its own split group and added to [catalog v2](../training/phase2/dataset-sources.phase2-v2.json). The owner ran the combined build and tokenizer fit on Windows; the returned counts and hashes are recorded in the [v3 report](PHASE-2-DATASET-V3-REPORT.md). This approval added no external source paths beyond the exact Microsoft and MDN paths in the [P2 source lock](../training/phase2/dataset-source-lock.json).
 
-The next proposed mix is now concrete: [36 request-to-code examples](PHASE-2-CODE-PAIR-CANDIDATE.md), prepared as a separate small diagnostic corpus with a balanced 24/12 whole-group split. All supplied solutions passed 194 static checks and 36 targeted tests passed. The candidate catalog remains pending owner review, and none of these drafts have been used to train a model. This checks the readiness of examples, not coding capability or a new code-token target.
+The owner approved [36 request-to-code examples](PHASE-2-CODE-PAIR-CANDIDATE.md) for local training. Their separate small diagnostic corpus is built with a balanced 24/12 whole-group split, fresh tokenizer, verified EOS/context budgets, random initialization, and matching step-zero baseline. All supplied solutions passed 194 static checks. No model has yet been trained on this corpus. The [build report](PHASE-2-CODE-PAIR-BUILD-REPORT.md) records measurements and the next ten-minute run. This checks readiness, not coding capability or a new code-token target.
 
 ## JavaScript behavior checks
 
