@@ -67,7 +67,7 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 - Training duration: run a 10-minute smoke test, followed by a pilot capped at two hours. After those checks, longer training runs may continue without a fixed time cap, with resumable checkpoints and progress monitoring.
 - Local electricity cost allowance: `unknown`; no separate allowance was specified.
 - Maximum acceptable RAM/VRAM use during training: `unknown`
-- First experiment proposal: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner source exists; actual GPU/RAM fit and throughput remain unmeasured until PyTorch is resolved and the 10-minute smoke test runs on the owner's Windows machine.
+- First experiment proposal: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner and its 13-test suite are verified on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. Actual GPU/RAM fit and throughput remain unmeasured until the 10-minute smoke test runs.
 
 ## Local inference requirements
 
