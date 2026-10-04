@@ -38,6 +38,16 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(prepare)
 
+    dataset = subparsers.add_parser(
+        "dataset-build", help="Filter reviewed local sources and create grouped train/validation JSONL splits"
+    )
+    dataset.add_argument("--source-manifest", type=Path, required=True)
+    dataset.add_argument("--output-dir", type=Path, default=Path("datasets/p1-14"))
+    dataset.add_argument("--validation-percent", type=int, default=10)
+    dataset.add_argument("--seed", type=int, default=1337)
+    dataset.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(dataset)
+
     smoke = subparsers.add_parser("smoke", help="Run the synthetic-data smoke test (at most 10 minutes)")
     smoke.add_argument("--minutes", type=float, default=MAX_SMOKE_MINUTES)
     smoke.add_argument("--steps", type=int, default=None, help="Optional quick test bound; does not replace timed smoke")
@@ -88,11 +98,17 @@ def _json_print(result: Any) -> None:
 def _under_artifact_root(path: Path, root: Path) -> Path:
     if not path.is_absolute():
         path = root / path
-    return path_within_root(path, root)
+    canonical_root = root.resolve()
+    canonical_path = path.resolve(strict=False)
+    try:
+        canonical_path.relative_to(canonical_root)
+    except ValueError as exc:
+        raise ValueError("Training outputs must stay under the configured artifact root") from exc
+    return canonical_path
 
 
 def _prepare(args: argparse.Namespace) -> dict[str, Any]:
-    from .artifacts import enforce_storage_limit, path_within_root
+    from .artifacts import enforce_storage_limit
     from .data import resolve_source_files, write_byte_corpus, write_dataset_manifest
 
     root = args.artifact_root.resolve()
@@ -131,6 +147,29 @@ def _artifact_size(root: Path) -> int:
         for path in root.rglob("*")
         if path.is_file() and not path.is_symlink()
     )
+
+
+def _dataset_build(args: argparse.Namespace) -> dict[str, Any]:
+    from .dataset import build_dataset
+
+    root = args.artifact_root.resolve()
+    output_dir = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - _artifact_size(root)
+    result = build_dataset(
+        args.source_manifest,
+        output_dir,
+        validation_percent=args.validation_percent,
+        seed=args.seed,
+        storage_limit_bytes=remaining,
+    )
+    return {
+        **result,
+        "outputDirectory": str(output_dir.relative_to(root)),
+        "storageLimitBytes": limit,
+    }
 
 
 def _smoke(args: argparse.Namespace) -> dict[str, Any]:
@@ -222,6 +261,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(environment_report(device))
         elif args.command == "prepare":
             _json_print(_prepare(args))
+        elif args.command == "dataset-build":
+            _json_print(_dataset_build(args))
         elif args.command == "smoke":
             _json_print(_smoke(args))
         elif args.command == "train":

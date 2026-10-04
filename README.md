@@ -45,7 +45,7 @@ P1-12 has started with a proposed 27.6-million-parameter decoder-only Transforme
 
 ## P1-13 local training runner
 
-The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. Its dependency environment and tiny-run test suite are verified on the owner's Windows machine. The bootstrap byte codec is temporary until P1-14/P1-15 deliver the curated corpus and trained tokenizer. The 10-minute hardware-fit smoke test and two-hour pilot remain pending execution on the owner's Windows machine.
+The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. Its dependency environment and tiny-run test suite are verified on the owner's Windows machine. The P1-14 local curation pipeline is implemented and tested; source review and a built corpus remain pending. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md). The 10-minute hardware-fit smoke test and two-hour pilot remain pending execution on the owner's Windows machine.
 
 ## Current CLI behavior
 
@@ -147,4 +147,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-P1-11 is complete; P1-12 is in progress; P1-13 implementation and automated tests are complete. The first hardware-fit smoke test remains pending. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), [first experiment definition](docs/FIRST-EXPERIMENT.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.
+P1-11 is complete; P1-12 is in progress; P1-13 implementation and automated tests are complete; P1-14 pipeline implementation and focused tests are complete, pending reviewed sources and a built corpus. The first hardware-fit smoke test remains pending. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), [first experiment definition](docs/FIRST-EXPERIMENT.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.

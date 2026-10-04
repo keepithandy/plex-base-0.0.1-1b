@@ -1,6 +1,6 @@
 # Local Plex training workspace
 
-This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The current `byte-v1` codec is a small bootstrap format for runner checks; P1-14/P1-15 replace it with a documented dataset and a tokenizer trained from that dataset.
+This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The current `byte-v1` codec is a small bootstrap format for runner checks; the P1-14 local curation pipeline builds documented train/validation text splits, and P1-15 will train a tokenizer from the training split.
 
 ## Set up and inspect the runtime
 
@@ -55,6 +55,20 @@ uv run --project training python -m plex_training.cli generate `
 ```
 
 Output paths for `prepare`, `smoke`, and `train` are relative to the artifact root (default `training/artifacts`). `train` defaults to ten minutes and accepts at most the two-hour pilot duration. The runner enforces the owner's 200 GiB storage allocation and saves a checkpoint every five minutes and on normal completion or Ctrl+C. Uncapped training stays unavailable until P1-19 verifies resume, and the two-hour pilot must wait for the documented dataset and tokenizer.
+
+## Curate a reproducible dataset (P1-14)
+
+P1-14 reads local source checkouts only. It requires a source catalog with an immutable revision, license evidence, and an explicit rights-review status; it does not fetch or approve external data. Copy [`dataset-sources.example.json`](dataset-sources.example.json) to `dataset-sources.local.json`, place reviewed source trees beneath `training/data/raw`, and follow [`docs/DATASET-PIPELINE.md`](../docs/DATASET-PIPELINE.md) before building. The catalog and raw source trees are ignored by Git.
+
+```powershell
+uv run --project training python -m plex_training.cli dataset-build `
+  --source-manifest training\dataset-sources.local.json `
+  --output-dir datasets\p1-14 `
+  --validation-percent 10 `
+  --seed 1337
+```
+
+The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest under `training/artifacts/datasets/p1-14`. Exact duplicates, detected secret patterns, invalid UTF-8, oversized files, and detectable syntax failures are skipped with reason counts. Train/validation assignment is grouped by the catalog's `groupId`, so related repositories remain together. P1-15 consumes the training split to fit the tokenizer.
 
 ## Run checks
 

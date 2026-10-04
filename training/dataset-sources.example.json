@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "replace-me",
+      "localPath": "data/raw/replace-me",
+      "origin": "https://example.invalid/project",
+      "revision": "replace-with-immutable-commit-or-release",
+      "licenseId": "unknown",
+      "licenseEvidence": "replace-with-license-file-path-or-official-license-url",
+      "rightsReviewStatus": "pending",
+      "rightsReviewedAtUtc": "unknown",
+      "groupId": "replace-with-project-or-related-project-family",
+      "includeExtensions": [
+        ".py",
+        ".js",
+        ".mjs",
+        ".cjs",
+        ".html",
+        ".css",
+        ".md",
+        ".txt",
+        ".json"
+      ]
+    }
+  ]
+}

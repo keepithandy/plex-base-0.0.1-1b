@@ -44,6 +44,8 @@ P1-12 status: **started**. A proposed 27,566,080-parameter configuration, traini
 
 P1-13 status: **implementation complete and owner-verified**. The local workspace, randomly initialized GPT model, bounded smoke/train commands, byte-v1 corpus packing, evaluation, generation, checkpoint writing, and environment telemetry are in [`training/`](training/README.md). On the owner's Windows machine, Python 3.12.10, PyTorch 2.14.0+cu126, and CUDA 12.6 detected the RTX 4080 SUPER; all 13 training tests pass. The 10-minute hardware-fit smoke test remains pending, and the two-hour pilot waits for P1-14/P1-15 data and tokenizer work.
 
+P1-14 status: **pipeline implementation complete and tested; source review and dataset build pending**. The offline `dataset-build` command validates source rights metadata, filters unsafe or invalid files, removes exact duplicates, and creates deterministic train/validation JSONL splits by repository group. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md). No external source has been selected or downloaded; do not mark P1-14 complete until a corpus exists with its origin, immutable revision, license evidence, and owner review recorded.
+
 **Phase 1 gate:** A reproducible Plex checkpoint trained from random initialization, with evidence that it learned.
 
 ## Phase 2 — Basic coding ability

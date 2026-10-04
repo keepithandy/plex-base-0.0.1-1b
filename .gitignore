@@ -10,6 +10,8 @@ models/
 training/.venv/
 training/.uv-cache/
 training/artifacts/
+training/data/raw/
+training/dataset-sources.local.json
 training/src/*.egg-info/
 training/**/__pycache__/
 training/**/*.py[cod]
