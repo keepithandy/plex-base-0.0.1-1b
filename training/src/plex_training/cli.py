@@ -109,6 +109,34 @@ def build_parser() -> argparse.ArgumentParser:
     pilot_evaluate.add_argument("--max-batches", type=int, default=100)
     pilot_evaluate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
 
+    pilot_resume = subparsers.add_parser(
+        "pilot-resume", help="Check bounded continuation from a saved BPE pilot checkpoint"
+    )
+    pilot_resume.add_argument("--bundle-dir", type=Path,
+                              default=Path("training/artifacts/tokenizers/p1-15-starter-v1"))
+    pilot_resume.add_argument("--checkpoint", type=Path, required=True)
+    pilot_resume.add_argument("--output-dir", type=Path, default=Path("pilot/p1-19-resume"))
+    pilot_resume.add_argument("--minutes", type=float, default=10.0)
+    pilot_resume.add_argument("--steps", type=int, default=1)
+    pilot_resume.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    pilot_resume.add_argument("--micro-batch", type=int, default=1)
+    pilot_resume.add_argument("--gradient-accumulation", type=int, default=16)
+    pilot_resume.add_argument("--checkpoint-every-minutes", type=float, default=5.0)
+    _add_artifact_root(pilot_resume)
+
+    complete = subparsers.add_parser(
+        "complete", help="Generate bounded BPE text from saved Plex weights and tokenizer"
+    )
+    complete.add_argument("--checkpoint", type=Path, required=True)
+    complete.add_argument("--bundle-dir", type=Path, default=None,
+                          help="Tokenizer bundle; defaults to the checkpoint's tokenizer sidecar")
+    complete.add_argument("--prompt", required=True)
+    complete.add_argument("--max-new-tokens", type=int, default=64)
+    complete.add_argument("--temperature", type=float, default=0.0,
+                          help="0 is greedy; positive values use seeded sampling")
+    complete.add_argument("--seed", type=int, default=1337)
+    complete.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+
     smoke = subparsers.add_parser("smoke", help="Run the synthetic-data smoke test (at most 10 minutes)")
     smoke.add_argument("--minutes", type=float, default=MAX_SMOKE_MINUTES)
     smoke.add_argument("--steps", type=int, default=None, help="Optional quick test bound; does not replace timed smoke")
@@ -410,6 +438,28 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(evaluate_pilot(
                 bundle_dir=args.bundle_dir, checkpoint_path=args.checkpoint,
                 device_name=args.device, maximum_batches=args.max_batches,
+            ))
+        elif args.command == "pilot-resume":
+            from .pilot import resume_pilot
+
+            root = args.artifact_root.resolve()
+            output = _under_artifact_root(args.output_dir, root)
+            _json_print(resume_pilot(
+                bundle_dir=args.bundle_dir, checkpoint_path=args.checkpoint,
+                output_dir=output, artifact_root=root, minutes=args.minutes,
+                steps=args.steps, device_name=args.device,
+                micro_batch=args.micro_batch,
+                gradient_accumulation=args.gradient_accumulation,
+                checkpoint_every_minutes=args.checkpoint_every_minutes,
+            ))
+        elif args.command == "complete":
+            from .completion import complete_pilot
+
+            _json_print(complete_pilot(
+                checkpoint_path=args.checkpoint, bundle_dir=args.bundle_dir,
+                prompt=args.prompt, max_new_tokens=args.max_new_tokens,
+                temperature=args.temperature, seed=args.seed,
+                device_name=args.device,
             ))
         elif args.command == "smoke":
             _json_print(_smoke(args))

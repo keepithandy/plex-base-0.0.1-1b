@@ -64,7 +64,7 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 - Free storage at collection time: C: 745,373,954,048 bytes (694.18 GiB) free of 998,951,038,976 bytes (930.35 GiB) total. The owner allocated 200 GiB to Plex.
 - Plex storage allocation: 200 GiB total for datasets, checkpoints, and logs. This is an initial allocation and can be revised after P1-12 measures actual use.
 - Paid services, datasets, APIs, or cloud compute budget: $0.
-- Training duration: run a 10-minute smoke test, followed by a pilot capped at two hours. After those checks, longer training runs may continue without a fixed time cap, with resumable checkpoints and progress monitoring.
+- Training duration: a 10-minute smoke test and two-hour pilot are complete; P1-19 also verified a bounded one-step checkpoint continuation. The [P1-20 report](PLEX-EXPERIMENT-REPORT-P1-20.md) found that this small experiment does not establish coding ability. Longer checkpointed runs remain a possible future choice, but the current CLI does not enable an uncapped run; plan broader data and functional evaluation first.
 - Local electricity cost allowance: `unknown`; no separate allowance was specified.
 - Maximum acceptable RAM/VRAM use during training: `unknown`
 - First experiment: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner's original 13 tests and ten-minute CUDA smoke test passed on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. The [observed smoke result](SMOKE-TEST-2026-10-03.md) was 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and 57,327.61 synthetic token positions/second. The [two-hour real-data pilot](PLEX-PILOT.md) reached 878,706,688 bytes peak GPU reservation, 1,397,129,216 bytes peak process working set, and 49,643.40 sampled token positions/second. CPU inference remains unmeasured.
@@ -83,6 +83,6 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 
 1. Fit the first model and dataset within the 200 GiB allocation; revise the allocation only if measured needs justify it.
 2. Choose a small initial random-initialized model and estimate RAM/VRAM needs.
-3. The 10-minute smoke test and two-hour pilot are complete; pass P1-19 checkpoint resumption before any longer training.
+3. The 10-minute smoke test, two-hour pilot, [P1-19 resume/completion gate](PLEX-RESUME-AND-COMPLETION.md), and [P1-20 experiment report](PLEX-EXPERIMENT-REPORT-P1-20.md) are complete. Plan broader data and functional evaluation before deciding whether a longer run is warranted; no uncapped command is enabled.
 4. Save resumable checkpoints and record the measured training configuration, throughput, memory, and elapsed time in the experiment history.
 5. Assess local CPU inference separately from training performance; optional GPU support does not replace CPU support.

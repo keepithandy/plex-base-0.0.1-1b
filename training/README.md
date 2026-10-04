@@ -1,6 +1,6 @@
 # Local Plex training workspace
 
-This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The `byte-v1` codec remains a bootstrap format for runner checks. P1-14 builds reviewed train/validation text splits, and P1-15 has fitted Plex's own byte-level BPE tokenizer on the training split only. Its bundle and encoded corpora are ready; tokenizer-aware model/checkpoint integration follows in the initialization and learning milestones.
+This workspace adds a separate Python runner alongside the existing Node.js CLI. It trains only Plex-owned weights initialized from random values. The `byte-v1` codec remains a bootstrap format for runner checks. P1-14 built reviewed train/validation text splits, and P1-15 fitted Plex's own byte-level BPE tokenizer on the training split only. The BPE path now supports a bounded real-data pilot, checked checkpoint resumption, held-out evaluation, and independent completion from saved weights and a matching tokenizer bundle.
 
 ## Set up and inspect the runtime
 
@@ -35,7 +35,7 @@ The owner completed the regular ten-minute CUDA test on October 3, 2026. It save
 
 ## Prepare and use a small local corpus
 
-The bootstrap `prepare` command takes separate train and validation files so the same file cannot accidentally be used for both. It streams UTF-8 file bytes into little-endian uint16 token IDs and records source hashes without writing full source paths. These examples are bootstrap plumbing checks; use the P1-15 tokenizer bundle for the upcoming real-text experiment after tokenizer-aware runner integration. The bootstrap runner rejects BPE token files to prevent mislabeled checkpoints.
+The bootstrap `prepare` command takes separate train and validation files so the same file cannot accidentally be used for both. It streams UTF-8 file bytes into little-endian uint16 token IDs and records source hashes without writing full source paths. These examples are bootstrap plumbing checks; use the separate `pilot`, `pilot-resume`, `pilot-evaluate`, and `complete` commands below for the approved BPE data and checkpoint. The bootstrap runner rejects BPE token files to prevent mislabeled checkpoints.
 
 ```powershell
 uv run --project training python -m plex_training.cli prepare `
@@ -56,7 +56,7 @@ uv run --project training python -m plex_training.cli generate `
   --device cuda
 ```
 
-Output paths for `prepare`, `smoke`, and `train` are relative to the artifact root (default `training/artifacts`). `train` defaults to ten minutes and accepts at most the two-hour pilot duration; it remains the byte-v1 plumbing command. The runner enforces the owner's 200 GiB storage allocation and saves a checkpoint every five minutes and on normal completion or Ctrl+C. Uncapped training stays unavailable until P1-19 verifies resume. Use `pilot` below for the approved BPE data.
+Output paths for `prepare`, `smoke`, and `train` are relative to the artifact root (default `training/artifacts`). `train` defaults to ten minutes and accepts at most the two-hour pilot duration; it remains the byte-v1 plumbing command. The runner enforces the owner's 200 GiB storage allocation and saves a checkpoint every five minutes and on normal completion or Ctrl+C. P1-19 verified BPE resume, but uncapped training is still unavailable. Use the BPE commands below for the approved data.
 
 ## Curate a reproducible dataset (P1-14)
 
@@ -77,6 +77,12 @@ uv run --project training python -m plex_training.cli dataset-build `
 ```
 
 The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest under `training/artifacts/datasets/p1-14`. Exact duplicates, detected secret patterns, invalid UTF-8, oversized files, and detectable syntax failures are skipped with reason counts. Train/validation assignment is grouped by the catalog's `groupId`, so related repositories remain together. P1-15 consumes the training split to fit the tokenizer.
+
+## Phase 2 source collection (P2-02)
+
+The owner approved re-splitting the exact Microsoft P1-14 selection by project and a small MDN `learning-area` path selection. The pinned lock is [`phase2/dataset-source-lock.json`](phase2/dataset-source-lock.json); the approval catalog is [`phase2/dataset-sources.phase2-v1.json`](phase2/dataset-sources.phase2-v1.json). Raw snapshots stay beneath `training/phase2/data/raw` and are ignored by Git. See the [collection report](../docs/PHASE-2-DATA-COLLECTION-REVIEW.md) for exact files, license notices, and exclusions.
+
+The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: it is documentation-heavy relative to the proposed code mix, and the P2 evaluation harness/tasks still need to be completed before any model training.
 
 ## Train Plex's tokenizer (P1-15)
 
@@ -104,7 +110,7 @@ uv run --project training --no-sync python -m plex_training.cli initialize `
   --seed 1337
 ```
 
-Use a new output directory for each initialization. Output is kept under `training/artifacts` and counted against the 200 GiB allocation. P1-17 will use these weights to check learning with a deliberately tiny real-text sample; the existing training runner still accepts only `byte-v1` corpora.
+Use a new output directory for each initialization. Output is kept under `training/artifacts` and counted against the 200 GiB allocation. P1-17 used these weights to check learning with a deliberately tiny real-text sample. The general `train` command still accepts only `byte-v1` corpora; the approved BPE training path uses `pilot` and `pilot-resume`.
 
 ## Prove the model can learn (P1-17)
 
@@ -142,12 +148,36 @@ uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
   --device cuda
 ```
 
-Training uses the approved train split; evaluation reads the distinct held-out split. The command refuses to overwrite an output directory and enforces a 120-minute maximum and the 200 GiB artifact allocation. No further long run is needed for P1-18. The small starter corpus and large train/validation loss gap limit quality claims. P1-19 remains the gate for verified checkpoint resumption before longer training.
+Training uses the approved train split; evaluation reads the distinct held-out split. The command refuses to overwrite an output directory and enforces a 120-minute maximum and the 200 GiB artifact allocation. No further long run is needed for P1-18. The small starter corpus and large train/validation loss gap limit quality claims. P1-19's one-step resumption and independent completion passed; the result and current bounds are below.
+
+## Resume the pilot and complete a prompt (P1-19)
+
+`pilot-resume` validates the approved BPE bundle and the trained Plex checkpoint, restores model/optimizer and random-generator state, and continues into a **new** directory without changing the original pilot. The command is limited to ten minutes and 1–100 additional steps. It saves the resumed checkpoint, JSONL metrics, a JSON report, and a copy of the matching tokenizer bundle. The new checkpoint records immutable training settings, a `constant-v1` learning-rate schedule at its saved step, total sampled token positions, and scratch/data/tokenizer provenance. The legacy P1-18 checkpoint predates explicit settings and schedule fields; the resume path accepts it only with the recorded pilot's fixed settings. The [P1-19 report](../docs/PLEX-RESUME-AND-COMPLETION.md) records the verified one-step CUDA result and checkpoint hashes.
+
+The verified output path `pilot\p1-19-resume-v2` already exists. To repeat the bounded check, choose an unused output path from the repository root:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot-resume `
+  --checkpoint training\artifacts\pilot\p1-18-full-v2\pilot-checkpoint.pt `
+  --output-dir pilot\p1-19-my-resume `
+  --minutes 10 --steps 1 --device cuda
+```
+
+`complete` loads a trained Plex BPE checkpoint and matching tokenizer in a separate process. For P1-19's resumed checkpoint, it finds the copied `tokenizer/` sidecar automatically; `--bundle-dir` can select another matching bundle. It bounds the prompt to 4,096 UTF-8 bytes and generation to 256 tokens, uses at most the model's 512-token context, masks reserved and unused vocabulary IDs, and stops at EOS. Temperature `0` is greedy; positive values use seeded sampling. The verified CPU command was:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli complete `
+  --checkpoint training\artifacts\pilot\p1-19-resume-v2\resumed-checkpoint.pt `
+  --prompt 'function add(a, b) {' `
+  --max-new-tokens 32 --temperature 0 --device cpu
+```
+
+The saved checkpoint generated text, but its example was incomplete and did not correctly implement the function. This verifies local CPU loading and tokenization, not useful coding ability or a CPU speed/memory target. The current CLI keeps `pilot` at 120 minutes, `pilot-resume` at ten minutes, and general `train` at 120 minutes; no uncapped training command is enabled. The [P1-20 experiment report](../docs/PLEX-EXPERIMENT-REPORT-P1-20.md) records the run and its failures. Broader reviewed data and functional evaluation should be planned before considering a longer run.
 
 ## Run checks
 
 ```powershell
-uv run --project training python -m unittest discover -s training/tests -v
+uv run --project training --no-sync python -m unittest discover -s training/tests -v
 ```
 
-Tests use temporary files and a tiny in-memory model. They do not run the ten-minute smoke test or two-hour pilot.
+All 46 training-workspace tests pass. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, and generation controls; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.

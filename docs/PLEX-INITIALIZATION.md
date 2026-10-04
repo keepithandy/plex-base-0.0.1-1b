@@ -46,4 +46,4 @@ The result is placed under `training/artifacts/initializations/p1-16-my-run/`. I
 
 ## Next step
 
-P1-17 used this checkpoint in a bounded one-record learning check; see the [P1-17 learning report](PLEX-LEARNING-CHECK.md). P1-18 then used it for the [completed two-hour BPE pilot](PLEX-PILOT.md). The general `train`, `evaluate`, and `generate` commands remain restricted to `byte-v1`; do not pass BPE token files to them. P1-19 must verify tokenizer-aware resume and generation.
+P1-17 used this checkpoint in a bounded one-record learning check; see the [P1-17 learning report](PLEX-LEARNING-CHECK.md). P1-18 then used it for the [completed two-hour BPE pilot](PLEX-PILOT.md), and [P1-19](PLEX-RESUME-AND-COMPLETION.md) verified resumption from that pilot and generation from the saved BPE checkpoint. The general `train`, `evaluate`, and `generate` commands remain restricted to `byte-v1`; use `pilot-resume`, `pilot-evaluate`, and `complete` for the BPE path.

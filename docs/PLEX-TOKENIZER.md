@@ -23,7 +23,7 @@ The implementation uses the pinned [Tokenizers 0.23.2 library](https://pypi.org/
 | Packed record boundary | Append one EOS (ID 3) per record |
 | Literal control marker strings | Encode as ordinary text, never as control IDs |
 
-The starter training split does not supply enough repeated pairs to reach the requested vocabulary limit at frequency 2. A smaller learned vocabulary is valid; it does not change the 27,566,080-parameter model configuration. Later model integration must mask unused vocabulary IDs during generation. The complete byte alphabet represents unseen valid Unicode text without UNK. Tokenization performs no new text normalization; the curated dataset's earlier normalization remains documented in its source manifest.
+The starter training split does not supply enough repeated pairs to reach the requested vocabulary limit at frequency 2. A smaller learned vocabulary is valid; it does not change the 27,566,080-parameter model configuration. The P1-19 completion path masks unused vocabulary IDs during generation. The complete byte alphabet represents unseen valid Unicode text without UNK. Tokenization performs no new text normalization; the curated dataset's earlier normalization remains documented in its source manifest.
 
 ## Results
 
@@ -80,6 +80,6 @@ All **35 training-workspace tests pass**, including deterministic builds, change
 
 ## Next milestone and limits
 
-P1-16 has since created fresh step-zero random weights linked to this tokenizer; see the [initialization report](PLEX-INITIALIZATION.md). The current `train`, `evaluate`, and `generate` runner still uses the earlier `byte-v1` checkpoint format. It rejects these BPE corpora rather than saving a misleading byte checkpoint. Keep the synthetic smoke checkpoint as a historical resource test; it cannot resume into this tokenizer's different token meanings.
+P1-16 has since created fresh step-zero random weights linked to this tokenizer; see the [initialization report](PLEX-INITIALIZATION.md). The general `train`, `evaluate`, and `generate` commands still use the earlier `byte-v1` format and reject these BPE corpora rather than saving a misleading byte checkpoint. The separate `pilot`, `pilot-resume`, `pilot-evaluate`, and `complete` commands use the verified BPE bundle. Keep the synthetic smoke checkpoint as a historical resource test; it cannot resume into this tokenizer's different token meanings.
 
-P1-17's tiny real-text learning check is complete; see the [learning report](PLEX-LEARNING-CHECK.md). The [P1-18 two-hour BPE pilot](PLEX-PILOT.md) also completed with improved held-out loss. Complete tokenizer-aware checkpoint/resume/generation in P1-19 before longer runs. The tokenizer milestone proves faithful encoding and reproducibility, not coding ability. Training is mostly explanations and validation mostly web code, so the different compression rates reflect a small, uneven starter mixture. Broader reviewed data and model quality remain future work.
+P1-17's tiny real-text learning check is complete; see the [learning report](PLEX-LEARNING-CHECK.md). The [P1-18 two-hour BPE pilot](PLEX-PILOT.md) completed with improved held-out loss, and [P1-19](PLEX-RESUME-AND-COMPLETION.md) verified bounded resume and generation. The tokenizer milestone proves faithful encoding and reproducibility, not coding ability. Training is mostly explanations and validation mostly web code, so the different compression rates reflect a small, uneven starter mixture. Broader reviewed data and model quality remain future work.

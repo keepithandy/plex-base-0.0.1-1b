@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import shutil
 import sys
 from array import array
 from pathlib import Path
@@ -13,6 +14,7 @@ from typing import Any
 import torch
 
 from .artifacts import enforce_storage_limit, path_within_root
+from .checkpoint import read_checkpoint
 from .config import DEFAULT_CONFIG
 from .data import TokenCorpus
 from .runner import evaluate_checkpoint, run_training
@@ -189,6 +191,98 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
         "training": result,
     }
     report_path = output_dir / "pilot-report.json"
+    with report_path.open("x", encoding="utf-8", newline="\n") as stream:
+        json.dump(report, stream, indent=2, sort_keys=True)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    enforce_storage_limit(root, limit_bytes=STORAGE_LIMIT_BYTES)
+    return {"report": str(report_path.relative_to(root)), **report}
+
+
+def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
+                 artifact_root: Path, minutes: float = 10.0, steps: int = 1,
+                 device_name: str = "auto", micro_batch: int = 1,
+                 gradient_accumulation: int = 16,
+                 checkpoint_every_minutes: float = 5.0) -> dict[str, Any]:
+    """Make a short, isolated continuation without changing the pilot checkpoint."""
+    if not math.isfinite(minutes) or not 0 < minutes <= 10:
+        raise ValueError("P1-19 resume check must be greater than 0 and no more than 10 minutes")
+    if type(steps) is not int or not 1 <= steps <= 100:
+        raise ValueError("P1-19 resume check requires 1 through 100 additional steps")
+    root = artifact_root.resolve()
+    output_dir = path_within_root(output_dir, root)
+    if output_dir.exists():
+        raise FileExistsError("Resume output directory already exists; choose a fresh path")
+    if checkpoint_path.is_symlink() or not checkpoint_path.is_file():
+        raise ValueError("Resume checkpoint must be a regular file")
+    checkpoint_path = checkpoint_path.resolve(strict=True)
+    if output_dir in checkpoint_path.parents:
+        raise ValueError("Resume output cannot contain its source checkpoint")
+    bundle = inspect_pilot_bundle(bundle_dir)
+    source_model, source_payload = read_checkpoint(checkpoint_path, torch.device("cpu"))
+    if (source_model.config != DEFAULT_CONFIG or source_payload.get("codec") != CODEC
+            or type(source_payload.get("step")) is not int or source_payload["step"] <= 0
+            or type(source_payload.get("seed")) is not int
+            or source_payload.get("tokenizerRecord") != bundle["tokenizer"]
+            or source_payload.get("datasetRecord") != bundle["dataset"]
+            or not isinstance(source_payload.get("optimizerStateDict"), dict)
+            or not isinstance(source_payload.get("initializationRecord"), dict)
+            or source_payload["initializationRecord"].get("pretrainedCheckpointLoaded") is not False):
+        raise ValueError("Resume source is not the matching scratch-trained Plex pilot checkpoint")
+    source_step = source_payload["step"]
+    seed = source_payload["seed"]
+    del source_model, source_payload
+    source_hash = sha256_file(checkpoint_path)
+    bundle_files = list(bundle["root"].rglob("*"))
+    if (any(path.is_symlink() for path in bundle_files)
+            or sum(path.stat().st_size for path in bundle_files if path.is_file()) > 16 * 1024**2):
+        raise ValueError("Tokenizer bundle contains a link or exceeds the 16 MiB packaging limit")
+    estimated_checkpoint = DEFAULT_CONFIG.parameter_count() * 12 + 1024 * 1024
+    enforce_storage_limit(root, additional_bytes=2 * estimated_checkpoint + 16 * 1024**2,
+                          limit_bytes=STORAGE_LIMIT_BYTES)
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(exist_ok=False)
+    shutil.copytree(bundle["root"], output_dir / "tokenizer")
+    copied_bundle = inspect_pilot_bundle(output_dir / "tokenizer")
+    if (copied_bundle["tokenizer"] != bundle["tokenizer"]
+            or copied_bundle["dataset"] != bundle["dataset"]):
+        raise ValueError("Packaged tokenizer bundle differs from the approved source")
+    with TokenCorpus(copied_bundle["trainPath"]) as train, TokenCorpus(copied_bundle["validationPath"]) as validation:
+        result = run_training(
+            train_source=train, validation=validation,
+            device_name=device_name, minutes=minutes, step_limit=steps,
+            output_checkpoint=output_dir / "resumed-checkpoint.pt",
+            metrics_path=output_dir / "metrics.jsonl", artifact_root=root,
+            seed=seed, micro_batch=micro_batch,
+            accumulation_steps=gradient_accumulation,
+            checkpoint_interval_minutes=checkpoint_every_minutes,
+            resume_from=checkpoint_path, config=DEFAULT_CONFIG,
+            codec=CODEC, tokenizer_record=bundle["tokenizer"],
+            dataset_record=bundle["dataset"],
+            loss_vocabulary_size=bundle["tokenizer"]["actualVocabularySize"],
+            validation_maximum_batches=100,
+        )
+    checkpoint = output_dir / "resumed-checkpoint.pt"
+    report = {
+        "schemaVersion": 1,
+        "milestone": "P1-19 save-resume-generate gate",
+        "sourceCheckpointSha256": source_hash,
+        "sourceStep": source_step,
+        "resumedCheckpointSha256": sha256_file(checkpoint),
+        "tokenizerBundle": str((output_dir / "tokenizer").relative_to(root)),
+        "tokenizer": bundle["tokenizer"],
+        "dataset": bundle["dataset"],
+        "resumedExpectedSteps": steps,
+        "resumedStepsCompleted": result["stepsThisRun"],
+        "resumeCheckPassed": (
+            result["stepsThisRun"] == steps and result["step"] == source_step + steps
+            and not result["interrupted"] and result["trainingSettings"] is not None
+            and result["scheduleState"]["step"] == result["step"]
+        ),
+        "training": result,
+    }
+    report_path = output_dir / "resume-report.json"
     with report_path.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(report, stream, indent=2, sort_keys=True)
         stream.write("\n")

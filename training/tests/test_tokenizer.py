@@ -11,6 +11,7 @@ from pathlib import Path
 from plex_training.cli import main
 from plex_training.config import DEFAULT_CONFIG
 from plex_training.data import TokenCorpus
+from plex_training.dataset import build_dataset
 from plex_training.tokenizer import PlexTokenizer, ROUNDTRIP_SAMPLES, train_tokenizer
 
 
@@ -178,6 +179,61 @@ class TokenizerTests(unittest.TestCase):
             with TokenCorpus(path) as corpus:
                 with self.assertRaisesRegex(ValueError, "out-of-range"):
                     corpus.require_byte_codec()
+
+    def test_family_stratified_p2_dataset_is_accepted_and_fits_train_only(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sources = []
+            for source_id, family_id, prefix in (
+                ("microsoft", "microsoft-family", "ms"),
+                ("mdn", "mdn-family", "mdn"),
+            ):
+                source_root = root / "raw" / source_id
+                source_root.mkdir(parents=True)
+                (source_root / "LICENSE").write_text("Fixture permission notice.\n", encoding="utf-8")
+                source = {
+                    "id": source_id,
+                    "localPath": f"raw/{source_id}",
+                    "origin": f"https://example.invalid/{source_id}",
+                    "revision": "fixture-commit-1",
+                    "licenseId": "MIT",
+                    "licenseEvidence": "LICENSE",
+                    "rightsReviewStatus": "approved",
+                    "rightsReviewedAtUtc": "2026-10-03T00:00:00Z",
+                    "groupId": family_id,
+                    "sourceFamilyId": family_id,
+                    "includeExtensions": [".py"],
+                    "splitGroupRules": [
+                        {"id": f"{prefix}-project-{index}", "pathPrefixes": [f"project-{index}/"]}
+                        for index in range(3)
+                    ],
+                }
+                for index in range(3):
+                    project = source_root / f"project-{index}"
+                    project.mkdir()
+                    (project / "example.py").write_text(
+                        f"def {prefix}_function_{index}(value):\n    return value + {index + 1}\n",
+                        encoding="utf-8",
+                    )
+                sources.append(source)
+            catalog = root / "sources.json"
+            catalog.write_text(json.dumps({
+                "schemaVersion": 1,
+                "splitStrategy": "family-stratified-groups-v1",
+                "sources": sources,
+            }), encoding="utf-8")
+            dataset = root / "dataset"
+            build_dataset(
+                catalog, dataset, validation_percent=30, seed=91,
+                storage_limit_bytes=1024 * 1024,
+            )
+
+            result = train_tokenizer(dataset, root / "bundle", vocab_size=300)
+
+            tokenizer = PlexTokenizer.load(root / "bundle")
+            self.assertEqual(result["codec"], "plex-byte-bpe-v1")
+            for text in ("def learned(value):\n    return value + 7\n", "plain Ω text\n"):
+                self.assertEqual(tokenizer.decode(tokenizer.encode(text)), text)
 
 
 if __name__ == "__main__":

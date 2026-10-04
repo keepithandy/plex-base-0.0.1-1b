@@ -12,7 +12,7 @@ Status: **configuration defined; ten-minute CUDA resource-fit test and two-hour 
 | Attention heads | 8 (64 dimensions per head) |
 | Feed-forward width | 2,048 (4× hidden width) |
 | Maximum context | 512 tokens |
-| Vocabulary capacity | 16,384 tokens; P1-15 will train a tokenizer to this size with byte fallback |
+| Vocabulary capacity | 16,384 tokens; P1-15 fitted a byte-level BPE tokenizer with 9,976 learned entries |
 | Position representation | Learned positional embeddings |
 | Input/output token embeddings | Tied |
 | Activation | GELU |
@@ -39,9 +39,9 @@ This model is about 18 times smaller than the low end of the eventual 0.5B–1.5
 
 The 10-minute smoke test uses generated deterministic token sequences, needs no dataset download, and measures that forward/backward training runs while reporting elapsed time, tokens per second, peak VRAM, and peak system RAM. The owner completed it successfully; its settings, raw result, and interpretation are in [SMOKE-TEST-2026-10-03.md](SMOKE-TEST-2026-10-03.md). It checks runtime and resource use only; the separate P1-17 tiny-sample test checks reproduction of a real text sample.
 
-The completed two-hour pilot used the local, documented P1-14 dataset and recorded training and validation loss, processed token positions, throughput, and peak memory. P1-19 separately verifies checkpoint resumption; pass that gate before any run longer than the two-hour pilot. The pilot cannot establish general coding skill.
+The completed two-hour pilot used the local, documented P1-14 dataset and recorded training and validation loss, processed token positions, throughput, and peak memory. [P1-19](PLEX-RESUME-AND-COMPLETION.md) later verified a one-step CUDA checkpoint continuation and independent CPU generation. Neither check establishes general coding skill.
 
-Longer runs may continue without a fixed wall-clock cap only after the smoke test and pilot pass and P1-19 verifies that a checkpoint can resume training. They must save resumable checkpoints and progress logs. Any storage use counts against the owner's 200 GiB Plex allocation. No paid dataset, API, or cloud GPU is in scope under the $0 paid-services budget.
+The smoke test, pilot, P1-19 technical resume gate, and [P1-20 experiment report](PLEX-EXPERIMENT-REPORT-P1-20.md) are complete, but no uncapped longer-run command is enabled. The report recommends planning broader reviewed data and functional evaluations before a broader-data or longer-run decision. Any future longer run must save resumable checkpoints and progress logs within the owner's 200 GiB Plex allocation. No paid dataset, API, or cloud GPU is in scope under the $0 paid-services budget.
 
 ## Resource estimate and measurement gate
 
@@ -57,5 +57,5 @@ Do not proceed from the two-hour pilot to longer training if the process exceeds
 - The tokenizer, data sources, and validation split are defined by P1-14 and P1-15; no dataset download is part of P1-12.
 - P1-16 created a 27,566,080-parameter step-zero initialization checkpoint with seed 1337, scheme `plex-normal-0.02-v1`, and the P1-15 tokenizer identity. Its initial weights hash is recorded in [PLEX-INITIALIZATION.md](PLEX-INITIALIZATION.md). No pretrained checkpoint was loaded.
 - P1-17 overfit a 16-token sample from one approved training record in 250 steps, with loss decreasing from 9.438 to 0.0000224 and exact greedy reproduction from a two-token prompt. See [PLEX-LEARNING-CHECK.md](PLEX-LEARNING-CHECK.md). This is a one-sample training-path check; the later P1-18 pilot measured held-out loss.
-- The [P1-18 pilot](PLEX-PILOT.md) verified BPE train/held-out splits, ran for two hours from random initialization, and independently reproduced its final held-out loss of 6.53100, down from 9.33937. P1-19 resume and generation remain unverified.
-- CPU inference memory and latency targets remain separate and unmeasured; test them after a Plex checkpoint exists.
+- The [P1-18 pilot](PLEX-PILOT.md) verified BPE train/held-out splits, ran for two hours from random initialization, and independently reproduced its final held-out loss of 6.53100, down from 9.33937. The [P1-19 one-step continuation](PLEX-RESUME-AND-COMPLETION.md) reproduced held-out loss of 6.530651337759835 at step 43,633 and generated a bounded CPU completion from the saved checkpoint.
+- CPU completion loading works, but inference memory and latency targets remain separate and unmeasured; a single example does not establish useful coding ability.

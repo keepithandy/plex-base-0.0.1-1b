@@ -11,6 +11,7 @@ training/.venv/
 training/.uv-cache/
 training/artifacts/
 training/data/raw/
+training/phase2/data/raw/
 training/dataset-sources.local.json
 training/src/*.egg-info/
 training/**/__pycache__/

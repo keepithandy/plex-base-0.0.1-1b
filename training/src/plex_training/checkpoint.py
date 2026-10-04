@@ -14,6 +14,8 @@ from .config import ModelConfig
 from .model import PlexLanguageModel
 
 CHECKPOINT_FORMAT_VERSION = 1
+# The P1-18 pilot used v1 before trainingSettings/scheduleState were recorded.
+# Keep those fields optional so its original checkpoint remains resumable.
 
 
 def save_checkpoint(
@@ -31,6 +33,9 @@ def save_checkpoint(
     initialization_record: dict[str, Any] | None = None,
     tokenizer_record: dict[str, Any] | None = None,
     dataset_record: dict[str, Any] | None = None,
+    training_settings: dict[str, Any] | None = None,
+    schedule_state: dict[str, Any] | None = None,
+    tokens_processed_total: int | None = None,
 ) -> dict[str, Any]:
     payload = {
         "formatVersion": CHECKPOINT_FORMAT_VERSION,
@@ -49,6 +54,9 @@ def save_checkpoint(
         "initializationRecord": initialization_record,
         "tokenizerRecord": tokenizer_record,
         "datasetRecord": dataset_record,
+        "trainingSettings": training_settings,
+        "scheduleState": schedule_state,
+        "tokensProcessedTotal": tokens_processed_total,
     }
     size = atomic_write_checkpoint(
         payload,
@@ -111,6 +119,11 @@ def restore_random_states(
             cuda_states = payload.get("torchCudaRngStates")
             if not isinstance(cuda_states, list) or len(cuda_states) != torch.cuda.device_count():
                 raise ValueError("Checkpoint CUDA random state does not match the available devices")
-            torch.cuda.set_rng_state_all(cuda_states)
+            # Loading a checkpoint with map_location=cuda moves these ByteTensors
+            # to CUDA, but PyTorch's CUDA generator requires CPU state tensors.
+            if any(not isinstance(state, torch.Tensor) or state.dtype != torch.uint8
+                   for state in cuda_states):
+                raise ValueError("Checkpoint CUDA random state is invalid")
+            torch.cuda.set_rng_state_all([state.cpu() for state in cuda_states])
     except (TypeError, RuntimeError) as exc:
         raise ValueError("Checkpoint random-generator state is incompatible") from exc

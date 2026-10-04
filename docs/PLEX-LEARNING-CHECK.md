@@ -46,6 +46,6 @@ uv run --project training --no-sync python -m plex_training.cli learn-check `
 
 The command selects one short indexed training record, strips its record-ending EOS token, uses the first 16 ordinary tokens, and reserves the first two as the prompt. It measures teacher-forced loss and accuracy before and after training, then greedily generates the continuation. It saves a new checkpoint and JSON report. It does not read the validation split or claim that the held-out records improve.
 
-## Next milestone
+## Later milestones
 
-P1-17 is complete for this one-sample learning check. The [P1-18 two-hour BPE pilot](PLEX-PILOT.md) later completed and improved held-out loss; its quality limits are recorded there. The general `train`, `evaluate`, and `generate` commands remain on the bootstrap byte-v1 format. P1-19 still needs to prove tokenizer-aware checkpoint resumption and generation before runs longer than the two-hour pilot.
+P1-17 is complete for this one-sample learning check. The [P1-18 two-hour BPE pilot](PLEX-PILOT.md) later completed and improved held-out loss; its quality limits are recorded there. The general `train`, `evaluate`, and `generate` commands remain on the bootstrap byte-v1 format. The separate [P1-19 BPE resume and completion commands](PLEX-RESUME-AND-COMPLETION.md) then passed their technical gate. The [P1-20 report](PLEX-EXPERIMENT-REPORT-P1-20.md) records why these checks still do not establish coding ability.

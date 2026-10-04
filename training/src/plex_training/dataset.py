@@ -17,6 +17,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 PIPELINE_VERSION = "p1-14.2"
+FAMILY_SPLIT_PIPELINE_VERSION = "p2-02.0"
 MAX_SOURCE_MANIFEST_BYTES = 1024 * 1024
 MAX_SAMPLE_BYTES = 1024 * 1024
 DEFAULT_VALIDATION_PERCENT = 10
@@ -68,7 +69,7 @@ def _text(value: object, field: str, source_id: str) -> str:
     return result
 
 
-def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
+def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes, str]:
     if path.is_symlink():
         raise ValueError("Source catalog must not be a symbolic link")
     try:
@@ -87,6 +88,9 @@ def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
     raw_sources = catalog.get("sources")
     if not isinstance(raw_sources, list) or not raw_sources:
         raise ValueError("Source catalog must contain at least one reviewed source")
+    split_strategy = catalog.get("splitStrategy", "source-groups-v1")
+    if split_strategy not in {"source-groups-v1", "family-stratified-groups-v1"}:
+        raise ValueError("Source catalog has an unsupported splitStrategy")
 
     catalog_root = catalog_path.parent.resolve()
     sources: list[dict[str, Any]] = []
@@ -169,6 +173,36 @@ def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
             raise ValueError(f"Source {source_id!r} rightsReviewedAtUtc must be an ISO-8601 UTC timestamp") from exc
         if reviewed_at.tzinfo is None or reviewed_at.utcoffset() != timedelta(0):
             raise ValueError(f"Source {source_id!r} rightsReviewedAtUtc must include the UTC offset")
+        group_id = _text(item.get("groupId"), "groupId", source_id)
+        family_id = _text(item.get("sourceFamilyId", group_id), "sourceFamilyId", source_id)
+        raw_split_rules = item.get("splitGroupRules", [])
+        if not isinstance(raw_split_rules, list):
+            raise ValueError(f"Source {source_id!r} splitGroupRules must be an array")
+        split_group_rules: list[dict[str, Any]] = []
+        seen_rule_ids: set[str] = set()
+        seen_prefixes: set[str] = set()
+        for rule in raw_split_rules:
+            if not isinstance(rule, dict):
+                raise ValueError(f"Source {source_id!r} split-group rules must be objects")
+            rule_id = _text(rule.get("id"), "splitGroupRules.id", source_id)
+            if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}", rule_id) or rule_id in seen_rule_ids:
+                raise ValueError(f"Source {source_id!r} has an invalid or duplicate split-group id")
+            seen_rule_ids.add(rule_id)
+            prefixes = rule.get("pathPrefixes")
+            if not isinstance(prefixes, list) or not prefixes or not all(isinstance(value, str) for value in prefixes):
+                raise ValueError(f"Source {source_id!r} split-group pathPrefixes must be a nonempty string array")
+            clean_prefixes: list[str] = []
+            for prefix in prefixes:
+                if (not prefix or prefix.startswith("/") or "\\" in prefix
+                        or any(part in {"", ".", ".."} for part in prefix.rstrip("/").split("/"))
+                        or not prefix.endswith("/")):
+                    raise ValueError(f"Source {source_id!r} has an unsafe split-group path prefix")
+                if prefix in seen_prefixes:
+                    raise ValueError(f"Source {source_id!r} has duplicate split-group path prefixes")
+                seen_prefixes.add(prefix)
+                clean_prefixes.append(prefix)
+            split_group_rules.append({"id": rule_id, "pathPrefixes": clean_prefixes})
+
         sources.append(
             {
                 "id": source_id,
@@ -179,12 +213,34 @@ def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
                 "licenseEvidence": license_evidence,
                 "rightsReviewStatus": "approved",
                 "rightsReviewedAtUtc": review_date,
-                "groupId": _text(item.get("groupId"), "groupId", source_id),
+                "groupId": group_id,
+                "sourceFamilyId": family_id,
+                "splitGroupRules": split_group_rules,
                 "includeExtensions": extensions,
                 "_licenseNotice": license_notice,
             }
         )
-    return sorted(sources, key=lambda source: source["id"]), raw_catalog
+    if split_strategy == "family-stratified-groups-v1" and any(
+        not source["splitGroupRules"] for source in sources
+    ):
+        raise ValueError("Family-stratified splitting requires path rules for every source")
+    return sorted(sources, key=lambda source: source["id"]), raw_catalog, split_strategy
+
+
+def _split_group_for_path(source: dict[str, Any], relative_path: str) -> str:
+    rules = source["splitGroupRules"]
+    if not rules:
+        return source["groupId"]
+    matches = [
+        rule["id"]
+        for rule in rules
+        if any(relative_path.startswith(prefix) for prefix in rule["pathPrefixes"])
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            f"Source {source['id']!r} file {relative_path!r} must match exactly one split-group rule"
+        )
+    return matches[0]
 
 
 def _iter_source_files(source: dict[str, Any]):
@@ -287,6 +343,34 @@ def _group_split(groups: set[str], validation_percent: int, seed: int) -> set[st
     return set(ranked[:validation_count])
 
 
+def _family_stratified_group_split(
+    groups_by_family: dict[str, set[str]], validation_percent: int, seed: int,
+) -> set[tuple[str, str]]:
+    """Choose complete groups within each family so every family appears in both splits."""
+    if not 1 <= validation_percent <= 50:
+        raise ValueError("validation-percent must be an integer from 1 to 50")
+    if len(groups_by_family) < 2:
+        raise ValueError("Family-stratified splitting requires at least two source families")
+    validation: set[tuple[str, str]] = set()
+    for family, groups in sorted(groups_by_family.items()):
+        if len(groups) < 2:
+            raise ValueError(
+                f"Source family {family!r} needs at least two independent split groups"
+            )
+        ranked = sorted(
+            groups,
+            key=lambda group: hashlib.sha256(
+                f"{seed}\0{family}\0{group}".encode("utf-8")
+            ).digest(),
+        )
+        validation_count = min(
+            len(groups) - 1,
+            max(1, (len(groups) * validation_percent + 50) // 100),
+        )
+        validation.update((family, group) for group in ranked[:validation_count])
+    return validation
+
+
 def build_dataset(
     source_manifest: Path,
     output_dir: Path,
@@ -302,7 +386,7 @@ def build_dataset(
         raise ValueError("seed must be an integer")
     if not isinstance(validation_percent, int) or isinstance(validation_percent, bool) or not 1 <= validation_percent <= 50:
         raise ValueError("validation-percent must be an integer from 1 to 50")
-    sources, raw_catalog = _parse_catalog(source_manifest)
+    sources, raw_catalog, split_strategy = _parse_catalog(source_manifest)
     output_dir = output_dir.resolve(strict=False)
     if output_dir.exists():
         raise FileExistsError("Dataset output already exists; select a new output directory")
@@ -311,7 +395,8 @@ def build_dataset(
         tempfile.mkdtemp(prefix=f".{output_dir.name}.staging-", dir=output_dir.parent)
     )
     node, node_version = _node_info()
-    seen_hashes: set[str] = set()
+    hash_occurrences: dict[str, set[tuple[str, str]]] = {}
+    first_content_hashes: set[str] = set()
     records: list[dict[str, Any]] = []
     skipped: dict[str, int] = {}
     skipped_files: list[dict[str, str]] = []
@@ -334,6 +419,7 @@ def build_dataset(
                     "licenseNoticeSha256": _sha256(notice),
                 }
             source_counts = {"accepted": 0, "duplicates": 0, "skipped": 0}
+            source_split_groups: set[str] = set()
             for path, relative_path in _iter_source_files(source):
                 text = None
                 try:
@@ -359,18 +445,17 @@ def build_dataset(
                     continue
                 content_bytes = text.encode("utf-8")
                 content_hash = _sha256(content_bytes)
-                if content_hash in seen_hashes:
+                split_group_id = _split_group_for_path(source, relative_path)
+                family_id = source["sourceFamilyId"]
+                hash_occurrences.setdefault(content_hash, set()).add((family_id, split_group_id))
+                if content_hash in first_content_hashes:
                     skipped["duplicate_content"] = skipped.get("duplicate_content", 0) + 1
                     skipped_files.append(
-                        {
-                            "sourceId": source["id"],
-                            "path": relative_path,
-                            "reason": "duplicate_content",
-                        }
+                        {"sourceId": source["id"], "path": relative_path, "reason": "duplicate_content"}
                     )
                     source_counts["duplicates"] += 1
                     continue
-                seen_hashes.add(content_hash)
+                first_content_hashes.add(content_hash)
                 record_id = _sha256(
                     f"{source['id']}\0{relative_path}\0{content_hash}".encode("utf-8")
                 )
@@ -379,6 +464,8 @@ def build_dataset(
                         "recordId": record_id,
                         "sourceId": source["id"],
                         "groupId": source["groupId"],
+                        "sourceFamilyId": family_id,
+                        "splitGroupId": split_group_id,
                         "path": relative_path,
                         "contentSha256": content_hash,
                         "_sourcePath": path,
@@ -386,6 +473,7 @@ def build_dataset(
                     }
                 )
                 source_counts["accepted"] += 1
+                source_split_groups.add(split_group_id)
             source_summaries.append(
                 {
                     "id": source["id"],
@@ -399,14 +487,39 @@ def build_dataset(
                     "acceptedFiles": source_counts["accepted"],
                     "duplicateFiles": source_counts["duplicates"],
                     "skippedFiles": source_counts["skipped"],
+                    **({"sourceFamilyId": source["sourceFamilyId"],
+                       "splitGroupIds": sorted(source_split_groups)}
+                       if split_strategy == "family-stratified-groups-v1" else {}),
                     **notice_info,
                 }
             )
         if not records:
             raise ValueError("No source files passed the configured quality and secret filters")
-        validation_groups = _group_split(
-            {record["groupId"] for record in records}, validation_percent, seed
-        )
+        if split_strategy == "family-stratified-groups-v1":
+            groups_by_family: dict[str, set[str]] = {}
+            for record in records:
+                groups_by_family.setdefault(record["sourceFamilyId"], set()).add(record["splitGroupId"])
+            validation_groups = _family_stratified_group_split(groups_by_family, validation_percent, seed)
+        else:
+            validation_groups = _group_split(
+                {record["groupId"] for record in records}, validation_percent, seed
+            )
+
+        def record_is_validation(record: dict[str, Any]) -> bool:
+            if split_strategy == "family-stratified-groups-v1":
+                return (record["sourceFamilyId"], record["splitGroupId"]) in validation_groups
+            return record["groupId"] in validation_groups
+
+        if split_strategy == "family-stratified-groups-v1":
+            for occurrences in hash_occurrences.values():
+                if len({(family, group) for family, group in occurrences}) <= 1:
+                    continue
+                occurrence_splits = {
+                    "validation" if (family, group) in validation_groups else "train"
+                    for family, group in occurrences
+                }
+                if len(occurrence_splits) > 1:
+                    raise ValueError("Exact normalized content crosses the train/development split")
         records.sort(key=lambda record: (record["sourceId"], record["path"], record["recordId"]))
 
         train_path = staging / "train.jsonl"
@@ -417,7 +530,7 @@ def build_dataset(
         bytes_written = 0
         with train_path.open("xb") as train_stream, validation_path.open("xb") as validation_stream:
             for record in records:
-                split = "validation" if record["groupId"] in validation_groups else "train"
+                split = "validation" if record_is_validation(record) else "train"
                 source_path: Path = record["_sourcePath"]
                 if source_path.is_symlink():
                     raise ValueError("A source file changed to a symbolic link during dataset creation")
@@ -438,6 +551,9 @@ def build_dataset(
                     for key, value in record.items()
                     if not key.startswith("_")
                 }
+                if split_strategy != "family-stratified-groups-v1":
+                    output_record.pop("sourceFamilyId", None)
+                    output_record.pop("splitGroupId", None)
                 output_record["text"] = current_text
                 line = (
                     json.dumps(
@@ -455,21 +571,48 @@ def build_dataset(
                 stream.write(line)
                 split_hashes[split].update(line)
                 split_counts[split] += 1
-                split_group_ids[split].add(record["groupId"])
+                split_group_ids[split].add(
+                    f"{record['sourceFamilyId']}:{record['splitGroupId']}"
+                    if split_strategy == "family-stratified-groups-v1" else record["groupId"]
+                )
+
+        pipeline_version = (
+            FAMILY_SPLIT_PIPELINE_VERSION
+            if split_strategy == "family-stratified-groups-v1" else PIPELINE_VERSION
+        )
+        split_info: dict[str, Any] = {
+            "method": (
+                "family-stratified-split-groups-sha256-v1"
+                if split_strategy == "family-stratified-groups-v1" else "grouped-sha256-v1"
+            ),
+            "seed": seed,
+            "validationPercentOfGroups": validation_percent,
+            "trainGroups": len(split_group_ids["train"]),
+            "validationGroups": len(split_group_ids["validation"]),
+        }
+        if split_strategy == "family-stratified-groups-v1":
+            family_counts: dict[str, dict[str, set[str]]] = {}
+            for record in records:
+                split = "validation" if record_is_validation(record) else "train"
+                family_groups = family_counts.setdefault(
+                    record["sourceFamilyId"], {"train": set(), "validation": set()}
+                )
+                family_groups[split].add(record["splitGroupId"])
+            split_info["families"] = {
+                family: {
+                    "trainGroups": len(groups["train"]),
+                    "validationGroups": len(groups["validation"]),
+                }
+                for family, groups in sorted(family_counts.items())
+            }
 
         manifest: dict[str, Any] = {
             "schemaVersion": 1,
-            "pipelineVersion": PIPELINE_VERSION,
+            "pipelineVersion": pipeline_version,
             "recordFormat": "jsonl; one reviewed source file per record",
             "normalization": "UTF-8 strict, BOM stripped, CRLF/CR mapped to LF, Unicode NFC",
             "sourceCatalogSha256": _sha256(raw_catalog),
-            "split": {
-                "method": "grouped-sha256-v1",
-                "seed": seed,
-                "validationPercentOfGroups": validation_percent,
-                "trainGroups": len(split_group_ids["train"]),
-                "validationGroups": len(split_group_ids["validation"]),
-            },
+            "split": split_info,
             "filters": {
                 "allowedExtensions": sorted(SUPPORTED_EXTENSIONS),
                 "excludedDirectories": sorted(EXCLUDED_DIRECTORIES),

@@ -1,6 +1,6 @@
 # P1-18 — Two-hour tokenizer-aware pilot
 
-**Status: complete for the bounded pilot.** The owner ran the full 120-minute CUDA pilot from the P1-16 random initialization on the approved P1-15 BPE corpus. The saved checkpoint and held-out result were independently verified. P1-19 must still prove tokenizer-aware checkpoint resumption and generation before any longer training.
+**Status: complete for the bounded pilot.** The owner ran the full 120-minute CUDA pilot from the P1-16 random initialization on the approved P1-15 BPE corpus. The saved checkpoint and held-out result were independently verified. The later [P1-19 one-step continuation](PLEX-RESUME-AND-COMPLETION.md) verified tokenizer-aware resumption and independent generation from saved weights.
 
 ## What the pilot command does
 
@@ -8,7 +8,7 @@
 
 The command measures validation loss before and after training, logs training loss and token throughput, and records memory use, tokenizer identity, dataset hashes, seed, settings, and progress. It saves a checkpoint every five minutes and at completion or Ctrl+C. It refuses an existing output directory and caps training at 120 minutes within the owner's 200 GiB artifact allocation. Checkpoints preserve model and optimizer state, RNG state, initialization provenance, tokenizer identity, and both split identities.
 
-`pilot-evaluate` independently reads a saved pilot checkpoint and the held-out validation split, refuses mismatched tokenizer/dataset identities, and reports its loss. The general byte-v1 commands remain separate; P1-19 will verify tokenizer-aware resume and generation before any longer runs.
+`pilot-evaluate` independently reads a saved pilot checkpoint and the held-out validation split, refuses mismatched tokenizer/dataset identities, and reports its loss. The general byte-v1 commands remain separate. The later P1-19 commands `pilot-resume` and `complete` verified the BPE continuation and saved-checkpoint generation path.
 
 ## One-step preflight result
 
@@ -70,7 +70,7 @@ uv run --project training --no-sync python -m plex_training.cli pilot `
   --output-dir pilot\p1-18-reproduction-v1
 ```
 
-No further long run is required for P1-18. The next gate is P1-19's resume and tokenizer-aware generation check.
+No further long run is required for P1-18. The [P1-19 technical gate](PLEX-RESUME-AND-COMPLETION.md) passed with a one-step continuation, and the [P1-20 experiment report](PLEX-EXPERIMENT-REPORT-P1-20.md) records the combined results. Uncapped training is not enabled or justified by this small corpus.
 
 ## Verification
 

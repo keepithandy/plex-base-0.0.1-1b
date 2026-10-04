@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "splitStrategy": "family-stratified-groups-v1",
+  "sources": [
+    {
+      "localPath": "data/raw/microsoft-web-dev-phase2",
+      "groupId": "microsoft-web-dev",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewedAtUtc": "2026-10-04T14:32:10Z",
+      "rightsReviewStatus": "approved",
+      "id": "microsoft-web-dev-phase2",
+      "origin": "https://github.com/microsoft/Web-Dev-For-Beginners",
+      "sourceFamilyId": "microsoft-web-dev",
+      "licenseId": "MIT",
+      "includeExtensions": [
+        ".md",
+        ".html",
+        ".css",
+        ".js"
+      ],
+      "splitGroupRules": [
+        {
+          "pathPrefixes": [
+            "2-js-basics/"
+          ],
+          "id": "ms-js-basics"
+        },
+        {
+          "pathPrefixes": [
+            "3-terrarium/"
+          ],
+          "id": "ms-terrarium"
+        },
+        {
+          "pathPrefixes": [
+            "4-typing-game/"
+          ],
+          "id": "ms-typing-game"
+        },
+        {
+          "pathPrefixes": [
+            "6-space-game/"
+          ],
+          "id": "ms-space-game"
+        },
+        {
+          "pathPrefixes": [
+            "7-bank-project/"
+          ],
+          "id": "ms-bank-project"
+        }
+      ],
+      "revision": "78085398be0dea7abaaf5eda914817f46f6ddbbc"
+    },
+    {
+      "localPath": "data/raw/mdn-learning-area-phase2",
+      "groupId": "mdn-learning-area",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewedAtUtc": "2026-10-04T14:32:10Z",
+      "rightsReviewStatus": "approved",
+      "id": "mdn-learning-area-phase2",
+      "origin": "https://github.com/mdn/learning-area",
+      "sourceFamilyId": "mdn-learning-area",
+      "licenseId": "CC0-1.0",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js"
+      ],
+      "splitGroupRules": [
+        {
+          "pathPrefixes": [
+            "html/introduction-to-html/navigation-menu-marked-up/"
+          ],
+          "id": "mdn-html-navigation"
+        },
+        {
+          "pathPrefixes": [
+            "html/forms/your-first-HTML-form/"
+          ],
+          "id": "mdn-html-form"
+        },
+        {
+          "pathPrefixes": [
+            "css/css-layout/practical-positioning-examples/"
+          ],
+          "id": "mdn-css-positioning"
+        },
+        {
+          "pathPrefixes": [
+            "html/introduction-to-html/the-html-head/"
+          ],
+          "id": "mdn-html-head"
+        },
+        {
+          "pathPrefixes": [
+            "css/web-fonts/"
+          ],
+          "id": "mdn-css-web-font-starter"
+        }
+      ],
+      "revision": "dbed6bcb8284634c7549c4da596ec30b0cfc6e7e"
+    }
+  ]
+}

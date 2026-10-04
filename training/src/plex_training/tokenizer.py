@@ -67,7 +67,7 @@ def _local_file(root: Path, relative: str) -> Path:
 
 
 def _records(path: Path, expected_hash: str, expected_count: int,
-             sources: dict[str, str]) -> Iterator[dict[str, Any]]:
+             sources: dict[str, dict[str, str]], *, family_stratified: bool) -> Iterator[dict[str, Any]]:
     digest = hashlib.sha256()
     count = 0
     with path.open("rb") as stream:
@@ -84,8 +84,15 @@ def _records(path: Path, expected_hash: str, expected_count: int,
                 raise ValueError("Source text must be nonempty and at most 1 MiB")
             if hashlib.sha256(raw).hexdigest() != row["contentSha256"]:
                 raise ValueError("Record content hash does not match its text")
-            if sources.get(row["sourceId"]) != row["groupId"]:
+            source = sources.get(row["sourceId"])
+            if source is None or source["groupId"] != row["groupId"]:
                 raise ValueError("Record source/group is not in the approved manifest")
+            if family_stratified and (
+                row.get("sourceFamilyId") != source.get("sourceFamilyId")
+                or not isinstance(row.get("splitGroupId"), str)
+                or not row["splitGroupId"]
+            ):
+                raise ValueError("Record source family/split group is not in the approved manifest")
             count += 1
             yield row
     if digest.hexdigest() != expected_hash or count != expected_count or count == 0:
@@ -147,12 +154,14 @@ def train_tokenizer(dataset_dir: Path, output_dir: Path, *, vocab_size: int = 16
     manifest_path = _local_file(dataset_dir, "manifest.json")
     source_manifest_hash = sha256_file(manifest_path)
     manifest = _read_json(manifest_path)
-    if manifest.get("schemaVersion") != 1 or manifest.get("pipelineVersion") != "p1-14.2":
-        raise ValueError("Expected a P1-14.2 curated dataset manifest")
+    pipeline_version = manifest.get("pipelineVersion")
+    if manifest.get("schemaVersion") != 1 or pipeline_version not in {"p1-14.2", "p2-02.0"}:
+        raise ValueError("Expected a supported P1-14.2 or P2-02.0 curated dataset manifest")
+    family_stratified = pipeline_version == "p2-02.0"
     source_rows = manifest.get("sources")
     if not isinstance(source_rows, list) or not source_rows:
         raise ValueError("Dataset must have approved source provenance")
-    sources: dict[str, str] = {}
+    sources: dict[str, dict[str, str]] = {}
     notices: dict[str, bytes] = {}
     for source in source_rows:
         if not isinstance(source, dict):
@@ -162,7 +171,12 @@ def train_tokenizer(dataset_dir: Path, output_dir: Path, *, vocab_size: int = 16
         source_id, group = source.get("id"), source.get("groupId")
         if not isinstance(source_id, str) or not isinstance(group, str) or source_id in sources:
             raise ValueError("Invalid or duplicate source identifiers")
-        sources[source_id] = group
+        source_family = source.get("sourceFamilyId")
+        if family_stratified and (not isinstance(source_family, str) or not source_family):
+            raise ValueError("Family-stratified dataset source is missing its source family")
+        sources[source_id] = {"groupId": group}
+        if isinstance(source_family, str):
+            sources[source_id]["sourceFamilyId"] = source_family
         relative = source.get("licenseNoticeFile", "")
         if (not isinstance(relative, str) or not relative.startswith("licenses/")
                 or "\\" in relative or len(Path(relative).parts) != 2
@@ -187,22 +201,37 @@ def train_tokenizer(dataset_dir: Path, output_dir: Path, *, vocab_size: int = 16
         expected_count = summary.get(split + "Records")
         if not isinstance(expected_hash, str) or type(expected_count) is not int:
             raise ValueError("Missing dataset split hash/count")
-        return _records(split_paths[split], expected_hash, expected_count, sources)
+        return _records(
+            split_paths[split], expected_hash, expected_count, sources,
+            family_stratified=family_stratified,
+        )
 
     # Review both splits before fitting; only their groups/hashes enter this check.
     groups: dict[str, set[str]] = {}
+    split_groups: dict[str, set[tuple[str, str]]] = {}
+    families: dict[str, set[str]] = {}
     content_hashes: dict[str, set[str]] = {}
     for split in split_paths:
-        groups[split], content_hashes[split] = set(), set()
+        groups[split], split_groups[split], families[split], content_hashes[split] = set(), set(), set(), set()
         record_ids: set[str] = set()
         for row in records(split):
             if row["contentSha256"] in content_hashes[split] or row["recordId"] in record_ids:
                 raise ValueError("Duplicate record/content in dataset")
             record_ids.add(row["recordId"])
             groups[split].add(row["groupId"])
+            if family_stratified:
+                family = row["sourceFamilyId"]
+                families[split].add(family)
+                split_groups[split].add((family, row["splitGroupId"]))
             content_hashes[split].add(row["contentSha256"])
-    if groups["train"] & groups["validation"] or content_hashes["train"] & content_hashes["validation"]:
+    identity_overlap = (
+        split_groups["train"] & split_groups["validation"]
+        if family_stratified else groups["train"] & groups["validation"]
+    )
+    if identity_overlap or content_hashes["train"] & content_hashes["validation"]:
         raise ValueError("Training and validation groups/content must be disjoint")
+    if family_stratified and (families["train"] != families["validation"] or len(families["train"]) < 2):
+        raise ValueError("Every source family must appear in both P2-02.0 splits")
 
     backend = Tokenizer(models.BPE(unk_token=SPECIAL_TOKENS[1]))
     backend.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False, use_regex=True)

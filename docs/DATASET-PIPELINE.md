@@ -41,3 +41,26 @@ Credential patterns are a defense-in-depth filter, not a guarantee that secrets 
 Exact duplicates are removed before splitting. A stable SHA-256 ranking of `seed` and `groupId` assigns complete repository groups to validation or training; at least two eligible groups are required. This reduces source leakage but does not identify every related repository automatically. Assign related sources the same `groupId` in the catalog.
 
 The output remains a text corpus for P1-14. P1-15 has trained Plex's tokenizer using only the `text` fields of `train.jsonl`, then encoded both splits. The [tokenizer report](PLEX-TOKENIZER.md) records results and reproduction commands. No pretrained weights or external tokenizer checkpoints are used.
+
+## Phase 2 family-stratified data
+
+P2 adds the explicit catalog strategy `family-stratified-groups-v1` while leaving existing P1 catalogs and their `source-groups-v1` behavior intact. Each source can declare a `sourceFamilyId` and path-prefix rules that map files to project-level `splitGroupId` values. Every family needs at least two independent groups. The seeded splitter assigns whole groups within each family so every family appears in both splits; exact normalized content is checked across all split assignments. The tokenizer validates family/group identities and still fits only on training text.
+
+The approved Phase 2 snapshot and exact selections are recorded in [PHASE-2-DATA-COLLECTION-REVIEW.md](PHASE-2-DATA-COLLECTION-REVIEW.md). The pinned lock and catalog are in [`training/phase2`](../training/phase2/); raw snapshots stay under that directory and are ignored by Git. To restore or verify them and reproduce the selected split:
+
+```powershell
+uv run --project training python -m plex_training.source_fetch `
+  --plan training\phase2\dataset-source-lock.json
+
+uv run --project training python -m plex_training.cli dataset-build `
+  --source-manifest training\phase2\dataset-sources.phase2-v1.json `
+  --output-dir datasets\p2-02-data-v2 `
+  --validation-percent 30 `
+  --seed 51
+
+uv run --project training python -m plex_training.cli tokenizer-train `
+  --dataset-dir training\artifacts\datasets\p2-02-data-v2 `
+  --output-dir tokenizers\p2-02-data-v2
+```
+
+The split percentage is applied to eligible project groups within each family, not to files, records, or tokens. With five groups in each family, 30% assigns two groups per family to development. Project-size imbalance can still produce unequal text/token counts, so check the manifest before using a corpus for training. The P2 selection currently skews toward tutorial Markdown and has not yet met the proposal's rough code-token target; see the review before starting a P2 experiment.

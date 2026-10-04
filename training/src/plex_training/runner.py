@@ -22,6 +22,11 @@ from .model import PlexLanguageModel, parameter_count
 from .telemetry import environment_report, peak_gpu_memory, reset_peak_gpu_memory, select_device
 
 DEFAULT_ARTIFACT_ROOT = Path(__file__).resolve().parents[2] / "artifacts"
+ADAMW_LEARNING_RATE = 3e-4
+ADAMW_BETAS = (0.9, 0.95)
+ADAMW_WEIGHT_DECAY = 0.1
+ADAMW_EPSILON = 1e-8
+SCHEDULE_KIND = "constant-v1"
 
 
 class BatchSource(Protocol):
@@ -110,6 +115,66 @@ def _validation_loss(
     return weighted_loss / token_count
 
 
+def _bpe_training_settings(
+    config: ModelConfig, micro_batch: int, accumulation_steps: int,
+    loss_vocabulary_size: int, validation_maximum_batches: int,
+) -> dict[str, Any]:
+    return {
+        "schemaVersion": 1,
+        "codec": "plex-byte-bpe-v1",
+        "modelConfig": config.to_dict(),
+        "microBatch": micro_batch,
+        "gradientAccumulation": accumulation_steps,
+        "lossVocabularySize": loss_vocabulary_size,
+        "validationMaximumBatches": validation_maximum_batches,
+        "optimizer": {
+            "kind": "AdamW", "learningRate": ADAMW_LEARNING_RATE,
+            "betas": list(ADAMW_BETAS), "weightDecay": ADAMW_WEIGHT_DECAY,
+            "epsilon": ADAMW_EPSILON,
+        },
+        "learningRateSchedule": SCHEDULE_KIND,
+    }
+
+
+def _schedule_state(step: int) -> dict[str, Any]:
+    return {"kind": SCHEDULE_KIND, "step": step, "learningRate": ADAMW_LEARNING_RATE}
+
+
+def _verify_bpe_resume_policy(
+    payload: dict[str, Any], optimizer: torch.optim.Optimizer,
+    settings: dict[str, Any],
+) -> int:
+    """Validate explicit settings, or the known fixed-policy P1-18 checkpoint."""
+    step = int(payload["step"])
+    if step == 0:
+        return 0
+    saved_settings = payload.get("trainingSettings")
+    saved_schedule = payload.get("scheduleState")
+    if saved_settings is None:
+        # P1-18 checkpoints predate settings metadata. The owner's pilot used
+        # these defaults; reject changes we cannot prove are a continuation.
+        if (settings["microBatch"] != 1 or settings["gradientAccumulation"] != 16
+                or settings["validationMaximumBatches"] != 100):
+            raise ValueError("Legacy P1-18 checkpoint requires its original batch and validation settings")
+        if saved_schedule is not None:
+            raise ValueError("Legacy checkpoint has inconsistent schedule metadata")
+    elif saved_settings != settings or saved_schedule != _schedule_state(step):
+        raise ValueError("Resume checkpoint training settings or learning-rate schedule do not match")
+    groups = optimizer.param_groups
+    if (len(groups) != 1 or groups[0].get("lr") != ADAMW_LEARNING_RATE
+            or tuple(groups[0].get("betas", ())) != ADAMW_BETAS
+            or groups[0].get("weight_decay") != ADAMW_WEIGHT_DECAY
+            or groups[0].get("eps") != ADAMW_EPSILON):
+        raise ValueError("Resume checkpoint optimizer policy does not match")
+    positions_per_step = (settings["microBatch"] * settings["gradientAccumulation"]
+                          * settings["modelConfig"]["context_length"])
+    expected_positions = step * positions_per_step
+    saved_positions = payload.get("tokensProcessedTotal")
+    if saved_positions is not None and saved_positions != expected_positions:
+        raise ValueError("Resume checkpoint token progress does not match its settings")
+    return expected_positions
+
+
 def run_training(
     *,
     train_source: BatchSource,
@@ -163,6 +228,12 @@ def run_training(
     if config != DEFAULT_CONFIG and not allow_tiny_config:
         raise ValueError("Non-default model configurations are only allowed in tests")
 
+    training_settings = (
+        _bpe_training_settings(config, micro_batch, accumulation_steps,
+                               loss_vocabulary_size, validation_maximum_batches)
+        if codec != "byte-v1" else None
+    )
+
     artifact_root = artifact_root.resolve()
     output_checkpoint = path_within_root(output_checkpoint, artifact_root)
     metrics_path = path_within_root(metrics_path, artifact_root)
@@ -174,13 +245,15 @@ def run_training(
     seed_everything(seed)
     rng = random.Random(seed)
     device = select_device(device_name)
+    start_positions = 0
     if resume_from is None:
         model = PlexLanguageModel(config).to(device)
         optimizer = torch.optim.AdamW(
             model.parameters(),
-            lr=3e-4,
-            betas=(0.9, 0.95),
-            weight_decay=0.1,
+            lr=ADAMW_LEARNING_RATE,
+            betas=ADAMW_BETAS,
+            weight_decay=ADAMW_WEIGHT_DECAY,
+            eps=ADAMW_EPSILON,
         )
         start_step = 0
     else:
@@ -190,20 +263,25 @@ def run_training(
                 raise ValueError("Resume checkpoint configuration does not match this run")
         optimizer = torch.optim.AdamW(
             model.parameters(),
-            lr=3e-4,
-            betas=(0.9, 0.95),
-            weight_decay=0.1,
+            lr=ADAMW_LEARNING_RATE,
+            betas=ADAMW_BETAS,
+            weight_decay=ADAMW_WEIGHT_DECAY,
+            eps=ADAMW_EPSILON,
         )
         restore_optimizer(optimizer, payload)
         if payload.get("codec") != codec:
             raise ValueError("Starting checkpoint codec does not match this run")
         if codec != "byte-v1":
+            if (payload.get("step") != 0
+                    and bool(payload.get("torchCudaRngStates")) != (device.type == "cuda")):
+                raise ValueError("BPE resume must use the checkpoint's training device type")
             if payload.get("seed") != seed:
                 raise ValueError("Starting checkpoint seed does not match this run")
             if payload.get("tokenizerRecord") != tokenizer_record:
                 raise ValueError("Starting checkpoint tokenizer does not match this run")
             if payload.get("step") != 0 and payload.get("datasetRecord") != dataset_record:
                 raise ValueError("Starting checkpoint dataset does not match this run")
+            start_positions = _verify_bpe_resume_policy(payload, optimizer, training_settings)
         if (codec != "byte-v1" and payload.get("step") == 0 and device.type == "cuda"
                 and payload.get("torchCudaRngStates") == []):
             restore_random_states(payload, rng, torch.device("cpu"))
@@ -241,6 +319,9 @@ def run_training(
         "datasetRecord": dataset_record,
         "lossVocabularySize": loss_vocabulary_size,
         "validationMaximumBatches": validation_maximum_batches,
+        "trainingSettings": training_settings,
+        "scheduleState": _schedule_state(start_step) if training_settings is not None else None,
+        "tokensProcessedTotal": start_positions if training_settings is not None else None,
     }
     if validation is not None:
         event["validationLossBefore"] = _validation_loss(
@@ -291,6 +372,11 @@ def run_training(
                     initialization_record=initialization_record,
                     tokenizer_record=tokenizer_record,
                     dataset_record=dataset_record,
+                    training_settings=training_settings,
+                    schedule_state=_schedule_state(step) if training_settings is not None else None,
+                    tokens_processed_total=(start_positions + (step - start_step) * micro_batch
+                                            * accumulation_steps * config.context_length)
+                    if training_settings is not None else None,
                 )
                 _write_event(metrics_path, artifact_root, {"event": "checkpoint_saved", **saved})
                 last_checkpoint = now
@@ -318,6 +404,11 @@ def run_training(
         initialization_record=initialization_record,
         tokenizer_record=tokenizer_record,
         dataset_record=dataset_record,
+        training_settings=training_settings,
+        schedule_state=_schedule_state(step) if training_settings is not None else None,
+        tokens_processed_total=(start_positions + (step - start_step) * micro_batch
+                                * accumulation_steps * config.context_length)
+        if training_settings is not None else None,
     )
     summary = {
         "event": "run_finished",
@@ -336,6 +427,9 @@ def run_training(
         "validationTokens": validation.token_count if validation is not None else None,
         "codec": codec,
         "tokensProcessedThisRun": (step - start_step) * micro_batch * accumulation_steps * config.context_length,
+        "tokensProcessedTotal": start_positions + (step - start_step) * micro_batch * accumulation_steps * config.context_length,
+        "trainingSettings": training_settings,
+        "scheduleState": _schedule_state(step) if training_settings is not None else None,
         "tokenizerRecord": tokenizer_record,
         "datasetRecord": dataset_record,
         "interrupted": interrupted,

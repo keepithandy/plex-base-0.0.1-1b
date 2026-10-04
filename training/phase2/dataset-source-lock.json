@@ -1,0 +1,268 @@
+{
+  "sources": [
+    {
+      "id": "microsoft-web-dev-phase2",
+      "repo": "microsoft/Web-Dev-For-Beginners",
+      "revision": "78085398be0dea7abaaf5eda914817f46f6ddbbc",
+      "licenseId": "MIT",
+      "groupId": "microsoft-web-dev-for-beginners",
+      "files": [
+        {
+          "path": "2-js-basics/1-data-types/README.md",
+          "bytes": 26352,
+          "gitBlobSha1": "68dcdc37f505fcec3ee6180b3ce25e5e8c61d7b5"
+        },
+        {
+          "path": "2-js-basics/2-functions-methods/README.md",
+          "bytes": 22207,
+          "gitBlobSha1": "0efc923b60963272bc4744bb92f75fc1413d7948"
+        },
+        {
+          "path": "2-js-basics/3-making-decisions/README.md",
+          "bytes": 25172,
+          "gitBlobSha1": "b3f78640bba8e7931128c75bf141d71b541e2fec"
+        },
+        {
+          "path": "2-js-basics/4-arrays-loops/README.md",
+          "bytes": 26865,
+          "gitBlobSha1": "d8355320e14dbe6195b6870ec227f37f30d6ba44"
+        },
+        {
+          "path": "2-js-basics/README.md",
+          "bytes": 574,
+          "gitBlobSha1": "02c69bcb8a20fcab151c602351e5e4ac1a703204"
+        },
+        {
+          "path": "3-terrarium/1-intro-to-html/README.md",
+          "bytes": 26671,
+          "gitBlobSha1": "eec31838557299e5ac2ec3ad958b93cdf3bddcf5"
+        },
+        {
+          "path": "3-terrarium/2-intro-to-css/README.md",
+          "bytes": 29098,
+          "gitBlobSha1": "98787ff3fc62a6260b3fdd36566b37b929a5cf04"
+        },
+        {
+          "path": "3-terrarium/3-intro-to-DOM-and-closures/README.md",
+          "bytes": 34363,
+          "gitBlobSha1": "a9be6ce02083f697070756861d0ede7393dab101"
+        },
+        {
+          "path": "3-terrarium/README.md",
+          "bytes": 590,
+          "gitBlobSha1": "f1529258cefc5effa4efa5fad94fe81b07dd825c"
+        },
+        {
+          "path": "3-terrarium/solution/index.html",
+          "bytes": 4969,
+          "gitBlobSha1": "6c6f019ba6c17e4b56eb0016bdbb4cf73f2fed92"
+        },
+        {
+          "path": "3-terrarium/solution/script.js",
+          "bytes": 2401,
+          "gitBlobSha1": "cc3950b0ca2ff037014be2a1d0f800c01ad63752"
+        },
+        {
+          "path": "3-terrarium/solution/style.css",
+          "bytes": 3224,
+          "gitBlobSha1": "ed283ddcb5ae51791b91f205fff902999c9f346b"
+        },
+        {
+          "path": "4-typing-game/README.md",
+          "bytes": 9949,
+          "gitBlobSha1": "6d27fcf66ca9d02d778970406c05e99bb8f51811"
+        },
+        {
+          "path": "4-typing-game/solution/index.css",
+          "bytes": 2515,
+          "gitBlobSha1": "5a33a101545901447c85058f09da8d02015dc2a6"
+        },
+        {
+          "path": "4-typing-game/solution/index.html",
+          "bytes": 3055,
+          "gitBlobSha1": "e12d768168fcfa3261748238c947b41173db4378"
+        },
+        {
+          "path": "4-typing-game/solution/index.js",
+          "bytes": 3047,
+          "gitBlobSha1": "55a4f3922f5cbf68cc137e9abc355a45b2c763c0"
+        },
+        {
+          "path": "4-typing-game/typing-game/README.md",
+          "bytes": 30822,
+          "gitBlobSha1": "643408e73bac649100332356ac2c1c3ae493b34a"
+        },
+        {
+          "path": "6-space-game/1-introduction/README.md",
+          "bytes": 26494,
+          "gitBlobSha1": "d580dce1511fb381df584c72d946b63f974b75f0"
+        },
+        {
+          "path": "6-space-game/2-drawing-to-canvas/README.md",
+          "bytes": 25683,
+          "gitBlobSha1": "89e87c695d553ede7ffed8d8b7583f017fce2f09"
+        },
+        {
+          "path": "6-space-game/3-moving-elements-around/README.md",
+          "bytes": 35025,
+          "gitBlobSha1": "2e49191f9473cc6be1332da07eb6ee5fdd5d1aed"
+        },
+        {
+          "path": "6-space-game/4-collision-detection/README.md",
+          "bytes": 27085,
+          "gitBlobSha1": "f6881380ee0ed69310e5456ae9b67cbee6c45643"
+        },
+        {
+          "path": "6-space-game/5-keeping-score/README.md",
+          "bytes": 18935,
+          "gitBlobSha1": "f8f4dd85a6c886960b881c06ce7aebdb4614e315"
+        },
+        {
+          "path": "6-space-game/6-end-condition/README.md",
+          "bytes": 26692,
+          "gitBlobSha1": "00a8eda36d29da3b459e60dbfe02726e946e6f96"
+        },
+        {
+          "path": "6-space-game/README.md",
+          "bytes": 1324,
+          "gitBlobSha1": "aa4f5be8cb8fea6e71ef40d0fc288b02d402a6cc"
+        },
+        {
+          "path": "6-space-game/solution/app.js",
+          "bytes": 19040,
+          "gitBlobSha1": "c2658eec03202494542c2f92720663e6ed0e332d"
+        },
+        {
+          "path": "6-space-game/solution/index.html",
+          "bytes": 15138,
+          "gitBlobSha1": "d8674fc58407a57f39d87ea85b5d88f31abcab63"
+        },
+        {
+          "path": "7-bank-project/1-template-route/README.md",
+          "bytes": 38907,
+          "gitBlobSha1": "725957a5c0718f2687c9df9e488b9cacc13e6919"
+        },
+        {
+          "path": "7-bank-project/2-forms/README.md",
+          "bytes": 39715,
+          "gitBlobSha1": "2d0bed0961fee87da73ecb4dec60ced006607ee9"
+        },
+        {
+          "path": "7-bank-project/3-data/README.md",
+          "bytes": 41715,
+          "gitBlobSha1": "f4a7094feaee7c47af9a604556ad6ae777f951da"
+        },
+        {
+          "path": "7-bank-project/4-state-management/README.md",
+          "bytes": 33970,
+          "gitBlobSha1": "e6d1e020343178150230d4e6badb3e83ea4cc0b4"
+        },
+        {
+          "path": "7-bank-project/README.md",
+          "bytes": 1093,
+          "gitBlobSha1": "fbacec6686b374e941b7c0ff9fcf8ed78113f31f"
+        },
+        {
+          "path": "7-bank-project/solution/app.js",
+          "bytes": 15247,
+          "gitBlobSha1": "a776bb18c9708a5a442be221b6796ea98506cbf8"
+        },
+        {
+          "path": "7-bank-project/solution/index.html",
+          "bytes": 8755,
+          "gitBlobSha1": "5e3c66e866cd497ebc3c783f53e8defd36964898"
+        },
+        {
+          "path": "7-bank-project/solution/styles.css",
+          "bytes": 11856,
+          "gitBlobSha1": "f7370aaec45c1dbf5a7c90194246a66a0921a194"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1162,
+          "gitBlobSha1": "3d8b93bc7987d14c848448c089e2ae15311380d7"
+        }
+      ]
+    },
+    {
+      "licenseId": "CC0-1.0",
+      "revision": "dbed6bcb8284634c7549c4da596ec30b0cfc6e7e",
+      "groupId": "mdn-learning-area",
+      "files": [
+        {
+          "bytes": 6555,
+          "gitBlobSha1": "670154e3538863b2d9891fd5483160fbdfc89164",
+          "path": "LICENSE"
+        },
+        {
+          "bytes": 501,
+          "gitBlobSha1": "431e4452d6e306a904e20f879d48ff8c0ced81a2",
+          "path": "html/introduction-to-html/navigation-menu-marked-up/index.html"
+        },
+        {
+          "bytes": 518,
+          "gitBlobSha1": "efad3e17e123ecac1f721ce82ed9b277bba485af",
+          "path": "html/introduction-to-html/navigation-menu-marked-up/pictures.html"
+        },
+        {
+          "bytes": 548,
+          "gitBlobSha1": "65030b16f97e943162cb78079fb18043b6c0c844",
+          "path": "html/introduction-to-html/navigation-menu-marked-up/projects.html"
+        },
+        {
+          "bytes": 609,
+          "gitBlobSha1": "44cf4059103c72aa784c73026d757678a05bf2b7",
+          "path": "html/introduction-to-html/navigation-menu-marked-up/social.html"
+        },
+        {
+          "bytes": 1966,
+          "gitBlobSha1": "6017522c66f293d77c26372d009f881bb9a6df2e",
+          "path": "html/forms/your-first-HTML-form/first-form-styled.html"
+        },
+        {
+          "bytes": 611,
+          "gitBlobSha1": "680ca2aaf9119c0bfced372b22ee1f08606157b8",
+          "path": "html/forms/your-first-HTML-form/first-form.html"
+        },
+        {
+          "bytes": 947,
+          "gitBlobSha1": "705ec23b063cb2ff4c1f392440cfb5c0bca31286",
+          "path": "css/css-layout/practical-positioning-examples/hidden-info-panel-start.html"
+        },
+        {
+          "bytes": 1844,
+          "gitBlobSha1": "029eb6bf2f589ac4c46724384fe637e7814c4402",
+          "path": "css/css-layout/practical-positioning-examples/hidden-info-panel.html"
+        },
+        {
+          "bytes": 764,
+          "gitBlobSha1": "767d38474887c7ff66c4feb8e2d8d2ebaa6ec5d0",
+          "path": "html/introduction-to-html/the-html-head/script.js"
+        },
+        {
+          "bytes": 155,
+          "gitBlobSha1": "e1ded8871930c70ff3ffdb79b69ec16754f6ae65",
+          "path": "html/introduction-to-html/the-html-head/style.css"
+        },
+        {
+          "bytes": 237,
+          "gitBlobSha1": "3355707b41e06101110019debcd93737e8e248a6",
+          "path": "html/introduction-to-html/the-html-head/title-example.html"
+        },
+        {
+          "bytes": 2221,
+          "gitBlobSha1": "efe371fdea757c8586d710c14ce11287e834e124",
+          "path": "css/web-fonts/web-font-start.html"
+        },
+        {
+          "bytes": 298,
+          "gitBlobSha1": "b3a8720fa9c99ce26484905c3fd09987fc9d567a",
+          "path": "css/web-fonts/web-font-start.css"
+        }
+      ],
+      "id": "mdn-learning-area-phase2",
+      "repo": "mdn/learning-area"
+    }
+  ],
+  "schemaVersion": 1
+}
