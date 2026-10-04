@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "microsoft-web-dev",
+      "localPath": "data/raw/microsoft-web-dev",
+      "origin": "https://github.com/microsoft/Web-Dev-For-Beginners",
+      "revision": "78085398be0dea7abaaf5eda914817f46f6ddbbc",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T00:51:40Z",
+      "groupId": "microsoft-web-dev-for-beginners",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".md"
+      ]
+    },
+    {
+      "id": "traversy-web-projects",
+      "localPath": "data/raw/traversy-web-projects",
+      "origin": "https://github.com/bradtraversy/50projects50days",
+      "revision": "c92b0bc3a87fc95d44b89552b7b6a2eeb36ca481",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T00:51:40Z",
+      "groupId": "bradtraversy-50projects50days",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".md"
+      ]
+    }
+  ]
+}

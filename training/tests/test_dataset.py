@@ -1,3 +1,4 @@
+import hashlib
 import json
 import shutil
 import tempfile
@@ -22,6 +23,7 @@ class DatasetPipelineTests(unittest.TestCase):
     def _source(self, root: Path, source_id: str, group_id: str) -> dict[str, str]:
         source_path = root / "raw" / source_id
         source_path.mkdir(parents=True)
+        (source_path / "LICENSE").write_bytes(b"Fixture permission notice retained with copies.\n")
         return {
             "id": source_id,
             "localPath": f"raw/{source_id}",
@@ -113,6 +115,12 @@ class DatasetPipelineTests(unittest.TestCase):
             all_rows = train_rows + validation_rows
             self.assertFalse(any(Path(row["path"]).is_absolute() for row in all_rows))
             self.assertNotIn("localPath", json.loads((root / "output-one/manifest.json").read_text())["sources"][0])
+            manifest = json.loads((root / "output-one/manifest.json").read_text())
+            for source in manifest["sources"]:
+                original_notice = (root / "raw" / source["id"] / "LICENSE").read_bytes()
+                copied_notice = (root / "output-one" / source["licenseNoticeFile"]).read_bytes()
+                self.assertEqual(original_notice, copied_notice)
+                self.assertEqual(hashlib.sha256(copied_notice).hexdigest(), source["licenseNoticeSha256"])
 
     def test_unreviewed_source_is_rejected_before_output_is_created(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -124,6 +132,16 @@ class DatasetPipelineTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "not approved"):
                 build_dataset(catalog, output, storage_limit_bytes=1024)
             self.assertFalse(output.exists())
+
+    def test_missing_local_license_evidence_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = self._source(root, "missing-license", "group")
+            (root / "raw/missing-license/LICENSE").unlink()
+            catalog = self._write_catalog(root, [source])
+            with self.assertRaisesRegex(ValueError, "local license evidence"):
+                build_dataset(catalog, root / "output", storage_limit_bytes=1024**2)
+            self.assertFalse((root / "output").exists())
 
     def test_one_group_cannot_be_split_into_train_and_validation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -210,6 +228,21 @@ class DatasetPipelineTests(unittest.TestCase):
                 _validate_syntax(invalid, invalid.read_text(encoding="utf-8"), node),
                 "invalid_javascript_syntax",
             )
+
+    def test_cjs_extension_is_accepted_by_catalog_and_syntax_filter(self) -> None:
+        if shutil.which("node") is None:
+            self.skipTest("Node.js is unavailable")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sources = [self._source(root, name, name) for name in ("alpha", "bravo")]
+            for source, number in zip(sources, (1, 2)):
+                source["includeExtensions"] = [".cjs"]
+                (root / source["localPath"] / "example.cjs").write_text(
+                    f"module.exports = {number};\n", encoding="utf-8"
+                )
+            catalog = self._write_catalog(root, sources)
+            result = build_dataset(catalog, root / "output", storage_limit_bytes=1024**2)
+            self.assertEqual(result["records"], 2)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Plex first experiment (P1-12)
 
-Status: **configuration proposed; measured resource fit pending the 10-minute smoke test on the owner's Windows machine**. The P1-13 runner is verified with 13 passing tests using Python 3.12.10 and PyTorch 2.14.0+cu126; CUDA 12.6 detected the RTX 4080 SUPER. The runner is in [`../training/`](../training/README.md). This experiment is a small from-scratch training pilot, not a claim of useful coding ability. Do not load pretrained weights.
+Status: **configuration defined; ten-minute CUDA resource-fit test passed on the owner's Windows machine; real-data pilot pending**. The P1-13 runner's original 13 tests passed using Python 3.12.10 and PyTorch 2.14.0+cu126; CUDA 12.6 detected the RTX 4080 SUPER. The [smoke result](SMOKE-TEST-2026-10-03.md) records 4,199 steps, 734 MiB peak GPU reservation, and about 1.30 GiB process peak RAM. The runner is in [`../training/`](../training/README.md). This experiment is a small from-scratch training pilot, not a claim of useful coding ability. Do not load pretrained weights.
 
 ## Model configuration
 
@@ -17,9 +17,9 @@ Status: **configuration proposed; measured resource fit pending the 10-minute sm
 | Input/output token embeddings | Tied |
 | Activation | GELU |
 | Dropout | 0.1 during training |
-| Estimated parameter count | 27,566,080 (about 27.6 million) |
+| Instantiated parameter count | 27,566,080 (about 27.6 million), confirmed by the smoke start event |
 
-The count assumes standard biased Q/K/V and output projections, two biased feed-forward projections per block, LayerNorm scale/bias parameters, learned token and positional embeddings, a final LayerNorm, and tied token input/output embeddings. It is an architectural estimate; P1-13 must report the instantiated count and fail if it differs without an intentional documented change.
+The count assumes standard biased Q/K/V and output projections, two biased feed-forward projections per block, LayerNorm scale/bias parameters, learned token and positional embeddings, a final LayerNorm, and tied token input/output embeddings. The observed instantiated count matches this architectural estimate. The runner fails if it differs without an intentional documented change.
 
 This model is about 18 times smaller than the low end of the eventual 0.5B–1.5B target. Its purpose is to make the training path small enough to debug and measure.
 
@@ -37,7 +37,7 @@ This model is about 18 times smaller than the low end of the eventual 0.5B–1.5
 | Gradient accumulation | 16 steps (effective batch: 16 sequences / 8,192 token positions) |
 | Initialization | Random; exact scheme and seed recorded in P1-16 |
 
-The 10-minute smoke test uses generated deterministic token sequences, needs no dataset download, and measures that forward/backward training runs while reporting elapsed time, tokens per second, peak VRAM, and peak system RAM. The P1-13 runner and its 13-test suite are verified on the owner's Windows environment; run the smoke test to measure actual hardware fit. It checks runtime and resource use only; the separate P1-17 tiny-sample test proves the model can learn.
+The 10-minute smoke test uses generated deterministic token sequences, needs no dataset download, and measures that forward/backward training runs while reporting elapsed time, tokens per second, peak VRAM, and peak system RAM. The owner completed it successfully; its settings, raw result, and interpretation are in [SMOKE-TEST-2026-10-03.md](SMOKE-TEST-2026-10-03.md). It checks runtime and resource use only; the separate P1-17 tiny-sample test checks reproduction of a real text sample.
 
 After the smoke test fits safely, the two-hour pilot uses only a local, documented dataset after P1-14 prepares it. The pilot records training and validation loss, processed tokens, throughput, and peak memory. P1-19 separately verifies checkpoint resumption; pass that gate before any run longer than the two-hour pilot. The pilot cannot establish general coding skill.
 
@@ -53,7 +53,7 @@ Do not proceed from the two-hour pilot to longer training if the process exceeds
 
 ## Dependencies and open decisions
 
-- The P1-13 project pins Python 3.12 and PyTorch 2.14.0 with CUDA 12.6. The owner resolved the environment on Windows; the reported runtime is Python 3.12.10, PyTorch 2.14.0+cu126, and CUDA 12.6. All 13 tests pass. The measured hardware-fit run remains pending.
+- The P1-13 project pins Python 3.12 and PyTorch 2.14.0 with CUDA 12.6. The owner resolved the environment on Windows; the reported runtime is Python 3.12.10, PyTorch 2.14.0+cu126, and CUDA 12.6. The original 13 tests and ten-minute CUDA smoke test passed. Real-data throughput and validation remain unmeasured until P1-18.
 - The tokenizer, data sources, and validation split are defined by P1-14 and P1-15; no dataset download is part of P1-12.
 - The exact random initialization scheme and seed are recorded in P1-16.
 - CPU inference memory and latency targets remain separate and unmeasured; test them after a Plex checkpoint exists.

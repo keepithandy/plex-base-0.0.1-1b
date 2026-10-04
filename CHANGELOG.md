@@ -2,11 +2,14 @@
 
 ## 0.1.0 — development scaffold
 
+- Recorded the owner's successful ten-minute CUDA smoke result: 4,199 steps, 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and a 330,894,811-byte checkpoint. Retained the raw result and updated measured-fit status; real-data pilot remains pending.
+- Completed P1-14's owner-approved starter corpus from two pinned MIT source subsets: 34 training records, 54 validation records, 746,848 packaged bytes, preserved license notices, and an identical second build. Added a bounded hash-verifying text downloader, approved source catalog, source lock, and review/build report; all 25 training-workspace tests passed. Fixed the advertised .cjs extension allowlist.
+
 - Began P1-11 with a read-only Windows hardware collector and a separate training/inference profile template.
 - Recorded the owner-provided CPU, RAM, GPU/VRAM, and free-drive inventory plus limits: 200 GiB storage, $0 paid services, a 10-minute smoke test, a two-hour pilot, and longer runs with resumable checkpoints.
 - Started P1-12 with a documented 27.6M-parameter random-initialized experiment proposal, training settings, and analytic memory estimate; runtime measurements await the P1-13 training runner.
 - Completed the P1-13 local Python runner for synthetic smoke testing, local corpus preparation, bounded training, evaluation, generation, and Plex-owned checkpoints. Owner Windows verification: Python 3.12.10, PyTorch 2.14.0+cu126, CUDA 12.6 available on an RTX 4080 SUPER; all 13 training tests pass. The 10-minute resource-fit smoke test remains pending.
-- Implemented the P1-14 offline local-source curation command, license-review gate, text/secret/syntax filters, normalized exact deduplication, deterministic repository-grouped splits, and provenance manifests. Actual source approval and corpus creation remain pending.
+- Implemented the P1-14 offline local-source curation command, license-review gate, text/secret/syntax filters, normalized exact deduplication, deterministic repository-grouped splits, and provenance manifests.
 - Replaced the previous post-P1-10 plan with `Plex-ROADMAP.md`, establishing Plex’s scratch-trained, randomly initialized model goal and keeping Qwen as an optional evaluation baseline.
 - Added P1-10 in-memory UTF-8 proposals and unified diffs, preserving original BOM/line endings and unchanged bytes, with file/diff/changed-line limits and a pinned `diff` dependency.
 - Added P1-09 selected-path validation, unique anchor and editable-span checks, overlap rejection, and stale-file rechecks before accepting located edits.

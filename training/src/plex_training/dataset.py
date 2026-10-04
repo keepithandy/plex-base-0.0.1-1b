@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-PIPELINE_VERSION = "p1-14.1"
+PIPELINE_VERSION = "p1-14.2"
 MAX_SOURCE_MANIFEST_BYTES = 1024 * 1024
 MAX_SAMPLE_BYTES = 1024 * 1024
 DEFAULT_VALIDATION_PERCENT = 10
@@ -24,7 +24,7 @@ DEFAULT_SEED = 1337
 
 SUPPORTED_EXTENSIONS = frozenset(
     {
-        ".c", ".cc", ".cpp", ".cs", ".css", ".go", ".h", ".hpp", ".html",
+        ".c", ".cc", ".cjs", ".cpp", ".cs", ".css", ".go", ".h", ".hpp", ".html",
         ".java", ".js", ".json", ".jsx", ".kt", ".md", ".mjs", ".php",
         ".ps1", ".py", ".rb", ".rs", ".sh", ".sql", ".swift", ".toml",
         ".ts", ".tsx", ".txt", ".yaml", ".yml",
@@ -126,10 +126,25 @@ def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
         parsed_evidence = urlparse(license_evidence)
         if parsed_evidence.username or parsed_evidence.password:
             raise ValueError(f"Source {source_id!r} licenseEvidence must not contain embedded credentials")
+        license_notice = None
         if parsed_evidence.scheme not in {"http", "https"}:
             evidence_path = Path(license_evidence)
             if evidence_path.is_absolute() or ".." in evidence_path.parts:
                 raise ValueError(f"Source {source_id!r} licenseEvidence must be a safe relative path or URL")
+            notice_path = source_root / evidence_path
+            try:
+                if notice_path.is_symlink():
+                    raise ValueError("License evidence must not be a symbolic link")
+                notice_path = notice_path.resolve(strict=True)
+                notice_path.relative_to(source_root)
+                if not notice_path.is_file() or not 0 < notice_path.stat().st_size <= MAX_SAMPLE_BYTES:
+                    raise ValueError("License evidence must be a nonempty file no larger than 1 MiB")
+                with notice_path.open("rb") as notice_stream:
+                    license_notice = notice_stream.read(MAX_SAMPLE_BYTES + 1)
+                if len(license_notice) > MAX_SAMPLE_BYTES:
+                    raise ValueError("License evidence exceeds 1 MiB")
+            except (OSError, ValueError) as exc:
+                raise ValueError(f"Source {source_id!r} local license evidence is unavailable or unsafe") from exc
         extensions_value = item.get("includeExtensions")
         if extensions_value is None:
             extensions = SUPPORTED_EXTENSIONS
@@ -166,6 +181,7 @@ def _parse_catalog(path: Path) -> tuple[list[dict[str, Any]], bytes]:
                 "rightsReviewedAtUtc": review_date,
                 "groupId": _text(item.get("groupId"), "groupId", source_id),
                 "includeExtensions": extensions,
+                "_licenseNotice": license_notice,
             }
         )
     return sorted(sources, key=lambda source: source["id"]), raw_catalog
@@ -300,10 +316,26 @@ def build_dataset(
     skipped: dict[str, int] = {}
     skipped_files: list[dict[str, str]] = []
     source_summaries: list[dict[str, Any]] = []
+    license_notice_bytes = 0
     try:
         for source in sources:
+            notice_info = {}
+            if source["_licenseNotice"] is not None:
+                notice = source["_licenseNotice"]
+                license_notice_bytes += len(notice)
+                if license_notice_bytes > storage_limit_bytes:
+                    raise ValueError("License notices exceed the remaining artifact storage allocation")
+                notice_relative = f"licenses/{source['id']}.txt"
+                notice_output = staging / notice_relative
+                notice_output.parent.mkdir(exist_ok=True)
+                notice_output.write_bytes(notice)
+                notice_info = {
+                    "licenseNoticeFile": notice_relative,
+                    "licenseNoticeSha256": _sha256(notice),
+                }
             source_counts = {"accepted": 0, "duplicates": 0, "skipped": 0}
             for path, relative_path in _iter_source_files(source):
+                text = None
                 try:
                     size = path.stat().st_size
                     if size > MAX_SAMPLE_BYTES:
@@ -367,6 +399,7 @@ def build_dataset(
                     "acceptedFiles": source_counts["accepted"],
                     "duplicateFiles": source_counts["duplicates"],
                     "skippedFiles": source_counts["skipped"],
+                    **notice_info,
                 }
             )
         if not records:
@@ -416,7 +449,7 @@ def build_dataset(
                     + "\n"
                 ).encode("utf-8")
                 bytes_written += len(line)
-                if bytes_written > storage_limit_bytes:
+                if bytes_written + license_notice_bytes > storage_limit_bytes:
                     raise ValueError("Curated dataset exceeds the remaining artifact storage allocation")
                 stream = validation_stream if split == "validation" else train_stream
                 stream.write(line)
@@ -460,10 +493,12 @@ def build_dataset(
                 "trainJsonlSha256": split_hashes["train"].hexdigest(),
                 "validationJsonlSha256": split_hashes["validation"].hexdigest(),
                 "jsonlBytes": bytes_written,
+                "licenseNoticeBytes": license_notice_bytes,
             },
         }
         manifest_bytes = (json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True) + "\n").encode("utf-8")
-        if bytes_written + len(manifest_bytes) > storage_limit_bytes:
+        total_bytes = bytes_written + license_notice_bytes + len(manifest_bytes)
+        if total_bytes > storage_limit_bytes:
             raise ValueError("Curated dataset and manifest exceed the remaining artifact storage allocation")
         (staging / "manifest.json").write_bytes(manifest_bytes)
         os.replace(staging, output_dir)
@@ -474,7 +509,7 @@ def build_dataset(
             "trainRecords": split_counts["train"],
             "validationRecords": split_counts["validation"],
             "skippedCounts": dict(sorted(skipped.items())),
-            "bytes": bytes_written + len(manifest_bytes),
+            "bytes": total_bytes,
         }
     except Exception:
         if staging.exists():

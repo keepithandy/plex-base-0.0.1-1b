@@ -31,6 +31,8 @@ uv run --project training python -m plex_training.cli smoke --steps 1 --tiny-tes
 
 The tiny configuration is not the P1-12 model and cannot measure its hardware fit. The regular smoke test reports the instantiated parameter count, Python/PyTorch/CUDA versions, elapsed time, token throughput, peak CUDA allocation/reservation, and process peak working set where Windows exposes it.
 
+The owner completed the regular ten-minute CUDA test on October 3, 2026. It saved a checkpoint after 4,199 steps, with 734 MiB peak GPU reservation and about 1.30 GiB process peak RAM. See the [retained smoke report](../docs/SMOKE-TEST-2026-10-03.md). No repeat smoke run is needed for this source-selection step.
+
 ## Prepare and use a small local corpus
 
 The bootstrap `prepare` command takes separate train and validation files so the same file cannot accidentally be used for both. It streams UTF-8 file bytes into little-endian uint16 token IDs and records source hashes without writing full source paths. Keep this format for pipeline checks only; the corpus pipeline and trained tokenizer come in P1-14/P1-15.
@@ -59,6 +61,12 @@ Output paths for `prepare`, `smoke`, and `train` are relative to the artifact ro
 ## Curate a reproducible dataset (P1-14)
 
 P1-14 reads local source checkouts only. It requires a source catalog with an immutable revision, license evidence, and an explicit rights-review status; it does not fetch or approve external data. Copy [`dataset-sources.example.json`](dataset-sources.example.json) to `dataset-sources.local.json`, place reviewed source trees beneath `training/data/raw`, and follow [`docs/DATASET-PIPELINE.md`](../docs/DATASET-PIPELINE.md) before building. The catalog and raw source trees are ignored by Git.
+
+The owner-approved starter corpus is built and verified: 34 training records, 54 validation records, and both MIT notices, totaling 746,848 bytes. Its [source/build review](../docs/DATASET-SOURCE-REVIEW.md) records the exact scopes, approved catalog, build hashes, and reproduction instructions. The separate download helper reads the source lock, retains original license notices, checks upstream blob hashes, and downloads at most 20 MiB of selected text without running it:
+
+```powershell
+uv run --project training python -m plex_training.source_fetch
+```
 
 ```powershell
 uv run --project training python -m plex_training.cli dataset-build `

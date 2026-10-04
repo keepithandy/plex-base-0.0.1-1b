@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "microsoft-web-dev",
+      "repo": "microsoft/Web-Dev-For-Beginners",
+      "revision": "78085398be0dea7abaaf5eda914817f46f6ddbbc",
+      "licenseId": "MIT",
+      "groupId": "microsoft-web-dev-for-beginners",
+      "files": [
+        {
+          "path": "2-js-basics/1-data-types/README.md",
+          "bytes": 26352,
+          "gitBlobSha1": "68dcdc37f505fcec3ee6180b3ce25e5e8c61d7b5"
+        },
+        {
+          "path": "2-js-basics/2-functions-methods/README.md",
+          "bytes": 22207,
+          "gitBlobSha1": "0efc923b60963272bc4744bb92f75fc1413d7948"
+        },
+        {
+          "path": "2-js-basics/3-making-decisions/README.md",
+          "bytes": 25172,
+          "gitBlobSha1": "b3f78640bba8e7931128c75bf141d71b541e2fec"
+        },
+        {
+          "path": "2-js-basics/4-arrays-loops/README.md",
+          "bytes": 26865,
+          "gitBlobSha1": "d8355320e14dbe6195b6870ec227f37f30d6ba44"
+        },
+        {
+          "path": "2-js-basics/README.md",
+          "bytes": 574,
+          "gitBlobSha1": "02c69bcb8a20fcab151c602351e5e4ac1a703204"
+        },
+        {
+          "path": "3-terrarium/1-intro-to-html/README.md",
+          "bytes": 26671,
+          "gitBlobSha1": "eec31838557299e5ac2ec3ad958b93cdf3bddcf5"
+        },
+        {
+          "path": "3-terrarium/2-intro-to-css/README.md",
+          "bytes": 29098,
+          "gitBlobSha1": "98787ff3fc62a6260b3fdd36566b37b929a5cf04"
+        },
+        {
+          "path": "3-terrarium/3-intro-to-DOM-and-closures/README.md",
+          "bytes": 34363,
+          "gitBlobSha1": "a9be6ce02083f697070756861d0ede7393dab101"
+        },
+        {
+          "path": "3-terrarium/README.md",
+          "bytes": 590,
+          "gitBlobSha1": "f1529258cefc5effa4efa5fad94fe81b07dd825c"
+        },
+        {
+          "path": "3-terrarium/solution/index.html",
+          "bytes": 4969,
+          "gitBlobSha1": "6c6f019ba6c17e4b56eb0016bdbb4cf73f2fed92"
+        },
+        {
+          "path": "3-terrarium/solution/script.js",
+          "bytes": 2401,
+          "gitBlobSha1": "cc3950b0ca2ff037014be2a1d0f800c01ad63752"
+        },
+        {
+          "path": "3-terrarium/solution/style.css",
+          "bytes": 3224,
+          "gitBlobSha1": "ed283ddcb5ae51791b91f205fff902999c9f346b"
+        },
+        {
+          "path": "4-typing-game/README.md",
+          "bytes": 9949,
+          "gitBlobSha1": "6d27fcf66ca9d02d778970406c05e99bb8f51811"
+        },
+        {
+          "path": "4-typing-game/solution/index.css",
+          "bytes": 2515,
+          "gitBlobSha1": "5a33a101545901447c85058f09da8d02015dc2a6"
+        },
+        {
+          "path": "4-typing-game/solution/index.html",
+          "bytes": 3055,
+          "gitBlobSha1": "e12d768168fcfa3261748238c947b41173db4378"
+        },
+        {
+          "path": "4-typing-game/solution/index.js",
+          "bytes": 3047,
+          "gitBlobSha1": "55a4f3922f5cbf68cc137e9abc355a45b2c763c0"
+        },
+        {
+          "path": "4-typing-game/typing-game/README.md",
+          "bytes": 30822,
+          "gitBlobSha1": "643408e73bac649100332356ac2c1c3ae493b34a"
+        },
+        {
+          "path": "6-space-game/1-introduction/README.md",
+          "bytes": 26494,
+          "gitBlobSha1": "d580dce1511fb381df584c72d946b63f974b75f0"
+        },
+        {
+          "path": "6-space-game/2-drawing-to-canvas/README.md",
+          "bytes": 25683,
+          "gitBlobSha1": "89e87c695d553ede7ffed8d8b7583f017fce2f09"
+        },
+        {
+          "path": "6-space-game/3-moving-elements-around/README.md",
+          "bytes": 35025,
+          "gitBlobSha1": "2e49191f9473cc6be1332da07eb6ee5fdd5d1aed"
+        },
+        {
+          "path": "6-space-game/4-collision-detection/README.md",
+          "bytes": 27085,
+          "gitBlobSha1": "f6881380ee0ed69310e5456ae9b67cbee6c45643"
+        },
+        {
+          "path": "6-space-game/5-keeping-score/README.md",
+          "bytes": 18935,
+          "gitBlobSha1": "f8f4dd85a6c886960b881c06ce7aebdb4614e315"
+        },
+        {
+          "path": "6-space-game/6-end-condition/README.md",
+          "bytes": 26692,
+          "gitBlobSha1": "00a8eda36d29da3b459e60dbfe02726e946e6f96"
+        },
+        {
+          "path": "6-space-game/README.md",
+          "bytes": 1324,
+          "gitBlobSha1": "aa4f5be8cb8fea6e71ef40d0fc288b02d402a6cc"
+        },
+        {
+          "path": "6-space-game/solution/app.js",
+          "bytes": 19040,
+          "gitBlobSha1": "c2658eec03202494542c2f92720663e6ed0e332d"
+        },
+        {
+          "path": "6-space-game/solution/index.html",
+          "bytes": 15138,
+          "gitBlobSha1": "d8674fc58407a57f39d87ea85b5d88f31abcab63"
+        },
+        {
+          "path": "7-bank-project/1-template-route/README.md",
+          "bytes": 38907,
+          "gitBlobSha1": "725957a5c0718f2687c9df9e488b9cacc13e6919"
+        },
+        {
+          "path": "7-bank-project/2-forms/README.md",
+          "bytes": 39715,
+          "gitBlobSha1": "2d0bed0961fee87da73ecb4dec60ced006607ee9"
+        },
+        {
+          "path": "7-bank-project/3-data/README.md",
+          "bytes": 41715,
+          "gitBlobSha1": "f4a7094feaee7c47af9a604556ad6ae777f951da"
+        },
+        {
+          "path": "7-bank-project/4-state-management/README.md",
+          "bytes": 33970,
+          "gitBlobSha1": "e6d1e020343178150230d4e6badb3e83ea4cc0b4"
+        },
+        {
+          "path": "7-bank-project/README.md",
+          "bytes": 1093,
+          "gitBlobSha1": "fbacec6686b374e941b7c0ff9fcf8ed78113f31f"
+        },
+        {
+          "path": "7-bank-project/solution/app.js",
+          "bytes": 15247,
+          "gitBlobSha1": "a776bb18c9708a5a442be221b6796ea98506cbf8"
+        },
+        {
+          "path": "7-bank-project/solution/index.html",
+          "bytes": 8755,
+          "gitBlobSha1": "5e3c66e866cd497ebc3c783f53e8defd36964898"
+        },
+        {
+          "path": "7-bank-project/solution/styles.css",
+          "bytes": 11856,
+          "gitBlobSha1": "f7370aaec45c1dbf5a7c90194246a66a0921a194"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1162,
+          "gitBlobSha1": "3d8b93bc7987d14c848448c089e2ae15311380d7"
+        }
+      ]
+    },
+    {
+      "id": "traversy-web-projects",
+      "repo": "bradtraversy/50projects50days",
+      "revision": "c92b0bc3a87fc95d44b89552b7b6a2eeb36ca481",
+      "licenseId": "MIT",
+      "groupId": "bradtraversy-50projects50days",
+      "files": [
+        {
+          "path": "LICENSE",
+          "bytes": 1070,
+          "gitBlobSha1": "707df008de04c3ba580358a49b608b817b683eb1"
+        },
+        {
+          "path": "animated-navigation/index.html",
+          "bytes": 766,
+          "gitBlobSha1": "2801213ed8d260dbc031f9102f76c464b7907dc9"
+        },
+        {
+          "path": "animated-navigation/script.js",
+          "bytes": 164,
+          "gitBlobSha1": "fd77c004d5e791149f335ece5a4e5ec3ec0ce4b6"
+        },
+        {
+          "path": "animated-navigation/style.css",
+          "bytes": 1653,
+          "gitBlobSha1": "77959ef36ede884b635fdf4f80a923b251a5af2f"
+        },
+        {
+          "path": "auto-text-effect/index.html",
+          "bytes": 492,
+          "gitBlobSha1": "3fb9adefaa81eee841e45d2da85b8f2867a395a9"
+        },
+        {
+          "path": "auto-text-effect/script.js",
+          "bytes": 425,
+          "gitBlobSha1": "c3026284046c0fca4d3484587cdd5cfc8d04e83f"
+        },
+        {
+          "path": "auto-text-effect/style.css",
+          "bytes": 632,
+          "gitBlobSha1": "71fae022a456b25f7af2a4aadc2f7633683dbaeb"
+        },
+        {
+          "path": "button-ripple-effect/index.html",
+          "bytes": 355,
+          "gitBlobSha1": "1c5eea899587619b66e5a9586bdb51549e1f9708"
+        },
+        {
+          "path": "button-ripple-effect/script.js",
+          "bytes": 627,
+          "gitBlobSha1": "2be881c1b7737874bdd44086940c050290b4774a"
+        },
+        {
+          "path": "button-ripple-effect/style.css",
+          "bytes": 908,
+          "gitBlobSha1": "758a939a36128a43e9d804f5aeb27bd3b797f57a"
+        },
+        {
+          "path": "custom-range-slider/index.html",
+          "bytes": 480,
+          "gitBlobSha1": "ebc41e799a831d2ff84c96defb23ddf9e8118cf2"
+        },
+        {
+          "path": "custom-range-slider/script.js",
+          "bytes": 961,
+          "gitBlobSha1": "8fa6e7277a4acf8a38f938749fbddad6e7f0233b"
+        },
+        {
+          "path": "custom-range-slider/style.css",
+          "bytes": 1909,
+          "gitBlobSha1": "b0951d366c07e2ad5c48d0a047e3c4ef6b495593"
+        },
+        {
+          "path": "drawing-app/index.html",
+          "bytes": 582,
+          "gitBlobSha1": "8edb4e2760ec88446e1c36ea4cdb4e554fd8103b"
+        },
+        {
+          "path": "drawing-app/script.js",
+          "bytes": 1690,
+          "gitBlobSha1": "833a43ff67fb01948dd0d8b5c81a3322dae7ab09"
+        },
+        {
+          "path": "drawing-app/style.css",
+          "bytes": 783,
+          "gitBlobSha1": "8c4575259e10b4290d663a7b92533f59ed157ad0"
+        },
+        {
+          "path": "drink-water/index.html",
+          "bytes": 1046,
+          "gitBlobSha1": "ca934e1c5a0366c1ad9889080901d46ccbd7a205"
+        },
+        {
+          "path": "drink-water/script.js",
+          "bytes": 1462,
+          "gitBlobSha1": "12143ae189afa199c1401a110157c4dbc6c38bbe"
+        },
+        {
+          "path": "drink-water/style.css",
+          "bytes": 1685,
+          "gitBlobSha1": "f4580ab5e4ac94b52976cd3fbfda67fca2eebef2"
+        },
+        {
+          "path": "event-keycodes/dark-style.css",
+          "bytes": 777,
+          "gitBlobSha1": "8fbb0d14291d6888fbea021f27f547d655429495"
+        },
+        {
+          "path": "event-keycodes/index.html",
+          "bytes": 415,
+          "gitBlobSha1": "a6b9ad0669b398f3aeff596f5af35efdd8f8e810"
+        },
+        {
+          "path": "event-keycodes/script.js",
+          "bytes": 373,
+          "gitBlobSha1": "68dab4d2b42fe579a96caeb4ef309d2c0c16d041"
+        },
+        {
+          "path": "faq-collapse/index.html",
+          "bytes": 2360,
+          "gitBlobSha1": "a690091c7d77ae46556152e080225801fdcd7bac"
+        },
+        {
+          "path": "faq-collapse/script.js",
+          "bytes": 193,
+          "gitBlobSha1": "f1d63bb231fb70044dbef5f7d8a8604e36c4c753"
+        },
+        {
+          "path": "faq-collapse/style.css",
+          "bytes": 1621,
+          "gitBlobSha1": "cc2db22ff4a4d246dbcdc3b04379e41aa0f175da"
+        },
+        {
+          "path": "good-cheap-fast/index.html",
+          "bytes": 997,
+          "gitBlobSha1": "2be481cd683eefa38a2fbceb5023b0d45bc9e76b"
+        },
+        {
+          "path": "good-cheap-fast/script.js",
+          "bytes": 626,
+          "gitBlobSha1": "622600ebb1929eeac0465c5694d680310391b5f7"
+        },
+        {
+          "path": "good-cheap-fast/style.css",
+          "bytes": 1360,
+          "gitBlobSha1": "32ced376a46aed9953ab3784291ef5397f0cc408"
+        },
+        {
+          "path": "hidden-search/index.html",
+          "bytes": 728,
+          "gitBlobSha1": "54f45b988756873a8dc6662fafe6171fbcaa8761"
+        },
+        {
+          "path": "hidden-search/script.js",
+          "bytes": 236,
+          "gitBlobSha1": "e8eb0d05aa8c8554d561a50f6afd9d4084d2d885"
+        },
+        {
+          "path": "hidden-search/style.css",
+          "bytes": 900,
+          "gitBlobSha1": "4dadd304ff92b5516802cba84bcb69d63fc98f49"
+        },
+        {
+          "path": "incrementing-counter/index.html",
+          "bytes": 1093,
+          "gitBlobSha1": "8bab33f387aa73db37d7f10edcd722fc0b9cfe48"
+        },
+        {
+          "path": "incrementing-counter/script.js",
+          "bytes": 510,
+          "gitBlobSha1": "1bb0837c7e37c862fd82e162e4b7030c159dff55"
+        },
+        {
+          "path": "incrementing-counter/style.css",
+          "bytes": 589,
+          "gitBlobSha1": "082d1fd59206d0358b78258df1eddd43e8a5d372"
+        },
+        {
+          "path": "notes-app/index.html",
+          "bytes": 729,
+          "gitBlobSha1": "c2054c0d14d37a5b4c8c5712ad8a33649d59645a"
+        },
+        {
+          "path": "notes-app/script.js",
+          "bytes": 1548,
+          "gitBlobSha1": "399ab0fcc21a83a165079af4b5e4dda766cdf210"
+        },
+        {
+          "path": "notes-app/style.css",
+          "bytes": 1140,
+          "gitBlobSha1": "81884396b885e35ab6f658e898d65f8de7e50a09"
+        },
+        {
+          "path": "progress-steps/index.html",
+          "bytes": 707,
+          "gitBlobSha1": "8672c0c0acc936dd4e33baadd3188cf6c48a39b6"
+        },
+        {
+          "path": "progress-steps/script.js",
+          "bytes": 1099,
+          "gitBlobSha1": "58067d407bcd6b53a96ba335acfd6c1ff2a8697a"
+        },
+        {
+          "path": "progress-steps/style.css",
+          "bytes": 1661,
+          "gitBlobSha1": "0b443beabf229bd42bcdd56da22ed4de4deb52b4"
+        },
+        {
+          "path": "random-choice-picker/index.html",
+          "bytes": 557,
+          "gitBlobSha1": "830f22a67a59ce0fff3e667642df618abdece863"
+        },
+        {
+          "path": "random-choice-picker/script.js",
+          "bytes": 1448,
+          "gitBlobSha1": "3fddcc66a6fedfecf262514b0681fe4795a5645f"
+        },
+        {
+          "path": "random-choice-picker/style.css",
+          "bytes": 837,
+          "gitBlobSha1": "c4fab604fa176027fe19617d04dd80988dd4b197"
+        },
+        {
+          "path": "simple-timer/index.html",
+          "bytes": 2009,
+          "gitBlobSha1": "63d2dedbc1a5826ad7b12fd756f18eb489899100"
+        },
+        {
+          "path": "simple-timer/script.js",
+          "bytes": 1949,
+          "gitBlobSha1": "00a88ea74d502cf834beab45fb2e087c5cc2310a"
+        },
+        {
+          "path": "simple-timer/style.css",
+          "bytes": 276,
+          "gitBlobSha1": "4e3305b3803dc25ee0e5c5820fcdeb55744340ab"
+        },
+        {
+          "path": "theme-clock/index.html",
+          "bytes": 753,
+          "gitBlobSha1": "8b50d24471134c3e10bd9774cbdcc6b4e69d7e2d"
+        },
+        {
+          "path": "theme-clock/script.js",
+          "bytes": 1962,
+          "gitBlobSha1": "5f1126dcd9ac3365454d15efe9a03ce9538b9964"
+        },
+        {
+          "path": "theme-clock/style.css",
+          "bytes": 2242,
+          "gitBlobSha1": "aa335621cb949358e829f84e472b2f3ebc04afc9"
+        },
+        {
+          "path": "toast-notification/index.html",
+          "bytes": 401,
+          "gitBlobSha1": "4fba9c22d573dab0b391ab2cb6a9b3498bb11b08"
+        },
+        {
+          "path": "toast-notification/script.js",
+          "bytes": 842,
+          "gitBlobSha1": "ece1e002acaf0d57a35854db1e43c9ffc89b6358"
+        },
+        {
+          "path": "toast-notification/style.css",
+          "bytes": 948,
+          "gitBlobSha1": "9ae67d4861221e56394c8593d3dc0c289de2f997"
+        },
+        {
+          "path": "todo-list/index.html",
+          "bytes": 577,
+          "gitBlobSha1": "f11f16a53bde61e87ea7770c4cdfd928c9e6044b"
+        },
+        {
+          "path": "todo-list/script.js",
+          "bytes": 1344,
+          "gitBlobSha1": "ec2ca20cfca9638599c292b183d6907b94743867"
+        },
+        {
+          "path": "todo-list/style.css",
+          "bytes": 1086,
+          "gitBlobSha1": "866d46c1c825c11d1c5e323e10366aa01616296e"
+        }
+      ]
+    }
+  ]
+}

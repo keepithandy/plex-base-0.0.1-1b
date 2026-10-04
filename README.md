@@ -2,7 +2,7 @@
 
 Plex is a small coding model project. Its goal is to train Plex Code from randomly initialized weights and keep its own checkpoints and training history. Pretrained Qwen weights are not an initialization source; Qwen may be used as an evaluation baseline. The authoritative direction is in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 
-P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. No Plex model has been trained, and inference has not been demonstrated. P1-11 records the actual hardware and training limits; P1-12 now defines the first small model experiment.
+P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. A randomly initialized Plex model has completed the ten-minute synthetic CUDA smoke test and saved a checkpoint; coding-data training and useful inference remain to be demonstrated. P1-11 records the actual hardware and training limits; P1-12 defines the first small model experiment.
 
 ## Development on Windows
 
@@ -41,11 +41,11 @@ Training and inference limits are separate in the [profile](docs/HARDWARE-AND-TR
 
 ## P1-12 first experiment
 
-P1-12 has started with a proposed 27.6-million-parameter decoder-only Transformer, 512-token context, and conservative FP32 AdamW settings. The full configuration and analytic memory estimate are in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). P1-13 is implemented and all 13 training tests pass on the owner's Windows setup (Python 3.12.10, PyTorch 2.14.0+cu126, CUDA 12.6). Measured fit remains unverified until the 10-minute synthetic-data smoke test runs. The two-hour pilot follows the data/tokenizer milestones. Before longer training, P1-19 must verify checkpoint resumption. No pretrained weights are used.
+P1-12 defines a 27.6-million-parameter decoder-only Transformer, 512-token context, and FP32 AdamW settings. The full configuration and analytic memory estimate are in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). P1-13 is implemented and its original 13 training tests pass on the owner's Windows setup (Python 3.12.10, PyTorch 2.14.0+cu126, CUDA 12.6). The owner completed the [ten-minute CUDA smoke test](docs/SMOKE-TEST-2026-10-03.md): 4,199 steps, 57,327.61 synthetic token positions/second, 734 MiB peak GPU reservation, and about 1.30 GiB peak process RAM. The two-hour pilot follows the data/tokenizer and tiny-learning milestones. Before longer training, P1-19 must verify checkpoint resumption. No pretrained weights are used.
 
 ## P1-13 local training runner
 
-The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. Its dependency environment and tiny-run test suite are verified on the owner's Windows machine. The P1-14 local curation pipeline is implemented and tested; source review and a built corpus remain pending. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md). The 10-minute hardware-fit smoke test and two-hour pilot remain pending execution on the owner's Windows machine.
+The separate Python workspace is in [`training/`](training/README.md). It provides commands to inspect the runtime, prepare small local corpora, train, evaluate, generate, and run a bounded synthetic-data smoke test. The owner's ten-minute CUDA smoke test passed. P1-14 is complete for the [approved starter corpus](docs/DATASET-SOURCE-REVIEW.md): 34 training records, 54 validation records, preserved MIT notices, and reproducible provenance, totaling under 1 MiB. All 25 training-workspace tests passed. See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md). The Plex tokenizer and two-hour real-data pilot remain pending.
 
 ## Current CLI behavior
 
@@ -147,4 +147,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-P1-11 is complete; P1-12 is in progress; P1-13 implementation and automated tests are complete; P1-14 pipeline implementation and focused tests are complete, pending reviewed sources and a built corpus. The first hardware-fit smoke test remains pending. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), [first experiment definition](docs/FIRST-EXPERIMENT.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.
+P1-11 is complete; P1-12's configuration and ten-minute resource-fit check are recorded, with the real-data pilot pending; P1-13 implementation and owner smoke testing are complete. P1-14 is complete for the approved starter corpus; next is P1-15's tokenizer. See the [updated roadmap](Plex-ROADMAP.md), [hardware and training profile](docs/HARDWARE-AND-TRAINING-PROFILE.md), [first experiment definition](docs/FIRST-EXPERIMENT.md), and [training workspace instructions](training/README.md). HTML validation is scheduled as P3-03.

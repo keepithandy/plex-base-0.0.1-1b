@@ -2,6 +2,8 @@
 
 P1-14 implements a local, reproducible curation path. It does not download a dataset or decide whether a license permits training. A source is included only after its catalog entry records the pinned revision, license evidence, and an explicit owner rights review.
 
+The first approved sources, pinned versions, selected file counts, split, build hashes, and verification are in [DATASET-SOURCE-REVIEW.md](DATASET-SOURCE-REVIEW.md). The separate `plex_training.source_fetch` helper downloads only files listed in [training/dataset-source-lock.json](../training/dataset-source-lock.json), checks upstream Git blob hashes, retains licenses, and limits selected downloads to 20 MiB. It never sets rights approval. The `dataset-build` command remains offline.
+
 ## Add a reviewed source
 
 Copy [`training/dataset-sources.example.json`](../training/dataset-sources.example.json) to the ignored local file `training/dataset-sources.local.json`. Put the checked-out source beneath `training/data/raw/<source-id>/`. In the catalog, replace every placeholder and set:
@@ -9,12 +11,12 @@ Copy [`training/dataset-sources.example.json`](../training/dataset-sources.examp
 - `id`: a stable short identifier.
 - `localPath`: a path relative to the catalog file, contained under the catalog directory.
 - `origin` and `revision`: the source location and immutable commit or release used.
-- `licenseId` and `licenseEvidence`: the declared license and its authoritative evidence.
+- `licenseId` and `licenseEvidence`: the declared license and its authoritative evidence. A local evidence file is relative to the source root; it must exist, be contained within that root, and be no larger than 1 MiB. Its original bytes are copied under the dataset's `licenses/` directory and hashed in the manifest. A URL can record evidence for other sources, but a URL alone does not package the notice; use local license files for the proposed MIT sources.
 - `rightsReviewStatus`: set to `approved` only after reviewing the source license and relevant terms; record an ISO-8601 UTC timestamp in `rightsReviewedAtUtc`.
 - `groupId`: the repository or related repository family. Sources that share examples or history must share a group so they cannot cross the train/validation split.
 - `includeExtensions`: the file types to consider. Omit it to use the built-in allowlist.
 
-The pipeline reads local files only. It does not run source programs, change source files, or include absolute source paths in the output manifest. Keep the local catalog and raw source checkouts out of Git; only commit the example template and pipeline code.
+The pipeline reads local files only. It does not run source programs, change source files, or include absolute source paths in the output manifest. Keep machine-specific local catalogs and raw source snapshots out of Git. The approved starter catalog [training/dataset-sources.starter-v1.json](../training/dataset-sources.starter-v1.json) contains only reviewed public metadata and relative paths; it can be committed with the source lock and pipeline so the corpus is reproducible.
 
 ## Build the dataset
 

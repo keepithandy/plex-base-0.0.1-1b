@@ -1,6 +1,6 @@
 # Plex hardware and training profile
 
-Status: **hardware and owner-set training limits recorded; first-experiment resource fit will be checked in P1-12**. Hardware values below were provided by the owner, not inferred from the development host.
+Status: **hardware and owner-set training limits recorded; ten-minute synthetic resource-fit test passed; real-data pilot pending**. Hardware values below were provided by the owner, not inferred from the development host.
 
 ## Collected Windows hardware
 
@@ -67,7 +67,7 @@ Collected on **2026-10-03 22:52:18 UTC** with [`scripts/collect-hardware.ps1`](.
 - Training duration: run a 10-minute smoke test, followed by a pilot capped at two hours. After those checks, longer training runs may continue without a fixed time cap, with resumable checkpoints and progress monitoring.
 - Local electricity cost allowance: `unknown`; no separate allowance was specified.
 - Maximum acceptable RAM/VRAM use during training: `unknown`
-- First experiment proposal: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner and its 13-test suite are verified on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. Actual GPU/RAM fit and throughput remain unmeasured until the 10-minute smoke test runs.
+- First experiment: 27,566,080 parameters, FP32 AdamW, with an estimated 420 MiB for parameters, gradients, and optimizer moments before activations/runtime overhead. See [`FIRST-EXPERIMENT.md`](FIRST-EXPERIMENT.md). The runner's original 13 tests and ten-minute CUDA smoke test passed on the owner's Windows machine with PyTorch 2.14.0+cu126 and CUDA 12.6. The [observed smoke result](SMOKE-TEST-2026-10-03.md) was 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and 57,327.61 synthetic token positions/second. Real-data pilot resource use and CPU inference remain unmeasured.
 
 ## Local inference requirements
 

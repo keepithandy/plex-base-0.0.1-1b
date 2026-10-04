@@ -1,2 +1,6 @@
 # Stable fixture bytes for hash-based assertions on Windows and other platforms.
 fixtures/simple-web-project/* text eol=lf
+
+# Source-catalog byte hashes must survive Windows checkouts unchanged.
+training/dataset-sources.starter-v1.json text eol=lf
+training/dataset-source-lock.json text eol=lf
