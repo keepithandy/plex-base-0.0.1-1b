@@ -176,7 +176,7 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
         )
     report = {
         "schemaVersion": 1,
-        "milestone": "P1-18 bounded real-corpus pilot",
+        "milestone": "bounded real-corpus pilot",
         "runKind": "preflight" if steps is not None else "pilot",
         "requestedMinutes": minutes,
         "requestedSteps": steps,

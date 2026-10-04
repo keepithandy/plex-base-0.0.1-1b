@@ -134,7 +134,7 @@ uv run --project training --locked python -m plex_training.cli task-generate `
   --device cuda
 ```
 
-The owner generated and scored all 30 development responses with the matching v3 checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). Generation applies fixed prompt/decode settings, checks scratch initialization and tokenizer identity, writes `responses.jsonl` plus a run manifest, supports development sets only, refuses overwrite, and does not train. The next experiment is a 10-minute real-corpus training check from the matching step-zero initialization; evaluate its checkpoint on this same task set before deciding on the two-hour pilot.
+The owner generated and scored all 30 development responses with the matching v3 step-zero checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). A 10-minute v3 training check reduced held-out language-model loss from 9.1694 to 6.4759; its configuration and run metrics are in the [training check report](../docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md). Evaluate the trained checkpoint on this same task set before deciding on the two-hour pilot.
 
 For a manually supplied response, create a newline-delimited JSON file with one object per task:
 
@@ -152,6 +152,22 @@ uv run --project training --locked python -m plex_training.cli task-evaluate `
 ```
 
 `truncated` records whether generation reached its token cap; truncated responses do not pass. The evaluator refuses to overwrite an existing report.
+
+To compare the 10-minute trained v3 checkpoint against step-zero, generate a second response set into a fresh directory using the same tokenizer, task set, and decode defaults:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-generate `
+  --checkpoint training\artifacts\pilot\p2-v3-10m-v1\pilot-checkpoint.pt `
+  --bundle-dir training\artifacts\tokenizers\p2-02-data-v3 `
+  --output-dir evaluation\p2-dev-v3-10m-v1 `
+  --device cuda
+uv run --project training --no-sync python -m plex_training.cli task-evaluate `
+  --task-set training\phase2\evaluation\p2-01b-dev-v1.json `
+  --responses training\artifacts\evaluation\p2-dev-v3-10m-v1\responses.jsonl `
+  --report training\artifacts\evaluation\p2-dev-v3-10m-v1\score.json
+```
+
+Compare pass counts, truncation, and per-language results with the step-zero report. These static scores do not execute JavaScript behavior.
 
 ## Train Plex's tokenizer (P1-15)
 

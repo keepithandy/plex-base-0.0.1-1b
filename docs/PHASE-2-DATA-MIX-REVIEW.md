@@ -1,6 +1,6 @@
 # Phase 2 data-mix review — P2-02
 
-**Status: the v2 P2-02 corpus remains the reproducible baseline; the approved nine-record supplement is included in a built v3 corpus and matching tokenizer. Its v3-matched step-zero baseline scored 0/30 complete tasks, with 29 outputs truncated. No trained P2 checkpoint exists.** This review adds no external source material or downloads.
+**Status: the v2 P2-02 corpus remains the reproducible baseline; the approved nine-record supplement is included in a built v3 corpus and matching tokenizer. Its v3-matched step-zero baseline scored 0/30 complete tasks, with 29 outputs truncated. A 10-minute trained v3 checkpoint improved held-out language-model loss; its coding-task score is pending.** This review adds no external source material or downloads.
 
 ## Measured composition
 
@@ -23,7 +23,7 @@ Keep `p2-02-data-v2` and its tokenizer as the immutable, reproducible baseline. 
 
 The pinned external source selection alone is too small to produce that target while retaining all approved records and whole-group splits. A code-only extension filter would remove most explanatory material and would not add task-to-solution examples, so it is not a sufficient replacement. The raw-source records teach syntax and concepts, but are not paired natural-language coding requests and verified solutions. The nine authored examples add a small task/solution component; their effect on v3's total code/explanation mix remains unmeasured.
 
-The step-zero results are not failure evidence for a trained model: the checkpoint has random weights, all languages scored 0/10, and 29 responses hit their decode caps. Use the baseline for comparison, not to infer which concepts a trained Plex is missing. The next check is a 10-minute real-corpus run followed by evaluation on the same development set and decoding settings. Keep later results separate by language and task, and never copy development prompts or checks into training. The full static result is recorded in the [v3 report](PHASE-2-DATASET-V3-REPORT.md).
+The step-zero results are not failure evidence for a trained model: the checkpoint has random weights, all languages scored 0/10, and 29 responses hit their decode caps. The 10-minute v3 run improved held-out language-model loss, but this does not measure coding success. Compare its generated responses against step-zero on the same 30-task set and fixed decoding settings. Keep later results separate by language and task, and never copy development prompts or checks into training. The static baseline is in the [v3 report](PHASE-2-DATASET-V3-REPORT.md); the pilot metrics are in the [training check report](PHASE-2-TRAINING-CHECK-V3-REPORT.md).
 
 The owner approved nine original Codex-authored task/solution examples for local P2 training on 2026-10-04. They are materialized into three language families with each request/solution pair kept in its own split group and added to [catalog v2](../training/phase2/dataset-sources.phase2-v2.json). The owner ran the combined build and tokenizer fit on Windows; the returned counts and hashes are recorded in the [v3 report](PHASE-2-DATASET-V3-REPORT.md). This approval added no external source paths beyond the exact Microsoft and MDN paths in the [P2 source lock](../training/phase2/dataset-source-lock.json).
 

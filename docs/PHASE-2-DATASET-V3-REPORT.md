@@ -46,4 +46,4 @@ These CLI summaries establish successful data construction and tokenizer encodin
 
 ## Next step
 
-The step-zero result is the untrained baseline. The next experiment is a 10-minute real-corpus training check from this initialization, followed by generation and scoring on the same 30 tasks with the same decoding settings. Do not treat the step-zero score as a capability claim or start the two-hour pilot until the short run is reviewed.
+The step-zero result is the untrained baseline. The completed 10-minute real-corpus check is recorded in the [training report](PHASE-2-TRAINING-CHECK-V3-REPORT.md). Do not treat the step-zero score as a capability claim; the trained checkpoint still needs evaluation on the same 30 tasks with the same decoding settings.
