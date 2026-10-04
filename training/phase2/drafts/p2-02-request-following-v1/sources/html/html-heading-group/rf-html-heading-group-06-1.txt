@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Wrap hgroup in a header; put the word in h2 and the sentence in p. Use word "Kyoto", reading "Kyo-to", and sentence "A quiet destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<header><hgroup><h2>Kyoto</h2><p>A quiet destination.</p></hgroup></header>

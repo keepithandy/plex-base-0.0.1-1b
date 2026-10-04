@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformBeta(text, count) for a string text and a nonnegative integer count; count UTF-16 code units; return whether text has exactly count code units. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformBeta(text, count) {
+  return text.length === count;
+}

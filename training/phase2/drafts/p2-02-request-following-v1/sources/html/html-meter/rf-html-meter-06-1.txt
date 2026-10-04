@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put a meter with min 0, max 100, and value 35 inside a div with class reading. Use word "Kyoto", reading "Kyo-to", and sentence "A quiet destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<div class="reading"><meter min="0" max="100" value="35"></meter></div>

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-expansion-samples-v1",
+  "candidateJsonSha256": "f558326d52842512fb03e027395c999ad97fc613eeef648c4c102c4d4006b8c6",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "i approve of these",
+  "approvalRecordedAtUtc": "2026-10-04T22:19:02Z",
+  "scope": "exact-twelve-samples-local-P2-training",
+  "records": 12,
+  "externalSourceTextIncluded": false,
+  "publicLicenseGranted": false,
+  "unseenExpandedCorpusApproved": false
+}

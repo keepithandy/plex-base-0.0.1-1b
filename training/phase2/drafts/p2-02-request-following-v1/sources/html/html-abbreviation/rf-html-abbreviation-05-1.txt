@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put that titled abbreviation inside a span with class term. Use word "I/O", reading "Kyo-to", and sentence "Input and output" where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<span class="term"><abbr title="Input and output">I/O</abbr></span>

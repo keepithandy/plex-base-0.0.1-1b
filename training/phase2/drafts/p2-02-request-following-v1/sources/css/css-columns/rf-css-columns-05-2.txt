@@ -1,0 +1,7 @@
+Write a small CSS coding solution.
+Request: For .rf-columns-beta, set column-span to all. Return one CSS rule with exactly these declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.rf-columns-beta {
+  column-span: all;
+}

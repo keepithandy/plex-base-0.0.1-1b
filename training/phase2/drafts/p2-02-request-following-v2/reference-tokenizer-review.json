@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "referenceTokenizerOnly": true,
+  "candidateJsonlSha256": "9f6ad8eff96298f45880f9bfe831648364e2a7ed11996e7a7d91d5e984eb3d0b",
+  "referenceTokenizerSha256": "0099457ad9b5384a2a9122a9d9ad654a78183af0013b2c5f670f182cb4c8d71b",
+  "allReferenceBudgetsPassed": true,
+  "recordsChecked": 180,
+  "maximumTokensByLanguage": {
+    "html": {
+      "prompt": 121,
+      "answerIncludingEos": 60,
+      "recordIncludingEos": 181,
+      "cap": 192
+    },
+    "css": {
+      "prompt": 125,
+      "answerIncludingEos": 63,
+      "recordIncludingEos": 188,
+      "cap": 128
+    },
+    "javascript": {
+      "prompt": 141,
+      "answerIncludingEos": 68,
+      "recordIncludingEos": 207,
+      "cap": 192
+    }
+  },
+  "freshTrainingFittedTokenizerRequiredAfterApproval": true
+}

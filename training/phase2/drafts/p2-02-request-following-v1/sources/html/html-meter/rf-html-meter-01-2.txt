@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make a meter with min 0, max 100, and value 65. Use word "Osaka", reading "O-sa-ka", and sentence "A busy destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<meter min="0" max="100" value="65"></meter>

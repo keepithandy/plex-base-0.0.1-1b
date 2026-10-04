@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformBeta(items, value) for an array items and a value, with primitive elements; return whether value equals the last element, using strict equality. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformBeta(items, value) {
+  return items.length > 0 && items[items.length - 1] === value;
+}

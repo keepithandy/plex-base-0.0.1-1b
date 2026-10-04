@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .rf-cursor-beta, set cursor to default; user-select to text. Return one CSS rule with exactly these declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.rf-cursor-beta {
+  cursor: default;
+  user-select: text;
+}

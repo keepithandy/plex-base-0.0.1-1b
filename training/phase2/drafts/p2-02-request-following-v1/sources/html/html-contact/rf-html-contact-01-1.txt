@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put the word in address as plain contact text. Use word "Kyoto", reading "Kyo-to", and sentence "A quiet destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<address>Kyoto</address>

@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformBeta(value, limit) for finite numbers value and limit; cap value at the upper limit. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformBeta(value, limit) {
+  return Math.min(value, limit);
+}

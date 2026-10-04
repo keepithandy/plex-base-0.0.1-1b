@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformBeta(items) for an array items; preserve the original array; return a shallow copy. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformBeta(items) {
+  return items.slice();
+}

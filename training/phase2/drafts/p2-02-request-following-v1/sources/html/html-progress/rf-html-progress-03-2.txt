@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Make indeterminate progress with the word as fallback text and no value attribute. Use word "Osaka", reading "O-sa-ka", and sentence "A busy destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<progress>Osaka</progress>

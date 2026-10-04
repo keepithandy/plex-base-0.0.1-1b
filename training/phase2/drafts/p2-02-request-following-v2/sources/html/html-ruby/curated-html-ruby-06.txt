@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put the whole ruby pronunciation annotation inside a span. Use word "Kyoto"; reading "Kyo-to". Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<span><ruby>Kyoto<rt>Kyo-to</rt></ruby></span>

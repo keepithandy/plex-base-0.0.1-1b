@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-request-following-v2",
+  "approvalStatus": "pending-owner-review",
+  "records": 180,
+  "recordsByLanguage": {
+    "html": 60,
+    "css": 60,
+    "javascript": 60
+  },
+  "recordsBySplit": {
+    "train": 120,
+    "validation": 60
+  },
+  "recordsBySplitAndLanguage": {
+    "train/html": 42,
+    "validation/html": 18,
+    "validation/css": 18,
+    "train/css": 42,
+    "validation/javascript": 24,
+    "train/javascript": 36
+  },
+  "topicFamilies": 30,
+  "splitGroups": 29,
+  "distinctConservativeSkeletons": 180,
+  "staticSolutionsPassed": 180,
+  "staticChecksPassed": 878,
+  "splitSeed": 51,
+  "validationPercentOfGroups": 30,
+  "javascriptBehaviorExecuted": false,
+  "finalHoldoutOpened": false,
+  "modelTrained": false,
+  "externalSourceTextIncluded": false,
+  "exactDevelopmentOrEarlierApprovedRequestDuplicates": 0,
+  "limitations": [
+    "Conservative syntax skeletons measure this screening rule, not independent semantic skills.",
+    "Some wrapper combinations remain related; all topic/template relatives stay grouped.",
+    "Reviewed HTML tree and CSS declaration expectations validate authored structure, not browser behavior.",
+    "JavaScript behavior cases were reviewed by inspection, not executed.",
+    "No fresh candidate tokenizer or measured new-tokenizer budgets yet."
+  ],
+  "candidateJsonlSha256": "9f6ad8eff96298f45880f9bfe831648364e2a7ed11996e7a7d91d5e984eb3d0b",
+  "developmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4"
+}

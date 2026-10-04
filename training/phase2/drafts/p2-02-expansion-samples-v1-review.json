@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-expansion-samples-v1",
+  "approvalStatus": "pending-owner-review",
+  "sampleJsonSha256": "f558326d52842512fb03e027395c999ad97fc613eeef648c4c102c4d4006b8c6",
+  "records": 12,
+  "families": 6,
+  "staticChecksPassed": 57,
+  "staticSolutionsPassed": 12,
+  "exactRequestDuplicatesWithDevelopmentAndEarlierAuthoredExamples": 0,
+  "javascriptBehaviorExecuted": false,
+  "semanticOverlapAbsenceProven": false,
+  "finalHoldoutOpened": false,
+  "modelTrained": false
+}

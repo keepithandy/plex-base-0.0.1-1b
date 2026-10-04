@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Use dl with the dt word inside strong and one dd sentence. Use word "Kyoto", reading "Kyo-to", and sentence "A quiet destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<dl><dt><strong>Kyoto</strong></dt><dd>A quiet destination.</dd></dl>

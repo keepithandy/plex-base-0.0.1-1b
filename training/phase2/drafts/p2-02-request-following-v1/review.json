@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-02-request-following-v1",
+  "approvalStatus": "pending-owner-review",
+  "records": 360,
+  "recordsByLanguage": {
+    "html": 120,
+    "css": 120,
+    "javascript": 120
+  },
+  "recordsBySplit": {
+    "train": 252,
+    "validation": 108
+  },
+  "splitGroups": 29,
+  "topicFamilies": 30,
+  "declaredRequirementProfiles": 180,
+  "variantsPerProfile": 2,
+  "staticSolutionsPassed": 360,
+  "staticChecksPassed": 1614,
+  "splitSeed": 51,
+  "validationPercentOfGroups": 30,
+  "javascriptBehaviorExecuted": false,
+  "finalHoldoutOpened": false,
+  "modelTrained": false,
+  "externalSourceTextIncluded": false,
+  "exactRequestOrSolutionDuplicatesWithPriorAuthoredSets": 0,
+  "semanticOverlapAbsenceProven": false,
+  "recordsBySplitAndLanguage": {
+    "train/html": 84,
+    "validation/html": 36,
+    "train/css": 84,
+    "validation/css": 36,
+    "train/javascript": 84,
+    "validation/javascript": 36
+  },
+  "limitations": [
+    "Template-authored; many related variants, not 360 independent tasks.",
+    "Six declared profiles per topic are not necessarily six independent structural patterns; some vary only a value.",
+    "Static checks partly reflect authored answers and do not prove semantics.",
+    "CSS requests explicitly state declarations; no proof of free-form task reasoning.",
+    "HTML nesting/content semantics and JavaScript behavior require review.",
+    "Candidate tokenizer and token budgets have not been measured."
+  ],
+  "candidateJsonlSha256": "f48ae375ca8c0bca55bbb9a4471f418909db5ec857d99473c25d91d70baad6a5",
+  "developmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4"
+}

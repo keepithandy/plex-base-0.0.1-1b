@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: For .rf-aspect-beta, set aspect-ratio to 16 / 9; width to 240px. Return one CSS rule with exactly these declarations.
+Output contract: Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.rf-aspect-beta {
+  aspect-ratio: 16 / 9;
+  width: 240px;
+}

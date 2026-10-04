@@ -1,5 +1,7 @@
 # P2-02 approved code-pair corpus and baseline
 
+**Current status:** the ten-minute run and matched development scoring are complete. See the [diagnostic report](PHASE-2-CODE-PAIR-10M-REPORT.md): 0/30 complete tasks, no truncated responses, and worsening held-out loss. The commands below preserve the preparation history and have already been run; their output paths now exist. Next work is a broader reviewed data candidate, rather than repeating this run.
+
 The owner approved these exact 36 examples for local training: **“Approve the 36 examples for local training.”** The [approval record](../training/phase2/approvals/p2-02-code-pairs-v2.json) binds that statement to the canonical candidate digest. [Approved source texts and catalog](../training/phase2/data/authored/p2-02-code-pairs-v2/dataset-sources.approved.json) are now materialized separately from the immutable pending-review snapshot. No external text was added and no public license grant is asserted.
 
 ## Completed preparation
@@ -36,7 +38,7 @@ Fresh initialization used seed 1337 and 27,566,080 parameters, with `pretrainedC
 
 Artifacts are local and ignored by Git, beneath `training/artifacts`: dataset `datasets/p2-code-pairs-v2`, tokenizer `tokenizers/p2-code-pairs-v2`, checkpoint `initializations/p2-code-pairs-step-zero-v2/initialization.pt`, and baseline `evaluation/p2-code-pairs-step-zero-v2/{run-manifest.json,responses.jsonl,score.json}`. The approval, approved sources, and readiness report are versioned. Prior v3 artifacts remain separate.
 
-## Easiest next step
+## Completed run commands (historical)
 
 Verification passed: 39 targeted tests (nine candidate, three approval, eleven dataset, sixteen benchmark), plus exact source/token/EOS checks, every tokenizer roundtrip, and Markdown/JSON/Python delivery checks. Core model and training code was unchanged; the full model/training suite was not rerun.
 
@@ -51,7 +53,7 @@ uv run --project training --no-sync python -m plex_training.cli pilot `
   --device cuda
 ```
 
-Training has not started. After the run, generate and score the trained checkpoint on the same development tasks before deciding on longer training:
+The following matching generation and scoring commands have also completed:
 
 ```powershell
 uv run --project training --no-sync python -m plex_training.cli task-generate `

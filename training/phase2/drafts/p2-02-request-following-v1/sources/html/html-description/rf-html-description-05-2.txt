@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Wrap a one-term dl in a section; use dt for the word and dd for the sentence. Use word "Osaka", reading "O-sa-ka", and sentence "A busy destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<section><dl><dt>Osaka</dt><dd>A busy destination.</dd></dl></section>

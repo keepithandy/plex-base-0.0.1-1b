@@ -1,0 +1,7 @@
+Write a small JavaScript coding solution.
+Request: Write transformBeta(record, key) for a plain object record and a string key; return results without mutation; return all own enumerable string keys; key is unused. Return one JavaScript function.
+Output contract: Return one JavaScript function only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+function transformBeta(record, key) {
+  return Object.keys(record);
+}

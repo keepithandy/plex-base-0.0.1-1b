@@ -1,0 +1,5 @@
+Write a small HTML coding solution.
+Request: Put determinate progress with value 65 and max 100 inside a div with class tracking. Use word "Osaka", reading "O-sa-ka", and sentence "A busy destination." where requested; omit unused supplied text. Return only the fragment.
+Output contract: Return one semantic HTML fragment only. Do not include Markdown fences or explanations.
+Return code only. Do not include Markdown fences or explanations.
+<div class="tracking"><progress value="65" max="100"></progress></div>
