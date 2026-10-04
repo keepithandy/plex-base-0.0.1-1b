@@ -1,0 +1,3 @@
+# Authored data provenance and permission
+
+These original HTML, CSS, and JavaScript examples were drafted with Codex for Plex. The repository owner approved these nine records for inclusion in a new local Plex P2 training corpus on 2026-10-04. This records approval for that use only; it is not a public license grant or a claim about other uses. No external source text is included.

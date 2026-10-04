@@ -80,25 +80,61 @@ The command creates `train.jsonl`, `validation.jsonl`, and a provenance manifest
 
 ## Phase 2 source collection (P2-02)
 
-The owner approved re-splitting the exact Microsoft P1-14 selection by project and a small MDN `learning-area` path selection. The pinned lock is [`phase2/dataset-source-lock.json`](phase2/dataset-source-lock.json); the approval catalog is [`phase2/dataset-sources.phase2-v1.json`](phase2/dataset-sources.phase2-v1.json). Raw snapshots stay beneath `training/phase2/data/raw` and are ignored by Git. See the [collection report](../docs/PHASE-2-DATA-COLLECTION-REVIEW.md) for exact files, license notices, and exclusions.
+The owner approved re-splitting the exact Microsoft P1-14 selection by project and a small MDN `learning-area` path selection. The pinned lock is [`phase2/dataset-source-lock.json`](phase2/dataset-source-lock.json); the original source catalog is [`phase2/dataset-sources.phase2-v1.json`](phase2/dataset-sources.phase2-v1.json). The new [`phase2/dataset-sources.phase2-v2.json`](phase2/dataset-sources.phase2-v2.json) preserves both source entries and adds the nine newly owner-approved local examples with explicit provenance. Raw external snapshots stay beneath `training/phase2/data/raw` and are ignored by Git. See the [collection report](../docs/PHASE-2-DATA-COLLECTION-REVIEW.md) for the external files, license notices, and exclusions.
 
-The collected [dataset](artifacts/datasets/p2-02-data-v2) has 30 training and 17 development records from two source families, split by whole project groups with seed 51. Its new tokenizer was fit on the training split only at [`tokenizers/p2-02-data-v2`](artifacts/tokenizers/p2-02-data-v2). This corpus remains a pipeline baseline: the [P2-02 data-mix review](../docs/PHASE-2-DATA-MIX-REVIEW.md) records that code-file extensions account for 23.9% of training tokens and 8.7% of development tokens. A separate [Codex-authored example draft](phase2/drafts/README.md) is pending owner review and is not in the source catalog. Do not treat the current corpus as the preferred coding-training mix until a new reviewed selection is built and a matching step-zero development score provides failure evidence.
+The existing [P2-02 v2 baseline](artifacts/datasets/p2-02-data-v2) remains unchanged. The approved nine-example supplement is recorded in [`phase2/drafts/p2-02-authored-examples-v1.jsonl`](phase2/drafts/p2-02-authored-examples-v1.jsonl), materialized beneath `phase2/data/authored`, and included with the pinned Microsoft/MDN sources in the built [P2-02 v3 corpus](artifacts/datasets/p2-02-data-v3). Its new tokenizer was fit on training text only at [`tokenizers/p2-02-data-v3`](artifacts/tokenizers/p2-02-data-v3). The user-run build counts, token totals, hashes, and limits are in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). The v2 direct-code-extension shares (23.9% training and 8.7% development) remain historical measurements; v3's code/explanation mix has not yet been decomposed by language, source family, or fenced-code content.
+
+```powershell
+uv run --project training --no-sync python training\phase2\materialize_authored_examples.py
+uv run --project training --no-sync python -m plex_training.cli dataset-build `
+  --source-manifest training\phase2\dataset-sources.phase2-v2.json `
+  --output-dir datasets\p2-02-data-v3 `
+  --validation-percent 30 `
+  --seed 51
+uv run --project training --no-sync python -m plex_training.cli tokenizer-train `
+  --dataset-dir training\artifacts\datasets\p2-02-data-v3 `
+  --output-dir tokenizers\p2-02-data-v3
+```
+
+The v3 build produced 36 training and 20 development records with no skipped files. The tokenizer encoded and round-tripped both splits. To reproduce from the already materialized sources, use fresh output paths; the materializer refuses to overwrite its existing versioned source directory:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli dataset-build `
+  --source-manifest training\phase2\dataset-sources.phase2-v2.json `
+  --output-dir datasets\p2-02-data-v3-rebuild `
+  --validation-percent 30 `
+  --seed 51
+uv run --project training --no-sync python -m plex_training.cli tokenizer-train `
+  --dataset-dir training\artifacts\datasets\p2-02-data-v3-rebuild `
+  --output-dir tokenizers\p2-02-data-v3-rebuild
+```
+
+Before training, initialize fresh random weights tied to this tokenizer and run the static development evaluation; keep its JavaScript behavior limitation visible.
 
 ## Score coding-task responses (P2-01)
 
 P2-01a records the owner-approved final-set gate: at least 11/20 complete tasks per language and at least a 10-percentage-point overall improvement above the matching step-zero checkpoint. P2-01b includes 30 owner-authored development tasks and a static local evaluator; the 60-task final holdout has not been built. The JavaScript checks parse syntax with `node --check` but never execute generated code. HTML and CSS checks are structural only; see the [evaluation design](../docs/PHASE-2-EVALUATION-DESIGN.md) for limitations and remaining gates.
 
-Once a matching scratch-initialized step-zero or trained checkpoint and tokenizer bundle are available, generate the development responses into a fresh directory:
+The owner has initialized matching step-zero random weights with seed 1337 at `training/artifacts/initializations/p2-step-zero-v3/`; the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md) records the checkpoint and weight hashes. To reproduce the initialization, choose a fresh output directory:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli initialize `
+  --tokenizer-dir training\artifacts\tokenizers\p2-02-data-v3 `
+  --output-dir initializations\p2-step-zero-v3-rebuild `
+  --seed 1337
+```
+
+Then generate the development responses into a fresh directory:
 
 ```powershell
 uv run --project training --locked python -m plex_training.cli task-generate `
-  --checkpoint training\artifacts\initializations\p2-step-zero\initialization.pt `
-  --bundle-dir training\artifacts\tokenizers\p2-02-data-v2 `
-  --output-dir evaluation\p2-dev-step-zero-v1 `
+  --checkpoint training\artifacts\initializations\p2-step-zero-v3\initialization.pt `
+  --bundle-dir training\artifacts\tokenizers\p2-02-data-v3 `
+  --output-dir evaluation\p2-dev-step-zero-v3 `
   --device cuda
 ```
 
-The command applies fixed prompt/decode settings, checks the checkpoint's scratch initialization and tokenizer identity, and writes `responses.jsonl` and a run manifest. It supports development sets only, refuses overwrite, and does not train.
+The owner generated and scored all 30 development responses with the matching v3 checkpoint and tokenizer. The baseline scored 0/30 complete tasks; 29 outputs were truncated. The response hash, task-set hash, per-language results, and limitations are recorded in the [v3 report](../docs/PHASE-2-DATASET-V3-REPORT.md). Generation applies fixed prompt/decode settings, checks scratch initialization and tokenizer identity, writes `responses.jsonl` plus a run manifest, supports development sets only, refuses overwrite, and does not train. The next experiment is a 10-minute real-corpus training check from the matching step-zero initialization; evaluate its checkpoint on this same task set before deciding on the two-hour pilot.
 
 For a manually supplied response, create a newline-delimited JSON file with one object per task:
 
@@ -111,8 +147,8 @@ Score a generated response file, choosing a report path that does not already ex
 ```powershell
 uv run --project training --locked python -m plex_training.cli task-evaluate `
   --task-set training\phase2\evaluation\p2-01b-dev-v1.json `
-  --responses training\artifacts\evaluation\p2-dev-step-zero-v1\responses.jsonl `
-  --report training\artifacts\evaluation\p2-dev-step-zero-v1\score.json
+  --responses training\artifacts\evaluation\p2-dev-step-zero-v3\responses.jsonl `
+  --report training\artifacts\evaluation\p2-dev-step-zero-v3\score.json
 ```
 
 `truncated` records whether generation reached its token cap; truncated responses do not pass. The evaluator refuses to overwrite an existing report.

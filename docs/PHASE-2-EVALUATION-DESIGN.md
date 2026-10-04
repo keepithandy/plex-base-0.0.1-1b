@@ -1,6 +1,6 @@
 # Phase 2 coding evaluation — P2-01
 
-**Status: P2-01a and the development-only portion of P2-01b are complete.** The 30-task development set is versioned at [`training/phase2/evaluation/p2-01b-dev-v1.json`](../training/phase2/evaluation/p2-01b-dev-v1.json). No 60-task final holdout, P2 checkpoint, or model score exists.
+**Status: P2-01a and the development-only portion of P2-01b are complete.** The 30-task development set is versioned at [`training/phase2/evaluation/p2-01b-dev-v1.json`](../training/phase2/evaluation/p2-01b-dev-v1.json). The v3-matched step-zero checkpoint generated and scored all 30 responses: 0 complete tasks passed, with 29 outputs truncated. This is the untrained static baseline; see the [v3 report](PHASE-2-DATASET-V3-REPORT.md). The 60-task final holdout and any trained P2 checkpoint remain unbuilt.
 
 ## Owner-approved decision rule
 
@@ -27,13 +27,22 @@ The JS tasks include required source fragments in addition to syntax. Those frag
 
 ## Reproduce a development evaluation
 
-Once a matching scratch-initialized step-zero or trained checkpoint and tokenizer bundle are available, generate only the development responses into a fresh output directory:
+The owner created fresh random step-zero weights tied to the v3 tokenizer with seed 1337; this did not train the model. Its hashes are in the [v3 build report](PHASE-2-DATASET-V3-REPORT.md). To reproduce it, choose a fresh output directory:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli initialize `
+  --tokenizer-dir training\artifacts\tokenizers\p2-02-data-v3 `
+  --output-dir initializations\p2-step-zero-v3-rebuild `
+  --seed 1337
+```
+
+Then generate only the development responses into a fresh output directory:
 
 ```powershell
 uv run --project training --locked python -m plex_training.cli task-generate `
-  --checkpoint training\artifacts\initializations\p2-step-zero\initialization.pt `
-  --bundle-dir training\artifacts\tokenizers\p2-02-data-v2 `
-  --output-dir evaluation\p2-dev-step-zero-v1 `
+  --checkpoint training\artifacts\initializations\p2-step-zero-v3\initialization.pt `
+  --bundle-dir training\artifacts\tokenizers\p2-02-data-v3 `
+  --output-dir evaluation\p2-dev-step-zero-v3 `
   --device cuda
 ```
 
@@ -50,8 +59,8 @@ Score the generated response file from the repository root in PowerShell, choosi
 ```powershell
 uv run --project training --locked python -m plex_training.cli task-evaluate `
   --task-set training\phase2\evaluation\p2-01b-dev-v1.json `
-  --responses training\artifacts\evaluation\p2-dev-step-zero-v1\responses.jsonl `
-  --report training\artifacts\evaluation\p2-dev-step-zero-v1\score.json
+  --responses training\artifacts\evaluation\p2-dev-step-zero-v3\responses.jsonl `
+  --report training\artifacts\evaluation\p2-dev-step-zero-v3\score.json
 ```
 
 `truncated` should be set from the generator's stop reason; true marks an output that reached the token limit and forces that task to fail. The byte limit is a separate safety bound. No model was invoked, no training checkpoint or score was created, and no dependency installation or external download occurred as part of P2-01.
@@ -59,7 +68,7 @@ uv run --project training --locked python -m plex_training.cli task-evaluate `
 ## Stop gates that remain
 
 1. Do not create or inspect the final holdout until its full oracle is tested with known-good, deliberately broken, malformed, empty, timeout, and output-limit cases. The current unit suite covers those failure classes for the static evaluator and checks a known-good output for every development task; it does not provide a safe JavaScript behavior sandbox.
-2. Review the P2-02 corpus before P2-03. The collected split is documentation-heavy and below the proposed code share; do not train on it as the preferred coding corpus without a reviewed data-mix decision.
+2. Review the P2-02 v3 corpus before P2-03. The existing v2 measurement is documentation-heavy and v3's code/explanation mix has not been decomposed or shown to improve task performance; use the matching step-zero development results before making training choices.
 3. Keep all training runs capped at 120 minutes, retain scratch initialization, and compare step-zero with trained Plex on the same versioned development tasks before any final-set decision.
 
 The current environment detected Node.js on `PATH` and no browser executable by the names `msedge`, `chrome`, or `firefox`. This records only what the implementation environment could resolve; it is not an inventory of the owner's Windows installation.

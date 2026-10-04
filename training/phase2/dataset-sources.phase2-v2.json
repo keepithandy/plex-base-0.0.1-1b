@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "splitStrategy": "family-stratified-groups-v1",
+  "sources": [
+    {
+      "localPath": "data/raw/microsoft-web-dev-phase2",
+      "groupId": "microsoft-web-dev",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewedAtUtc": "2026-10-04T14:32:10Z",
+      "rightsReviewStatus": "approved",
+      "id": "microsoft-web-dev-phase2",
+      "origin": "https://github.com/microsoft/Web-Dev-For-Beginners",
+      "sourceFamilyId": "microsoft-web-dev",
+      "licenseId": "MIT",
+      "includeExtensions": [
+        ".md",
+        ".html",
+        ".css",
+        ".js"
+      ],
+      "splitGroupRules": [
+        {
+          "pathPrefixes": [
+            "2-js-basics/"
+          ],
+          "id": "ms-js-basics"
+        },
+        {
+          "pathPrefixes": [
+            "3-terrarium/"
+          ],
+          "id": "ms-terrarium"
+        },
+        {
+          "pathPrefixes": [
+            "4-typing-game/"
+          ],
+          "id": "ms-typing-game"
+        },
+        {
+          "pathPrefixes": [
+            "6-space-game/"
+          ],
+          "id": "ms-space-game"
+        },
+        {
+          "pathPrefixes": [
+            "7-bank-project/"
+          ],
+          "id": "ms-bank-project"
+        }
+      ],
+      "revision": "78085398be0dea7abaaf5eda914817f46f6ddbbc"
+    },
+    {
+      "localPath": "data/raw/mdn-learning-area-phase2",
+      "groupId": "mdn-learning-area",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewedAtUtc": "2026-10-04T14:32:10Z",
+      "rightsReviewStatus": "approved",
+      "id": "mdn-learning-area-phase2",
+      "origin": "https://github.com/mdn/learning-area",
+      "sourceFamilyId": "mdn-learning-area",
+      "licenseId": "CC0-1.0",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js"
+      ],
+      "splitGroupRules": [
+        {
+          "pathPrefixes": [
+            "html/introduction-to-html/navigation-menu-marked-up/"
+          ],
+          "id": "mdn-html-navigation"
+        },
+        {
+          "pathPrefixes": [
+            "html/forms/your-first-HTML-form/"
+          ],
+          "id": "mdn-html-form"
+        },
+        {
+          "pathPrefixes": [
+            "css/css-layout/practical-positioning-examples/"
+          ],
+          "id": "mdn-css-positioning"
+        },
+        {
+          "pathPrefixes": [
+            "html/introduction-to-html/the-html-head/"
+          ],
+          "id": "mdn-html-head"
+        },
+        {
+          "pathPrefixes": [
+            "css/web-fonts/"
+          ],
+          "id": "mdn-css-web-font-starter"
+        }
+      ],
+      "revision": "dbed6bcb8284634c7549c4da596ec30b0cfc6e7e"
+    },
+    {
+      "id": "plex-authored-html-v1",
+      "localPath": "data/authored/p2-02-examples-v1/html",
+      "origin": "local:plex-authored-examples",
+      "revision": "p2-02-authored-examples-v1",
+      "licenseId": "NOASSERTION",
+      "licenseEvidence": "AUTHORED-DATA-NOTICE.txt",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T17:29:48Z",
+      "groupId": "plex-authored-html-v1",
+      "sourceFamilyId": "plex-authored-html-v1",
+      "includeExtensions": [
+        ".md"
+      ],
+      "splitGroupRules": [
+        {
+          "id": "html-definition-list",
+          "pathPrefixes": [
+            "html-definition-list/"
+          ]
+        },
+        {
+          "id": "html-upload-progress",
+          "pathPrefixes": [
+            "html-upload-progress/"
+          ]
+        },
+        {
+          "id": "html-contact-address",
+          "pathPrefixes": [
+            "html-contact-address/"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plex-authored-css-v1",
+      "localPath": "data/authored/p2-02-examples-v1/css",
+      "origin": "local:plex-authored-examples",
+      "revision": "p2-02-authored-examples-v1",
+      "licenseId": "NOASSERTION",
+      "licenseEvidence": "AUTHORED-DATA-NOTICE.txt",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T17:29:48Z",
+      "groupId": "plex-authored-css-v1",
+      "sourceFamilyId": "plex-authored-css-v1",
+      "includeExtensions": [
+        ".md"
+      ],
+      "splitGroupRules": [
+        {
+          "id": "css-notice-rule",
+          "pathPrefixes": [
+            "css-notice-rule/"
+          ]
+        },
+        {
+          "id": "css-inline-code",
+          "pathPrefixes": [
+            "css-inline-code/"
+          ]
+        },
+        {
+          "id": "css-numbered-steps",
+          "pathPrefixes": [
+            "css-numbered-steps/"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plex-authored-javascript-v1",
+      "localPath": "data/authored/p2-02-examples-v1/javascript",
+      "origin": "local:plex-authored-examples",
+      "revision": "p2-02-authored-examples-v1",
+      "licenseId": "NOASSERTION",
+      "licenseEvidence": "AUTHORED-DATA-NOTICE.txt",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-04T17:29:48Z",
+      "groupId": "plex-authored-javascript-v1",
+      "sourceFamilyId": "plex-authored-javascript-v1",
+      "includeExtensions": [
+        ".md"
+      ],
+      "splitGroupRules": [
+        {
+          "id": "javascript-chunk-array",
+          "pathPrefixes": [
+            "javascript-chunk-array/"
+          ]
+        },
+        {
+          "id": "javascript-format-duration",
+          "pathPrefixes": [
+            "javascript-format-duration/"
+          ]
+        },
+        {
+          "id": "javascript-get-initials",
+          "pathPrefixes": [
+            "javascript-get-initials/"
+          ]
+        }
+      ]
+    }
+  ]
+}
