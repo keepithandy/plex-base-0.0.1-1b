@@ -16,6 +16,23 @@ The fresh seed-1337 CUDA run completed **100 optimizer updates** and exactly rep
 
 Across layouts, inline requests scored **29/32** and next-line requests **24/32**. All 64 outputs emitted EOS; 55/64 began with a newline. There was one wrong-known-selector output and ten malformed/other outputs. Nine misses omitted the leading period; one duplicated the answer boundary. The weakest cell was the next-line layout under “Give only the literal selector shown after this label” (3/8).
 
+## Read-only token audit of the 11 misses
+
+Teacher-forced ranks and the saved greedy paths were audited against the unchanged step-100 checkpoint. The checkpoint SHA-256 was identical before and after (`6c4de918e3aa270cc0e94273ff803390facd351b1b9f3ce2889c77d234a4205e`). No weights were updated, no completions were resampled, and the final holdout remained closed.
+
+| Expected decision | Top-ranked over 64 prompts |
+|---|---:|
+| Answer newline at the prompt | 55/64 |
+| Selector period after the expected newline | 64/64 |
+| First selector-body token after the expected `\n.` | 61/64 |
+| EOS after the expected full answer | 64/64 |
+
+At the actual first divergence, **9/11 misses diverged on the answer newline**, none diverged on the period, and **2/11 diverged at the selector body**. The nine start failures generated the selector body immediately, omitting both the answer newline and its leading period. All nine actual first tokens were greedy top-ranked; the expected newline ranked 2nd–4th. This localizes the dominant error to choosing the first answer token for these prompts, rather than predicting the period after an expected newline.
+
+The two body divergences were both under “Give only the literal selector shown after this label”: inline `.echo-label` chose the `b` token for `.bravo-item` instead of expected `e` (rank 3), and next-line `.charlie-list` emitted a second newline instead of expected `ch` (rank 3), duplicating the answer boundary. For that phrasing, four of the five next-line misses skipped the answer newline; its inline layout had one body-choice miss. The “Please preserve the spelling and punctuation” misses all five diverged at answer start across both layouts (two inline, three next-line). Both 16/16 phrasings ranked the expected newline, period, first body token, and EOS first on all 16 prompts.
+
+This audit supports a narrow phrasing-conditioned answer-start failure in the two lower-scoring templates, with one separate wrong-selector choice and one duplicated boundary. It does not establish why the model prefers those continuations or show general language understanding. Full per-token ranks, top-five alternatives, and all 64 records are in the ignored local artifact `training/artifacts/experiments/p2-11-balanced-wording-transfer-v1-run-100step-v1/token-error-audit-v1.json`; the read-only auditor is `training/phase2/audit_p2_11_evaluation_misses.py`.
+
 Runtime validation loss on the existing P2 request-following validation split rose from **7.4502** to **9.2535**. This loss is a separate telemetry measure and is not a coding-task score.
 
 ## Approval and actual limits
@@ -40,4 +57,4 @@ The ignored local run directory is `training/artifacts/experiments/p2-11-balance
 
 ## Next step
 
-Do a read-only token-rank and first-divergence audit of the 11 fresh-evaluation misses, grouped by the two weaker phrasings and input layout. In particular, check whether the next-line “Give only…” failures skip the newline/period boundary or choose the selector body incorrectly. Do not train again until that evidence is reviewed and a separate candidate and approval are prepared.
+Before another training proposal, review the audit's answer-start finding and decide whether a follow-up should test a more explicit first-answer-token cue or add balanced examples for these two failure-prone phrasings. Any follow-up needs a new candidate, a clean fresh evaluation set, its own exact hashes and approval, and must stay within the training framework's 100-update complete-record ceiling unless that shared limit is separately justified and approved. Do not extend the P2-11 run.
