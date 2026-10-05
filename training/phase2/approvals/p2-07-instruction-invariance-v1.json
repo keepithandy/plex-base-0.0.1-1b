@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-07-instruction-invariance-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalDate": "2026-10-05",
+  "approvalStatement": "The repository owner approved the exact P2-07 instruction-invariance training and evaluation candidate hashes in chat for the bounded single-arm diagnostic.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "candidateJsonlSha256": "ed0bee7c2c7f99ffaa7c349ba4e644d8c26d33266976fbe3fb8e96af1095245f",
+  "evaluationJsonlSha256": "01a861a3343c58f68f269fc9dc4fbf1f7bf77ce7e6ba0764e85d752b7f706414",
+  "reviewMarkdownSha256": "38123e30add9938c6fb45e54b6daf249216f2ef1d5d870dce64f1d07a0a1bef5",
+  "trainingRecords": 24,
+  "evaluationOnlyRecords": 6,
+  "evaluationApprovedForTraining": false,
+  "evaluationApprovedForRuntimeValidationLoss": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "tokenizerRefitted": false,
+  "freshModelFromScratch": true,
+  "finalHoldoutOpened": false,
+  "limits": {
+    "maximumSteps": 100,
+    "maximumMinutes": 10,
+    "maximumTotalSteps": 100,
+    "maximumTotalMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "automaticExtension": false
+  }
+}

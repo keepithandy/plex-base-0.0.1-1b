@@ -84,6 +84,7 @@ class P207InstructionInvarianceProbeTests(unittest.TestCase):
             self.assertEqual(review["candidateJsonlSha256"], on_disk["candidateJsonlSha256"])
             self.assertEqual(review["evaluationJsonlSha256"], on_disk["evaluationJsonlSha256"])
             self.assertTrue(review["reviewMarkdownSha256"])
+            self.assertEqual(review["reviewMarkdownSha256"], on_disk["reviewMarkdownSha256"])
             self.assertTrue((target / "candidate.jsonl").read_bytes().endswith(b"\n"))
             self.assertTrue((target / "evaluation-only.jsonl").read_bytes().endswith(b"\n"))
 
