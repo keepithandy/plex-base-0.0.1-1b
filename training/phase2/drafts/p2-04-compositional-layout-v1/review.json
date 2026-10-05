@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-04-compositional-binding-probe-v1",
+  "approvalStatus": "pending-owner-review",
+  "sourceId": "gap-css-layout-01",
+  "sourceCandidateSha256": "8f3fc7dfc21c4ebb5ce5b40391e9b123521d13df50b2d349e5d6b7c3faf37c2f",
+  "candidateJsonlSha256": "df7a6b6f8592006c37612b2b179fb9aee278d966914136284d52a63991c8c754",
+  "evaluationJsonlSha256": "578c7e376301751e61112b02feb2a9651f9858efc2276b0bf5067de2e5acccff",
+  "trainingCandidateRecords": 6,
+  "evaluationOnlyRecords": 3,
+  "languageCounts": {
+    "css": 6
+  },
+  "design": {
+    "slotA": "selector",
+    "slotAValues": [
+      ".actions",
+      ".filters",
+      ".controls"
+    ],
+    "slotB": "gap",
+    "slotBValues": [
+      "6px",
+      "14px",
+      "28px"
+    ],
+    "trainingPairs": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "evaluationPairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ]
+    ]
+  },
+  "allSlotValuesSeenInTraining": true,
+  "allEvaluationPairsUnseen": true,
+  "modelTrained": false,
+  "finalHoldoutOpened": false
+}
