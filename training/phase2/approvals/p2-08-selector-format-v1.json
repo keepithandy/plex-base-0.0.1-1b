@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-08-selector-format-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalDate": "2026-10-05",
+  "approvalStatement": "The repository owner approved the exact P2-08 selector-format training and evaluation hashes in chat for one bounded single-arm diagnostic.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "candidateJsonlSha256": "feb5feb0f7b06dad372e359de3f0958603888da0989ae4982c4f93c3b4622564",
+  "evaluationJsonlSha256": "4d9f4051318fcfe9f7941f4a5462b2b97998cb06f0ff0599f0a0cab00c7eb8a3",
+  "reviewMarkdownSha256": "605037ad53beb75c2453838bee47bd53f5f119f6915ab584cfc5a4a2cf8fc9a5",
+  "trainingRecords": 64,
+  "evaluationOnlyRecords": 16,
+  "evaluationApprovedForTraining": false,
+  "evaluationApprovedForRuntimeValidationLoss": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "tokenizerRefitted": false,
+  "freshModelFromScratch": true,
+  "finalHoldoutOpened": false,
+  "limits": {
+    "maximumSteps": 100,
+    "maximumMinutes": 10,
+    "maximumTotalSteps": 100,
+    "maximumTotalMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "automaticExtension": false
+  }
+}
