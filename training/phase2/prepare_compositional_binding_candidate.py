@@ -8,7 +8,8 @@ from pathlib import Path
 import shutil
 import sys
 
-from diagnose_transfer import ROOT, check_completion, sha256_file
+from diagnose_saved_checkpoints import _check_task
+from diagnose_transfer import ROOT, sha256_file
 
 PHASE2 = ROOT / "training/phase2"
 SOURCE_CANDIDATE = PHASE2 / "drafts/p2-03-binding-diversity-v1/candidate.jsonl"
@@ -109,8 +110,11 @@ def validate(train: list[dict], evaluation: list[dict], design: dict) -> None:
     for row in train + evaluation:
         if normalized(row["request"]) in known_requests:
             raise ValueError("Probe duplicates an existing P2-03 request")
-        result = check_completion(row, "\n" + row["solution"], True, node)
-        if not result["staticPass"] or not result["syntaxPass"] or not result["bindingPass"]:
+        static = _check_task(
+            {"id": row["id"], "language": row["language"], "difficulty": "basic", "checks": row["checks"]},
+            "\n" + row["solution"], node, 5.0,
+        )
+        if not static["passed"] or static["parseStatus"] != "pass":
             raise ValueError(f"Reference failed probe checks: {row['id']}")
 
 
