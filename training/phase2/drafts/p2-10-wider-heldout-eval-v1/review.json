@@ -1,0 +1,57 @@
+{
+  "checkpointSha256": "28c5aa6f7e04c6c48c54636077545d207ee3593b42c26d7fe2da37aae3c3d6bb",
+  "evaluationJsonlSha256": "da084655484ec4cb64c77a9a852dbb8ffb7be6d7cbd02c172c19373ec6529b4a",
+  "evaluationOnlyRecords": 64,
+  "evaluationSet": "p2-10-wider-heldout-eval-v1",
+  "evaluationUsedForRuntimeValidationLoss": false,
+  "evaluationUsedForTraining": false,
+  "finalHoldoutOpened": false,
+  "layouts": [
+    "colon-space",
+    "colon-newline"
+  ],
+  "outputContract": "Return exactly the requested value and nothing else. Begin the answer on a new line.",
+  "phrases": [
+    {
+      "id": "transcribe-css-selector",
+      "template": "Transcribe this CSS selector: {value}"
+    },
+    {
+      "id": "reproduce-selector-verbatim",
+      "template": "Reproduce the selector below verbatim: {value}"
+    },
+    {
+      "id": "preserve-selector-spelling",
+      "template": "Preserve every character in this selector: {value}"
+    },
+    {
+      "id": "write-selector-character-for-character",
+      "template": "Write this selector again, character for character: {value}"
+    }
+  ],
+  "reviewMarkdownSha256": "f6b29aaa9982c5d59c08f6dd67f1a5ed8397921e7721994593ade869837d2500",
+  "reviewStatus": "reviewed-for-read-only-existing-checkpoint-score",
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls",
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "sourceP210CandidateSha256": "ac0b65b623b80a8de89d78c2d038a03f2a5b4f8782097327d46624ea04aaa1e8",
+  "sourceP210EvaluationSha256": "632838a43cc6faef06bea2bad5fd321c17e0f7d328a425f11ef443d66c5457a9",
+  "tokenMaxima": {
+    "answerIncludingEos": 9,
+    "prompt": 82
+  },
+  "tokenizerRefitted": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "trainingRecords": 0,
+  "weightUpdate": false,
+  "trainingRunStarted": false,
+  "scoreMode": "deterministic-greedy-inference"
+}

@@ -32,6 +32,7 @@ Prepared packed stream: 64 records / 5,040 tokens; JSONL SHA-256 `dce786c2db21fc
 - Approval: `training/phase2/approvals/p2-10-explicit-answer-start-v1.json`
 - Prepared input plan: `training/artifacts/experiments/p2-10-explicit-answer-start-inputs-v1/experiment.json`
 - Run result and complete token-level outputs: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/result.json` and `completion-score.json`
+- Wider wording review and read-only score: [P2-10 wider evaluation report](PHASE-2-P2-10-WIDER-WORDING-EVALUATION.md) and `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/wider-evaluation-score-v1.json`
 - Training metrics and checkpoint: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/pilot/`
 - Read-only token ranks and greedy-path divergences: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/token-error-audit-v1.json`
 
@@ -52,4 +53,4 @@ Among the nine greedy misses, six diverged on the first answer token by choosing
 
 ## Next step
 
-Do not run another training job yet. P2-10 improved first-token behavior against P2-08 (newline top-ranked on 10/16 versus 6/16), but the body token was top-ranked on 8/16 and the evaluation has only one held-out wording template. The most useful next step is to prepare a separate, read-only evaluation-only wording set with multiple independently written held-out templates and the same eight selectors/layouts, then review and hash-pin it before scoring an existing checkpoint. That would show whether the current result is peculiar to this one phrase before deciding on new training data or another prompt-contract candidate. Any new training must have its own candidate, hash-pinned approval, and bounded-run approval; do not extend this run or continue from its checkpoint.
+Do not run another training job yet. P2-10 improved first-token behavior against P2-08 (newline top-ranked on 10/16 versus 6/16), but the body token was top-ranked on 8/16. The wider read-only evaluation scored 43/64 across four new phrasings, with two 16/16 cells and two low cells (6/16 and 5/16), showing strong phrasing sensitivity. The [wider evaluation report](PHASE-2-P2-10-WIDER-WORDING-EVALUATION.md) records the hash-pinned set and result. Next inspect the 21 wider-set misses at token level by wording/layout; then decide whether a new training hypothesis is justified. Any new training must have its own candidate, hash-pinned approval, and bounded-run approval; do not extend this run or continue from its checkpoint.
