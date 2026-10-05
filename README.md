@@ -25,6 +25,7 @@ The current evidence points to a narrower bottleneck than simple answer memoriza
 | P2-05 three-fold counterbalanced composition | Fit **18/18** supplied combinations across three folds but passed only **1/9** fold-local held-out combinations; all nine outputs were syntactically valid CSS | The bottleneck is not merely exposure count or failure to fit the tiny training sets; independent binding remains inconsistent. |
 | P2-06 binding-representation diagnostic | All levels learned **6/6** supplied examples; evaluation: single-copy **0/6**, dual-binding **0/3**, CSS composition **0/3**; all dual-binding and CSS held-outs replayed training answers | The earliest failure was single-value transfer to alternate instruction wording, motivating the narrower P2-07 paraphrase-invariance probe. |
 | P2-07 instruction-invariance diagnostic | Learned **24/24** supplied copies; passed **4/6** held-out wording cases (**1/3** selectors, **3/3** gaps); EOS **6/6** | Paraphrase exposure transferred consistently for gap copying in this probe, but selector copying remained inconsistent. |
+| P2-08 selector format-control candidate | Prepared **64 pending training** / **16 evaluation-only** records; no training run | Expands to eight selectors and crosses four training phrasings with inline and next-line input layouts; awaiting exact-hash owner approval. |
 
 The v3 corpus contains 56 records (36 training / 20 validation). The separate, owner-approved code-pair corpus contains 36 examples (24 training / 12 validation), balanced across HTML, CSS, and JavaScript, with a fresh 874-entry tokenizer fitted only on its training split. See the [v3 training and scoring report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) and [code-pair preparation and baseline report](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md).
 
@@ -38,7 +39,7 @@ The [binding-diversity comparison](docs/PHASE-2-BINDING-DIVERSITY-RESULT.md) rai
 
 P2-04's approved [compositional-binding run](docs/PHASE-2-COMPOSITIONAL-BINDING-RUN.md) fit all six supplied selector-gap combinations and composed one of three held-out recombinations. P2-05 then counterbalanced the same 3×3 selector-gap space across three fresh-scratch folds. As recorded by the merged [P2-06 design](docs/PHASE-2-P2-06-BINDING-REPRESENTATION.md), P2-05 fit all 18 supplied fold examples but composed only 1/9 fold-local held-outs; six of the nine held-out completions replayed a supplied training solution.
 
-The [P2-06 run report](docs/PHASE-2-P2-06-BINDING-REPRESENTATION-RUN.md) records the three-level results and their limits. The [P2-07 report](docs/PHASE-2-P2-07-INSTRUCTION-INVARIANCE.md) records its exact crossed phrasing design, approved hashes, bounded 100-step run, 24/24 supplied learning, and 4/6 held-out wording result. P2-07 did not refit the tokenizer or access the final holdout.
+The [P2-06 run report](docs/PHASE-2-P2-06-BINDING-REPRESENTATION-RUN.md) records the three-level results and their limits. The [P2-07 report](docs/PHASE-2-P2-07-INSTRUCTION-INVARIANCE.md) records its exact crossed phrasing design, approved hashes, bounded 100-step run, 24/24 supplied learning, and 4/6 held-out wording result. P2-07 did not refit the tokenizer or access the final holdout. The [P2-08 candidate review](training/phase2/drafts/p2-08-selector-format-v1/REVIEW.md) describes a new selector-only wording/layout diagnostic; it remains pending owner approval and has not been trained.
 
 The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met.
 
@@ -56,7 +57,8 @@ The development evaluator uses 30 static tasks. It does not execute JavaScript b
 - [P2-04 approved compositional-binding run](docs/PHASE-2-COMPOSITIONAL-BINDING-RUN.md)
 - [P2-05 counterbalanced composition diagnostic](docs/PHASE-2-P2-05-COUNTERBALANCED-COMPOSITION.md)
 - [P2-06 binding-representation probe](docs/PHASE-2-P2-06-BINDING-REPRESENTATION.md)
-- [P2-07 instruction-invariance probe](docs/PHASE-2-P2-07-INSTRUCTION-INVARIANCE.md) — prepared candidate design and approval boundary; no training result.
+- [P2-07 instruction-invariance probe](docs/PHASE-2-P2-07-INSTRUCTION-INVARIANCE.md) — approved bounded run, measured result, and diagnostic limits.
+- [P2-08 selector wording/layout candidate](training/phase2/drafts/p2-08-selector-format-v1/REVIEW.md) — hash-pinned preparation only; training awaits owner approval.
 - [P2-03 original complete-record comparison](docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md)
 - [P2-03 milestone review and record-start comparison](docs/PHASE-2-RECORD-START-COMPARISON.md)
 - [Phase 2 data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md)

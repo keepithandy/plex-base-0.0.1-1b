@@ -1,0 +1,71 @@
+{
+  "additionalSelectors": [
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "allEvaluationValuesSeenInTraining": true,
+  "approvalStatus": "pending-owner-review",
+  "baselineSelectors": [
+    ".actions",
+    ".filters",
+    ".controls"
+  ],
+  "candidate": "p2-08-selector-format-v1",
+  "candidateJsonlSha256": "feb5feb0f7b06dad372e359de3f0958603888da0989ae4982c4f93c3b4622564",
+  "evaluationJsonlSha256": "4d9f4051318fcfe9f7941f4a5462b2b97998cb06f0ff0599f0a0cab00c7eb8a3",
+  "evaluationOnlyRecords": 16,
+  "evaluationWordingAbsentFromTraining": true,
+  "finalHoldoutOpened": false,
+  "formatFullyCrossedWithWordingAndValues": true,
+  "fullyCrossedTrainingMatrix": true,
+  "heldOutPhrase": {
+    "id": "give-back-no-changes",
+    "template": "Give back this selector with no changes: {value}"
+  },
+  "layouts": [
+    "colon-space",
+    "colon-newline"
+  ],
+  "modelTrained": false,
+  "reviewMarkdownSha256": "605037ad53beb75c2453838bee47bd53f5f119f6915ab584cfc5a4a2cf8fc9a5",
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls",
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "tokenMaxima": {
+    "answerIncludingEos": 9,
+    "prompt": 64,
+    "recordIncludingEos": 73
+  },
+  "tokenizerRefitted": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "trainingPhrases": [
+    {
+      "id": "return-exactly",
+      "template": "Return this selector exactly: {value}"
+    },
+    {
+      "id": "copy-unchanged",
+      "template": "Copy this selector unchanged: {value}"
+    },
+    {
+      "id": "repeat-as-shown",
+      "template": "Repeat the selector exactly as shown: {value}"
+    },
+    {
+      "id": "output-only",
+      "template": "Output only the selector shown here: {value}"
+    }
+  ],
+  "trainingRecords": 64
+}
