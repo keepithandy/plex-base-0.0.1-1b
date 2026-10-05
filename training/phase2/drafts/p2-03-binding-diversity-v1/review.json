@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-03-binding-diversity-v1",
+  "approvalStatus": "pending-owner-review",
+  "sourceCandidateSha256": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+  "candidateJsonlSha256": "8f3fc7dfc21c4ebb5ce5b40391e9b123521d13df50b2d349e5d6b7c3faf37c2f",
+  "evaluationJsonlSha256": "ea8699efc997c0b4a5cdeb55c0da1d5be1b0d27a8ae9ad6b5164476c0d82ca7c",
+  "trainingCandidateRecords": 24,
+  "originalRecords": 6,
+  "newTrainingVariations": 18,
+  "evaluationOnlyRecords": 12,
+  "referencesPassed": 36,
+  "staleAnswersRejected": 30,
+  "trainingLanguageCounts": {
+    "html": 8,
+    "css": 8,
+    "javascript": 8
+  },
+  "evaluationLanguageCounts": {
+    "html": 4,
+    "css": 4,
+    "javascript": 4
+  },
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "tokenMaxima": {
+    "prompt": 84,
+    "recordIncludingEos": 110,
+    "answerIncludingEos": 28
+  },
+  "reusesExistingTrainingFittedTokenizer": true,
+  "modelTrained": false,
+  "externalSourceTextIncluded": false,
+  "javascriptBehaviorExecuted": false,
+  "finalHoldoutOpened": false,
+  "productionDatasetCatalogCreated": false
+}

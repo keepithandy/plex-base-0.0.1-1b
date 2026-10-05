@@ -89,6 +89,8 @@ The command refuses an existing output directory and caps the segment at 100 add
 
 ## Decision and next task
 
+Follow-up: the owner completed the [transfer diagnostic](PHASE-2-TRANSFER-DIAGNOSTIC.md): step 200 passed all six learned originals and none of twelve variations. The [binding audit](PHASE-2-BINDING-VARIATION-AUDIT.md) is also complete and records the next small candidate to prepare. The proposal below records the earlier decision made from this learning curve.
+
 This continuation implementation and learning-curve check are complete. **Keep P2-03 open and defer P2-04's two-hour run.** P2-02 remains complete at the approved pilot-data scale; successful memorization does not establish data sufficiency or a useful training configuration. No additional training is needed from the owner now.
 
 Next, prepare a small **saved-checkpoint request-following transfer diagnostic** within P2-03. Take a few training families that step 200 now reproduces exactly and vary only requested names, selectors, labels, or literal values in new evaluation prompts. Compare unchanged originals with these variations using the saved step-100/step-200 checkpoints. Check explicit requested properties and syntax; do not call static JavaScript checks behavior tests. Keep these evaluation-only variants out of training/tokenizer data, retain the same decoding limits, and leave the final holdout closed. This can distinguish failures on modest changes within learned families from failures on the broader development task structures without another training run. It has not yet been implemented or executed.

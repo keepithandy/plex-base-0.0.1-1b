@@ -318,7 +318,19 @@ uv run --project training --no-sync python -m plex_training.cli pilot-resume `
 
 Non-capturable, non-fused AdamW restores scalar step counters to CPU while retaining its moment tensors on the parameter device. This matches fresh optimizer state placement and avoids unnecessary CUDA scalar reads introduced by checkpoint mapping. Fused or capturable optimizer counters retain their own placement.
 
+## P2-03 transfer diagnostic
+
+The owner completed the [P2-03 transfer diagnostic](../docs/PHASE-2-TRANSFER-DIAGNOSTIC.md): step 200 passed six original requests and none of twelve variations. It used the saved step-100/step-200 checkpoints with no training. The following is the already-run command; choose a fresh directory only if reproducing:
+
+```powershell
+uv run --project training --no-sync python training\phase2\diagnose_transfer.py --device cuda --output training\artifacts\diagnostics\p2-transfer-v1
+```
+
+Add `--prepare-only` to validate/save cases without loading PyTorch. Five focused diagnostic tests passed; the full training-suite result below is from the prior continuation. Windows Application Control blocked the initial agent-side import; the user-terminal inference subsequently succeeded. The [binding audit](../docs/PHASE-2-BINDING-VARIATION-AUDIT.md) verifies the completed outputs and records the next candidate to prepare. No repeat or new training is required now.
+
 ## Run checks
+
+The [24-example binding-diversity candidate](../docs/PHASE-2-BINDING-CANDIDATE-REVIEW.md) is prepared for owner review. It includes eighteen new training variations and twelve separate evaluation-only records. All reference and stale-answer checks passed; four focused tests verified candidate preparation and byte-identical reproduction. It remains pending approval and has not been built into training inputs.
 
 ```powershell
 uv run --project training --no-sync python -m unittest discover -s training/tests -v

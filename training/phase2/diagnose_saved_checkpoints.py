@@ -17,11 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "training" / "src"))
 
-from plex_training.checkpoint import read_checkpoint
 from plex_training.benchmark import _check_task
-from plex_training.completion import _completion_tokenizer, _generate_token_ids
-from plex_training.telemetry import select_device
-from plex_training.tokenizer import CODEC, sha256_file
 
 from prepare_code_pair_candidate import prompt_text
 
@@ -85,6 +81,11 @@ def aggregate(records: list[dict]) -> dict:
 
 def diagnose(*, candidate: Path, approval: Path, task_set: Path, bundle: Path,
              checkpoints: list[Path], output: Path, device_name: str) -> dict:
+    from plex_training.checkpoint import read_checkpoint
+    from plex_training.completion import _completion_tokenizer, _generate_token_ids
+    from plex_training.telemetry import select_device
+    from plex_training.tokenizer import CODEC, sha256_file
+
     rows, candidate_sha = load_approved(candidate, approval)
     if task_set.is_symlink() or not task_set.is_file() or task_set.stat().st_size > MAX_CANDIDATE_BYTES:
         raise ValueError("Development task set is missing, linked, or oversized")
