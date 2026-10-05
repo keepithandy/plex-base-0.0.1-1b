@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-06-binding-representation-probe-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "Go ahead and begin P2-06 using the exact prepared binding-representation candidate.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "freshModelPerLevel": true,
+  "referenceTokenizerRefitted": false,
+  "finalHoldoutOpened": false,
+  "levels": {
+    "single-copy": {
+      "candidateJsonlSha256": "13452867b30a38b9ffc3e42ef440d3ac560c3103d5d479d014525eae10a12727",
+      "evaluationJsonlSha256": "9cf9777c431de134f880eb152d84794af9f848e69f25a36420c605bcc6a144c8",
+      "trainingRecords": 6,
+      "evaluationOnlyRecords": 6,
+      "evaluationApprovedForTraining": false
+    },
+    "dual-binding": {
+      "candidateJsonlSha256": "856f20637a3bd42e0b6838964503a3aaf74a86af3a0d464128194f9ab3c6aabb",
+      "evaluationJsonlSha256": "e3afa59441365fd2a88089704755f5b9fbb9b27f88804416616272283c5d5399",
+      "trainingRecords": 6,
+      "evaluationOnlyRecords": 3,
+      "evaluationApprovedForTraining": false
+    },
+    "css-composition": {
+      "candidateJsonlSha256": "a84de00032d543a4b2bc9e9d67ef0bea5ef2cc94b080ea862f37179253b1ec6b",
+      "evaluationJsonlSha256": "969ca23edf91ff9175e9ac502395a5aa850b541c3392843e20aa82b38eb56dee",
+      "trainingRecords": 6,
+      "evaluationOnlyRecords": 3,
+      "evaluationApprovedForTraining": false
+    }
+  },
+  "limits": {
+    "maximumStepsPerLevel": 100,
+    "maximumMinutesPerLevel": 10,
+    "maximumTotalSteps": 300,
+    "maximumTotalMinutes": 30,
+    "seedPerLevel": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "automaticExtension": false
+  }
+}
