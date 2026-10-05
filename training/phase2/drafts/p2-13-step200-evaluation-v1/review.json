@@ -1,0 +1,53 @@
+{
+  "checkpointSha256": "e1e6821eaf5af2bfb9ddb0de7031790dc96e6d0e8f706bb4521d005219736065",
+  "evaluationJsonlSha256": "d185156b0126cecd1de7b21a6d9a5de23eda67bf14a7192dd904c654449b03c2",
+  "evaluationOnlyRecords": 96,
+  "experiment": "p2-13-step200-wording-evaluation-v1",
+  "finalHoldoutOpened": false,
+  "independentFinalHoldout": false,
+  "layouts": [
+    "colon-space",
+    "colon-newline"
+  ],
+  "overlapPolicy": "Exact and whitespace/case-normalized requests checked against P2-08, P2-10, P2-10 wider evaluation, P2-11, and P2-12 training/evaluation requests.",
+  "phrases": [
+    {
+      "id": "ask-exact-selector-text",
+      "template": "What is the exact text of this selector? {value}"
+    },
+    {
+      "id": "report-selector-unchanged",
+      "template": "Report the selector shown here unchanged: {value}"
+    },
+    {
+      "id": "selector-entire-output",
+      "template": "Use this selector as the entire output: {value}"
+    },
+    {
+      "id": "echo-selector-unmodified",
+      "template": "Echo the selector displayed below without alteration: {value}"
+    },
+    {
+      "id": "give-selector-as-written",
+      "template": "Give the selector exactly as it appears here: {value}"
+    },
+    {
+      "id": "return-css-selector-punctuation",
+      "template": "Return the CSS selector with its punctuation intact: {value}"
+    }
+  ],
+  "runtimeValidationLossUsed": false,
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls",
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "status": "evaluation-only-development-set-hash-pinned",
+  "trainingUsed": false
+}
