@@ -82,6 +82,10 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 **P2-02 objective check:** the [controlled answer-weighted result](docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same approved v3 corpus, tokenizer, random initialization, 100 steps, and development tasks. Giving code-answer/EOS targets four times the prompt weight still passed **0/30** tasks (34/151 static checks versus 35/151 for ordinary loss). This does not justify a two-hour run.
 
+**P2-02 saved-checkpoint diagnostic:** [read-only inference on the approved v3 examples](docs/PHASE-2-SAVED-CHECKPOINT-DIAGNOSTIC.md) found 0/156 exact or full-static passes on seen training prompts and 0/78 on corpus validation prompts for both existing 100-step checkpoints. Answer weighting raised syntax-pass counts without complete answers. No new training was run for this diagnostic.
+
+**P2-02 three-example probe:** the [bounded result](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) reproduced one approved training answer per language exactly by step 25 using complete-record training, with 3/3 retained at step 200. The scratch checkpoint was reloaded and checked. This supports prompt-to-answer learnability for three seen examples only; it does not justify a two-hour run.
+
 ## Phase 3 — Repository editing
 
 | Task | Work | Completion check |
@@ -121,6 +125,6 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 ## Next task
 
-**Next: diagnose prompt-to-answer learning on the approved v3 examples before another training run.** The [answer-weighted comparison](docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) changed loss emphasis without improving the 0/30 coding-task score. Check saved-model completions on approved training and validation prompts to distinguish failure to learn supplied answers from failure to generalize, then propose one bounded change. Keep the final holdout closed. A two-hour run remains a later decision.
+**Next: audit packed-window exposure before another broad training run.** The [saved-checkpoint diagnostic](docs/PHASE-2-SAVED-CHECKPOINT-DIAGNOSTIC.md) found no complete answers on 156 seen training prompts or 78 corpus validation prompts from either 100-step checkpoint. The [three-example overfit probe](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) then learned one approved training answer per language exactly by step 25 using complete-record training. Audit how the current 512-token packed-window sampler exposes full prompts and answer targets on all 156 approved training records, then specify one bounded comparison that isolates a likely cause. Keep the final holdout closed. A two-hour run remains a later decision.
 
 This determines a realistic first model size and training run. The first success is a small, demonstrably learned Plex checkpoint; the eventual release must earn its capability claims through evaluation.
