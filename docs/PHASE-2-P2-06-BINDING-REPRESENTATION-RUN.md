@@ -73,6 +73,20 @@ After all three levels converge on their supplied examples:
 - Levels 1 and 2 pass, Level 3 < 3/3 → code-composition bottleneck after bindings were preserved.
 - All three pass → representation ladder passed; investigate broader distribution/capacity effects rather than basic binding representation alone.
 
+## Recorded result
+
+The completed bounded run learned every supplied record (6/6 at all three levels), so all three evaluation scores are interpretable under the gate above:
+
+| Level | Training representation passes | Evaluation representation passes | Evaluation syntax | Replayed training answer |
+|---|---:|---:|---:|---:|
+| Single-copy, same values with alternate wording | 6/6 | 0/6 | 6/6 | 2/6 |
+| Dual-binding, held-out selector-gap pairings | 6/6 | 0/3 | 3/3 | 3/3 |
+| CSS composition, same held-out pairings | 6/6 | 0/3 | 3/3 | 3/3 |
+
+The run summary records `single-binding-copy-or-wording-transfer-bottleneck`. P2-06 therefore locates the earliest observed failure at single-value instruction wording transfer: the values were already present in training, but the alternate requests did not transfer. The dual-binding and CSS scores corroborate binding failures, but they do not supersede the earlier single-copy result as the primary diagnosis. Each level used a fresh seed-1337 scratch initialization, the recorded initial weights were tensorwise equal, and `finalHoldoutOpened` is false. Full record-level completions and training telemetry are in the ignored local artifact `training/artifacts/experiments/p2-06-binding-representation-run-v1/result.json` and per-level `completion-score.json` files.
+
+This remains a narrow diagnostic result, not a general language-understanding claim. P2-07 is designed to test whether explicit crossed paraphrase exposure changes this specific single-copy transfer outcome.
+
 ## Local commands
 
 Prepare immutable experiment inputs:
