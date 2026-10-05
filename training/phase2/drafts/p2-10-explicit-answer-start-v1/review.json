@@ -1,0 +1,74 @@
+{
+  "allEvaluationValuesSeenInTraining": true,
+  "approvalStatus": "pending-owner-review",
+  "baselineP2_08": {
+    "candidateJsonlSha256": "feb5feb0f7b06dad372e359de3f0958603888da0989ae4982c4f93c3b4622564",
+    "evaluationJsonlSha256": "4d9f4051318fcfe9f7941f4a5462b2b97998cb06f0ff0599f0a0cab00c7eb8a3"
+  },
+  "candidate": "p2-10-explicit-answer-start-v1",
+  "candidateJsonlSha256": "ac0b65b623b80a8de89d78c2d038a03f2a5b4f8782097327d46624ea04aaa1e8",
+  "evaluationJsonlSha256": "632838a43cc6faef06bea2bad5fd321c17e0f7d328a425f11ef443d66c5457a9",
+  "evaluationOnlyRecords": 16,
+  "evaluationWordingAbsentFromTraining": true,
+  "finalHoldoutOpened": false,
+  "fullyCrossedTrainingMatrix": true,
+  "heldOutPhrase": {
+    "id": "give-back-no-changes",
+    "template": "Give back this selector with no changes: {value}"
+  },
+  "layouts": [
+    "colon-newline",
+    "colon-space"
+  ],
+  "modelTrained": false,
+  "onlyPromptContractChangedFromP2_08": true,
+  "outputContract": "Return exactly the requested value and nothing else. Begin the answer on a new line.",
+  "proposedRunLimits": {
+    "automaticExtension": false,
+    "device": "cuda",
+    "freshSeed": 1337,
+    "gradientAccumulation": 16,
+    "maximumMinutes": 10,
+    "maximumSteps": 100,
+    "microBatch": 1
+  },
+  "reviewMarkdownSha256": "9f2e8f16c31861e5ddd8ad1ab1214c77a7a0e67c0020f34b0bdcf0f947026999",
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls",
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "tokenMaxima": {
+    "answerIncludingEos": 9,
+    "prompt": 78,
+    "recordIncludingEos": 87
+  },
+  "tokenizerRefitted": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "trainingApprovalCreated": false,
+  "trainingPhrases": [
+    {
+      "id": "return-exactly",
+      "template": "Return this selector exactly: {value}"
+    },
+    {
+      "id": "copy-unchanged",
+      "template": "Copy this selector unchanged: {value}"
+    },
+    {
+      "id": "repeat-as-shown",
+      "template": "Repeat the selector exactly as shown: {value}"
+    },
+    {
+      "id": "output-only",
+      "template": "Output only the selector shown here: {value}"
+    }
+  ],
+  "trainingRecords": 64
+}
