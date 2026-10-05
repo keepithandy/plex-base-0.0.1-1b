@@ -7,7 +7,7 @@ import hashlib
 import json
 import random
 import statistics
-from collections import Counter, defaultdict
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +53,8 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
     if type(seed) is not int or seed < 0:
         raise ValueError("seed must be a nonnegative integer")
     candidate_rows, candidate_sha = load_approved(candidate_path, approval_path)
+    if task_set_path.is_symlink() or not task_set_path.is_file() or task_set_path.stat().st_size > 1024 * 1024:
+        raise ValueError("Development task set is missing, linked, or oversized")
     task_set = json.loads(task_set_path.read_text(encoding="utf-8"))
     if task_set.get("kind") != "development":
         raise ValueError("Expected the development prompt contracts")
@@ -72,7 +74,9 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
             or bundle.get("tokenizerSha256") != tokenizer_record["tokenizerSha256"]
             or manifest["summary"].get("trainJsonlSha256") != sha256_file(train_path)
             or manifest["summary"].get("trainRecords") != 156
-            or manifest["summary"].get("trainTokensSha256") != sha256_file(token_path)
+            or bundle["train"].get("jsonlSha256") != sha256_file(train_path)
+            or bundle["train"].get("sha256") != sha256_file(token_path)
+            or bundle["train"].get("tokenCount") != len(token_path.read_bytes()) // 2
             or any(source.get("revision") != candidate_sha for source in manifest["sources"])):
         raise ValueError("Built corpus, tokenizer, and approved candidate provenance do not match")
 
@@ -80,10 +84,11 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
     index = json.loads(index_path.read_text(encoding="utf-8"))
     if len(data_rows) != 156 or len(index) != len(data_rows):
         raise ValueError("Expected 156 training rows and matching token index entries")
-    candidate_by_group = {
-        row["splitGroupId"]: row for row in candidate_rows if row["candidateSplit"] == "train"
-    }
     contracts = task_set["outputContracts"]
+    candidate_by_text = {
+        prompt_text(row, contracts) + "\n" + row["solution"]: row
+        for row in candidate_rows if row["candidateSplit"] == "train"
+    }
     parsed: list[dict[str, Any]] = []
     expected_offset = 0
     packed_tokens = token_path.read_bytes()
@@ -92,20 +97,9 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
     if len(packed_tokens) // 2 <= CONTEXT_LENGTH + 1:
         raise ValueError("Packed corpus is shorter than one training window")
     for row, entry in zip(data_rows, index):
-        group = row["splitGroupId"] if "splitGroupId" in row else row["groupId"]
-        source = candidate_by_group.get(row.get("candidateId", ""))
-        if source is None:
-            source = next((item for item in candidate_rows
-                           if item["candidateSplit"] == "train"
-                           and item["id"].split("-")[-1] == row.get("path", "").rsplit("/", 1)[-1].removesuffix(".txt")), None)
+        source = candidate_by_text.get(row.get("text", ""))
         if source is None or entry.get("recordId") != row.get("recordId"):
-            # Resolve robustly by exact approved prompt text; split groups remain provenance data.
-            text_matches = [item for item in candidate_rows
-                            if item["candidateSplit"] == "train"
-                            and prompt_text(item, contracts) + "\n" + item["solution"] == row.get("text")]
-            if len(text_matches) != 1:
-                raise ValueError("Packed record does not map uniquely to an approved training example")
-            source = text_matches[0]
+            raise ValueError("Packed record does not map to one approved training example")
         if row.get("text") != prompt_text(source, contracts) + "\n" + source["solution"]:
             raise ValueError(f"Packed text differs from the approved candidate: {source['id']}")
         text = row["text"]
@@ -137,9 +131,8 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
         raise ValueError("Token index does not cover the complete packed corpus")
 
     max_start = total_tokens - CONTEXT_LENGTH - 1
-    starts = [rng.randint(0, max_start)
-              for rng in [random.Random(seed)]
-              for _ in range(steps * WINDOWS_PER_STEP)]
+    rng = random.Random(seed)
+    starts = [rng.randint(0, max_start) for _ in range(steps * WINDOWS_PER_STEP)]
     by_id: dict[str, list[int]] = {record["id"]: [0, 0, 0, 0] for record in parsed}
     # Counters per record: full prompt+answer, any answer target, prompt at position zero,
     # and total answer-target positions seen over the replayed production sampling stream.
@@ -202,7 +195,9 @@ def audit(*, candidate_path: Path, approval_path: Path, task_set_path: Path,
                     "seed": seed, "microBatch": 1, "gradientAccumulation": WINDOWS_PER_STEP,
                     "referenceSteps": steps, "windowsReplayed": len(starts),
                     "possibleWindowStarts": max_start + 1,
-                    "checkpointCount": "not simulated; sample starts replay the production Python RNG sequence"},
+                    "sampledStartSequenceSha256": hashlib.sha256(
+                        json.dumps(starts, separators=(",", ":")).encode("ascii")).hexdigest(),
+                    "modelUpdatesSimulated": False},
         "summary": {
             "meanRecordTokens": round(statistics.mean(row["recordTokens"] for row in parsed), 3),
             "meanPromptTokens": round(statistics.mean(row["promptTokens"] for row in parsed), 3),

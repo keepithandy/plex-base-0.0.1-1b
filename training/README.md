@@ -144,6 +144,8 @@ The [saved-checkpoint prompt diagnostic](../docs/PHASE-2-SAVED-CHECKPOINT-DIAGNO
 
 The [three-example overfit probe](../docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) is now complete. Using the v3 scratch initialization and tokenizer, it learned all three approved training answers exactly by step 25 and retained 3/3 through step 200, finishing in 8.12 seconds. Its complete-record training procedure differs from the packed-window full-corpus runner, so the next step is a read-only sampler-exposure audit before another broad training comparison. The final holdout remains closed.
 
+The [packed-window exposure audit](../docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed the exact 1,600 window starts used by the 100-step v3 run. It found 7,157 full prompt-and-answer exposures across the corpus, with prompts at position zero only 14 times. The proposed next check samples 512-token windows at verified record starts while keeping the existing 100-step target-position budget and optimizer configuration.
+
 The `pilot` command accepts `--answer-weight 4` together with `--dataset-dir` for a controlled answer-focused comparison. It verifies the built dataset and tokenizer index before assigning weight 4 to answer/EOS targets and weight 1 to prompt targets; ordinary `pilot` runs keep their prior loss. The [100-step comparison](../docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same v3 initialization and development tasks and still passed 0/30 complete tasks. Its checkpoint records the weight map and cannot be resumed under the ordinary objective. A longer run remains deferred.
 
 For a manually supplied response, create a newline-delimited JSON file with one object per task:

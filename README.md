@@ -19,7 +19,9 @@ The v3 corpus contains 56 records (36 training / 20 validation). The separate, o
 
 The original 360-record request-following draft was reviewed and narrowed to an [owner-approved 234-example v3 candidate](docs/PHASE-2-FAILURE-GAP-REVIEW.md). Its corpus, tokenizer, scratch initialization, and two bounded 100-step training checks are recorded. The [saved-checkpoint diagnostic](docs/PHASE-2-SAVED-CHECKPOINT-DIAGNOSTIC.md) evaluated those existing checkpoints without another training run.
 
-The [three-example probe](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) has since learned all three approved training answers exactly by step 25. It used complete-record training and does not establish broader coding ability. The roadmap now calls for an audit of the full-corpus packed-window sampler before another broad experiment.
+The [three-example probe](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) has since learned all three approved training answers exactly by step 25. It used complete-record training and does not establish broader coding ability.
+
+The [sampler audit](docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed 1,600 production windows: complete examples were present often, but prompts began at inference position zero only 14 times. The next proposed comparison changes window starts to approved record boundaries while keeping the 100-step token budget and training settings fixed.
 
 The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met; another two-hour run remains deferred while the data improves.
 
