@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-12-answer-start-transfer-v2",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalDate": "2026-10-05",
+  "approvalStatement": "The repository owner approved in chat the exact P2-12 v2 training and evaluation hashes below for one bounded fresh-from-scratch diagnostic run under the stated limits.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "candidateJsonlSha256": "bdffb5cf4cdca89238c4651ce9c77ed260332ef47a10e7e137a309ab865e0d03",
+  "evaluationJsonlSha256": "a81b05aa3452d9b04d9f9b4d6b1a0d0e8ebf2614c3de24c0c4083eb975629fb7",
+  "reviewMarkdownSha256": "9040f6513a7d0fd2a722813d1bf8fa9c2bc50b9c07e37c3bf0419cec2f113a77",
+  "trainingRecords": 96,
+  "evaluationOnlyRecords": 64,
+  "promotedHistoricalEvaluationRequests": 32,
+  "evaluationApprovedForTraining": false,
+  "evaluationApprovedForRuntimeValidationLoss": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "tokenizerRefitted": false,
+  "freshModelFromScratch": true,
+  "finalHoldoutOpened": false,
+  "limits": {
+    "maximumSteps": 100,
+    "maximumMinutes": 10,
+    "maximumTotalSteps": 100,
+    "maximumTotalMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "automaticExtension": false
+  }
+}
