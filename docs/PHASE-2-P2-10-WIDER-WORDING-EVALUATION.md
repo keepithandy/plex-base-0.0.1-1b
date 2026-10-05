@@ -34,6 +34,28 @@ The additional set contains 64 unique evaluation-only requests: four new templat
 
 Review metadata and JSONL are in `training/phase2/drafts/p2-10-wider-heldout-eval-v1/`. Per-prompt completions and token IDs are in the ignored local artifact `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/wider-evaluation-score-v1.json`.
 
+## Token-divergence audit
+
+A read-only teacher-forced audit scored the expected tokens after each correct prefix and recorded the first divergence on each actual greedy miss. The checkpoint hash matched before and after; the audit updated no weights and resampled no completions.
+
+| Wording | Exact | Newline top-ranked | First body token top-ranked after `\\n.` | First divergences: answer start / body |
+|---|---:|---:|---:|---:|
+| Transcribe | 16/16 | 16/16 | 16/16 | 0 / 0 |
+| Reproduce verbatim | 6/16 | 12/16 | 10/16 | 4 / 6 |
+| Preserve every character | 16/16 | 16/16 | 16/16 | 0 / 0 |
+| Write character for character | 5/16 | 15/16 | 5/16 | 1 / 10 |
+
+For all 64 prompts, the expected period ranked first after the expected newline, and EOS ranked first after the expected answer. There were no first divergences at the period. The low-scoring wording cells therefore fail at answer-start selection or, more often, at the first selector-body token—not at period recognition or EOS.
+
+The two low-scoring phrasings fail differently:
+
+- **“Reproduce the selector below verbatim”** had 4/8 exact on the inline layout and 1/8 on the next-line layout. All four skipped-newline failures occurred on the next-line layout and emitted the selector body directly, without the requested answer newline and leading period. The other six misses had already generated `\\n.`; the next greedy token was another newline in all six, duplicating the boundary before the selector body. This is a wording-by-layout interaction, not a general preference for one layout.
+- **“Write this selector again, character for character”** had only one answer-start miss; ten failures diverged at the selector body after `\\n.`. Seven of the eleven misses emitted `charlie-list` somewhere in the completion: six used it for a different requested selector and one repeated the correct `.charlie-list` after a duplicated prefix. At the divergence, the expected first body token ranked 2nd–7th on the inline layout's seven misses; it ranked 3rd, 3rd, and 7th in the three body misses on the next-line layout. This suggests a phrase-conditioned selector-body attraction, with `.charlie-list` a frequent competing continuation.
+
+The comparison phrasings provide a useful control: **Transcribe** and **Preserve** scored 16/16, and all expected answer tokens ranked first under teacher forcing in both layouts. Since **Preserve every character** succeeds perfectly, the failures do not isolate the word “character” as the cause; they track the full wording and its interaction with layout. This is evidence of prompt-conditioned continuation on this small matrix; it does not prove a general language mechanism.
+
+The complete 64-record ranks, top-five alternatives, and divergence prefixes are in the ignored local artifact `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/wider-token-audit-v1.json`.
+
 ## Interpretation and next step
 
-The P2-10 answer-start cue and selector-copy behavior do not transfer consistently across paraphrases: the same checkpoint scores 16/16 on two templates and 6/16 or 5/16 on two others. The evaluation also shows why a single held-out wording was too narrow. Do not start another training run based on this aggregate alone. The next useful read-only analysis is to inspect token-level divergences in the 21 wider-set misses, grouped by wording and layout, and compare them with the two perfect cells. A later training candidate would need to state a separate mechanism-level hypothesis, a fresh candidate and hashes, and its own owner approval.
+The P2-10 answer-start cue and selector-copy behavior do not transfer consistently across paraphrases: the same checkpoint scores 16/16 on two templates and 6/16 or 5/16 on two others. The evaluation also shows why a single held-out wording was too narrow. The audit separates an answer-boundary problem for **Reproduce** on next-line inputs from a selector-body continuation problem for **Write**, including repeated attraction to `charlie-list`. This evidence motivated a review-only P2-11 candidate with these two phrasings in training and four fresh evaluation templates; it does not authorize a run. See the [P2-11 candidate report](PHASE-2-P2-11-BALANCED-WORDING-CANDIDATE.md) for the hash-pinned design and approval boundary.
