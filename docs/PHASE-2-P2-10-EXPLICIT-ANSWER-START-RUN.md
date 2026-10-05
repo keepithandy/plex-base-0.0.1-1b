@@ -7,7 +7,7 @@ Status: **complete for the approved single diagnostic run**
 
 The fresh seed-1337 CUDA run completed all 100 approved optimizer updates in 15.47 seconds. The model exactly reproduced all **64/64** training selectors, meeting the predeclared convergence gate. Greedy scoring then produced **7/16** exact held-out selectors, so the held-out result is interpretable for this narrow diagnostic, but remains a small, single-run result rather than evidence of general instruction following.
 
-The 16 held-out outputs all emitted EOS. Ten began with a newline; seven of those were exact selectors. The nine misses included five completions that omitted the selector's leading period, two with a duplicated newline/period prefix, one with extra text, and one that returned another selector. The scoring buckets count malformed prefixes as `other` or `extra text`, so they did not appear in the `wrong-known-selector` bucket. By input layout, colon-newline prompts scored **5/8 exact** and **5/8 newline-starting**; colon-space prompts scored **2/8 exact** and **5/8 newline-starting**.
+The 16 held-out outputs all emitted EOS. Ten began with a newline; seven of those were exact selectors. The nine misses included five answers that omitted the selector's leading period, three with a duplicated newline/period sequence, and one additional wrong selector without that duplicated prefix. Of the three duplicated-prefix outputs, one also returned a different selector and another included extra text. The scoring buckets place these malformed outputs under `other` or `extra text`, so they did not appear in the `wrong-known-selector` bucket. By input layout, colon-newline prompts scored **5/8 exact** and **5/8 newline-starting**; colon-space prompts scored **2/8 exact** and **5/8 newline-starting**.
 
 One representative malformed completion was `\n.\n.alpha-panel` for `.alpha-panel`. Its saved token pieces were `\\n`, `.`, `\\n`, `.`, `al`, `pha`, `-`, `pan`, `el`: the explicit boundary cue was followed by a duplicated newline and period. Other misses emitted the selector body without its leading period, such as `bravo-item`. This shows that explicitly cueing a new line increased newline-start incidence relative to the P2-08 checkpoint (10/16 versus 6/16), while exact-selector scoring moved from 4/16 to 7/16. These are descriptive differences between two single bounded checkpoints, not a replicated causal estimate.
 
@@ -33,9 +33,23 @@ Prepared packed stream: 64 records / 5,040 tokens; JSONL SHA-256 `dce786c2db21fc
 - Prepared input plan: `training/artifacts/experiments/p2-10-explicit-answer-start-inputs-v1/experiment.json`
 - Run result and complete token-level outputs: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/result.json` and `completion-score.json`
 - Training metrics and checkpoint: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/pilot/`
+- Read-only token ranks and greedy-path divergences: `training/artifacts/experiments/p2-10-explicit-answer-start-run-v1/token-error-audit-v1.json`
 
 The artifact directory is local and ignored by Git. No final holdout was accessed. This run does not establish coding capability or justify a longer run.
 
+## Read-only token audit
+
+A teacher-forced audit scored the expected answer tokens on the frozen P2-10 checkpoint, including the model's preference at each miss's actual first-divergence prefix. The checkpoint SHA-256 was identical before and after. No weights were updated and no new samples were generated.
+
+| Expected token decision | Top-ranked on held-out set |
+|---|---:|
+| Answer newline at the prompt | 10/16 |
+| Selector period after the expected newline | 16/16 |
+| First selector-body token after the expected `\n.` | 8/16 |
+| EOS after the expected full answer | 16/16 |
+
+Among the nine greedy misses, six diverged on the first answer token by choosing a selector-name token instead of the newline. The other three first diverged after the correct newline and period: `.controls` and `.alpha-panel` in the inline layout chose another newline over `con` and `al` respectively (expected-token rank 3 in both cases); `.echo-label` in the inline layout chose another newline over `e` (rank 6), then continued as `.actions`. Thus period prediction itself is not the remaining problem once the newline is present. Both answer-start prediction and selector-body choice remain inconsistent. EOS is not implicated by this conditional audit: it ranked first after the expected answer on all 16 prompts, including misses.
+
 ## Next step
 
-Run a read-only token-level audit of P2-10's nine held-out misses, separating first-token boundary errors from period/selector-body errors and EOS behavior. Use those saved outputs and token ranks to decide whether a new candidate is justified. Any additional training requires its own candidate, hash-pinned approval, and bounded-run approval; do not extend this run or continue from its checkpoint.
+Do not run another training job yet. P2-10 improved first-token behavior against P2-08 (newline top-ranked on 10/16 versus 6/16), but the body token was top-ranked on 8/16 and the evaluation has only one held-out wording template. The most useful next step is to prepare a separate, read-only evaluation-only wording set with multiple independently written held-out templates and the same eight selectors/layouts, then review and hash-pin it before scoring an existing checkpoint. That would show whether the current result is peculiar to this one phrase before deciding on new training data or another prompt-contract candidate. Any new training must have its own candidate, hash-pinned approval, and bounded-run approval; do not extend this run or continue from its checkpoint.
