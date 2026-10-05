@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-04-compositional-binding-probe-v1",
+  "sourceId": "gap-css-layout-01",
+  "candidateJsonlSha256": "df7a6b6f8592006c37612b2b179fb9aee278d966914136284d52a63991c8c754",
+  "evaluationJsonlSha256": "578c7e376301751e61112b02feb2a9651f9858efc2276b0bf5067de2e5acccff",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "Approve these exact six training examples and freeze these exact three evaluation combinations for the P2-04 compositional-binding diagnostic.",
+  "approvalRecordedAtUtc": "2026-10-05T16:44:35+00:00",
+  "scope": "local-P2-diagnostic-training",
+  "records": 6,
+  "evaluationOnlyRecords": 3,
+  "evaluationApprovedForTraining": false,
+  "objective": "answer-eos-only-complete-record-v1",
+  "allSlotValuesSeenInTraining": true,
+  "allEvaluationPairsUnseen": true,
+  "trainingPairs": [
+    [".actions", "6px"],
+    [".actions", "14px"],
+    [".filters", "14px"],
+    [".filters", "28px"],
+    [".controls", "6px"],
+    [".controls", "28px"]
+  ],
+  "heldOutPairs": [
+    [".actions", "28px"],
+    [".filters", "6px"],
+    [".controls", "14px"]
+  ],
+  "limits": {
+    "maximumSteps": 100,
+    "maximumMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "automaticExtension": false,
+    "finalHoldoutOpened": false
+  }
+}
