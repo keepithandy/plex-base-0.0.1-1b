@@ -1,6 +1,6 @@
 # Plex — Updated Development Roadmap
 
-Updated October 3, 2026.
+Updated October 5, 2026.
 
 ## Core goal
 
@@ -70,9 +70,19 @@ P1-19 status: **technical gate complete**. A bounded CUDA `pilot-resume` advance
 | **P2-04 — Train the next Plex base checkpoint** | Increase the training run after the pipeline and smaller experiments work. | Coding results improve enough to justify the extra compute. |
 | **P2-05 — Document capability limits** | Identify supported languages, task sizes, and recurring failures. | Model report includes examples and measured limitations. |
 
-**Current milestone: P2-03.** P2-02 data preparation is complete at the approved pilot scale. The roadmap had kept configuration experiments under P2-02 while treating the overall coding-quality gate as a data completion requirement. The [milestone review and record-start comparison](docs/PHASE-2-RECORD-START-COMPARISON.md) explains the correction and records the completed 100-step experiment. Passing 0/30 tasks keeps the Phase 2 quality gate unmet; it does not erase completed data deliverables.
+### Current status — October 5, 2026
 
-**Latest P2-03 result:** the owner-approved [binding-diversity comparison](docs/PHASE-2-BINDING-DIVERSITY-RESULT.md) completed both 100-update CUDA runs in about fourteen seconds each. The varied arm learned 20/24 supplied answers; both arms passed 0/12 new binding requests, 0/12 reserved transfer requests and 0/30 development tasks. Three focused tests passed; exact scratch tensor equality, unchanged tokenizer/provenance, sampler accounting and all 96 diagnostic completions were independently verified. Four supplied answers still fail, so this result does not establish ineffective diversity after convergence. Next prepare an answer-focused complete-record objective comparison on the same approved examples. The final holdout remains closed and a two-hour run remains deferred.
+**The Phase 2 coding-quality gate remains unmet.** Plex has not demonstrated successful general coding-task completion, and the final project holdout remains closed. The current narrow investigation follows P2-07's selector-copy transfer gap:
+
+- **P2-07:** learned 24/24 supplied copies and passed 4/6 held-out wording cases (1/3 selectors, 3/3 gaps).
+- **P2-08:** the approved 100-update selector wording/layout run learned 63/64 supplied records. Because it missed the predeclared 64/64 convergence gate, its 4/16 held-out score is descriptive and formally inconclusive.
+- **P2-09 audit:** teacher-forced scoring of the existing checkpoint found the expected answer newline top-ranked on 64/64 training prompts but only 6/16 held-out prompts. Once the expected newline is supplied, the period is top-ranked on 16/16 evaluation prompts. Selector-body choice is also inconsistent after the expected prefix (11/16 top-ranked).
+
+The [P2-08 run report](docs/PHASE-2-P2-08-SELECTOR-FORMAT-RUN.md) and [P2-09 answer-boundary audit](docs/PHASE-2-P2-09-ANSWER-BOUNDARY-DIAGNOSTIC.md) record the evidence and limits. No training has continued from P2-08. The next proposed step is to prepare a fresh candidate that adds an explicit “begin the answer on a new line” cue while keeping the selector set, wording/layout matrix, model, and bounded run settings fixed. The candidate and exact train/evaluation hashes must be reviewed and approved before any new training starts.
+
+**Current milestone: P2-03 configuration research, focused on diagnosing transfer.** P2-02 data preparation is complete at the approved pilot scale. The roadmap had kept configuration experiments under P2-02 while treating the overall coding-quality gate as a data completion requirement. The [milestone review and record-start comparison](docs/PHASE-2-RECORD-START-COMPARISON.md) explains the correction and records the completed 100-step experiment. Passing 0/30 tasks keeps the Phase 2 quality gate unmet; it does not erase completed data deliverables.
+
+**Historical P2-03 result:** the owner-approved [binding-diversity comparison](docs/PHASE-2-BINDING-DIVERSITY-RESULT.md) completed both 100-update CUDA runs in about fourteen seconds each. The varied arm learned 20/24 supplied answers; both arms passed 0/12 new binding requests, 0/12 reserved transfer requests and 0/30 development tasks. Three focused tests passed; exact scratch tensor equality, unchanged tokenizer/provenance, sampler accounting and all 96 diagnostic completions were independently verified. Four supplied answers still failed, so this result did not establish ineffective diversity after convergence. The later answer-focused and selector-copy experiments are recorded above. The final holdout remains closed and a two-hour run remains deferred.
 
 **Earlier P2-03 learning curve:** the [bounded complete-record continuation](docs/PHASE-2-COMPLETE-RECORD-LEARNING-CURVE.md) advanced the preserved step-100 checkpoint to step 200 in 500.47 seconds. Exact seen answers rose from 3/156 to 52/156 across all languages, but corpus validation stayed 0/78 and development stayed 0/30. Cumulative real target positions reached 299,959; held-out text loss rose from 4.32042 to 4.47331. All 116 training tests passed at that milestone, including CLI continuation and CUDA optimizer placement/update equivalence.
 
@@ -131,4 +141,4 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 ## Next task
 
-**Next: prepare an answer-focused complete-record loss comparison within P2-03.** The owner approved the exact 24 binding-diversity examples, and their [bounded comparison is complete](docs/PHASE-2-BINDING-DIVERSITY-RESULT.md). Reuse that approved content, frozen tokenizer and matching scratch step-zero parameters; retain prompt context while comparing ordinary loss with answer/EOS-only loss. Record objective identity and supervised-target accounting, verify supplied-answer learning, and retain the existing static evaluation sets. This next objective is not implemented or scheduled yet; no new data approval or owner rerun is needed now. Keep the final holdout closed and defer the two-hour run.
+**Next: prepare the explicit answer-start candidate for owner review.** Keep the eight selectors, four training phrasings, held-out wording, two input layouts, frozen tokenizer, and model settings matched to P2-08. Change only the output contract to explicitly require the answer on a new line. Require complete supplied convergence before interpreting the held-out score. Generate separate training and evaluation files, review their exact hashes and limits, and stop before training until the owner approves those hashes. Do not continue the P2-08 checkpoint; keep the final holdout closed and defer the two-hour run.
