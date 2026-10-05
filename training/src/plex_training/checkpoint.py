@@ -101,6 +101,19 @@ def restore_optimizer(optimizer: torch.optim.Optimizer, payload: dict[str, Any])
         optimizer.load_state_dict(state)
     except (KeyError, RuntimeError, ValueError) as exc:
         raise ValueError("Checkpoint optimizer state is incompatible") from exc
+    # map_location=cuda moves scalar step counters too. Non-capturable,
+    # non-fused AdamW initializes those on CPU to avoid CUDA scalar reads
+    # during every bias-correction calculation. Restore that placement while
+    # leaving moment tensors on their parameters' devices.
+    if isinstance(optimizer, torch.optim.AdamW):
+        for group in optimizer.param_groups:
+            if group.get("capturable", False) or group.get("fused", False):
+                continue
+            for parameter in group["params"]:
+                parameter_state = optimizer.state.get(parameter, {})
+                step = parameter_state.get("step")
+                if isinstance(step, torch.Tensor):
+                    parameter_state["step"] = step.cpu()
 
 
 def restore_random_states(

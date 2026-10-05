@@ -2,6 +2,8 @@
 
 Recorded October 5, 2026. The complete-record runner is implemented and the bounded 100-update CUDA comparison is complete. **Three seen training answers were reproduced exactly; four passed their full static checks. Development tasks remain 0/30.** P2-03 remains in progress; no useful general coding configuration has been selected.
 
+Follow-up: the [CLI continuation and step-200 learning curve](PHASE-2-COMPLETE-RECORD-LEARNING-CURVE.md) are now complete. Step 200 reproduced 52/156 seen answers exactly but still passed 0/30 development tasks. The continuation limitations and proposed next work below describe the earlier step-100 snapshot; the follow-up records the current implementation and decision.
+
 ## Change and controls
 
 The [record-start comparison](PHASE-2-RECORD-START-COMPARISON.md) still concatenated later examples into each 512-token window. The new `complete-record-v1` option in [the verified sampler](../training/src/plex_training/record_sampling.py) instead places one complete training record in each batch row. Each row starts at position zero, ends at its own EOS target, and never receives context from another example. Records that exceed the configured context are rejected rather than truncated.

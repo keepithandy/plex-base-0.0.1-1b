@@ -285,7 +285,7 @@ uv run --project training --no-sync python -m plex_training.cli pilot `
   --minutes 10 --steps 100 --device cuda
 ```
 
-The experimental option requires ordinary loss, the matching dataset, at most 100 steps, and at most ten minutes. It verifies every indexed record and wraps only through training EOS boundaries. The sampler identity is saved in checkpoints; the existing `pilot-resume` command reconstructs ordinary sampling and therefore rejects these experimental checkpoints. Runner-level resume is tested with the identical verified sampler. General record-start CLI continuation is not enabled. The [complete-record follow-up](../docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md) is now implemented and run; no longer run is needed now.
+The experimental option requires ordinary loss, the matching dataset, at most 100 steps, and at most ten minutes. It verifies every indexed record and wraps only through training EOS boundaries. The sampler identity is saved in checkpoints; the `pilot-resume` command reconstructs ordinary sampling for packed checkpoints and verified complete-record sampling when that policy is saved. Record-start packed continuation remains unsupported. Runner-level resume is tested with the identical verified sampler. Record-start packed CLI continuation is not enabled. The [complete-record follow-up](../docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md) is now implemented and run; no longer run is needed now.
 
 ## P2-03 complete-record comparison
 
@@ -301,7 +301,22 @@ uv run --project training --no-sync python -m plex_training.cli pilot `
   --minutes 10 --steps 100 --device cuda
 ```
 
-Each row contains one complete record with fresh context and position zero. Right-padding targets have zero loss weight; micro-batch 1 needs no padding. Actual non-padding target counts are saved and checked rather than inferred from the 512-token maximum context. The experimental option requires ordinary loss, its matching dataset, at most 100 updates, and at most ten minutes. The `pilot-resume` CLI still uses ordinary packed sampling and rejects this checkpoint; identical-sampler runner-level continuation is tested. Next: implement bounded complete-record CLI continuation and compare the step-100/step-200 learning curve. No continuation segment has run and the final holdout remains closed.
+Each row contains one complete record with fresh context and position zero. Right-padding targets have zero loss weight; micro-batch 1 needs no padding. Actual non-padding target counts are saved and checked rather than inferred from the 512-token maximum context. The experimental option requires ordinary loss, its matching dataset, at most 100 updates, and at most ten minutes. The `pilot-resume` CLI now detects saved complete-record sampling and requires the matching `--dataset-dir`. It verifies the sampler, optimizer, RNG, and real-token progress before creating output, and packages a copy of the matching tokenizer. Ordinary packed continuation remains available without `--dataset-dir`. The [step-100/step-200 learning comparison](../docs/PHASE-2-COMPLETE-RECORD-LEARNING-CURVE.md) is complete: 3 → 52 exact seen answers, but development remains 0/30; the final holdout remains closed.
+
+## Bounded complete-record continuation
+
+The continuation is already run and scored; the owner does not need to repeat it. It restored the saved sampler automatically and finished 100 additional updates in 500.47 seconds, reaching step 200 and 299,959 cumulative real targets. The source checkpoint and all 12 copied tokenizer files were independently verified. See the [learning-curve report](../docs/PHASE-2-COMPLETE-RECORD-LEARNING-CURVE.md). To reproduce, use the matching built dataset and a new output path. The command permits 1–100 additional updates and at most ten minutes, preserves the source checkpoint, and counts only real target positions. No run is extended automatically.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot-resume `
+  --bundle-dir training\artifacts\tokenizers\p2-request-following-v3 `
+  --dataset-dir training\artifacts\datasets\p2-request-following-v3 `
+  --checkpoint training\artifacts\pilot\p2-complete-record-100step-v1\pilot-checkpoint.pt `
+  --output-dir pilot\p2-complete-record-my-continuation `
+  --steps 100 --minutes 10 --device cuda
+```
+
+Non-capturable, non-fused AdamW restores scalar step counters to CPU while retaining its moment tensors on the parameter device. This matches fresh optimizer state placement and avoids unnecessary CUDA scalar reads introduced by checkpoint mapping. Fused or capturable optimizer counters retain their own placement.
 
 ## Run checks
 
@@ -309,4 +324,4 @@ Each row contains one complete record with fresh context and position zero. Righ
 uv run --project training --no-sync python -m unittest discover -s training/tests -v
 ```
 
-All 111 training-workspace tests passed, including complete-record isolation, masked padding, actual target accounting, and exact variable-length resume checks. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, answer-weighted span and checkpoint checks, and verified record-start sampling, circular targets, sampler identity, and experiment bounds; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.
+All 116 training-workspace tests passed, including complete-record CLI continuation, rejection before output creation, ordinary-pilot compatibility, padding exclusion, actual target accounting, exact variable-length resume, and GPU optimizer-state placement with an identical next update. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, answer-weighted span and checkpoint checks, and verified record-start sampling, circular targets, sampler identity, and experiment bounds; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.

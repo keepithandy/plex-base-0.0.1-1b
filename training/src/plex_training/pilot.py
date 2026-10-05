@@ -15,11 +15,11 @@ import torch
 
 from .answer_weighting import AnswerWeightedTokenCorpus
 from .artifacts import enforce_storage_limit, path_within_root
-from .checkpoint import read_checkpoint
+from .checkpoint import read_checkpoint, restore_optimizer
 from .config import DEFAULT_CONFIG
 from .data import TokenCorpus
 from .record_sampling import CompleteRecordTokenCorpus, RecordStartTokenCorpus
-from .runner import evaluate_checkpoint, run_training
+from .runner import _bpe_training_settings, _verify_bpe_resume_policy, evaluate_checkpoint, run_training
 from .tokenizer import CODEC, PlexTokenizer, sha256_file
 
 STORAGE_LIMIT_BYTES = 200 * 1024**3
@@ -244,7 +244,8 @@ def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
                  artifact_root: Path, minutes: float = 10.0, steps: int = 1,
                  device_name: str = "auto", micro_batch: int = 1,
                  gradient_accumulation: int = 16,
-                 checkpoint_every_minutes: float = 5.0) -> dict[str, Any]:
+                 checkpoint_every_minutes: float = 5.0,
+                 dataset_dir: Path | None = None) -> dict[str, Any]:
     """Make a short, isolated continuation without changing the pilot checkpoint."""
     if not math.isfinite(minutes) or not 0 < minutes <= 10:
         raise ValueError("P1-19 resume check must be greater than 0 and no more than 10 minutes")
@@ -272,7 +273,42 @@ def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
         raise ValueError("Resume source is not the matching scratch-trained Plex pilot checkpoint")
     source_step = source_payload["step"]
     seed = source_payload["seed"]
-    del source_model, source_payload
+    source_settings = source_payload.get("trainingSettings")
+    if source_settings is not None and not isinstance(source_settings, dict):
+        raise ValueError("Resume training settings must be an object")
+    policy = (source_settings or {}).get("samplingPolicy")
+    if policy is not None and (not isinstance(policy, dict) or policy.get("kind") != "complete-record-v1"):
+        raise ValueError("Resume supports ordinary packed or verified complete-record sampling only")
+    complete_record = policy is not None
+    if complete_record != (dataset_dir is not None):
+        raise ValueError("Complete-record resume requires its matching built dataset directory")
+    if dataset_dir is not None:
+        if (not dataset_dir.is_dir() or dataset_dir.is_symlink()
+                or sha256_file(dataset_dir / "manifest.json") != bundle["dataset"]["sourceDatasetManifestSha256"]):
+            raise ValueError("Resume dataset manifest differs from the tokenizer bundle")
+
+    def train_source(verified_bundle: dict[str, Any]) -> TokenCorpus:
+        if not complete_record:
+            return TokenCorpus(verified_bundle["trainPath"])
+        return CompleteRecordTokenCorpus(
+            verified_bundle["trainPath"], dataset_jsonl=dataset_dir / "train.jsonl",
+            index_path=verified_bundle["root"] / "train.index.json",
+            tokenizer=PlexTokenizer.load(verified_bundle["root"]),
+            expected_jsonl_sha256=verified_bundle["dataset"]["trainJsonlSha256"],
+        )
+
+    # Reject incompatible data, sampler, batch, optimizer and progress before
+    # reserving an output directory. No optimizer update is performed here.
+    optimizer = torch.optim.AdamW(source_model.parameters())
+    restore_optimizer(optimizer, source_payload)
+    with train_source(bundle) as preflight:
+        settings = _bpe_training_settings(
+            DEFAULT_CONFIG, micro_batch, gradient_accumulation,
+            bundle["tokenizer"]["actualVocabularySize"], 100,
+            sampling_policy=getattr(preflight, "sampler_record", None),
+        )
+        source_positions = _verify_bpe_resume_policy(source_payload, optimizer, settings, preflight)
+    del source_model, source_payload, optimizer
     source_hash = sha256_file(checkpoint_path)
     bundle_files = list(bundle["root"].rglob("*"))
     if (any(path.is_symlink() for path in bundle_files)
@@ -288,7 +324,7 @@ def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
     if (copied_bundle["tokenizer"] != bundle["tokenizer"]
             or copied_bundle["dataset"] != bundle["dataset"]):
         raise ValueError("Packaged tokenizer bundle differs from the approved source")
-    with TokenCorpus(copied_bundle["trainPath"]) as train, TokenCorpus(copied_bundle["validationPath"]) as validation:
+    with train_source(copied_bundle) as train, TokenCorpus(copied_bundle["validationPath"]) as validation:
         result = run_training(
             train_source=train, validation=validation,
             device_name=device_name, minutes=minutes, step_limit=steps,
@@ -304,11 +340,17 @@ def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
             validation_maximum_batches=100,
         )
     checkpoint = output_dir / "resumed-checkpoint.pt"
+    if sha256_file(checkpoint_path) != source_hash:
+        raise ValueError("Source checkpoint changed during continuation")
     report = {
         "schemaVersion": 1,
-        "milestone": "P1-19 save-resume-generate gate",
+        "milestone": "P2-03 complete-record learning curve" if complete_record else "P1-19 save-resume-generate gate",
         "sourceCheckpointSha256": source_hash,
+        "sourceCheckpointUnchanged": True,
         "sourceStep": source_step,
+        "sourceTokensProcessed": source_positions,
+        "samplingPolicy": "complete-record-v1" if complete_record else "random-window-v1",
+        "samplingAudit": train.sampling_audit() if complete_record else None,
         "resumedCheckpointSha256": sha256_file(checkpoint),
         "tokenizerBundle": str((output_dir / "tokenizer").relative_to(root)),
         "tokenizer": bundle["tokenizer"],

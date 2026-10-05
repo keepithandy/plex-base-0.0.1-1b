@@ -5,7 +5,9 @@ import random
 import struct
 import tempfile
 import unittest
+from contextlib import ExitStack
 from pathlib import Path
+from unittest.mock import patch
 
 import torch
 
@@ -14,10 +16,11 @@ from plex_training.checkpoint import read_checkpoint
 from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus
 from plex_training.model import PlexLanguageModel
-from plex_training.pilot import run_pilot
+from plex_training.pilot import resume_pilot, run_pilot
 from plex_training.record_sampling import CompleteRecordTokenCorpus, RecordStartTokenCorpus
 from plex_training.runner import run_training
 from plex_training.tokenizer import CODEC
+from plex_training.tokenizer import sha256_file
 
 
 class FixtureTokenizer:
@@ -45,6 +48,132 @@ class CompleteRecordTests(unittest.TestCase):
         token_path.write_bytes(struct.pack(f"<{len(tokens)}H", *tokens))
         return token_path, dict(dataset_jsonl=dataset, index_path=index, tokenizer=FixtureTokenizer(),
                                expected_jsonl_sha256=hashlib.sha256(dataset.read_bytes()).hexdigest())
+
+    def resume_fixture(self, root):
+        bundle_root = root / "bundle"
+        bundle_root.mkdir()
+        token_path, kwargs = self.fixture(bundle_root)
+        dataset = root / "dataset"
+        dataset.mkdir()
+        (dataset / "train.jsonl").write_bytes(kwargs["dataset_jsonl"].read_bytes())
+        (dataset / "manifest.json").write_text('{"fixture": true}')
+        tokenizer_record = {"codec": CODEC, "actualVocabularySize": 256}
+        dataset_record = {"sourceDatasetManifestSha256": sha256_file(dataset / "manifest.json"),
+                          "trainJsonlSha256": kwargs["expected_jsonl_sha256"]}
+        with CompleteRecordTokenCorpus(token_path, **kwargs) as source, TokenCorpus(token_path) as validation:
+            run_training(train_source=source, validation=validation, device_name="cpu", minutes=0.1,
+                         step_limit=1, output_checkpoint=root / "first/checkpoint.pt",
+                         metrics_path=root / "first/metrics.jsonl", artifact_root=root,
+                         seed=1337, micro_batch=1, accumulation_steps=2,
+                         config=tiny_test_config(), allow_tiny_config=True, codec=CODEC,
+                         tokenizer_record=tokenizer_record, dataset_record=dataset_record,
+                         loss_vocabulary_size=256, validation_maximum_batches=100)
+        checkpoint = root / "first/checkpoint.pt"
+        payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+        payload["initializationRecord"] = {"pretrainedCheckpointLoaded": False,
+                                            "pretrainedModelWeightsLoaded": False}
+        torch.save(payload, checkpoint)
+
+        def inspect_bundle(path):
+            return {"root": path, "trainPath": path / token_path.name,
+                    "validationPath": path / token_path.name,
+                    "tokenizer": tokenizer_record, "dataset": dataset_record}
+
+        def train_tiny(**values):
+            return run_training(**values, allow_tiny_config=True)
+
+        stack = ExitStack()
+        stack.enter_context(patch("plex_training.pilot.DEFAULT_CONFIG", tiny_test_config()))
+        stack.enter_context(patch("plex_training.pilot.inspect_pilot_bundle", side_effect=inspect_bundle))
+        stack.enter_context(patch("plex_training.pilot.PlexTokenizer.load", return_value=FixtureTokenizer()))
+        stack.enter_context(patch("plex_training.pilot.run_training", side_effect=train_tiny))
+        return stack, bundle_root, dataset, checkpoint
+
+    def test_resume_command_rebuilds_sampler_packages_bundle_and_preserves_source(self):
+        previous_threads = torch.get_num_threads()
+        torch.set_num_threads(1)
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                stack, bundle, dataset, checkpoint = self.resume_fixture(root)
+                digest = sha256_file(checkpoint)
+                with stack:
+                    report = resume_pilot(bundle_dir=bundle, checkpoint_path=checkpoint,
+                                          output_dir=root / "continued", artifact_root=root,
+                                          minutes=0.1, steps=1, device_name="cpu",
+                                          gradient_accumulation=2, dataset_dir=dataset)
+                self.assertTrue(report["resumeCheckPassed"])
+                self.assertTrue(report["sourceCheckpointUnchanged"])
+                self.assertEqual(report["sourceStep"], 1)
+                self.assertEqual(report["training"]["step"], 2)
+                self.assertEqual(report["samplingPolicy"], "complete-record-v1")
+                self.assertEqual(report["sourceTokensProcessed"] + report["training"]["tokensProcessedThisRun"],
+                                 report["training"]["tokensProcessedTotal"])
+                self.assertEqual(report["samplingAudit"]["realTargetPositions"],
+                                 report["training"]["tokensProcessedThisRun"])
+                self.assertTrue((root / "continued/tokenizer/train.index.json").is_file())
+                self.assertEqual(sha256_file(checkpoint), digest)
+        finally:
+            torch.set_num_threads(previous_threads)
+
+    def test_resume_rejects_mismatched_data_settings_and_progress_before_output(self):
+        previous_threads = torch.get_num_threads()
+        torch.set_num_threads(1)
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                stack, bundle, dataset, checkpoint = self.resume_fixture(root)
+                with stack:
+                    common = dict(bundle_dir=bundle, checkpoint_path=checkpoint, artifact_root=root,
+                                  minutes=0.1, steps=1, device_name="cpu", gradient_accumulation=2)
+                    for label, changes in (("missing-data", {"dataset_dir": None}),
+                                           ("changed-batch", {"dataset_dir": dataset, "micro_batch": 2})):
+                        with self.subTest(label=label), self.assertRaises(ValueError):
+                            resume_pilot(output_dir=root / label, **{**common, **changes})
+                        self.assertFalse((root / label).exists())
+                    payload = torch.load(checkpoint, map_location="cpu", weights_only=True)
+                    payload["tokensProcessedTotal"] += 1
+                    torch.save(payload, root / "wrong-progress.pt")
+                    with self.assertRaisesRegex(ValueError, "token progress"):
+                        resume_pilot(output_dir=root / "wrong-progress-output", dataset_dir=dataset,
+                                     **{**common, "checkpoint_path": root / "wrong-progress.pt"})
+                    self.assertFalse((root / "wrong-progress-output").exists())
+                    (dataset / "train.jsonl").write_text('changed\n')
+                    with self.assertRaisesRegex(ValueError, "text differs"):
+                        resume_pilot(output_dir=root / "wrong-text-output", dataset_dir=dataset, **common)
+                    self.assertFalse((root / "wrong-text-output").exists())
+        finally:
+            torch.set_num_threads(previous_threads)
+
+    def test_ordinary_resume_still_works_without_dataset_argument(self):
+        previous_threads = torch.get_num_threads()
+        torch.set_num_threads(1)
+        try:
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                stack, bundle, _, complete_checkpoint = self.resume_fixture(root)
+                original = torch.load(complete_checkpoint, map_location="cpu", weights_only=True)
+                ordinary_checkpoint = root / "ordinary/checkpoint.pt"
+                with TokenCorpus(bundle / "train.tokens.u16le") as train, TokenCorpus(bundle / "train.tokens.u16le") as validation:
+                    run_training(train_source=train, validation=validation, device_name="cpu", minutes=0.1,
+                                 step_limit=1, output_checkpoint=ordinary_checkpoint,
+                                 metrics_path=root / "ordinary/metrics.jsonl", artifact_root=root,
+                                 seed=1337, micro_batch=1, accumulation_steps=2,
+                                 config=tiny_test_config(), allow_tiny_config=True, codec=CODEC,
+                                 tokenizer_record=original["tokenizerRecord"], dataset_record=original["datasetRecord"],
+                                 loss_vocabulary_size=256, validation_maximum_batches=100)
+                payload = torch.load(ordinary_checkpoint, map_location="cpu", weights_only=True)
+                payload["initializationRecord"] = original["initializationRecord"]
+                torch.save(payload, ordinary_checkpoint)
+                with stack:
+                    report = resume_pilot(bundle_dir=bundle, checkpoint_path=ordinary_checkpoint,
+                                          output_dir=root / "ordinary-resume", artifact_root=root,
+                                          minutes=0.1, steps=1, device_name="cpu", gradient_accumulation=2)
+                self.assertTrue(report["resumeCheckPassed"])
+                self.assertEqual(report["samplingPolicy"], "random-window-v1")
+                self.assertEqual(report["training"]["tokensProcessedTotal"], 2 * 2 * 32)
+        finally:
+            torch.set_num_threads(previous_threads)
 
     def test_rows_stop_at_eos_and_padding_never_has_loss_weight(self):
         with tempfile.TemporaryDirectory() as temporary:

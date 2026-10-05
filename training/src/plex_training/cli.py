@@ -129,6 +129,8 @@ def build_parser() -> argparse.ArgumentParser:
     pilot_resume.add_argument("--micro-batch", type=int, default=1)
     pilot_resume.add_argument("--gradient-accumulation", type=int, default=16)
     pilot_resume.add_argument("--checkpoint-every-minutes", type=float, default=5.0)
+    pilot_resume.add_argument("--dataset-dir", type=Path, default=None,
+                              help="Matching built dataset; required for saved complete-record sampling")
     _add_artifact_root(pilot_resume)
 
     complete = subparsers.add_parser(
@@ -518,6 +520,7 @@ def main(argv: list[str] | None = None) -> int:
                 micro_batch=args.micro_batch,
                 gradient_accumulation=args.gradient_accumulation,
                 checkpoint_every_minutes=args.checkpoint_every_minutes,
+                dataset_dir=args.dataset_dir,
             ))
         elif args.command == "complete":
             from .completion import complete_pilot

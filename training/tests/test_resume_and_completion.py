@@ -1,6 +1,7 @@
 """P1-19 checks for exact resume state and bounded BPE completion."""
 
 import random
+import copy
 import struct
 import tempfile
 import unittest
@@ -10,7 +11,7 @@ from types import SimpleNamespace
 
 import torch
 
-from plex_training.checkpoint import read_checkpoint, restore_random_states
+from plex_training.checkpoint import read_checkpoint, restore_optimizer, restore_random_states
 from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus
 from plex_training.pilot import resume_pilot
@@ -19,6 +20,35 @@ from plex_training.tokenizer import CODEC
 
 
 class ResumeAndCompletionTests(unittest.TestCase):
+    @unittest.skipUnless(torch.cuda.is_available(), "CUDA placement check requires a local GPU")
+    def test_cuda_optimizer_restore_keeps_adamw_step_counters_on_cpu(self) -> None:
+        model = torch.nn.Linear(2, 1).cuda()
+        original = torch.optim.AdamW(model.parameters(), lr=0.0003)
+        model(torch.ones(1, 2, device="cuda")).sum().backward()
+        original.step()
+        continued_model = torch.nn.Linear(2, 1).cuda()
+        continued_model.load_state_dict(model.state_dict())
+        state = copy.deepcopy(original.state_dict())
+        for values in state["state"].values():
+            values["step"] = values["step"].cuda()  # Emulate checkpoint map_location=cuda.
+        restored = torch.optim.AdamW(continued_model.parameters())
+        restore_optimizer(restored, {"optimizerStateDict": state})
+        for values in restored.state.values():
+            self.assertEqual(values["step"].device.type, "cpu")
+            self.assertEqual(float(values["step"]), 1.0)
+            self.assertEqual(values["exp_avg"].device.type, "cuda")
+            self.assertEqual(values["exp_avg_sq"].device.type, "cuda")
+        original.zero_grad()
+        model(torch.ones(1, 2, device="cuda")).sum().backward()
+        original.step()
+        restored.zero_grad()
+        continued_model(torch.ones(1, 2, device="cuda")).sum().backward()
+        restored.step()
+        for values in restored.state.values():
+            self.assertEqual(float(values["step"]), 2.0)
+        for expected, actual in zip(model.parameters(), continued_model.parameters()):
+            self.assertTrue(torch.equal(expected, actual))
+
     def setUp(self) -> None:
         self.previous_threads = torch.get_num_threads()
         torch.set_num_threads(1)
