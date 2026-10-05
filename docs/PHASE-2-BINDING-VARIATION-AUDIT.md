@@ -33,7 +33,7 @@ The same-body metrics are textual measures, not proofs about semantic equivalenc
 
 ## Next controlled experiment to prepare
 
-Follow-up: the [24-example candidate and separate evaluation plan](PHASE-2-BINDING-CANDIDATE-REVIEW.md) are now prepared and validated. The exact training examples remain pending owner review; no new training has run. The proposal below records the audit's original recommendation.
+Follow-up: the owner approved the exact [24-example candidate and separate evaluation plan](PHASE-2-BINDING-CANDIDATE-REVIEW.md). The [bounded comparison is complete](PHASE-2-BINDING-DIVERSITY-RESULT.md): the varied arm learned 20/24 supplied answers but passed 0/12 new binding requests and 0/30 development tasks. The proposal below preserves the audit's original recommendation; the candidate preparation, approval and two-arm run have since been completed.
 
 Prepare a **small binding-diversity candidate for review**, using the six learned control operations as anchors. Include each original plus three new, independently chosen request/reference variations: 24 candidate records total, balanced eight per language. Change one requested detail per variation and keep the operation and code structure fixed. Use names and values distinct from all twelve transfer cases, the existing development requests, and the reserved evaluation prompts. Preserve the current transfer cases as evaluation-only.
 
@@ -55,4 +55,4 @@ To reproduce the read-only audit with a fresh report filename:
 uv run --project training --no-sync python training\phase2\audit_binding_variation.py --report training\artifacts\diagnostics\p2-binding-audit-my-check\report.json
 ```
 
-The audit refuses to overwrite a report. The existing `p2-binding-audit-v1` report predates the added built-text verification; `v2` is the complete audit. The owner does not need to rerun either the audit or transfer check now. Next work is preparation of the reviewable candidate and evaluation plan.
+The audit refuses to overwrite a report. The existing `p2-binding-audit-v1` report predates the added built-text verification; `v2` is the complete audit. The owner does not need to rerun the audit, transfer check or completed diversity experiment. Next work is the answer-focused objective comparison preparation described in the [result report](PHASE-2-BINDING-DIVERSITY-RESULT.md).

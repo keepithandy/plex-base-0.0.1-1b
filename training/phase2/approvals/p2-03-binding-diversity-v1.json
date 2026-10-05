@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-03-binding-diversity-v1",
+  "candidateJsonlSha256": "8f3fc7dfc21c4ebb5ce5b40391e9b123521d13df50b2d349e5d6b7c3faf37c2f",
+  "evaluationJsonlSha256": "ea8699efc997c0b4a5cdeb55c0da1d5be1b0d27a8ae9ad6b5164476c0d82ca7c",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "Approve the 24 binding-diversity examples for local diagnostic training.",
+  "approvalRecordedAtUtc": "2026-10-05T15:39:06.551151+00:00",
+  "scope": "local-P2-diagnostic-training",
+  "records": 24,
+  "evaluationOnlyRecords": 12,
+  "evaluationApprovedForTraining": false,
+  "externalSourceTextIncluded": false,
+  "publicLicenseGranted": false,
+  "limits": {
+    "maximumStepsPerArm": 100,
+    "maximumMinutesPerArm": 10,
+    "arms": [
+      "original-only",
+      "varied"
+    ]
+  }
+}

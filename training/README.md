@@ -328,9 +328,33 @@ uv run --project training --no-sync python training\phase2\diagnose_transfer.py 
 
 Add `--prepare-only` to validate/save cases without loading PyTorch. Five focused diagnostic tests passed; the full training-suite result below is from the prior continuation. Windows Application Control blocked the initial agent-side import; the user-terminal inference subsequently succeeded. The [binding audit](../docs/PHASE-2-BINDING-VARIATION-AUDIT.md) verifies the completed outputs and records the next candidate to prepare. No repeat or new training is required now.
 
+## P2-03 approved binding-diversity comparison
+
+The owner approved the exact 24 training records, and both diagnostic arms have completed 100 updates in about fourteen seconds each. The varied arm learned 20/24 supplied answers; both arms passed 0/12 new binding requests and 0/30 development tasks. See the [result and saved artifacts](../docs/PHASE-2-BINDING-DIVERSITY-RESULT.md). No repeat is needed.
+
+`phase2/prepare_binding_experiment.py` builds original-only/varied inputs under the artifact root from the exact approved hashes. It reuses the existing tokenizer without fitting and keeps all twelve new evaluation records separate. `phase2/run_binding_experiment.py` verifies the prepared inputs, standard bundle compatibility and exactly equal scratch step-zero tensors before training. It limits each arm to 1–100 updates and at most ten minutes, records real target/exposure counts, then scores saved checkpoints against the original/new examples, both transfer sets and unchanged development tasks. It refuses existing outputs and never extends a stopped run.
+
+To reproduce only if needed, choose two unused directories:
+
+```powershell
+uv run --project training --no-sync python training\phase2\prepare_binding_experiment.py --output training\artifacts\experiments\p2-binding-my-inputs
+uv run --project training --no-sync python training\phase2\run_binding_experiment.py `
+  --prepared training\artifacts\experiments\p2-binding-my-inputs `
+  --output-dir training\artifacts\experiments\p2-binding-my-run `
+  --steps 100 --minutes 10 --device cuda
+```
+
+Next prepare an answer/EOS-only loss comparison with the same approved examples and complete-record prompt context. That objective is not yet implemented or scheduled. No new data approval or longer run is needed now.
+
 ## Run checks
 
-The [24-example binding-diversity candidate](../docs/PHASE-2-BINDING-CANDIDATE-REVIEW.md) is prepared for owner review. It includes eighteen new training variations and twelve separate evaluation-only records. All reference and stale-answer checks passed; four focused tests verified candidate preparation and byte-identical reproduction. It remains pending approval and has not been built into training inputs.
+The [24-example binding-diversity candidate](../docs/PHASE-2-BINDING-CANDIDATE-REVIEW.md) is now approved and built into separate diagnostic inputs. Four candidate tests passed at preparation; three additional experiment tests passed for bounds, scratch parameter equality/rejection, exact two-arm preparation, tamper rejection and overwrite protection. Both real CUDA runs and independent verification of all 96 diagnostic completions and development provenance completed successfully. To run the focused experiment tests:
+
+```powershell
+uv run --project training --no-sync python -m unittest discover -s training/tests -p test_binding_experiment.py -v
+```
+
+The focused preparation test uses the approved local candidate, frozen tokenizer and reserved cases; those ignored local artifacts must exist. The following full-suite command remains available; its recorded 116-test result below belongs to the earlier continuation, not this new experiment:
 
 ```powershell
 uv run --project training --no-sync python -m unittest discover -s training/tests -v

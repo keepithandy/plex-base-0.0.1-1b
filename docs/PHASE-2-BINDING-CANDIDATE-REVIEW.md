@@ -1,8 +1,8 @@
 # P2-03: review the binding-diversity candidate
 
-Prepared October 5, 2026. **This draft contains 24 proposed training examples: six previously approved originals plus eighteen new variations. It is pending owner review and has not been used for training.** A separate twelve-example set is evaluation-only.
+Prepared October 5, 2026. **The owner approved these exact 24 training examples, and the bounded original-only/varied comparison is complete.** The [approval record](../training/phase2/approvals/p2-03-binding-diversity-v1.json) authorizes six originals plus eighteen new variations for local diagnostic training. A separate twelve-example set remains evaluation-only. The [result report](PHASE-2-BINDING-DIVERSITY-RESULT.md) records 20/24 supplied answers learned by the varied arm, 0/12 new transfer passes and 0/30 development passes.
 
-## What you are approving
+## Approved content
 
 These examples teach Plex to keep the requested operation while changing the detail you specify. For example, both `copyItems(items)` and `shallowClone(items)` should return `items.slice()` when the request asks for a shallow copy. Different names should not cause the model to choose a different operation.
 
@@ -33,19 +33,19 @@ The new [evaluation-only JSONL](../training/phase2/drafts/p2-03-binding-diversit
 
 The previous twelve transfer requests remain evaluation-only, including Osaka, Harbor, value 62, maximum 200, `.panel-edge`, 5px, `.command-bar`, 20px, and their four changed function names. None of those replacement bindings occurs in this candidate's training text. Original transfer controls deliberately overlap the six training anchors. The 30 development tasks are unchanged; no exact normalized candidate request duplicates a development prompt. Semantic skill overlap is expected, and this screen does not prove absence of all semantic leakage. The final holdout remains closed.
 
-## Proposed short comparison after approval
+## Reviewed comparison, now complete
 
 Compare an original-only six-anchor arm with the varied 24-record arm. Both must start from matching randomly initialized step-zero weights, retain the same existing 1,509-entry tokenizer and architecture, and use ordinary complete-record loss with the recorded AdamW settings. Each operation has equal sampling probability in both arms; the varied arm samples four records per operation. Six-anchor sampling is therefore a control for concentration on these operations, separate from the previous broad 156-record run.
 
 Cap each arm at **100 updates and ten minutes**. Report actual target counts and exposure per operation: equal updates/operation probabilities do not imply identical token budgets, sequence lengths, or dropout draws. Confirm supplied answers are learned before drawing conclusions from transfer failures. Compare original answers, previous transfer variations, the separate new bindings, and the unchanged 30 development tasks. All are static/exact checks; generated JavaScript is never executed. This is a small diagnostic, not a two-hour base-model run or a complete coding benchmark.
 
-The candidate has not been built into production training inputs. The comparison runner and compatible data/initialization provenance still need preparation after approval. Keeping the tokenizer and model weights fixed across arms requires verified bundles/checkpoints that record their distinct data identities; existing compatibility checks must stay enforced. There is no ready-to-run training command in this review.
+The candidate is now built into separate diagnostic inputs, with distinct dataset identities and the unchanged tokenizer. The runner verifies exactly equal scratch starting parameter tensors and retains standard compatibility checks. Both arms completed 100 updates in about fourteen seconds each. Commands and artifact links are in the [completed report](PHASE-2-BINDING-DIVERSITY-RESULT.md); no repeat is required.
 
-## What was checked
+## Original preparation checks, before approval
 
 - All 36 references (24 candidate plus 12 evaluation-only) passed syntax, existing static checks, and requested-binding checks. All 30 changed requests rejected the unchanged source answer.
 - Training/evaluation request and reference duplicates were rejected. Reserved evaluation bindings were excluded from candidate training text; development request duplicates were checked.
-- Every training record remains `pending-owner-review`; no approved production dataset catalog was created. Existing approval files, source corpus, tokenizer, and checkpoints were preserved.
+- The immutable draft records retain `pending-owner-review` from the original preparation. The separate exact-hash approval record now authorizes their use; the diagnostic inputs were built without rewriting that reviewed snapshot. Existing source corpus, tokenizer, and checkpoints were preserved.
 - The existing tokenizer represents every case within the fixed limits: maximum 84 prompt tokens, 110 complete-record tokens including EOS, and 28 answer tokens including EOS. No new tokenizer was fitted.
 - Four focused tests passed, including held-out binding rejection, incorrect reference rejection, pending status/source preservation, byte-identical repeated preparation, and overwrite refusal. These checks validate data preparation, not model performance.
 
@@ -60,8 +60,8 @@ The [machine-readable preparation report](../training/phase2/drafts/p2-03-bindin
 
 The [preparer](../training/phase2/prepare_binding_candidate.py) can reproduce the four draft files into a fresh directory. No dataset download, installation, paid service, model inference, or training was performed in this preparation.
 
-## Next decision
+## Recorded decision and next work
 
-Read the table above and inspect any full examples you want in the exact review. Approval means the eighteen new variations and six originals may be used for the local P2-03 diagnostic; the twelve evaluation-only examples remain excluded from training. It does not approve a long run or public release.
+The owner approved: **“Approve the 24 binding-diversity examples for local diagnostic training.”** The eighteen new variations and six originals were used only for the bounded P2-03 diagnostic; the twelve evaluation-only examples remain excluded from training. This does not approve a long run or public release.
 
-If these changes match what you want Plex to learn, say: **“Approve the 24 binding-diversity examples for local diagnostic training.”** Alternatively, name the examples or values you want changed before approval. P2-03 remains active; the preparation task is complete and no training is currently running.
+P2-03 remains active. Next prepare the answer-focused complete-record comparison described in the [result report](PHASE-2-BINDING-DIVERSITY-RESULT.md), using the same approved examples. No training is currently running and no additional data approval is needed for that preparation.
