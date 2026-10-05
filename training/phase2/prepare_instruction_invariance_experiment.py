@@ -112,7 +112,7 @@ def prepare(output: Path) -> dict:
         "candidateJsonlSha256": EXPECTED["candidate"],
         "evaluationJsonlSha256": EXPECTED["evaluation"],
         "reviewMarkdownSha256": EXPECTED["reviewMarkdown"],
-        "approvalSha256": sha256_file(APPROVAL),
+        "approvalSha256": canonical_text_sha256(APPROVAL),
         "trainingRecords": 24,
         "evaluationOnlyRecords": 6,
         "tokenizerSha256": TOKENIZER_SHA,
@@ -173,9 +173,9 @@ def verify_prepared(prepared: Path) -> dict:
     }
     if any(plan.get(key) != value for key, value in expected_plan.items()):
         raise ValueError("Prepared P2-07 plan differs from exact owner approval")
-    if sha256_file(prepared / "approval.json") != sha256_file(APPROVAL):
+    if canonical_text_sha256(prepared / "approval.json") != canonical_text_sha256(APPROVAL):
         raise ValueError("Prepared P2-07 approval artifact changed")
-    if plan.get("approvalSha256") != sha256_file(APPROVAL):
+    if plan.get("approvalSha256") != canonical_text_sha256(APPROVAL):
         raise ValueError("Prepared P2-07 approval identity changed")
     for relative, digest in plan.get("files", {}).items():
         path = prepared / relative

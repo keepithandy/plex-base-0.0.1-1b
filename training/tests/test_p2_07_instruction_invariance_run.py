@@ -11,7 +11,9 @@ if str(PHASE2) not in sys.path:
 
 from prepare_compositional_experiment import ARTIFACT_ROOT
 from prepare_instruction_invariance_experiment import EXPECTED, prepare, verify_prepared
-from run_instruction_invariance_experiment import _interpret, _score_record, validate_bounds
+from run_instruction_invariance_experiment import (
+    _interpret, _score_record, replay_sampling_audit, validate_bounds,
+)
 
 
 class P207InstructionInvarianceRunTests(unittest.TestCase):
@@ -30,6 +32,10 @@ class P207InstructionInvarianceRunTests(unittest.TestCase):
             self.assertFalse(plan["tokenizerRefitted"])
             self.assertFalse(plan["modelTrained"])
             self.assertFalse(plan["finalHoldoutOpened"])
+            audit = replay_sampling_audit(prepared, plan, steps=2)
+            self.assertEqual(audit["examples"], 32)
+            self.assertGreater(audit["supervisedTargetPositions"], 0)
+            self.assertGreater(audit["excludedPromptTargetPositions"], 0)
 
     def test_verifier_rejects_tampered_heldout_file(self) -> None:
         with TemporaryDirectory(prefix="p2-07-test-", dir=ARTIFACT_ROOT) as temp:

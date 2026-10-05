@@ -5,6 +5,7 @@ import argparse
 import json
 import math
 from pathlib import Path
+import random
 import sys
 
 import torch
@@ -20,6 +21,7 @@ from plex_training.completion import _completion_tokenizer, _generate_token_ids
 from plex_training.data import TokenCorpus
 from plex_training.initialization import initialize_model
 from plex_training.pilot import inspect_pilot_bundle
+from plex_training.config import DEFAULT_CONFIG
 from plex_training.runner import run_training
 from plex_training.telemetry import select_device
 from plex_training.tokenizer import CODEC, PlexTokenizer
@@ -123,6 +125,24 @@ def score(checkpoint: Path, train_rows: list[dict], evaluation_rows: list[dict],
     }
     write_json(output_path, result)
     return result
+
+
+def replay_sampling_audit(prepared: Path, plan: dict, steps: int) -> dict:
+    """Replay the pinned Python sampler without training to recover exact accounting."""
+    tokenizer = PlexTokenizer.load(TOKENIZER_BUNDLE)
+    source = AnswerFocusedCompleteRecordTokenCorpus(
+        prepared / "dataset/train.tokens.u16le",
+        dataset_jsonl=prepared / "dataset/train.jsonl",
+        index_path=prepared / "dataset/train.index.json",
+        tokenizer=tokenizer,
+        expected_jsonl_sha256=plan["packedTrain"]["trainJsonlSha256"],
+    )
+    rng = random.Random(plan["seed"])
+    draws = steps * plan["microBatch"] * plan["gradientAccumulation"]
+    with source:
+        for _ in range(draws):
+            source.sample_masked_batch(rng, plan["microBatch"], DEFAULT_CONFIG.context_length)
+        return source.sampling_audit()
 
 
 def run(prepared: Path, output: Path, device_name: str = "cuda",
@@ -319,15 +339,11 @@ def score_completed_run(prepared: Path, output: Path, device_name: str = "cuda")
     evaluation_rows = read_rows(prepared / "evaluation-only/evaluation-only.jsonl")
     scores = score(checkpoint_path, train_rows, evaluation_rows, settings, device_name,
                    output / "completion-score.json")
-    tokenizer = PlexTokenizer.load(TOKENIZER_BUNDLE)
-    with AnswerFocusedCompleteRecordTokenCorpus(
-        prepared / "dataset/train.tokens.u16le",
-        dataset_jsonl=prepared / "dataset/train.jsonl",
-        index_path=prepared / "dataset/train.index.json",
-        tokenizer=tokenizer,
-        expected_jsonl_sha256=plan["packedTrain"]["trainJsonlSha256"],
-    ) as source:
-        audit = source.sampling_audit()
+    audit = replay_sampling_audit(prepared, plan, training["stepsThisRun"])
+    if (audit["supervisedTargetPositions"] != training["tokensProcessedThisRun"]
+            or audit["paddingTargetPositions"] + audit["excludedPromptTargetPositions"]
+            != training["paddingTargetPositionsThisRun"]):
+        raise ValueError("Replayed P2-07 sampler audit differs from completed run telemetry")
     report = {
         "schemaVersion": 1,
         "experiment": EXPERIMENT,

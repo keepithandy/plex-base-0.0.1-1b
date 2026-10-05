@@ -57,6 +57,8 @@ Training convergence is required before interpreting the held-out score. At 24/2
 
 The explicitly approved single-arm run completed **100/100 updates** in **15.82 seconds** on CUDA. It processed **8,307 supervised answer/EOS target tokens**. Supplied learning converged at **24/24 exact representation passes**. The frozen tokenizer matched the approved SHA-256; initial tensors were verified equal to the recorded seed-1337 scratch initialization. The final holdout remained closed.
 
+The replay-verified sampler accounting was 1,600 record draws across 100 updates, all 24 records selected (55–83 selections each), 94,517 real context targets, 8,307 supervised answer/EOS targets, 86,210 excluded prompt targets, and zero padding targets.
+
 | Measure | Result |
 |---|---:|
 | Training exact / representation pass | 24/24 |
