@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "experiment": "p2-05-counterbalanced-composition-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalStatement": "Approve the three-fold counterbalanced P2-05 composition experiment using the nine existing CSS selector-gap combinations, with each combination held out exactly once and trained in the other two folds.",
+  "approvalRecordedAtUtc": "2026-10-05T17:04:00+00:00",
+  "scope": "local-P2-diagnostic-training",
+  "sourceId": "gap-css-layout-01",
+  "sourceCandidateJsonlSha256": "df7a6b6f8592006c37612b2b179fb9aee278d966914136284d52a63991c8c754",
+  "sourceEvaluationJsonlSha256": "578c7e376301751e61112b02feb2a9651f9858efc2276b0bf5067de2e5acccff",
+  "objective": "answer-eos-only-complete-record-v1",
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls"
+  ],
+  "gaps": [
+    "6px",
+    "14px",
+    "28px"
+  ],
+  "folds": {
+    "fold-a": {
+      "heldOutPairs": [
+        [".actions", "28px"],
+        [".filters", "6px"],
+        [".controls", "14px"]
+      ]
+    },
+    "fold-b": {
+      "heldOutPairs": [
+        [".actions", "6px"],
+        [".filters", "14px"],
+        [".controls", "28px"]
+      ]
+    },
+    "fold-c": {
+      "heldOutPairs": [
+        [".actions", "14px"],
+        [".filters", "28px"],
+        [".controls", "6px"]
+      ]
+    }
+  },
+  "matrixRecords": 9,
+  "trainingRecordsPerFold": 6,
+  "heldOutRecordsPerFold": 3,
+  "eachPairHeldOutExactlyOnce": true,
+  "eachPairTrainedInOtherFolds": true,
+  "foldLocalHeldoutOnly": true,
+  "globalPristineHoldoutClaim": false,
+  "runtimeValidationSource": "existing p2-request-following-v3 validation split",
+  "limits": {
+    "folds": 3,
+    "maximumStepsPerFold": 100,
+    "maximumMinutesPerFold": 10,
+    "maximumTotalSteps": 300,
+    "maximumTotalMinutes": 30,
+    "seedPerFold": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "automaticExtension": false,
+    "finalHoldoutOpened": false
+  }
+}
