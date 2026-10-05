@@ -154,6 +154,25 @@ class AnswerFocusedCompleteRecordTokenCorpus(CompleteRecordTokenCorpus):
         self._excluded_prompt_targets += excluded_prompt_targets
         return inputs, targets, weights
 
+    def replay_progress(self, seed: int, draws: int) -> tuple[int, tuple]:
+        """Replay answer/EOS supervision counts for checkpoint resume validation.
+
+        The base complete-record sampler counts every nonpadding target. This
+        objective masks prompt targets, so checkpoint ``tokensProcessedTotal``
+        must count only the answer and EOS positions that contribute to loss.
+        Keep the same random draws as the base sampler while accounting for the
+        objective's verified answer boundaries.
+        """
+        if type(draws) is not int or not 0 <= draws <= 1_000_000:
+            raise ValueError("Complete-record resume exceeds the bounded replay limit")
+        rng = random.Random(seed)
+        supervised = 0
+        for _ in range(draws):
+            start = rng.choice(self.starts)
+            supervised += (self._length_by_start[start] - 1
+                           - self._first_supervised_by_start[start])
+        return supervised, rng.getstate()
+
     def sampling_audit(self) -> dict:
         return {
             **super().sampling_audit(),
