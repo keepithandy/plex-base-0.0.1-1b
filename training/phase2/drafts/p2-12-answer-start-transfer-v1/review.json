@@ -1,0 +1,103 @@
+{
+  "candidate": "p2-12-answer-start-transfer-v1",
+  "candidateJsonlSha256": "bdffb5cf4cdca89238c4651ce9c77ed260332ef47a10e7e137a309ab865e0d03",
+  "evaluationApprovedForRuntimeValidationLoss": false,
+  "evaluationApprovedForTraining": false,
+  "evaluationJsonlSha256": "d4508dab82615af616ecd176e11a6ca9c8742c2dda2ad4ddd6f337991bbe5455",
+  "evaluationOnlyRecords": 64,
+  "evaluationPhrases": [
+    {
+      "id": "copy-selector-starting-next-line",
+      "template": "Copy the selector below exactly, starting on the next line: {value}"
+    },
+    {
+      "id": "following-line-only-selector",
+      "template": "On the following line, output only this selector: {value}"
+    },
+    {
+      "id": "selector-exactly-on-own-line",
+      "template": "Put the selector exactly as written on its own line: {value}"
+    },
+    {
+      "id": "literal-selector-on-new-line",
+      "template": "Return the literal selector unchanged on a new line: {value}"
+    }
+  ],
+  "evaluationWordingDisjointFromTraining": true,
+  "finalHoldoutOpened": false,
+  "freshEvaluationRequestsDisjointFromAllP210AndP211Requests": true,
+  "layouts": [
+    "colon-space",
+    "colon-newline"
+  ],
+  "modelTrained": false,
+  "outputContract": "Return exactly the requested value and nothing else. Begin the answer on a new line.",
+  "p211EvaluationRequestsPromotedToTraining": 32,
+  "p211PromotedRequestIntersectionVerified": true,
+  "proposedRunLimits": {
+    "automaticExtension": false,
+    "device": "cuda",
+    "freshSeed": 1337,
+    "gradientAccumulation": 16,
+    "maximumMinutes": 10,
+    "maximumSteps": 100,
+    "maximumTotalMinutes": 10,
+    "maximumTotalSteps": 100,
+    "microBatch": 1
+  },
+  "reviewMarkdownSha256": "dcc185be9c46edbad1743239afbc30a0321adeb2770e3215155cd4fdea743e04",
+  "reviewStatus": "pending-owner-review",
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls",
+    ".alpha-panel",
+    ".bravo-item",
+    ".charlie-list",
+    ".delta-card",
+    ".echo-label"
+  ],
+  "sourceP210CandidateSha256": "ac0b65b623b80a8de89d78c2d038a03f2a5b4f8782097327d46624ea04aaa1e8",
+  "sourceP210CheckpointSha256": "28c5aa6f7e04c6c48c54636077545d207ee3593b42c26d7fe2da37aae3c3d6bb",
+  "sourceP210EvaluationSha256": "632838a43cc6faef06bea2bad5fd321c17e0f7d328a425f11ef443d66c5457a9",
+  "sourceP210WiderEvaluationSha256": "da084655484ec4cb64c77a9a852dbb8ffb7be6d7cbd02c172c19373ec6529b4a",
+  "sourceP211CandidateSha256": "baaa056835f50120e55d93f6f74622c77e9a178e4c8801396ba3575b785001ab",
+  "sourceP211CheckpointSha256": "6c4de918e3aa270cc0e94273ff803390facd351b1b9f3ce2889c77d234a4205e",
+  "sourceP211EvaluationSha256": "f189dfbeb0d7595740f4f06399c420bd0f0bdb4a181dd23484d4c58a59260322",
+  "tokenMaxima": {
+    "answerIncludingEos": 9,
+    "prompt": 85,
+    "recordIncludingEos": 94
+  },
+  "tokenizerRefitted": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "trainingApprovalCreated": false,
+  "trainingPhrases": [
+    {
+      "id": "return-exactly",
+      "template": "Return this selector exactly: {value}"
+    },
+    {
+      "id": "copy-unchanged",
+      "template": "Copy this selector unchanged: {value}"
+    },
+    {
+      "id": "repeat-as-shown",
+      "template": "Repeat the selector exactly as shown: {value}"
+    },
+    {
+      "id": "output-only",
+      "template": "Output only the selector shown here: {value}"
+    },
+    {
+      "id": "give-literal-selector-after-label",
+      "template": "Give only the literal selector shown after this label: {value}"
+    },
+    {
+      "id": "preserve-spelling-and-punctuation",
+      "template": "Please preserve the spelling and punctuation of the selector: {value}"
+    }
+  ],
+  "trainingRecords": 96
+}
