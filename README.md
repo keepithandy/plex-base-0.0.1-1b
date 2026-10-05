@@ -15,6 +15,7 @@ P1-01 through P1-10 are completed and preserved: the repository discovery, ranki
 | Phase 2 code-pair ten-minute diagnostic | 3,197 updates; held-out loss 6.89080 → 8.42534; **0/30 complete tasks**, matching step zero; truncations fell from 28/30 to 0/30 | Answers now finish within the limits, but still miss the requested task. The loss pattern is consistent with overfitting. |
 | Phase 2 approved 234-example v3, 100 steps | Ordinary and answer-weighted checkpoints both passed **0/30** development tasks; saved-checkpoint diagnostic found **0/156** full static passes on seen training prompts and **0/78** on corpus validation prompts | These short runs have not yet learned complete supplied answers; longer training is deferred. |
 | P2-03 record-start comparison, 100 steps | **0/30** development tasks and **0/156** complete seen training answers; all 156 training records selected as window starts | Record-start sampling alone did not resolve answer learning in this bounded run. |
+| P2-03 complete-record comparison, 100 steps | **3/156** exact training answers, **4/156** full static training passes, **0/30** development tasks; 149,760 real target positions | Some seen answers are learned, but useful coding on unseen tasks remains unproven. |
 
 The v3 corpus contains 56 records (36 training / 20 validation). The separate, owner-approved code-pair corpus contains 36 examples (24 training / 12 validation), balanced across HTML, CSS, and JavaScript, with a fresh 874-entry tokenizer fitted only on its training split. See the [v3 training and scoring report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) and [code-pair preparation and baseline report](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md).
 
@@ -22,7 +23,7 @@ The original 360-record request-following draft was reviewed and narrowed to an 
 
 The [three-example probe](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) has since learned all three approved training answers exactly by step 25. It used complete-record training and does not establish broader coding ability.
 
-The [sampler audit](docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed 1,600 production windows: complete examples were present often, but prompts began at inference position zero only 14 times. The [completed P2-03 comparison](docs/PHASE-2-RECORD-START-COMPARISON.md) used record-start windows for 100 steps with the same token budget. It still passed 0/30 development tasks and 0/156 complete seen training answers. The next bounded comparison should reset context for each complete example and report actual non-padding token budgets.
+The [sampler audit](docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed 1,600 production windows: complete examples were present often, but prompts began at inference position zero only 14 times. The [completed P2-03 comparison](docs/PHASE-2-RECORD-START-COMPARISON.md) used record-start windows for 100 steps with the same token budget. It still passed 0/30 development tasks and 0/156 complete seen training answers. The [complete-record follow-up](docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md) is now implemented and run. It learned three seen answers exactly but still passed 0/30 development tasks, using fewer real tokens. Next: prepare bounded continuation to measure the learning curve; no repeat or longer run is needed from the owner now.
 
 The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met; another two-hour run remains deferred pending evidence from P2-03.
 
@@ -30,6 +31,7 @@ The development evaluator uses 30 static tasks. It does not execute JavaScript b
 
 - [Training workspace and commands](training/README.md)
 - [Phase 1 experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md)
+- [P2-03 complete-record result and learning-curve proposal](docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md)
 - [P2-03 milestone review and record-start comparison](docs/PHASE-2-RECORD-START-COMPARISON.md)
 - [Phase 2 data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md)
 - [Evaluation design and remaining behavior checks](docs/PHASE-2-EVALUATION-DESIGN.md)
