@@ -1,0 +1,88 @@
+{
+  "approvalStatus": "pending-owner-review",
+  "candidate": "p2-06-binding-representation-probe-v1",
+  "dualAndCssUseIdenticalBindingSplits": true,
+  "finalHoldoutOpened": false,
+  "freshModelPerLevelPlanned": true,
+  "gaps": [
+    "6px",
+    "14px",
+    "28px"
+  ],
+  "heldOutPairs": [
+    [
+      ".actions",
+      "28px"
+    ],
+    [
+      ".filters",
+      "6px"
+    ],
+    [
+      ".controls",
+      "14px"
+    ]
+  ],
+  "levels": {
+    "css-composition": {
+      "candidateJsonlSha256": "a84de00032d543a4b2bc9e9d67ef0bea5ef2cc94b080ea862f37179253b1ec6b",
+      "evaluationJsonlSha256": "969ca23edf91ff9175e9ac502395a5aa850b541c3392843e20aa82b38eb56dee",
+      "evaluationOnlyRecords": 3,
+      "trainingRecords": 6
+    },
+    "dual-binding": {
+      "candidateJsonlSha256": "856f20637a3bd42e0b6838964503a3aaf74a86af3a0d464128194f9ab3c6aabb",
+      "evaluationJsonlSha256": "e3afa59441365fd2a88089704755f5b9fbb9b27f88804416616272283c5d5399",
+      "evaluationOnlyRecords": 3,
+      "trainingRecords": 6
+    },
+    "single-copy": {
+      "candidateJsonlSha256": "13452867b30a38b9ffc3e42ef440d3ac560c3103d5d479d014525eae10a12727",
+      "evaluationJsonlSha256": "9cf9777c431de134f880eb152d84794af9f848e69f25a36420c605bcc6a144c8",
+      "evaluationOnlyRecords": 6,
+      "trainingRecords": 6
+    }
+  },
+  "modelTrained": false,
+  "referenceTokenizerRefitted": false,
+  "referenceTokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "schemaVersion": 1,
+  "selectors": [
+    ".actions",
+    ".filters",
+    ".controls"
+  ],
+  "singleCopyEvaluationUsesSeenValuesWithNewWording": true,
+  "tokenMaxima": {
+    "answerIncludingEos": 26,
+    "prompt": 87,
+    "recordIncludingEos": 112
+  },
+  "trainingObjectivePlanned": "answer-eos-only-complete-record-v1",
+  "trainingPairs": [
+    [
+      ".actions",
+      "6px"
+    ],
+    [
+      ".actions",
+      "14px"
+    ],
+    [
+      ".filters",
+      "14px"
+    ],
+    [
+      ".filters",
+      "28px"
+    ],
+    [
+      ".controls",
+      "6px"
+    ],
+    [
+      ".controls",
+      "28px"
+    ]
+  ]
+}
