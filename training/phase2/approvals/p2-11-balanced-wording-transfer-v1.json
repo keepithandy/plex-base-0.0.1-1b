@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-11-balanced-wording-transfer-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalDate": "2026-10-05",
+  "approvalStatement": "The repository owner approved in chat the exact P2-11 training and evaluation hashes below for one bounded fresh-from-scratch diagnostic run under the stated limits.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "candidateJsonlSha256": "baaa056835f50120e55d93f6f74622c77e9a178e4c8801396ba3575b785001ab",
+  "evaluationJsonlSha256": "f189dfbeb0d7595740f4f06399c420bd0f0bdb4a181dd23484d4c58a59260322",
+  "reviewMarkdownSha256": "ed7ec3306db112633df38a0f51c95932d5c5dc030667eb87688dfdc49f3e4989",
+  "trainingRecords": 96,
+  "evaluationOnlyRecords": 64,
+  "promotedHistoricalEvaluationRequests": 32,
+  "evaluationApprovedForTraining": false,
+  "evaluationApprovedForRuntimeValidationLoss": false,
+  "tokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+  "tokenizerRefitted": false,
+  "freshModelFromScratch": true,
+  "finalHoldoutOpened": false,
+  "limits": {
+    "maximumSteps": 150,
+    "maximumMinutes": 10,
+    "maximumTotalSteps": 150,
+    "maximumTotalMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "automaticExtension": false
+  }
+}
