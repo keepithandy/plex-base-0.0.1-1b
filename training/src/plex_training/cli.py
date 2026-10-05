@@ -101,7 +101,10 @@ def build_parser() -> argparse.ArgumentParser:
     pilot.add_argument("--answer-weight", type=int, choices=(1, 4), default=1,
                        help="1 keeps ordinary loss; 4 weights verified answer and EOS targets")
     pilot.add_argument("--dataset-dir", type=Path, default=None,
-                       help="Matching built dataset; required only with --answer-weight 4")
+                       help="Matching built dataset; required with answer weighting or record-start sampling")
+    pilot.add_argument("--sampling-policy", choices=("random-window-v1", "record-start-v1", "complete-record-v1"),
+                       default="random-window-v1",
+                       help="Record sampling comparisons require ordinary loss, at most 100 steps and ten minutes")
     _add_artifact_root(pilot)
 
     pilot_evaluate = subparsers.add_parser(
@@ -397,6 +400,7 @@ def _pilot(args: argparse.Namespace) -> dict[str, Any]:
         checkpoint_every_minutes=args.checkpoint_every_minutes,
         dataset_dir=args.dataset_dir,
         answer_weight=args.answer_weight,
+        sampling_policy=args.sampling_policy,
     )
 
 

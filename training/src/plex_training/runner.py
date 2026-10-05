@@ -20,6 +20,7 @@ from .config import DEFAULT_CONFIG, ModelConfig
 from .data import BYTE_VOCABULARY_SIZE, SyntheticTokenSource, TokenCorpus
 from .limits import MAX_PILOT_MINUTES, MAX_SMOKE_MINUTES
 from .model import PlexLanguageModel, parameter_count
+from .record_sampling import CompleteRecordTokenCorpus
 from .telemetry import environment_report, peak_gpu_memory, reset_peak_gpu_memory, select_device
 
 DEFAULT_ARTIFACT_ROOT = Path(__file__).resolve().parents[2] / "artifacts"
@@ -66,9 +67,10 @@ def _training_step(
     accumulation_steps: int,
     loss_vocabulary_size: int | None = None,
     answer_weighted: bool = False,
-) -> float:
+) -> tuple[float, int, int]:
     optimizer.zero_grad(set_to_none=True)
     total_loss = 0.0
+    real_positions = padding_positions = 0
     for _ in range(accumulation_steps):
         if answer_weighted:
             if not isinstance(source, AnswerWeightedTokenCorpus):
@@ -76,11 +78,18 @@ def _training_step(
             inputs, targets, weights = source.sample_weighted_batch(
                 rng, batch_size=micro_batch, sequence_length=model.config.context_length,
             )
+        elif isinstance(source, CompleteRecordTokenCorpus):
+            inputs, targets, weights = source.sample_masked_batch(
+                rng, batch_size=micro_batch, sequence_length=model.config.context_length,
+            )
         else:
             inputs, targets = source.sample_batch(
                 rng, batch_size=micro_batch, sequence_length=model.config.context_length,
             )
             weights = None
+        positions = (int((weights > 0).sum().item()) if weights is not None else targets.numel())
+        real_positions += positions
+        padding_positions += targets.numel() - positions
         _, loss = model(
             inputs.to(device), targets.to(device), loss_vocabulary_size=loss_vocabulary_size,
             target_weights=weights.to(device) if weights is not None else None,
@@ -91,7 +100,7 @@ def _training_step(
         total_loss += float(loss.detach().item())
     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
     optimizer.step()
-    return total_loss / accumulation_steps
+    return total_loss / accumulation_steps, real_positions, padding_positions
 
 
 def _validation_loss(
@@ -128,6 +137,7 @@ def _bpe_training_settings(
     config: ModelConfig, micro_batch: int, accumulation_steps: int,
     loss_vocabulary_size: int, validation_maximum_batches: int,
     answer_objective: dict[str, Any] | None = None,
+    sampling_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     settings = {
         "schemaVersion": 1,
@@ -146,6 +156,8 @@ def _bpe_training_settings(
     }
     if answer_objective is not None:
         settings["answerObjective"] = answer_objective
+    if sampling_policy is not None:
+        settings["samplingPolicy"] = sampling_policy
     return settings
 
 
@@ -156,6 +168,7 @@ def _schedule_state(step: int) -> dict[str, Any]:
 def _verify_bpe_resume_policy(
     payload: dict[str, Any], optimizer: torch.optim.Optimizer,
     settings: dict[str, Any],
+    source: BatchSource | None = None,
 ) -> int:
     """Validate explicit settings, or the known fixed-policy P1-18 checkpoint."""
     step = int(payload["step"])
@@ -167,7 +180,8 @@ def _verify_bpe_resume_policy(
         # P1-18 checkpoints predate settings metadata. The owner's pilot used
         # these defaults; reject changes we cannot prove are a continuation.
         if (settings["microBatch"] != 1 or settings["gradientAccumulation"] != 16
-                or settings["validationMaximumBatches"] != 100):
+                or settings["validationMaximumBatches"] != 100
+                or "samplingPolicy" in settings or "answerObjective" in settings):
             raise ValueError("Legacy P1-18 checkpoint requires its original batch and validation settings")
         if saved_schedule is not None:
             raise ValueError("Legacy checkpoint has inconsistent schedule metadata")
@@ -182,8 +196,17 @@ def _verify_bpe_resume_policy(
     positions_per_step = (settings["microBatch"] * settings["gradientAccumulation"]
                           * settings["modelConfig"]["context_length"])
     expected_positions = step * positions_per_step
+    if settings.get("samplingPolicy", {}).get("kind") == "complete-record-v1":
+        if not isinstance(source, CompleteRecordTokenCorpus):
+            raise ValueError("Complete-record resume requires the identical verified sampler")
+        expected_positions, expected_rng = source.replay_progress(
+            payload["seed"], step * settings["microBatch"] * settings["gradientAccumulation"],
+        )
+        if payload.get("samplingRngState") != expected_rng:
+            raise ValueError("Complete-record checkpoint sampling progress does not match its completed steps")
     saved_positions = payload.get("tokensProcessedTotal")
-    if saved_positions is not None and saved_positions != expected_positions:
+    if ((saved_positions is not None and saved_positions != expected_positions)
+            or (isinstance(source, CompleteRecordTokenCorpus) and type(saved_positions) is not int)):
         raise ValueError("Resume checkpoint token progress does not match its settings")
     return expected_positions
 
@@ -214,6 +237,10 @@ def run_training(
 ) -> dict[str, Any]:
     if type(answer_weight) is not int or answer_weight not in (1, 4):
         raise ValueError("answer weight must be 1 or the controlled value 4")
+    if isinstance(train_source, CompleteRecordTokenCorpus):
+        if (codec != "plex-byte-bpe-v1" or answer_weight != 1 or minutes > 10
+                or type(step_limit) is not int or not 0 < step_limit <= 100):
+            raise ValueError("Complete-record comparison requires ordinary BPE loss, at most 100 steps and ten minutes")
     if answer_weight == 4:
         if codec != "plex-byte-bpe-v1" or not isinstance(train_source, AnswerWeightedTokenCorpus):
             raise ValueError("Answer-weighted training requires verified Plex BPE answer spans")
@@ -252,7 +279,8 @@ def run_training(
     training_settings = (
         _bpe_training_settings(config, micro_batch, accumulation_steps,
                                loss_vocabulary_size, validation_maximum_batches,
-                               train_source.objective_record if answer_weight == 4 else None)
+                               train_source.objective_record if answer_weight == 4 else None,
+                               getattr(train_source, "sampler_record", None))
         if codec != "byte-v1" else None
     )
 
@@ -303,7 +331,7 @@ def run_training(
                 raise ValueError("Starting checkpoint tokenizer does not match this run")
             if payload.get("step") != 0 and payload.get("datasetRecord") != dataset_record:
                 raise ValueError("Starting checkpoint dataset does not match this run")
-            start_positions = _verify_bpe_resume_policy(payload, optimizer, training_settings)
+            start_positions = _verify_bpe_resume_policy(payload, optimizer, training_settings, train_source)
         if (codec != "byte-v1" and payload.get("step") == 0 and device.type == "cuda"
                 and payload.get("torchCudaRngStates") == []):
             restore_random_states(payload, rng, torch.device("cpu"))
@@ -325,6 +353,7 @@ def run_training(
     last_checkpoint = started
     step = start_step
     losses: list[float] = []
+    tokens_seen = padding_seen = 0
     event = {
         "event": "run_started",
         "startedAtUtc": datetime.now(timezone.utc).isoformat(),
@@ -355,7 +384,7 @@ def run_training(
     interrupted = False
     try:
         while time.perf_counter() < deadline and (step_limit is None or step - start_step < step_limit):
-            loss = _training_step(
+            loss, real_positions, padding_positions = _training_step(
                 model,
                 optimizer,
                 train_source,
@@ -367,10 +396,11 @@ def run_training(
                 answer_weighted=answer_weight == 4,
             )
             step += 1
+            tokens_seen += real_positions
+            padding_seen += padding_positions
             losses.append(loss)
             elapsed = time.perf_counter() - started
             if len(losses) == 1 or step % 10 == 0:
-                tokens_seen = (step - start_step) * micro_batch * accumulation_steps * config.context_length
                 _write_event(metrics_path, artifact_root, {
                     "event": "training_progress",
                     "step": step,
@@ -397,8 +427,7 @@ def run_training(
                     dataset_record=dataset_record,
                     training_settings=training_settings,
                     schedule_state=_schedule_state(step) if training_settings is not None else None,
-                    tokens_processed_total=(start_positions + (step - start_step) * micro_batch
-                                            * accumulation_steps * config.context_length)
+                    tokens_processed_total=start_positions + tokens_seen
                     if training_settings is not None else None,
                 )
                 _write_event(metrics_path, artifact_root, {"event": "checkpoint_saved", **saved})
@@ -429,8 +458,7 @@ def run_training(
         dataset_record=dataset_record,
         training_settings=training_settings,
         schedule_state=_schedule_state(step) if training_settings is not None else None,
-        tokens_processed_total=(start_positions + (step - start_step) * micro_batch
-                                * accumulation_steps * config.context_length)
+        tokens_processed_total=start_positions + tokens_seen
         if training_settings is not None else None,
     )
     summary = {
@@ -439,8 +467,7 @@ def run_training(
         "stepsThisRun": step - start_step,
         "elapsedSeconds": elapsed,
         "meanRecentLoss": sum(losses[-20:]) / len(losses[-20:]) if losses else None,
-        "tokensPerSecond": ((step - start_step) * micro_batch * accumulation_steps * config.context_length)
-        / max(elapsed, 1e-9),
+        "tokensPerSecond": tokens_seen / max(elapsed, 1e-9),
         "peakGpuMemory": peak_gpu_memory(device),
         "processPeakWorkingSetBytes": environment_report(device)["processPeakWorkingSetBytes"],
         "checkpoint": final_checkpoint,
@@ -449,8 +476,9 @@ def run_training(
         "validationLossBefore": event.get("validationLossBefore"),
         "validationTokens": validation.token_count if validation is not None else None,
         "codec": codec,
-        "tokensProcessedThisRun": (step - start_step) * micro_batch * accumulation_steps * config.context_length,
-        "tokensProcessedTotal": start_positions + (step - start_step) * micro_batch * accumulation_steps * config.context_length,
+        "tokensProcessedThisRun": tokens_seen,
+        "tokensProcessedTotal": start_positions + tokens_seen,
+        "paddingTargetPositionsThisRun": padding_seen,
         "trainingSettings": training_settings,
         "scheduleState": _schedule_state(step) if training_settings is not None else None,
         "tokenizerRecord": tokenizer_record,

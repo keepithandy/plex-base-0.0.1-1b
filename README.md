@@ -4,9 +4,9 @@ Plex Base is a small, locally trained coding model project focused on HTML, CSS,
 
 P1-01 through P1-10 are completed and preserved: the repository discovery, ranking, prompt construction, response parsing, edit validation, proposed buffers, and unified diff tools remain available as the eventual model client and evaluation support. Plex's randomly initialized model has completed a synthetic CUDA smoke test, a two-hour real-data pilot, and a one-step checkpoint resume; its saved weights can generate text on CPU. Useful coding ability remains to be demonstrated. P1-11 records the actual hardware and training limits; P1-12 defines the first small model experiment.
 
-## Current status — October 4, 2026
+## Current status — October 5, 2026
 
-**Plex can train, save and resume checkpoints, and generate text. It has not yet demonstrated successful coding-task completion.** The model has 27,566,080 parameters and a 512-token context. Phase 1's training infrastructure is recorded through P1-20; Phase 2 is working on better request-to-code data and matched development evaluations.
+**Plex can train, save and resume checkpoints, and generate text. It has not yet demonstrated successful coding-task completion.** The model has 27,566,080 parameters and a 512-token context. Phase 1's training infrastructure is recorded through P1-20; **P2-02 data preparation is complete at the approved pilot scale; P2-03 training-configuration comparisons are in progress.** The [milestone review](docs/PHASE-2-RECORD-START-COMPARISON.md) explains why the status had remained at P2-02. The Phase 2 coding-quality gate remains unmet.
 
 | Experiment | Recorded result | What it establishes |
 |---|---|---|
@@ -14,6 +14,7 @@ P1-01 through P1-10 are completed and preserved: the repository discovery, ranki
 | Phase 2 v3 ten-minute check | 922 updates; held-out loss 9.1694 → 6.4759; **0/30 complete tasks**, matching step zero; 30/30 outputs truncated | Lower language-model loss did not improve complete-task performance. |
 | Phase 2 code-pair ten-minute diagnostic | 3,197 updates; held-out loss 6.89080 → 8.42534; **0/30 complete tasks**, matching step zero; truncations fell from 28/30 to 0/30 | Answers now finish within the limits, but still miss the requested task. The loss pattern is consistent with overfitting. |
 | Phase 2 approved 234-example v3, 100 steps | Ordinary and answer-weighted checkpoints both passed **0/30** development tasks; saved-checkpoint diagnostic found **0/156** full static passes on seen training prompts and **0/78** on corpus validation prompts | These short runs have not yet learned complete supplied answers; longer training is deferred. |
+| P2-03 record-start comparison, 100 steps | **0/30** development tasks and **0/156** complete seen training answers; all 156 training records selected as window starts | Record-start sampling alone did not resolve answer learning in this bounded run. |
 
 The v3 corpus contains 56 records (36 training / 20 validation). The separate, owner-approved code-pair corpus contains 36 examples (24 training / 12 validation), balanced across HTML, CSS, and JavaScript, with a fresh 874-entry tokenizer fitted only on its training split. See the [v3 training and scoring report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) and [code-pair preparation and baseline report](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md).
 
@@ -21,14 +22,15 @@ The original 360-record request-following draft was reviewed and narrowed to an 
 
 The [three-example probe](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) has since learned all three approved training answers exactly by step 25. It used complete-record training and does not establish broader coding ability.
 
-The [sampler audit](docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed 1,600 production windows: complete examples were present often, but prompts began at inference position zero only 14 times. The next proposed comparison changes window starts to approved record boundaries while keeping the 100-step token budget and training settings fixed.
+The [sampler audit](docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed 1,600 production windows: complete examples were present often, but prompts began at inference position zero only 14 times. The [completed P2-03 comparison](docs/PHASE-2-RECORD-START-COMPARISON.md) used record-start windows for 100 steps with the same token budget. It still passed 0/30 development tasks and 0/156 complete seen training answers. The next bounded comparison should reset context for each complete example and report actual non-padding token budgets.
 
-The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met; another two-hour run remains deferred while the data improves.
+The development evaluator uses 30 static tasks. It does not execute JavaScript behavior or browser-backed HTML/CSS checks, and its changing check totals are not a fixed-denominator benchmark. The 60-task final holdout remains unbuilt. The owner-approved final target is at least a 10-percentage-point overall improvement over matching step zero and at least 11/20 tasks passed per language. Those gates have not been met; another two-hour run remains deferred pending evidence from P2-03.
 
 ## Reports and training instructions
 
 - [Training workspace and commands](training/README.md)
 - [Phase 1 experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md)
+- [P2-03 milestone review and record-start comparison](docs/PHASE-2-RECORD-START-COMPARISON.md)
 - [Phase 2 data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md)
 - [Evaluation design and remaining behavior checks](docs/PHASE-2-EVALUATION-DESIGN.md)
 - [Hardware and training limits](docs/HARDWARE-AND-TRAINING-PROFILE.md)
@@ -185,4 +187,4 @@ The resulting file must be nonempty, changed, and at most 128 KiB. Plex uses pin
 
 Tests assert the title, its location in the head, and the CSS/JS references. `tests/fixtures/simple-web-project.sha256.json` records a SHA-256 digest of each file's raw bytes; fixture files use LF endings enforced by `.gitattributes`. Intentional fixture updates must also update the baseline. CLI tests operate on temporary copies and compare all three hashes before and after the task.
 
-For the latest training results and data-review status, see [Current status](#current-status--october-4-2026). The CLI still does not invoke the trained model or apply repository edits. Proposed HTML validation remains scheduled as P3-03 in the [roadmap](Plex-ROADMAP.md).
+For the latest training results and data-review status, see [Current status](#current-status--october-5-2026). The CLI still does not invoke the trained model or apply repository edits. Proposed HTML validation remains scheduled as P3-03 in the [roadmap](Plex-ROADMAP.md).

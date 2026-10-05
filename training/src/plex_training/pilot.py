@@ -18,6 +18,7 @@ from .artifacts import enforce_storage_limit, path_within_root
 from .checkpoint import read_checkpoint
 from .config import DEFAULT_CONFIG
 from .data import TokenCorpus
+from .record_sampling import CompleteRecordTokenCorpus, RecordStartTokenCorpus
 from .runner import evaluate_checkpoint, run_training
 from .tokenizer import CODEC, PlexTokenizer, sha256_file
 
@@ -142,7 +143,8 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
               device_name: str = "auto", micro_batch: int = 1,
               gradient_accumulation: int = 16,
               checkpoint_every_minutes: float = 5.0,
-              dataset_dir: Path | None = None, answer_weight: int = 1) -> dict[str, Any]:
+              dataset_dir: Path | None = None, answer_weight: int = 1,
+              sampling_policy: str = "random-window-v1") -> dict[str, Any]:
     if not math.isfinite(minutes) or not 0 < minutes <= 120:
         raise ValueError("P1-18 run duration must be greater than 0 and no more than 120 minutes")
     if steps is not None and (type(steps) is not int or steps <= 0):
@@ -151,8 +153,14 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
         raise ValueError("batch and accumulation settings must be positive")
     if type(answer_weight) is not int or answer_weight not in (1, 4):
         raise ValueError("answer weight must be 1 or the controlled value 4")
-    if (answer_weight == 4) != (dataset_dir is not None):
-        raise ValueError("The answer-weighted comparison requires its matching dataset directory")
+    if sampling_policy not in ("random-window-v1", "record-start-v1", "complete-record-v1"):
+        raise ValueError("Unsupported pilot sampling policy")
+    record_start = sampling_policy == "record-start-v1"
+    complete_record = sampling_policy == "complete-record-v1"
+    if (record_start or complete_record) and (answer_weight != 1 or minutes > 10 or steps is None or steps > 100):
+        raise ValueError("Record sampling comparison requires ordinary loss, at most 100 steps and ten minutes")
+    if (answer_weight == 4 or record_start or complete_record) != (dataset_dir is not None):
+        raise ValueError("The controlled comparison requires its matching dataset directory")
     root = artifact_root.resolve()
     output_dir = path_within_root(output_dir, root)
     if output_dir.exists():
@@ -161,7 +169,7 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
     if dataset_dir is not None:
         if (not dataset_dir.is_dir() or dataset_dir.is_symlink()
                 or sha256_file(dataset_dir / "manifest.json") != bundle["dataset"]["sourceDatasetManifestSha256"]):
-            raise ValueError("Answer-weighted dataset manifest differs from the tokenizer bundle")
+            raise ValueError("Comparison dataset manifest differs from the tokenizer bundle")
     seed = _initialization_seed(initialization, bundle["tokenizer"])
     # Saving a replacement checkpoint briefly keeps both copies on disk.
     estimated_checkpoint = DEFAULT_CONFIG.parameter_count() * 12 + 1024 * 1024
@@ -174,6 +182,14 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
             tokenizer=PlexTokenizer.load(bundle["root"]),
             expected_jsonl_sha256=bundle["dataset"]["trainJsonlSha256"],
             answer_weight=answer_weight,
+        )
+    elif record_start or complete_record:
+        source_type = CompleteRecordTokenCorpus if complete_record else RecordStartTokenCorpus
+        train_source = source_type(
+            bundle["trainPath"], dataset_jsonl=dataset_dir / "train.jsonl",
+            index_path=bundle["root"] / "train.index.json",
+            tokenizer=PlexTokenizer.load(bundle["root"]),
+            expected_jsonl_sha256=bundle["dataset"]["trainJsonlSha256"],
         )
     else:
         train_source = TokenCorpus(bundle["trainPath"])
@@ -202,6 +218,8 @@ def run_pilot(*, bundle_dir: Path, initialization: Path, output_dir: Path,
         "requestedMinutes": minutes,
         "requestedSteps": steps,
         "answerObjective": result["trainingSettings"].get("answerObjective"),
+        "samplingPolicy": sampling_policy,
+        "samplingAudit": train_source.sampling_audit() if record_start or complete_record else None,
         "initializationCheckpointSha256": sha256_file(initialization),
         "tokenizer": bundle["tokenizer"],
         "dataset": bundle["dataset"],

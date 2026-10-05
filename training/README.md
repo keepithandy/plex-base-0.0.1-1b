@@ -142,9 +142,9 @@ The [failure audit and v3 review](../docs/PHASE-2-FAILURE-GAP-REVIEW.md) records
 
 The [saved-checkpoint prompt diagnostic](../docs/PHASE-2-SAVED-CHECKPOINT-DIAGNOSTIC.md) ran inference only on the approved v3 examples. Ordinary and answer-weighted 100-step checkpoints each scored 0/156 exact or full-static training examples and 0/78 exact or full-static corpus validation examples. The answer-weighted model improved syntax passes but did not yet learn complete supplied answers. This led to a three-example overfit probe, with one already-approved training example per language and a ten-minute/200-step cap.
 
-The [three-example overfit probe](../docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) is now complete. Using the v3 scratch initialization and tokenizer, it learned all three approved training answers exactly by step 25 and retained 3/3 through step 200, finishing in 8.12 seconds. Its complete-record training procedure differs from the packed-window full-corpus runner, so the next step is a read-only sampler-exposure audit before another broad training comparison. The final holdout remains closed.
+The [three-example overfit probe](../docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) is now complete. Using the v3 scratch initialization and tokenizer, it learned all three approved training answers exactly by step 25 and retained 3/3 through step 200, finishing in 8.12 seconds. Its complete-record training procedure differs from the packed-window full-corpus runner, and the subsequent sampler-exposure audit and record-start comparison are recorded below. The final holdout remains closed.
 
-The [packed-window exposure audit](../docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed the exact 1,600 window starts used by the 100-step v3 run. It found 7,157 full prompt-and-answer exposures across the corpus, with prompts at position zero only 14 times. The proposed next check samples 512-token windows at verified record starts while keeping the existing 100-step target-position budget and optimizer configuration.
+The [packed-window exposure audit](../docs/PHASE-2-PACKED-WINDOW-EXPOSURE-AUDIT.md) replayed the exact 1,600 window starts used by the 100-step v3 run. It found 7,157 full prompt-and-answer exposures across the corpus, with prompts at position zero only 14 times. The [completed P2-03 comparison](../docs/PHASE-2-RECORD-START-COMPARISON.md) sampled 512-token windows at verified record starts with the same 100-step target-position budget and optimizer. It still passed 0/30 development tasks. P2-02 data preparation is complete; P2-03 is now the active milestone.
 
 The `pilot` command accepts `--answer-weight 4` together with `--dataset-dir` for a controlled answer-focused comparison. It verifies the built dataset and tokenizer index before assigning weight 4 to answer/EOS targets and weight 1 to prompt targets; ordinary `pilot` runs keep their prior loss. The [100-step comparison](../docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same v3 initialization and development tasks and still passed 0/30 complete tasks. Its checkpoint records the weight map and cannot be resumed under the ordinary objective. A longer run remains deferred.
 
@@ -271,10 +271,26 @@ uv run --project training --no-sync python -m plex_training.cli complete `
 
 The saved checkpoint generated text, but its example was incomplete and did not correctly implement the function. This verifies local CPU loading and tokenization, not useful coding ability or a CPU speed/memory target. The current CLI keeps `pilot` at 120 minutes, `pilot-resume` at ten minutes, and general `train` at 120 minutes; no uncapped training command is enabled. The [P1-20 experiment report](../docs/PLEX-EXPERIMENT-REPORT-P1-20.md) records the run and its failures. Broader reviewed data and functional evaluation should be planned before considering a longer run.
 
+## P2-03 record-start comparison
+
+This comparison is already run and scored; the owner need not repeat it. See the [result and milestone review](../docs/PHASE-2-RECORD-START-COMPARISON.md). To reproduce into a new directory:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --bundle-dir training\artifacts\tokenizers\p2-request-following-v3 `
+  --dataset-dir training\artifacts\datasets\p2-request-following-v3 `
+  --initialization training\artifacts\initializations\p2-request-following-step-zero-v3\initialization.pt `
+  --output-dir pilot\p2-record-start-my-comparison `
+  --sampling-policy record-start-v1 --answer-weight 1 `
+  --minutes 10 --steps 100 --device cuda
+```
+
+The experimental option requires ordinary loss, the matching dataset, at most 100 steps, and at most ten minutes. It verifies every indexed record and wraps only through training EOS boundaries. The sampler identity is saved in checkpoints; the existing `pilot-resume` command reconstructs ordinary sampling and therefore rejects these experimental checkpoints. Runner-level resume is tested with the identical verified sampler. General record-start CLI continuation is not enabled. The next P2-03 proposal is complete-record batching with explicit non-padding token accounting; no longer run is needed now.
+
 ## Run checks
 
 ```powershell
 uv run --project training --no-sync python -m unittest discover -s training/tests -v
 ```
 
-All 101 training-workspace tests pass. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, and answer-weighted span and checkpoint checks; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.
+All 106 training-workspace tests passed; the five sampler and seven resume/completion tests also passed after the final legacy-policy guard change. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, answer-weighted span and checkpoint checks, and verified record-start sampling, circular targets, sampler identity, and experiment bounds; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.
