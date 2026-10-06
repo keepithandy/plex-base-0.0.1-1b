@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-15-css-edit-candidate-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvalDate": "2026-10-05",
+  "approvalStatement": "The repository owner approved in chat continuing with the exact P2-15 candidate and experiment limits summarized immediately before approval: candidate SHA-256 e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf, fresh seed-1337 initialization, matched step-zero scoring, at most 100 updates or 10 minutes, and the final holdout remaining closed.",
+  "scope": "local-P2-diagnostic-training",
+  "objective": "answer-eos-only-complete-record-v1",
+  "candidateJsonlSha256": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+  "trainingRowsSha256": "db29a222896c732fc0b7b43452d6100c281065a99ee22c911f184e458554d19c",
+  "validationRowsSha256": "d49333860bb73d1e941588e070d9cda24bc4d17f75fd9c7546b1d7bbdc2e5cd8",
+  "developmentTaskSetSha256": "0527d9c93321bd34a5c065b23e7551dc9a4a8cc55adec49f04168a68f7e7166e",
+  "trainingRecords": 24,
+  "validationRecords": 12,
+  "semanticGroups": 12,
+  "validationApprovedForTraining": false,
+  "tokenizerPolicy": {
+    "fitSplit": "train",
+    "validationTextUsedForFit": false,
+    "algorithm": "plex-byte-bpe-v1",
+    "requestedVocabularySize": 16384,
+    "minFrequency": 2
+  },
+  "freshModelFromScratch": true,
+  "matchedStepZeroEvaluation": true,
+  "finalHoldoutOpened": false,
+  "limits": {
+    "maximumSteps": 100,
+    "maximumMinutes": 10,
+    "maximumTotalSteps": 100,
+    "maximumTotalMinutes": 10,
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "automaticExtension": false
+  }
+}
