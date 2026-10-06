@@ -72,5 +72,47 @@
   "checkpointInitialized": false,
   "trainingRunCreated": false,
   "modelTrained": false,
-  "finalHoldoutOpened": false
+  "finalHoldoutOpened": false,
+  "developmentPromptAudit": {
+    "P2-19": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.4,
+      "maxPair": [
+        "p2-20-t-c-046",
+        "p2-19-t-c-026"
+      ]
+    },
+    "P2-18": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.32,
+      "maxPair": [
+        "p2-20-t-a-048",
+        "p2-18-copy-073"
+      ]
+    },
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.179487,
+      "maxPair": [
+        "p2-20-e-a-001",
+        "p2-17-bind-064"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.093023,
+      "maxPair": [
+        "p2-20-t-c-047",
+        "p2-14-css-edit-show-menu"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.115385,
+      "maxPair": [
+        "p2-20-t-a-018",
+        "p2dev-js-05-format-usd"
+      ]
+    }
+  }
 }
