@@ -1,0 +1,425 @@
+{
+  "inferenceDefaults": {
+    "maxNewTokens": {
+      "css": 128,
+      "html": 192,
+      "javascript": 192
+    },
+    "promptTemplateVersion": "plex-coding-task-v1",
+    "seed": 1337,
+    "temperature": 0.0
+  },
+  "kind": "development",
+  "outputContracts": {
+    "css": "Return CSS rules only. Use the requested selector and declarations. Do not include HTML, Markdown fences, or explanations.",
+    "html": "Return one semantic HTML fragment only. Do not include Markdown fences or explanations.",
+    "javascript": "Return one JavaScript function only. Do not include Markdown fences or explanations."
+  },
+  "provenance": "codex-authored",
+  "schemaVersion": 1,
+  "setId": "p2-14-css-edit-development-v1",
+  "tasks": [
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "display",
+          "selector": ".notice-list",
+          "value": "flex"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "gap",
+          "selector": ".notice-list",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".notice-list": {
+              "display": "flex",
+              "gap": "1rem"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-gap",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.notice-list { display: flex; gap: 0.5rem; }\n\nChange only the gap from 0.5rem to 1rem; preserve the display setting. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "background-color",
+          "selector": ".promo-banner",
+          "value": "#dbeafe"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "color",
+          "selector": ".promo-banner",
+          "value": "#111827"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".promo-banner": {
+              "background-color": "#dbeafe",
+              "color": "#111827"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-banner-color",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.promo-banner { background-color: #f3f4f6; color: #111827; }\n\nChange only the background color to #dbeafe; preserve the text color. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "display",
+          "selector": ".action-row",
+          "value": "flex"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "flex-direction",
+          "selector": ".action-row",
+          "value": "row"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "align-items",
+          "selector": ".action-row",
+          "value": "flex-start"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".action-row": {
+              "align-items": "flex-start",
+              "display": "flex",
+              "flex-direction": "row"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-flex-direction",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.action-row { display: flex; flex-direction: column; align-items: flex-start; }\n\nChange the flex direction from column to row; preserve display and alignment. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "width",
+          "selector": ".product-thumb",
+          "value": "6rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "height",
+          "selector": ".product-thumb",
+          "value": "6rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "object-fit",
+          "selector": ".product-thumb",
+          "value": "cover"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".product-thumb": {
+              "height": "6rem",
+              "object-fit": "cover",
+              "width": "6rem"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-object-fit",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.product-thumb { width: 6rem; height: 6rem; object-fit: contain; }\n\nChange object-fit from contain to cover; preserve width and height. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "margin-inline-start",
+          "selector": ".content-pane",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "margin-top",
+          "selector": ".content-pane",
+          "value": "0.5rem"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".content-pane": {
+              "margin-inline-start": "1rem",
+              "margin-top": "0.5rem"
+            }
+          }
+        }
+      ],
+      "difficulty": "edge",
+      "id": "p2-14-css-edit-logical-margin",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.content-pane { margin-left: 1rem; margin-top: 0.5rem; }\n\nReplace the physical left margin with an equivalent inline-start margin; preserve its 1rem value and the top margin. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "position",
+          "selector": ".site-banner",
+          "value": "sticky"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "top",
+          "selector": ".site-banner",
+          "value": "0"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "z-index",
+          "selector": ".site-banner",
+          "value": "2"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".site-banner": {
+              "position": "sticky",
+              "top": "0",
+              "z-index": "2"
+            }
+          }
+        }
+      ],
+      "difficulty": "edge",
+      "id": "p2-14-css-edit-sticky-banner",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.site-banner { position: relative; z-index: 2; }\n\nMake the banner sticky at the top (top: 0); preserve its z-index. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "font-size",
+          "selector": ".field-hint",
+          "value": "0.875rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "line-height",
+          "selector": ".field-hint",
+          "value": "1.6"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "color",
+          "selector": ".field-hint",
+          "value": "#4b5563"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".field-hint": {
+              "color": "#4b5563",
+              "font-size": "0.875rem",
+              "line-height": "1.6"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-line-height",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.field-hint { font-size: 0.875rem; line-height: 1.4; color: #4b5563; }\n\nChange line-height to 1.6; preserve font size and color. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "margin",
+          "selector": ".card-title",
+          "value": "0 0 0.75rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "font-weight",
+          "selector": ".card-title",
+          "value": "600"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".card-title": {
+              "font-weight": "600",
+              "margin": "0 0 0.75rem"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-font-weight",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.card-title { margin: 0 0 0.75rem; font-weight: 500; }\n\nIncrease font-weight to 600; preserve the margin. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "color",
+          "selector": ".secondary-link",
+          "value": "#2563eb"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".secondary-link": {
+              "color": "#2563eb"
+            }
+          }
+        }
+      ],
+      "difficulty": "edge",
+      "id": "p2-14-css-edit-remove-decoration",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.secondary-link { color: #2563eb; text-decoration: underline; }\n\nRemove the text decoration while preserving the link color. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "display",
+          "selector": ".menu-panel",
+          "value": "block"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "padding",
+          "selector": ".menu-panel",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".menu-panel": {
+              "display": "block",
+              "padding": "1rem"
+            }
+          }
+        }
+      ],
+      "difficulty": "basic",
+      "id": "p2-14-css-edit-show-menu",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.menu-panel { display: none; padding: 1rem; }\n\nShow the menu panel by changing display to block; preserve its padding. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "display",
+          "selector": ".form-grid",
+          "value": "grid"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "grid-template-columns",
+          "selector": ".form-grid",
+          "value": "repeat(2, minmax(0, 1fr))"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "gap",
+          "selector": ".form-grid",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".form-grid": {
+              "display": "grid",
+              "gap": "1rem",
+              "grid-template-columns": "repeat(2, minmax(0, 1fr))"
+            }
+          }
+        }
+      ],
+      "difficulty": "edge",
+      "id": "p2-14-css-edit-two-column-grid",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }\n\nChange the grid to two equal minmax(0, 1fr) columns; preserve display and gap. Return the complete updated stylesheet with no unrelated rules."
+    },
+    {
+      "checks": [
+        {
+          "kind": "css_declaration",
+          "property": "position",
+          "selector": ".toast",
+          "value": "fixed"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "inset-inline-end",
+          "selector": ".toast",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "bottom",
+          "selector": ".toast",
+          "value": "1rem"
+        },
+        {
+          "kind": "css_declaration",
+          "property": "z-index",
+          "selector": ".toast",
+          "value": "1000"
+        },
+        {
+          "kind": "css_stylesheet_exact",
+          "rules": {
+            ".toast": {
+              "bottom": "1rem",
+              "inset-inline-end": "1rem",
+              "position": "fixed",
+              "z-index": "1000"
+            }
+          }
+        }
+      ],
+      "difficulty": "edge",
+      "id": "p2-14-css-edit-toast-layer",
+      "language": "css",
+      "provenance": "codex-authored",
+      "request": "Starting CSS:\n.toast { position: fixed; inset-inline-end: 1rem; bottom: 1rem; }\n\nAdd z-index 1000; preserve the fixed position and both offsets. Return the complete updated stylesheet with no unrelated rules."
+    }
+  ]
+}

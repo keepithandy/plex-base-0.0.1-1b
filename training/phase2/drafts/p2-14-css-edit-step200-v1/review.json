@@ -1,0 +1,13 @@
+{
+  "completeExpectedRuleMapsAreNotInRenderedPrompt": true,
+  "finalHoldoutOpened": false,
+  "overlapCheckedAgainst": "P2-01b development requests, exact and whitespace/case-normalized",
+  "runtimeValidationLossUsed": false,
+  "schemaVersion": 1,
+  "setId": "p2-14-css-edit-development-v1",
+  "sourceSnippetAndEditTargetsAreInRequest": true,
+  "taskFamily": "single-rule CSS edits with whole-stylesheet exact-map checks",
+  "taskSetSha256": "0527d9c93321bd34a5c065b23e7551dc9a4a8cc55adec49f04168a68f7e7166e",
+  "tasks": 12,
+  "trainingUsed": false
+}
