@@ -17,3 +17,7 @@ training/phase2/drafts/p2-15-css-edit-candidate-v1.jsonl text eol=lf
 # P2-16 candidate/review hashes use canonical LF bytes on every platform.
 training/phase2/drafts/p2-16-css-generalization-candidate-v1/** text eol=lf
 training/phase2/drafts/p2-16-css-generalization-candidate-v1.jsonl text eol=lf
+
+# P2-17 candidate/review hashes use canonical LF bytes on every platform.
+training/phase2/drafts/p2-17-semantic-binding-candidate-v1/** text eol=lf
+training/phase2/drafts/p2-17-semantic-binding-candidate-v1.jsonl text eol=lf
