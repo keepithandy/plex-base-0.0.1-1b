@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-19-reference-binding-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "records": 216,
+  "trainingRecords": 144,
+  "evaluationRecords": 72,
+  "trainingLevelCounts": {
+    "A": 36,
+    "B": 36,
+    "C": 36,
+    "D": 36
+  },
+  "evaluationTierCounts": {
+    "A": 18,
+    "B": 18,
+    "C": 18,
+    "D": 18
+  },
+  "candidateJsonlSha256": "e96d6b8edd2a756a03d285f1081491232df7f79886a47d6ab02efcdb29211fa1",
+  "trainingRowsSha256": "dac085cc16c2e9e0bdaa653f3ec0494e2a7954a2cb18c1454af50a80f35dc9a0",
+  "tierSha256": {
+    "A": "2779755050d81d14742e2f73f1976564c5bcd9b49e11e0f5520d3f89c93fbbbd",
+    "B": "7d21a52304179e82969d3156704c24e738fcfb74c4b99422ae23e2beaa15be52",
+    "C": "b73c569942d68246065e9dbb21e96eb57450b074ad88e009096ffe0c692312eb",
+    "D": "e61b677fbaff95f93a8362067f521577382a50820d62bfae9c7921508c29acb6"
+  },
+  "referenceVocabulary": [
+    "R0",
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5"
+  ],
+  "referenceVocabularySharedAcrossSplits": true,
+  "trainEvaluationSelectorOverlap": 0,
+  "trainEvaluationLiteralValueOverlap": 0,
+  "evaluationRawLiteralsAreHeldOut": true,
+  "roleReferenceAssignmentsBalanced": true,
+  "targetReferenceAssignmentsBalanced": true,
+  "levelA": "raw-literal-to-reference lookup",
+  "levelB": "explicit field-to-reference selection after deterministic prebinding",
+  "levelC": "semantic role-to-reference selection after deterministic prebinding",
+  "levelD": "three-field reference-plan assembly",
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false,
+  "developmentPromptAudit": {
+    "P2-18": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.290323,
+      "maxPair": [
+        "p2-19-t-d-001",
+        "p2-18-copy-109"
+      ]
+    },
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.105263,
+      "maxPair": [
+        "p2-19-t-d-001",
+        "p2-17-bind-003"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.081081,
+      "maxPair": [
+        "p2-19-t-a-001",
+        "p2-14-css-edit-gap"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.09375,
+      "maxPair": [
+        "p2-19-t-c-014",
+        "p2dev-js-05-format-usd"
+      ]
+    }
+  }
+}

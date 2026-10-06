@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-18-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-18B-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -124,35 +124,52 @@ The current bottleneck is narrower than "CSS generation": Plex learns categorica
 
 **Full report:** [P2-17b Semantic Binding Result](docs/PHASE-2-P2-17B-RESULT.md)
 
-### P2-18 — literal copy primitive
+### P2-18/P2-18b — literal copy result
 
-The first P2-18 CUDA run is complete at step 100. It is still strongly underfit:
+P2-18 is now **complete and closed**.
 
-| Measure | Step 100 |
-|---|---:|
-| Supplied training complete | **4 / 144** |
-| Level A direct copy | **2 / 36** |
-| Level B labeled copy | **1 / 36** |
-| Level C selected-field binding | **1 / 36** |
-| Level D three-field plan | **0 / 36** |
-| Tier A unseen literal exact | **0 / 18** |
-| Tier B unseen literal exact | **0 / 18** |
-| Validation loss | **6.828 → 2.877** |
+The model increasingly fit the supplied literal-copy curriculum while unseen literal performance stayed at zero:
 
-Structure is emerging before exact copying: Level B reached **34/36 format-valid** and **33/36 label-exact**, while held-out Tier B reached **18/18 format-valid** and **10/18 label-exact**.
+| Step | Training /144 | Tier A literal /18 | Tier B literal /18 | Tier C selected /18 | Tier D full /18 | Validation loss |
+|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 4 | 0 | 0 | 0 | 0 | 2.877 |
+| 200 | 44 | 0 | 0 | 0 | 0 | 3.039 |
+| 300 | 123 | 0 | 0 | 0 | 0 | 3.457 |
+| 400 | **132** | **0** | **0** | **0** | **0** | 3.819 |
+| 500 | 129 | **0** | **0** | **0** | **0** | 3.790 |
 
-Because validation loss fell sharply while supplied-task fit remained only 4/144, P2-18 is not yet a decisive literal-copy failure.
+Training Level C reached **36/36**, but held-out selected-field exactness remained **0/18** with **0 wrong-field retrievals**. The model was not merely selecting the wrong contextual value; it was failing to reproduce unseen raw literals at all.
 
-### P2-18b — optimization continuation
+**Full result:** [P2-18b Literal Copy Result](docs/PHASE-2-P2-18B-RESULT.md)
 
-P2-18b is now **owner-approved**.
+### P2-19 — reference-mediated symbol binding
 
-The exact v3 step-100 checkpoint will continue through cumulative steps **200, 300, 400, and 500** in isolated +100-update CUDA increments, preserving the same tokenizer, 144/72 dataset, 27.6M-parameter architecture, optimizer/sampler/RNG state, complete-record objective and Level A/B/C/D scoring.
+P2-19 is the current candidate milestone.
 
-No automatic continuation beyond step 500 is authorized.
+Instead of requiring the 27.6M model to regenerate arbitrary repository strings, deterministic tooling exposes short stable references such as:
 
-**Latest result:** [P2-18 First Run](docs/PHASE-2-P2-18-RESULT.md)  
-**Continuation plan:** [P2-18b Literal Copy Continuation](docs/PHASE-2-P2-18B-CONTINUATION.md)
+```text
+R0=.card-primary
+R2=12px
+R4=18px
+```
+
+and Plex predicts **references** rather than raw literals.
+
+The 216-record candidate separates four questions:
+
+```text
+A  unseen raw literal -> reference lookup
+B  explicit field -> reference selection
+C  semantic role -> reference selection
+D  three-reference plan assembly
+```
+
+All 72 evaluation raw literals are held out from the 144 training records, while the reference vocabulary `R0`–`R5` is intentionally shared and perfectly balanced.
+
+The candidate is **pending owner review**. No tokenizer fitting, initialization, or training is authorized yet.
+
+**Candidate review:** [P2-19 Reference Binding Candidate](training/phase2/drafts/p2-19-reference-binding-candidate-v1/REVIEW.md)
 
 ---
 
