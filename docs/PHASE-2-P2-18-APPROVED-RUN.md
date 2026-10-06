@@ -66,6 +66,10 @@ Preparation:
 
 Preparation does **not** train the model.
 
+### Windows / OneDrive dataset promotion
+
+The dataset builder writes into a private sibling staging directory and atomically promotes that directory into the final `dataset` path. Windows OneDrive/indexing can briefly hold a directory handle and return `WinError 5` or `WinError 32` during that final rename. The dataset pipeline now retries only those transient Windows promotion errors for a bounded period. It still fails immediately for other permission errors and refuses to overwrite a destination that appears unexpectedly.
+
 Verify the prepared bundle:
 
 ```powershell
