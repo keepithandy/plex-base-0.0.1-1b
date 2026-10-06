@@ -26,7 +26,7 @@ Validation-only families:
 - aspect ratio
 - outline
 
-The generic grouped dataset builder uses split seed `106` with `30%` validation solely to reproduce this already-approved 8/4 family partition. The **model initialization seed remains 1337**. Preparation fails if the resulting group membership is anything else.
+The generic grouped dataset builder uses split seed `299` with `30%` validation solely to reproduce this already-approved 8/4 family partition. The wrapper preflights that seed against the repository's SHA-256 ranking rule before building the dataset, and then verifies the resulting group membership again. The **model initialization seed remains 1337**.
 
 ## Prepare
 
