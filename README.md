@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-17B-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-18-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -126,26 +126,33 @@ The current bottleneck is narrower than "CSS generation": Plex learns categorica
 
 ### P2-18 — literal copy primitive
 
-P2-18 is now **owner-approved for one bounded first run**.
+The first P2-18 CUDA run is complete at step 100. It is still strongly underfit:
 
-It strips away CSS transformation and tests four increasingly difficult primitives:
+| Measure | Step 100 |
+|---|---:|
+| Supplied training complete | **4 / 144** |
+| Level A direct copy | **2 / 36** |
+| Level B labeled copy | **1 / 36** |
+| Level C selected-field binding | **1 / 36** |
+| Level D three-field plan | **0 / 36** |
+| Tier A unseen literal exact | **0 / 18** |
+| Tier B unseen literal exact | **0 / 18** |
+| Validation loss | **6.828 → 2.877** |
 
-```text
-A  direct unseen literal copy
-↓
-B  labeled unseen literal copy
-↓
-C  select one literal from several fields
-↓
-D  assemble a tiny selector/old/new plan
-```
+Structure is emerging before exact copying: Level B reached **34/36 format-valid** and **33/36 label-exact**, while held-out Tier B reached **18/18 format-valid** and **10/18 label-exact**.
 
-The candidate contains **144 training** and **72 evaluation-only** records with zero train/evaluation selector overlap and zero old/new literal-value overlap. The approved run uses a fresh training-only tokenizer, fresh seed-1337 initialization, the unchanged **27.6M-parameter** model, `complete-record-v1`, and a hard **100-update / 10-minute** ceiling with no automatic extension.
+Because validation loss fell sharply while supplied-task fit remained only 4/144, P2-18 is not yet a decisive literal-copy failure.
 
-Scaling toward the long-term 0.5B–1.5B target is intentionally deferred until literal copying/reference binding is understood.
+### P2-18b — optimization continuation
 
-**Approved run:** [P2-18 Literal Copy Run](docs/PHASE-2-P2-18-APPROVED-RUN.md)  
-**Candidate review:** [P2-18 Literal Copy Primitive](training/phase2/drafts/p2-18-literal-copy-candidate-v1/REVIEW.md)
+P2-18b is now **owner-approved**.
+
+The exact v3 step-100 checkpoint will continue through cumulative steps **200, 300, 400, and 500** in isolated +100-update CUDA increments, preserving the same tokenizer, 144/72 dataset, 27.6M-parameter architecture, optimizer/sampler/RNG state, complete-record objective and Level A/B/C/D scoring.
+
+No automatic continuation beyond step 500 is authorized.
+
+**Latest result:** [P2-18 First Run](docs/PHASE-2-P2-18-RESULT.md)  
+**Continuation plan:** [P2-18b Literal Copy Continuation](docs/PHASE-2-P2-18B-CONTINUATION.md)
 
 ---
 
