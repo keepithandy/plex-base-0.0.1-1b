@@ -126,5 +126,31 @@
     "maximumMinutes": 10,
     "automaticExtension": false,
     "prerequisite": "verify exact candidate, train/evaluation literal disjointness, complete-record prompt compatibility and token budgets before any training"
+  },
+  "developmentPromptAudit": {
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.196078,
+      "maxPair": [
+        "p2-18-copy-109",
+        "p2-17-bind-003"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.107143,
+      "maxPair": [
+        "p2-18-copy-001",
+        "p2-14-css-edit-remove-decoration"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.090909,
+      "maxPair": [
+        "p2-18-copy-038",
+        "p2dev-js-01-clamp"
+      ]
+    }
   }
 }
