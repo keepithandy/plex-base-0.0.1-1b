@@ -113,5 +113,23 @@
     "maximumMinutes": 10,
     "automaticExtension": false,
     "prerequisite": "verify exact candidate and token budgets; keep all 60 evaluation rows plus P2-14/P2-01b out of tokenizer fitting and gradient training"
+  },
+  "developmentPromptAudit": {
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.358974,
+      "maxPair": [
+        "p2-17-bind-162",
+        "p2-14-css-edit-gap"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.102564,
+      "maxPair": [
+        "p2-17-bind-147",
+        "p2dev-css-06-button-hover"
+      ]
+    }
   }
 }
