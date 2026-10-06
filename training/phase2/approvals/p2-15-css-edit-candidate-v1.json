@@ -15,6 +15,7 @@
   "validationRecords": 12,
   "semanticGroups": 12,
   "validationApprovedForTraining": false,
+  "validationApprovedForRuntimeValidationLoss": true,
   "tokenizerPolicy": {
     "fitSplit": "train",
     "validationTextUsedForFit": false,
