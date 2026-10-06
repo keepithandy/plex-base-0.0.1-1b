@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "experiment": "p2-21b-semantic-role-continuation-v1",
+  "approvalStatus": "approved",
+  "approvedBy": "repository-owner",
+  "approvedOn": "2026-10-06",
+  "scope": "local-P2-training-continuation",
+  "sourceExperiment": "p2-21-semantic-role-generalization-approved-v1",
+  "sourceCandidate": "p2-21-semantic-role-generalization-candidate-v1",
+  "sourceCandidateJsonlSha256": "8206798467f74bda9867c0179495b535eade3849ca1d8a5d3147de00f27e5584",
+  "sourceStep": 100,
+  "sourceTokenizerSha256": "28c513c3887d6eba0680e448443358ac04f812abbb4d2ab23c2d1bf004d0b4ef",
+  "sourceActualVocabularySize": 890,
+  "sourceTrainJsonlSha256": "959030a377557111532de8bfc0442a71dad2b4037e7c25ad55c7282a2802854f",
+  "sourceValidationJsonlSha256": "6681c293b72e58540dc4e414a86b3a201304d45e43d258212689266dd0656a92",
+  "sourceTrainTokensSha256": "5ea1425348f9a3df200b23e867b8e5fb937fcd28deaed743c5ac01a1cc6f67f6",
+  "sourceValidationTokensSha256": "8b0cf4e38afdafe3c5fd907beb859775da1b616b41a9e1b204b3457d0a76966c",
+  "sourceDatasetManifestSha256": "f88902c151160f9cfb1ef4e3a7a0cd6b4ce962c939fe2134fa1684c9680950d6",
+  "sourceSamplerIndexSha256": "55f455f3248e279dd29f1f61e7e1d5f71480a0626b75041a1d7105a944a1dc5d",
+  "sourceTokensProcessedTotal": 143854,
+  "sourceValidationLossBefore": 6.949648123521071,
+  "sourceValidationLossAfter": 3.355630086018489,
+  "sourceMeanRecentLoss": 0.3088514040224254,
+  "sourceTrainingCompleteTaskPasses": 68,
+  "sourceTrainingLevelPasses": {
+    "A": 21,
+    "B": 21,
+    "C": 26
+  },
+  "sourceTierPasses": {
+    "A": 6,
+    "B": 8,
+    "C": 10
+  },
+  "sourceCheckpointIdentity": "verify-at-runtime-against-step-100-trained-candidate-score",
+  "parameterCount": 27566080,
+  "seed": 1337,
+  "preserveOptimizerState": true,
+  "preserveSamplerState": true,
+  "preserveRngState": true,
+  "preserveTokenizer": true,
+  "preserveDataset": true,
+  "lossObjective": "ordinary-next-token-over-complete-records",
+  "samplingPolicy": "complete-record-v1",
+  "microBatch": 1,
+  "gradientAccumulation": 16,
+  "device": "cuda",
+  "continuationIncrements": [
+    100,
+    100,
+    100,
+    100
+  ],
+  "cumulativeScoringSteps": [
+    200,
+    300,
+    400,
+    500
+  ],
+  "includePerRoleResults": [
+    "SELECTOR",
+    "OLD",
+    "NEW"
+  ],
+  "maximumCumulativeStep": 500,
+  "automaticContinuationBeyond500": false,
+  "p214ExcludedFromTraining": true,
+  "p201bExcludedFromTraining": true,
+  "finalHoldoutOpened": false,
+  "ownerMessage": "I approve P2-21b continuation from the existing P2-21 v1 step-100 checkpoint through cumulative step 500, in four isolated +100-update CUDA continuations. Preserve the exact 144 training records, 72 evaluation records, tokenizer SHA `28c513c3887d6eba0680e448443358ac04f812abbb4d2ab23c2d1bf004d0b4ef`, 27,566,080-parameter architecture, optimizer state, sampler state, seed/RNG continuation, ordinary next-token complete-record objective, `complete-record-v1`, micro-batch 1, gradient accumulation 16, and existing P2-21 A/B/C semantic-role scoring rules. Score at cumulative steps 200, 300, 400, and 500, including per-role SELECTOR/OLD/NEW results. P2-14 and P2-01b remain excluded from training, no automatic continuation beyond step 500 is authorized, and the final holdout remains closed."
+}
