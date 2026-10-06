@@ -9,6 +9,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import unicodedata
 import uuid
 from datetime import datetime, timedelta
@@ -58,6 +59,30 @@ _SECRET_PATTERNS = tuple(
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+_WINDOWS_PROMOTION_RETRY_DELAYS = (0.05, 0.10, 0.20, 0.40, 0.80, 1.20, 1.60)
+_WINDOWS_TRANSIENT_PROMOTION_ERRORS = frozenset({5, 32})
+
+
+def _promote_staging_directory(staging: Path, output_dir: Path) -> None:
+    """Atomically promote a completed dataset, retrying transient Windows locks."""
+    attempts = 1 + len(_WINDOWS_PROMOTION_RETRY_DELAYS)
+    for attempt in range(attempts):
+        try:
+            _promote_staging_directory(staging, output_dir)
+            return
+        except PermissionError as exc:
+            winerror = getattr(exc, "winerror", None)
+            if winerror not in _WINDOWS_TRANSIENT_PROMOTION_ERRORS:
+                raise
+            if output_dir.exists():
+                raise FileExistsError(
+                    "Dataset output appeared while retrying staged dataset promotion"
+                ) from exc
+            if attempt >= len(_WINDOWS_PROMOTION_RETRY_DELAYS):
+                raise
+            time.sleep(_WINDOWS_PROMOTION_RETRY_DELAYS[attempt])
 
 
 def _text(value: object, field: str, source_id: str) -> str:
@@ -658,5 +683,10 @@ def build_dataset(
         }
     except Exception:
         if staging.exists():
-            shutil.rmtree(staging)
+            try:
+                shutil.rmtree(staging)
+            except OSError:
+                # Preserve the original preparation error if a transient Windows/OneDrive
+                # handle also delays cleanup of the private staging directory.
+                pass
         raise
