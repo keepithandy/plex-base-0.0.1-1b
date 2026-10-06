@@ -1,0 +1,130 @@
+{
+  "candidate": "p2-16-css-generalization-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "records": 180,
+  "trainingRecords": 120,
+  "evaluationRecords": 60,
+  "evaluationTierCounts": {
+    "A": 24,
+    "B": 12,
+    "C": 12,
+    "D": 12
+  },
+  "trainingFamilies": [
+    "background-color",
+    "border-radius",
+    "box-shadow",
+    "font-size",
+    "letter-spacing",
+    "line-height",
+    "margin-block-start",
+    "max-width",
+    "opacity",
+    "outline-offset",
+    "padding",
+    "width"
+  ],
+  "trainingFamilyRecordsEach": 10,
+  "tierDUnseenFamilies": [
+    "aspect-ratio",
+    "list-style-type",
+    "text-transform",
+    "white-space"
+  ],
+  "trainingOperationCounts": {
+    "replace": 72,
+    "add": 24,
+    "remove": 24
+  },
+  "candidateJsonlSha256": "639c743acba94d62dfb0060aa4c172439354157ea4e940cb7643c2f83f45a2fc",
+  "trainingRowsSha256": "50b3ccd2e7fad9e2b67d8886adb04dc15e76e5de06952b1df9870ae639ae6e59",
+  "tierSha256": {
+    "A": "1e1baa18bbe5ae0415ad3b57dccef40cdee56845469135d468048671f3f2c024",
+    "B": "a096e1c0f837e7473355cb921ba8fbfd2c281ae10b95fa87f6fa0eace2f984b0",
+    "C": "3c01756e11244cf68c3b1c6c765b4480daf248689c3e4181308e6f863a3cc515",
+    "D": "f8f696f1213d83d0b45aea9a6cddd19a822363e6c8ef4b680b11aacf1d8ea460"
+  },
+  "p214DevelopmentTaskSetSha256": "0527d9c93321bd34a5c065b23e7551dc9a4a8cc55adec49f04168a68f7e7166e",
+  "p201bDevelopmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+  "exactDuplicateRequests": 0,
+  "exactDuplicateSourceTargetPairs": 0,
+  "literalTransformationOverlapWithTrainingByTier": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0
+  },
+  "nearDuplicateInstructionAudit": {
+    "A": {
+      "maxInstructionJaccard": 1,
+      "maxPair": [
+        "p2-16-css-121",
+        "p2-16-css-001"
+      ]
+    },
+    "B": {
+      "maxInstructionJaccard": 0.384615,
+      "maxPair": [
+        "p2-16-css-146",
+        "p2-16-css-013"
+      ]
+    },
+    "C": {
+      "maxInstructionJaccard": 0.5,
+      "maxPair": [
+        "p2-16-css-157",
+        "p2-16-css-001"
+      ]
+    },
+    "D": {
+      "maxInstructionJaccard": 0.285714,
+      "maxPair": [
+        "p2-16-css-173",
+        "p2-16-css-003"
+      ]
+    }
+  },
+  "developmentPromptAudit": {
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.394737,
+      "maxPair": [
+        "p2-16-css-071",
+        "p2-14-css-edit-line-height"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.111111,
+      "maxPair": [
+        "p2-16-css-001",
+        "p2dev-css-06-button-hover"
+      ]
+    }
+  },
+  "staticAuthoredSolutionsExpectedToPass": 180,
+  "externalSourceTextIncluded": false,
+  "provenance": "original local candidate authored for Plex P2-16",
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false,
+  "proposedFirstRun": {
+    "status": "proposal-only-owner-approval-required",
+    "majorVariableChanged": "curriculum-diversity-only",
+    "lossObjective": "ordinary-next-token-over-complete-records",
+    "freshInitialization": true,
+    "seed": 1337,
+    "tokenizerFitSplit": "train-only-after-approval",
+    "device": "cuda",
+    "samplingPolicy": "complete-record-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "matchedStepZeroEvaluation": true,
+    "maximumUpdates": 100,
+    "maximumMinutes": 10,
+    "automaticExtension": false,
+    "prerequisite": "prepare approved training rows, fit tokenizer on training only, then verify context/generation token budgets before run"
+  }
+}
