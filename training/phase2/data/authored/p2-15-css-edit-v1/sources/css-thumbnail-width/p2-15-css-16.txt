@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.gallery-thumbnail { width: 12rem; height: auto; }
+
+Add max-width: 100% so the thumbnail cannot exceed its container; keep both existing declarations. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.gallery-thumbnail { width: 12rem; height: auto; max-width: 100%; }

@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.submit-button { border-radius: 4px; background-color: #1d4ed8; }
+
+Set the corner radius to 0.75rem; preserve the background color. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.submit-button { border-radius: 0.75rem; background-color: #1d4ed8; }

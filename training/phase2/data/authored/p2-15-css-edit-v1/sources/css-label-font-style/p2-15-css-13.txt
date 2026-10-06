@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.field-label { font-style: normal; font-weight: 600; }
+
+Make the label italic and retain its font weight. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.field-label { font-style: italic; font-weight: 600; }

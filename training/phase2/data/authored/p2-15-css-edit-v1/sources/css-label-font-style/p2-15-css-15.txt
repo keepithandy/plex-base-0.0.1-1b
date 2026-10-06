@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.image-caption { font-style: oblique; font-size: 0.875rem; }
+
+Change the font style to italic and preserve the font size. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.image-caption { font-style: italic; font-size: 0.875rem; }

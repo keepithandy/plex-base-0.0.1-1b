@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "groupId": "css-aspect-ratio",
+      "id": "p2-15-css-aspect-ratio",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-aspect-ratio",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-badge-transform",
+      "id": "p2-15-css-badge-transform",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-badge-transform",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-button-radius",
+      "id": "p2-15-css-button-radius",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-button-radius",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-callout-border",
+      "id": "p2-15-css-callout-border",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-callout-border",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-card-shadow",
+      "id": "p2-15-css-card-shadow",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-card-shadow",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-label-font-style",
+      "id": "p2-15-css-label-font-style",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-label-font-style",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-list-style",
+      "id": "p2-15-css-list-style",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-list-style",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-menu-opacity",
+      "id": "p2-15-css-menu-opacity",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-menu-opacity",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-nav-justify",
+      "id": "p2-15-css-nav-justify",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-nav-justify",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-outline",
+      "id": "p2-15-css-outline",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-outline",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-thumbnail-width",
+      "id": "p2-15-css-thumbnail-width",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-thumbnail-width",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    },
+    {
+      "groupId": "css-white-space",
+      "id": "p2-15-css-white-space",
+      "includeExtensions": [
+        ".txt"
+      ],
+      "licenseEvidence": "NOTICE.md",
+      "licenseId": "Owner-approved-local-P2-use",
+      "localPath": "sources/css-white-space",
+      "origin": "urn:plex:codex-authored:p2-15-css-edit-candidate-v1",
+      "revision": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:32:43Z",
+      "sourceFamilyId": "p2-15-css-edits-v1"
+    }
+  ],
+  "splitStrategy": "source-groups-v1"
+}

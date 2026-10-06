@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.steps-list { list-style-type: decimal; margin-block: 0; }
+
+Change the markers to lower-alpha and keep the block margins reset. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.steps-list { list-style-type: lower-alpha; margin-block: 0; }

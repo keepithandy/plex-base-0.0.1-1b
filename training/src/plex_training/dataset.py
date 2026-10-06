@@ -9,8 +9,8 @@ import os
 import re
 import shutil
 import subprocess
-import tempfile
 import unicodedata
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -391,9 +391,11 @@ def build_dataset(
     if output_dir.exists():
         raise FileExistsError("Dataset output already exists; select a new output directory")
     output_dir.parent.mkdir(parents=True, exist_ok=True)
-    staging = Path(
-        tempfile.mkdtemp(prefix=f".{output_dir.name}.staging-", dir=output_dir.parent)
-    )
+    # tempfile.mkdtemp applies a private Windows ACL that can block later
+    # tokenizer/training processes. A unique child created with mkdir inherits
+    # the destination parent's permissions while preserving atomic promotion.
+    staging = output_dir.parent / f".{output_dir.name}.staging-{uuid.uuid4().hex}"
+    staging.mkdir()
     node, node_version = _node_info()
     hash_occurrences: dict[str, set[tuple[str, str]]] = {}
     first_content_hashes: set[str] = set()

@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.portrait-frame { aspect-ratio: 1 / 1; width: 9rem; }
+
+Set the ratio to 3 / 4 and leave the width unchanged. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.portrait-frame { aspect-ratio: 3 / 4; width: 9rem; }
