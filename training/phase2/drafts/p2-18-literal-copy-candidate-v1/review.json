@@ -1,0 +1,156 @@
+{
+  "candidate": "p2-18-literal-copy-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "purpose": "isolate unseen literal copying and reference binding before returning to full CSS editing",
+  "records": 216,
+  "trainingRecords": 144,
+  "evaluationRecords": 72,
+  "trainingLevelCounts": {
+    "A": 36,
+    "B": 36,
+    "C": 36,
+    "D": 36
+  },
+  "evaluationTierCounts": {
+    "A": 18,
+    "B": 18,
+    "C": 18,
+    "D": 18
+  },
+  "taskKinds": {
+    "A": "direct-copy",
+    "B": "labeled-copy",
+    "C": "select-literal",
+    "D": "assemble-plan"
+  },
+  "candidateJsonlSha256": "9329d4704fdf061d45900f20c67bb7fc049896e4f464fff83faac431567447c6",
+  "trainingRowsSha256": "cdb1c1cd1be27418e2a06362ba44ed5709e3a6a1ab9deaa497b1ad6f89937fce",
+  "tierSha256": {
+    "A": "be4bbfed980a3f219aec5fe84cb61ea0bcc39b2707ef0264d91a8b703e2aac56",
+    "B": "902e08cfadfe9e81a0b37f7682b98ef470a12013afe994ce3a5f77346beb2d54",
+    "C": "7c81ca29356ccffb2af569862937146767010a7167701c6bfe4cff636b34c29a",
+    "D": "d33aeedd77fb8fda2169d1688b091ea077a7942db21998555380ba3f04fdc125"
+  },
+  "trainEvaluationSelectorOverlap": 0,
+  "trainEvaluationLiteralValueOverlap": 0,
+  "exactDuplicateRequests": 0,
+  "exactDuplicateRecordIds": 0,
+  "evaluationLiteralsAreHeldOut": true,
+  "levels": {
+    "A": {
+      "intent": "copy one unseen literal exactly with no label transformation",
+      "score": [
+        "exact output",
+        "literal exact",
+        "EOS"
+      ],
+      "trainingBalance": {
+        "selector": 18,
+        "value": 18
+      },
+      "evaluationBalance": {
+        "selector": 9,
+        "value": 9
+      }
+    },
+    "B": {
+      "intent": "copy one unseen literal while preserving its label",
+      "score": [
+        "exact output",
+        "label exact",
+        "literal exact",
+        "EOS"
+      ],
+      "trainingBalance": {
+        "selector": 18,
+        "value": 18
+      },
+      "evaluationBalance": {
+        "selector": 9,
+        "value": 9
+      }
+    },
+    "C": {
+      "intent": "select one requested literal from selector/old/new context and copy only that literal",
+      "score": [
+        "exact output",
+        "selected-field exact",
+        "wrong-field retrieval",
+        "EOS"
+      ],
+      "trainingTargetBalance": {
+        "selector": 12,
+        "old": 12,
+        "new": 12
+      },
+      "evaluationTargetBalance": {
+        "selector": 6,
+        "old": 6,
+        "new": 6
+      }
+    },
+    "D": {
+      "intent": "assemble a tiny three-field plan by copying selector/old/new literals exactly",
+      "score": [
+        "full-plan exact",
+        "selector exact",
+        "old exact",
+        "new exact",
+        "format valid",
+        "EOS"
+      ]
+    }
+  },
+  "provenance": "original local candidate authored for Plex P2-18",
+  "externalSourceTextIncluded": false,
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false,
+  "proposedFirstRun": {
+    "status": "proposal-only-owner-approval-required",
+    "majorVariableChanged": "literal-copy-primitive-curriculum",
+    "freshInitialization": true,
+    "seed": 1337,
+    "unchangedArchitecture": true,
+    "expectedParameterCount": 27566080,
+    "tokenizerFitSplit": "train-only-after-approval",
+    "lossObjective": "ordinary-next-token-over-complete-records",
+    "samplingPolicy": "complete-record-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "device": "cuda",
+    "matchedStepZeroEvaluation": true,
+    "maximumUpdates": 100,
+    "maximumMinutes": 10,
+    "automaticExtension": false,
+    "prerequisite": "verify exact candidate, train/evaluation literal disjointness, complete-record prompt compatibility and token budgets before any training"
+  },
+  "developmentPromptAudit": {
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.196078,
+      "maxPair": [
+        "p2-18-copy-109",
+        "p2-17-bind-003"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.107143,
+      "maxPair": [
+        "p2-18-copy-001",
+        "p2-14-css-edit-remove-decoration"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.090909,
+      "maxPair": [
+        "p2-18-copy-038",
+        "p2dev-js-01-clamp"
+      ]
+    }
+  }
+}
