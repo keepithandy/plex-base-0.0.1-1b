@@ -388,6 +388,7 @@ def verify() -> dict[str, Any]:
         "trainingRunCreated":False,
         "modelTrained":False,
         "finalHoldoutOpened":False,
+        "developmentPromptAudit":prompt_audit,
     }
     if any(review.get(key) != value for key, value in fixed.items()):
         raise ValueError("P2-19 review metadata differs from the pinned candidate")
