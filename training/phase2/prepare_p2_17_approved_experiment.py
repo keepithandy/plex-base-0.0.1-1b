@@ -16,6 +16,7 @@ from plex_training.benchmark import render_task_prompt
 from plex_training.dataset import build_dataset
 from plex_training.initialization import initialize_model
 from plex_training.pilot import inspect_pilot_bundle
+from plex_training.record_sampling import CompleteRecordTokenCorpus
 from plex_training.tokenizer import PlexTokenizer, sha256_file, train_tokenizer
 
 from verify_p2_17_semantic_binding_candidate import (
@@ -76,9 +77,10 @@ def _load_rows(path: Path = CANDIDATE) -> list[dict[str, Any]]:
 
 def p2_17_prompt(row: dict[str, Any]) -> str:
     return (
-        "Complete this structured CSS editing task.\n"
-        f"{row['request']}\n"
-        "Return only the requested output. Do not include Markdown fences or explanations."
+        "Write a small structured CSS editing solution.\n"
+        f"Request: {row['request']}\n"
+        "Output contract: Return only the requested output in the exact requested format.\n"
+        "Return code only. Do not include Markdown fences or explanations."
     )
 
 
@@ -263,6 +265,30 @@ def _verify_budgets(tokenizer: PlexTokenizer, rows: list[dict[str, Any]]) -> dic
     }
 
 
+def _verify_complete_record_compatibility(output: Path, bundle: dict[str, Any]) -> dict[str, Any]:
+    tokenizer = PlexTokenizer.load(output / "tokenizer")
+    with CompleteRecordTokenCorpus(
+        bundle["trainPath"],
+        dataset_jsonl=output / "dataset/train.jsonl",
+        index_path=bundle["root"] / "train.index.json",
+        tokenizer=tokenizer,
+        expected_jsonl_sha256=bundle["dataset"]["trainJsonlSha256"],
+    ) as corpus:
+        record = corpus.sampler_record
+        if (
+            record.get("kind") != "complete-record-v1"
+            or record.get("records") != 120
+            or record.get("trainJsonlSha256") != bundle["dataset"]["trainJsonlSha256"]
+        ):
+            raise ValueError("P2-17 complete-record sampler preflight changed")
+        return {
+            "kind": record["kind"],
+            "records": record["records"],
+            "trainJsonlSha256": record["trainJsonlSha256"],
+            "indexSha256": record["indexSha256"],
+        }
+
+
 def _verify_development_budgets(tokenizer: PlexTokenizer) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for label, path in (("P2-14", P2_14), ("P2-01b", P2_01B)):
@@ -336,6 +362,7 @@ def prepare(output: Path) -> dict[str, Any]:
         tokenizer = PlexTokenizer.load(output / "tokenizer")
         budgets = _verify_budgets(tokenizer, candidate_rows)
         budgets["development"] = _verify_development_budgets(tokenizer)
+        sampler_preflight = _verify_complete_record_compatibility(output, bundle)
         initialization = initialize_model(
             output / "tokenizer",
             output / "initialization",
@@ -377,6 +404,7 @@ def prepare(output: Path) -> dict[str, Any]:
             "microBatch": approval["microBatch"],
             "gradientAccumulation": approval["gradientAccumulation"],
             "samplingPolicy": approval["samplingPolicy"],
+            "completeRecordSamplerPreflight": sampler_preflight,
             "lossObjective": approval["lossObjective"],
             "automaticExtension": False,
             "initializationCheckpointSha256": initialization["checkpointSha256"],
@@ -449,6 +477,9 @@ def verify_prepared(prepared: Path) -> dict[str, Any]:
     candidate_rows = _load_rows(prepared / "approved/candidate.jsonl")
     _verify_dataset(prepared / "dataset", candidate_rows)
     bundle = inspect_pilot_bundle(prepared / "tokenizer")
+    sampler_preflight = _verify_complete_record_compatibility(prepared, bundle)
+    if plan.get("completeRecordSamplerPreflight") != sampler_preflight:
+        raise ValueError("Prepared P2-17 complete-record sampler preflight changed")
     if (
         bundle["tokenizer"]["tokenizerSha256"] != plan["tokenizerSha256"]
         or bundle["tokenizer"]["actualVocabularySize"] != plan["actualVocabularySize"]
