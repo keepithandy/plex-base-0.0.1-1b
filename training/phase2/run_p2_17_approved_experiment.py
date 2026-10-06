@@ -83,12 +83,13 @@ def _css_binding_flags(row: dict[str, Any], completion: str) -> dict[str, bool]:
     prop = row["property"]
     operation = row["operation"]
     target = row["targetValue"]
+    parsed_valid = output_selector is not None
     selector_exact = output_selector == row["selector"]
     if operation in {"replace", "add"}:
-        edit_applied = output.get(prop) == target
+        edit_applied = parsed_valid and output.get(prop) == target
     else:
-        edit_applied = prop not in output
-    preserved = all(
+        edit_applied = parsed_valid and prop not in output
+    preserved = parsed_valid and all(
         output.get(name) == value
         for name, value in source.items()
         if name != prop
