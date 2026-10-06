@@ -7,7 +7,6 @@ import math
 import re
 import shutil
 import sys
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -50,7 +49,7 @@ def _parse_flat_rule(source: str) -> tuple[str | None, dict[str, str], bool]:
     return selector, declarations, duplicate
 
 
-def _failure_flags(row: dict[str, Any], completion: str, eos: bool, passed: bool) -> dict[str, bool]:
+def _failure_flags(\n    row: dict[str, Any], completion: str, eos: bool, passed: bool, parse_status: str\n) -> dict[str, bool]:
     output_selector, output_map, duplicate = _parse_flat_rule(completion)
     input_selector, input_map, _ = _parse_flat_rule(row["inputCss"])
     expected_selector, expected_map, _ = _parse_flat_rule(row["solution"])
@@ -80,7 +79,7 @@ def _failure_flags(row: dict[str, Any], completion: str, eos: bool, passed: bool
         or output_selector != expected_selector
         or any(output_map.get(prop) != value for prop, value in expected_map.items())
     )
-    malformed = output_selector is None
+    malformed = parse_status != "pass"
     copied = " ".join(completion.split()) == " ".join(row["inputCss"].split())
     repeated = duplicate or completion.count("{") > 1 or completion.count("}") > 1
     return {
@@ -181,7 +180,7 @@ def _score_candidate(
             "checksPassed": checked["checksPassed"],
             "checksTotal": checked["checksTotal"],
             "exactString": completion.strip() == row["solution"].strip(),
-            "failureFlags": _failure_flags(row, completion, eos, passed),
+            "failureFlags": _failure_flags(row, completion, eos, passed, checked["parseStatus"]),
         })
 
     train = [row for row in records if row["candidateSplit"] == "train"]
