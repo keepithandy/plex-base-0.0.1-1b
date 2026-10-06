@@ -7,9 +7,8 @@ import math
 import sys
 from pathlib import Path
 
-from prepare_code_pair_candidate import prompt_text
 from prepare_p2_15_css_edit_candidate import rows as candidate_rows
-from prepare_p2_15_promoted_experiment import ARTIFACT_ROOT, EXPERIMENT, verify_prepared
+from prepare_p2_15_promoted_experiment import ARTIFACT_ROOT, EXPERIMENT, p2_15_prompt, verify_prepared
 
 from plex_training.benchmark import _check_task, render_task_prompt
 from plex_training.checkpoint import read_checkpoint
@@ -50,7 +49,7 @@ def _score_candidate(
 
     records = []
     for row in candidate_rows():
-        prompt = prompt_text(row, settings["outputContracts"])
+        prompt = p2_15_prompt(row)
         prompt_ids = tokenizer.encode(prompt)
         if len(prompt_ids) >= model.config.context_length:
             raise ValueError(f"P2-15 prompt exceeds model context: {row['id']}")
