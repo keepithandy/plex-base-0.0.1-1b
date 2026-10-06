@@ -12,6 +12,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "training" / "src"))
 
+from plex_training.benchmark import render_task_prompt
 from plex_training.dataset import build_dataset
 from plex_training.initialization import initialize_model
 from plex_training.pilot import inspect_pilot_bundle
@@ -260,6 +261,26 @@ def _verify_budgets(tokenizer: PlexTokenizer, rows: list[dict[str, Any]]) -> dic
     }
 
 
+
+def _verify_development_budgets(tokenizer: PlexTokenizer) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for label, path in (("P2-14", P2_14), ("P2-01b", P2_01B)):
+        task_set = json.loads(path.read_text(encoding="utf-8"))
+        maximum = 0
+        records = []
+        for task in task_set["tasks"]:
+            prompt = render_task_prompt(task_set, task)
+            count = len(tokenizer.encode(prompt))
+            if count >= 512:
+                raise ValueError(f"{label} prompt exceeds the 512-token context: {task['id']}")
+            maximum = max(maximum, count)
+            records.append({"id": task["id"], "promptTokens": count})
+        result[label] = {
+            "maximumPromptTokens": maximum,
+            "records": records,
+        }
+    return result
+
 def prepare(output: Path) -> dict[str, Any]:
     approval = _verify_approval()
     candidate_rows = _load_rows()
@@ -313,7 +334,9 @@ def prepare(output: Path) -> dict[str, Any]:
         ):
             raise ValueError("P2-16 tokenizer was not fitted on training rows only")
 
-        budgets = _verify_budgets(PlexTokenizer.load(output / "tokenizer"), candidate_rows)
+        tokenizer = PlexTokenizer.load(output / "tokenizer")
+        budgets = _verify_budgets(tokenizer, candidate_rows)
+        budgets["development"] = _verify_development_budgets(tokenizer)
         initialization = initialize_model(
             output / "tokenizer",
             output / "initialization",
