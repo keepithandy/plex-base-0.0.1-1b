@@ -167,8 +167,11 @@ D  three-reference plan assembly
 
 All 72 evaluation raw literals are held out from the 144 training records, while the reference vocabulary `R0`–`R5` is intentionally shared and perfectly balanced.
 
-The candidate is **pending owner review**. No tokenizer fitting, initialization, or training is authorized yet.
+The exact candidate SHA `e96d6b8edd2a756a03d285f1081491232df7f79886a47d6ab02efcdb29211fa1` is now **owner-approved for one bounded first run**.
 
+The authorized run keeps the current **27.6M-parameter** architecture, creates a fresh train-only tokenizer and fresh seed-1337 model, uses `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
+
+**Approved run:** [P2-19 Reference Binding Run](docs/PHASE-2-P2-19-APPROVED-RUN.md)  
 **Candidate review:** [P2-19 Reference Binding Candidate](training/phase2/drafts/p2-19-reference-binding-candidate-v1/REVIEW.md)
 
 ---
