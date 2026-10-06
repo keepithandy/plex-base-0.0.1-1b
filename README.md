@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-20-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-20B-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -162,41 +162,53 @@ Training B/C reached **36/36** and **35/36**, while held-out B/C remained weak. 
 
 **Full result:** [P2-19b Reference Binding Result](docs/PHASE-2-P2-19B-RESULT.md)
 
-### P2-20 — semantic role + reference lookup decomposition
+### P2-20/P2-20b — role decomposition result
 
-The first P2-20 CUDA run is complete at step 100.
+P2-20 is now **complete and closed**.
 
-| Measure | Step 100 |
-|---|---:|
-| Supplied training complete | **45 / 144** |
-| Level A | **30 / 48** |
-| Level B | **8 / 48** |
-| Level C | **7 / 48** |
-| Tier A | **6 / 24** |
-| Tier B | **4 / 24** |
-| Tier C | **6 / 24** |
-| Validation loss | **6.580 → 3.271** |
-| Mean recent loss | **0.183** |
+| Step | Training /144 | Train A /48 | Train B /48 | Train C /48 | Tier A /24 | Tier B /24 | Tier C /24 | Validation loss |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 45 | 30 | 8 | 7 | 6 | 4 | 6 | 3.271 |
+| 200 | 61 | 34 | 12 | 15 | 2 | 1 | 0 | 3.576 |
+| 300 | 84 | 44 | 17 | 23 | 8 | 4 | 4 | 3.827 |
+| 400 | 104 | **48** | 25 | 31 | 8 | 5 | 5 | 4.165 |
+| 500 | **114** | **48** | 27 | 39 | **12** | **3** | **5** | 3.901 |
 
-Level A is learning much faster than B/C, but all three primitives remain too underfit for a final decomposition diagnosis. Tier B is exactly at the simple six-way chance expectation, while Tier C is modestly above it.
+Semantic role classification showed the first useful held-out signal: Level A reached 48/48 supplied fit and Tier A reached 12/24. Learned symbolic lookup stayed near chance, so exact reference resolution should move into deterministic Plex Code tooling rather than consume model capacity.
 
-**First-run result:** [P2-20 Role Decomposition Result](docs/PHASE-2-P2-20-RESULT.md)
+**Full result:** [P2-20b Role Decomposition Result](docs/PHASE-2-P2-20B-RESULT.md)
 
-### P2-20b — optimization continuation
+### P2-21 — semantic role generalization
 
-P2-20b is now **owner-approved**.
+P2-21 is the current **candidate-only** milestone.
 
-The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
+The model has only three legal answers:
 
-- the exact tokenizer and 144/72 dataset;
-- the 27.6M-parameter architecture;
-- optimizer/sampler/RNG state;
-- the complete-record objective;
-- the existing A/B/C scorer.
+```text
+SELECTOR
+OLD
+NEW
+```
 
-No automatic continuation beyond step 500 is authorized.
+The candidate contains **144 training + 72 evaluation** records across three semantic bands:
 
-**Continuation plan:** [P2-20b Role Decomposition Continuation](docs/PHASE-2-P2-20B-CONTINUATION.md)
+```text
+A  clean unseen paraphrases
+B  hard minimal contrasts
+C  repository-style edit language
+```
+
+Every band is exactly role-balanced. Training/evaluation requests are disjoint, contrast contexts are disjoint, there are no learned R0-R5 references, and the model is not asked to reproduce raw repository bytes.
+
+Candidate SHA:
+
+```text
+8206798467f74bda9867c0179495b535eade3849ca1d8a5d3147de00f27e5584
+```
+
+No tokenizer fitting, initialization, or P2-21 training is authorized yet.
+
+**Candidate review:** [P2-21 Semantic Role Generalization Candidate](training/phase2/drafts/p2-21-semantic-role-generalization-candidate-v1/REVIEW.md)
 
 ---
 
