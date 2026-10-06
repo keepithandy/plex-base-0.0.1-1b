@@ -40,13 +40,25 @@ The approval artifact is:
 - P2-01b excluded from training
 - final holdout closed
 
+## Record-format correction
+
+The first local prepared bundle used a P2-17-specific outer prompt envelope that was valid for scoring but incompatible with the repository's existing `complete-record-v1` sampler identity checks. The attempted run stopped before any optimizer update with:
+
+`Record-start training text has no unique prompt/answer identity`
+
+The candidate, approval, 120/60 split, model architecture, objective, and scoring design are unchanged.
+
+P2-17 now uses the existing verified Plex complete-record prompt envelope, and preparation explicitly instantiates `CompleteRecordTokenCorpus` as a preflight. A prepared bundle cannot be considered valid unless that sampler preflight succeeds.
+
+The original `p2-17-semantic-binding-prepared-v1` bundle is superseded. Use the v2 paths below.
+
 ## Prepare
 
 From the repository root:
 
 ```powershell
 uv run --project training --no-sync python training\phase2\prepare_p2_17_approved_experiment.py `
-  --output training\artifacts\experiments\p2-17-semantic-binding-prepared-v1
+  --output training\artifacts\experiments\p2-17-semantic-binding-prepared-v2
 ```
 
 Preparation:
@@ -79,7 +91,7 @@ Only after preparation and verification succeed:
 ```powershell
 uv run --project training --no-sync python training\phase2\run_p2_17_approved_experiment.py `
   --prepared training\artifacts\experiments\p2-17-semantic-binding-prepared-v1 `
-  --output-dir training\artifacts\experiments\p2-17-semantic-binding-run-v1 `
+  --output-dir training\artifacts\experiments\p2-17-semantic-binding-run-v2 `
   --device cuda `
   --steps 100 `
   --minutes 10
