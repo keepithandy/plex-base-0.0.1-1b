@@ -1,4 +1,4 @@
-"""Prepare the owner-approved P2-21 reference-binding experiment without training it."""
+"""Prepare the owner-approved P2-21 semantic-role experiment without training it."""
 from __future__ import annotations
 
 import argparse
@@ -79,7 +79,7 @@ def _load_rows(path: Path = CANDIDATE) -> list[dict[str, Any]]:
 
 def p2_21_prompt(row: dict[str, Any]) -> str:
     return (
-        "Classify the requested semantic edit role.\n"
+        "Write a small semantic-role classification solution.\n"
         f"Request: {row['request']}\n"
         "Output contract: Return only the requested output in the exact requested format.\n"
         "Return code only. Do not include Markdown fences or explanations."
