@@ -329,6 +329,7 @@ def prepare(output: Path) -> dict:
 
 def verify_prepared(prepared: Path) -> dict:
     _verify_owner_approval()
+    _verify_split_seed()
     prepared = prepared.resolve()
     prepared.relative_to(ARTIFACT_ROOT.resolve())
     plan = json.loads((prepared / "experiment.json").read_text(encoding="utf-8"))
