@@ -132,6 +132,20 @@ test('runtime accounting rejects invalid token counts before returning a selecti
   }
 });
 
+test('budget option validation and runtime over-limit checks fail before returning context', async t => {
+  const { manifest, ranking } = await setup(t);
+  for (const options of [{ unknown: 1 }, { countTokens: 1 }, { maxPromptBytes: 0 }, { safetyTokens: 257 }]) {
+    await assert.rejects(buildContext(task, manifest, ranking, options), contextError('invalid_options'));
+  }
+  await assert.rejects(buildContext(task, manifest, ranking, { countTokens: async () => 3073 }), contextError('budget_exceeded'));
+  await assert.rejects(buildContext(task, manifest, ranking, { countTokens: async () => { throw new Error('private provider details'); } }), error => {
+    assert.ok(error instanceof ContextError);
+    assert.equal(error.code, 'invalid_counter');
+    assert.doesNotMatch(error.message, /private provider details/);
+    return true;
+  });
+});
+
 test('same-size edits after ranking invalidate the selection hash', async t => {
   const { manifest, ranking } = await setup(t);
   await writeFile(join(manifest.root, 'index.html'), page.replaceAll('Example', 'Updated'));
