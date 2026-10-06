@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-21-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-21B-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -178,42 +178,55 @@ Semantic role classification showed the first useful held-out signal: Level A re
 
 **Full result:** [P2-20b Role Decomposition Result](docs/PHASE-2-P2-20B-RESULT.md)
 
-### P2-21 — semantic role generalization
+### P2-21/P2-21b — semantic role result
 
-The first P2-21 CUDA run is complete at step 100.
+P2-21 is now **complete and closed**.
 
-| Measure | Step 100 |
-|---|---:|
-| Supplied training complete | **68 / 144** |
-| Level A | **21 / 48** |
-| Level B | **21 / 48** |
-| Level C | **26 / 48** |
-| Tier A | **6 / 24** |
-| Tier B | **8 / 24** |
-| Tier C | **10 / 24** |
-| Validation loss | **6.950 → 3.356** |
-| Mean recent loss | **0.309** |
+| Step | Training /144 | Tier A /24 | Tier B /24 | Tier C /24 | Validation loss |
+|---:|---:|---:|---:|---:|---:|
+| 100 | 68 | 6 | 8 | 10 | 3.356 |
+| 200 | 70 | 8 | 9 | 9 | 3.595 |
+| 300 | 113 | 9 | 13 | 12 | 3.844 |
+| 400 | 135 | 10 | **15** | **15** | 3.721 |
+| 500 | **144** | 9 | **15** | **14** | 4.135 |
 
-The model learned the three-label output grammar cleanly, but semantic class selection remains underfit. The strongest step-100 asymmetry is `OLD`, which scored only **0/8, 0/8 and 1/8** on held-out A/B/C.
+The model showed useful semantic transfer under structured and repository-style language, while free paraphrase transfer remained weak. The early `OLD` failure recovered under stronger semantic framing, so it was not a fundamental blind spot.
 
-**First-run result:** [P2-21 Semantic Role Generalization Result](docs/PHASE-2-P2-21-RESULT.md)
+**Full result:** [P2-21b Semantic Role Continuation Result](docs/PHASE-2-P2-21B-RESULT.md)
 
-### P2-21b — optimization continuation
+### P2-22 — edit intent classification
 
-P2-21b is now **owner-approved**.
+P2-22 is the current **candidate-only** milestone.
 
-The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
+The model has five legal answers:
 
-- the exact tokenizer and 144/72 dataset;
-- the 27.6M-parameter architecture;
-- optimizer/sampler/RNG state;
-- the complete-record objective;
-- the existing semantic A/B/C scorer;
-- SELECTOR / OLD / NEW breakdowns at every checkpoint.
+```text
+REPLACE
+INSERT
+DELETE
+RENAME
+TOGGLE
+```
 
-No automatic continuation beyond step 500 is authorized.
+The candidate contains **150 training + 75 evaluation** records across three balanced semantic bands:
 
-**Continuation plan:** [P2-21b Semantic Role Continuation](docs/PHASE-2-P2-21B-CONTINUATION.md)
+```text
+A  clean unseen intent paraphrases
+B  five-way minimal semantic contrasts
+C  repository-style edit language
+```
+
+Every tier is intent-balanced. Training/evaluation requests are disjoint, contrast contexts are disjoint, same-intent train/eval near-duplicates at >=0.65 Jaccard are zero, and the model is not asked to reproduce raw repository bytes or code.
+
+Candidate SHA:
+
+```text
+592cac0e1c18ad9139057352b132cb39621279c7ec331aad9963610869b25bc0
+```
+
+No tokenizer fitting, initialization, or P2-22 training is authorized yet.
+
+**Candidate review:** [P2-22 Edit Intent Classification Candidate](training/phase2/drafts/p2-22-edit-intent-classification-candidate-v1/REVIEW.md)
 
 ---
 
