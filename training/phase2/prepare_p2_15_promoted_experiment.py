@@ -32,10 +32,11 @@ SOURCE_MANIFEST = PROMOTED / "dataset-sources.approved.json"
 P2_14_TASK_SET = PHASE2 / "drafts/p2-14-css-edit-step200-v1/task-set.json"
 P2_01B_TASK_SET = PHASE2 / "evaluation/p2-01b-dev-v1.json"
 
-# The generic source-group splitter needs one deterministic seed. Seed 106 is
-# pinned here because, at 30%, it reproduces the already-approved semantic
-# partition exactly: 8 training families and the 4 validation-only families.
-DATASET_SPLIT_SEED = 106
+# The generic source-group splitter needs one deterministic seed. Seed 299 is
+# pinned here because, at 30%, the repository's grouped SHA-256 splitter
+# reproduces the already-approved semantic partition exactly: 8 training
+# families and the 4 validation-only families.
+DATASET_SPLIT_SEED = 299
 VALIDATION_PERCENT = 30
 MODEL_SEED = 1337
 EXPECTED_VALIDATION_GROUPS = {
@@ -70,6 +71,27 @@ EXPECTED_TRAIN_GROUPS = {
     "css-badge-transform",
     "css-menu-opacity",
 }
+
+
+def _validation_groups_for_seed(groups: set[str], seed: int) -> set[str]:
+    ranked = sorted(
+        groups,
+        key=lambda group: hashlib.sha256(f"{seed}\0{group}".encode("utf-8")).digest(),
+    )
+    count = min(
+        len(groups) - 1,
+        max(1, (len(groups) * VALIDATION_PERCENT + 50) // 100),
+    )
+    return set(ranked[:count])
+
+
+def _verify_split_seed() -> None:
+    all_groups = EXPECTED_TRAIN_GROUPS | EXPECTED_VALIDATION_GROUPS
+    selected = _validation_groups_for_seed(all_groups, DATASET_SPLIT_SEED)
+    if selected != EXPECTED_VALIDATION_GROUPS:
+        raise ValueError(
+            "Pinned P2-15 dataset split seed no longer reproduces the approved validation families"
+        )
 
 
 def _canonical_sha(path: Path) -> str:
@@ -192,6 +214,7 @@ def _verify_budgets(tokenizer: PlexTokenizer, settings: dict) -> dict:
 
 def prepare(output: Path) -> dict:
     approval = _verify_owner_approval()
+    _verify_split_seed()
     task_settings = json.loads(P2_14_TASK_SET.read_text(encoding="utf-8"))
     _verify_promoted_sources()
 
