@@ -49,7 +49,9 @@ def _parse_flat_rule(source: str) -> tuple[str | None, dict[str, str], bool]:
     return selector, declarations, duplicate
 
 
-def _failure_flags(\n    row: dict[str, Any], completion: str, eos: bool, passed: bool, parse_status: str\n) -> dict[str, bool]:
+def _failure_flags(
+    row: dict[str, Any], completion: str, eos: bool, passed: bool, parse_status: str
+) -> dict[str, bool]:
     output_selector, output_map, duplicate = _parse_flat_rule(completion)
     input_selector, input_map, _ = _parse_flat_rule(row["inputCss"])
     expected_selector, expected_map, _ = _parse_flat_rule(row["solution"])
