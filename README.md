@@ -194,42 +194,63 @@ The model showed useful semantic transfer under structured and repository-style 
 
 **Full result:** [P2-21b Semantic Role Continuation Result](docs/PHASE-2-P2-21B-RESULT.md)
 
-### P2-22 — edit intent classification
+### P2-22/P2-22b — edit intent result
 
-The first P2-22 CUDA run is complete at step 100.
+P2-22 is now **complete and closed**.
 
-| Measure | Step 100 |
-|---|---:|
-| Supplied training complete | **64 / 150** |
-| Level A | **24 / 50** |
-| Level B | **22 / 50** |
-| Level C | **18 / 50** |
-| Tier A | **6 / 25** |
-| Tier B | **2 / 25** |
-| Tier C | **7 / 25** |
-| Validation loss | **7.073 → 3.321** |
-| Mean recent loss | **0.439** |
+| Step | Training /150 | Tier A /25 | Tier B /25 | Tier C /25 |
+|---:|---:|---:|---:|---:|
+| 100 | 64 | 6 | 2 | 7 |
+| 200 | 91 | 11 | 5 | 7 |
+| 300 | 145 | 17 | 12 | 17 |
+| 400 | 141 | 12 | 14 | 14 |
+| 500 | **150** | **16** | **16** | **18** |
 
-The five-label output grammar is learned, but semantic intent selection is still underfit. The strongest step-100 asymmetry is `REPLACE` at only **1/30** supplied examples, with `INSERT` at **8/30**.
+Final held-out accuracy by intent:
 
-**First-run result:** [P2-22 Edit Intent Classification Result](docs/PHASE-2-P2-22-RESULT.md)
+```text
+REPLACE  12 / 15
+INSERT    2 / 15
+DELETE   10 / 15
+RENAME   15 / 15
+TOGGLE   11 / 15
+```
 
-### P2-22b — optimization continuation
+The edit-intent primitive generalizes strongly overall, but INSERT retains a specific presence-direction defect. At step 500, six of the fifteen held-out INSERT examples were classified as DELETE.
 
-P2-22b is **owner-approved**.
+**Full result:** [P2-22b Edit Intent Continuation Result](docs/PHASE-2-P2-22B-RESULT.md)
 
-The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
+### P2-22c — presence transition diagnostic
 
-- the exact tokenizer and 150/75 dataset;
-- the 27.6M-parameter architecture;
-- optimizer/sampler/RNG state;
-- the complete-record objective;
-- the existing edit-intent A/B/C scorer;
-- REPLACE / INSERT / DELETE / RENAME / TOGGLE breakdowns at every checkpoint.
+P2-22c is the current **evaluation-only** milestone.
 
-No automatic continuation beyond step 500 is authorized.
+It scores the unchanged step-500 P2-22b checkpoint on 45 new explicit state-transition examples:
 
-**Continuation plan:** [P2-22b Edit Intent Continuation](docs/PHASE-2-P2-22B-CONTINUATION.md)
+```text
+INSERT   ABSENT  -> PRESENT
+DELETE   PRESENT -> ABSENT
+REPLACE  PRESENT -> PRESENT with changed content
+```
+
+The diagnostic is balanced across:
+
+```text
+A  explicit state transitions
+B  matched minimal contrasts
+C  repository-style state transitions
+```
+
+Each tier has 5 INSERT, 5 DELETE and 5 REPLACE records.
+
+Diagnostic SHA:
+
+```text
+4d445110d7688e2c9e3d1ba83eb9597eb3320550b71ac9324bf970f6bc1fa479
+```
+
+P2-22c performs **no tokenizer fitting, initialization, gradient training, optimizer updates, or model-weight changes**.
+
+**Diagnostic plan:** [P2-22c Presence Transition Diagnostic](docs/PHASE-2-P2-22C-PRESENCE-TRANSITION-DIAGNOSTIC.md)
 
 ---
 
