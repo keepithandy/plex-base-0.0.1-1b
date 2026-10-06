@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-18B-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-19-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -144,35 +144,36 @@ Training Level C reached **36/36**, but held-out selected-field exactness remain
 
 ### P2-19 — reference-mediated symbol binding
 
-P2-19 is the current candidate milestone.
+The first P2-19 CUDA run is complete at step 100 and shows the first nonzero held-out transfer in this experiment line:
 
-Instead of requiring the 27.6M model to regenerate arbitrary repository strings, deterministic tooling exposes short stable references such as:
+| Measure | Step 100 |
+|---|---:|
+| Supplied training complete | **51 / 144** |
+| Level A | **18 / 36** |
+| Level B | **12 / 36** |
+| Level C | **17 / 36** |
+| Level D | **4 / 36** |
+| Tier A reference exact | **4 / 18** |
+| Tier B reference exact | **6 / 18** |
+| Tier C reference exact | **3 / 18** |
+| Tier D full plan | **1 / 18** |
+| Validation loss | **6.687 → 3.048** |
 
-```text
-R0=.card-primary
-R2=12px
-R4=18px
-```
+Tiers A/B/C all produced a known `R0`–`R5` reference on **18/18** rows. Tier D reached **17/18 format-valid** plans.
 
-and Plex predicts **references** rather than raw literals.
+This is materially different from P2-18: reference mediation is already producing held-out symbolic behavior while supplied training is still only 51/144.
 
-The 216-record candidate separates four questions:
+**First-run result:** [P2-19 Reference Binding Result](docs/PHASE-2-P2-19-RESULT.md)
 
-```text
-A  unseen raw literal -> reference lookup
-B  explicit field -> reference selection
-C  semantic role -> reference selection
-D  three-reference plan assembly
-```
+### P2-19b — optimization continuation
 
-All 72 evaluation raw literals are held out from the 144 training records, while the reference vocabulary `R0`–`R5` is intentionally shared and perfectly balanced.
+P2-19b is now **owner-approved**.
 
-The exact candidate SHA `e96d6b8edd2a756a03d285f1081491232df7f79886a47d6ab02efcdb29211fa1` is now **owner-approved for one bounded first run**.
+The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400, and 500** in isolated +100-update CUDA increments, preserving the same tokenizer, 144/72 dataset, 27.6M-parameter architecture, optimizer/sampler/RNG state, complete-record objective and P2-19 A/B/C/D scoring.
 
-The authorized run keeps the current **27.6M-parameter** architecture, creates a fresh train-only tokenizer and fresh seed-1337 model, uses `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
+No automatic continuation beyond step 500 is authorized.
 
-**Approved run:** [P2-19 Reference Binding Run](docs/PHASE-2-P2-19-APPROVED-RUN.md)  
-**Candidate review:** [P2-19 Reference Binding Candidate](training/phase2/drafts/p2-19-reference-binding-candidate-v1/REVIEW.md)
+**Continuation plan:** [P2-19b Reference Binding Continuation](docs/PHASE-2-P2-19B-CONTINUATION.md)
 
 ---
 
