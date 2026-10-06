@@ -1,0 +1,75 @@
+{
+  "approvalStatus": "pending-owner-review",
+  "baselineDevelopmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+  "candidate": "p2-15-css-edit-candidate-v1",
+  "candidateJsonlSha256": "e9ca83c92a40abd0575db708bd67d2e4ce6888d97bc31ef4a38938a050dfd6cf",
+  "developmentRequestExactOverlap": {
+    "P2-01b": 0,
+    "P2-14": 0
+  },
+  "developmentTaskSetSha256": "0527d9c93321bd34a5c065b23e7551dc9a4a8cc55adec49f04168a68f7e7166e",
+  "externalSourceTextIncluded": false,
+  "finalHoldoutOpened": false,
+  "highestDevelopmentRequestWordJaccard": {
+    "P2-01b": 0.205882,
+    "P2-14": 0.485714
+  },
+  "modelTrained": false,
+  "proposedExperiment": {
+    "freshInitialization": true,
+    "matchedStepZeroEvaluation": true,
+    "maximumDurationMinutes": 10,
+    "maximumUpdates": 100,
+    "requiresSeparateOwnerApproval": true,
+    "seed": 1337
+  },
+  "records": 36,
+  "recordsBySplit": {
+    "train": 24,
+    "validation": 12
+  },
+  "semanticGroups": {
+    "css-aspect-ratio": [
+      "validation"
+    ],
+    "css-badge-transform": [
+      "train"
+    ],
+    "css-button-radius": [
+      "train"
+    ],
+    "css-callout-border": [
+      "train"
+    ],
+    "css-card-shadow": [
+      "train"
+    ],
+    "css-label-font-style": [
+      "train"
+    ],
+    "css-list-style": [
+      "validation"
+    ],
+    "css-menu-opacity": [
+      "train"
+    ],
+    "css-nav-justify": [
+      "train"
+    ],
+    "css-outline": [
+      "validation"
+    ],
+    "css-thumbnail-width": [
+      "train"
+    ],
+    "css-white-space": [
+      "validation"
+    ]
+  },
+  "staticAuthoredSolutionsPassed": 36,
+  "staticChecksPassed": 108,
+  "tokenizerFitted": false,
+  "trainingRowsSha256": "db29a222896c732fc0b7b43452d6100c281065a99ee22c911f184e458554d19c",
+  "trainingRunCreated": false,
+  "validationRowsSha256": "d49333860bb73d1e941588e070d9cda24bc4d17f75fd9c7546b1d7bbdc2e5cd8"
+}

@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.square-preview { aspect-ratio: 16 / 9; max-width: 20rem; }
+
+Make the preferred ratio square and preserve the maximum width. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.square-preview { aspect-ratio: 1 / 1; max-width: 20rem; }

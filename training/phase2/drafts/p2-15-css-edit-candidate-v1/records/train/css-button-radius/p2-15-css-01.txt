@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.primary-button { border-radius: 2px; padding: 0.5rem 1rem; }
+
+Replace the corner radius with 6px and keep the padding. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.primary-button { border-radius: 6px; padding: 0.5rem 1rem; }

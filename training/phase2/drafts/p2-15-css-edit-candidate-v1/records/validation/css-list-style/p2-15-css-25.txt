@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.resource-list { list-style-type: disc; padding-inline-start: 1.25rem; }
+
+Use square markers and retain the current indentation. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.resource-list { list-style-type: square; padding-inline-start: 1.25rem; }

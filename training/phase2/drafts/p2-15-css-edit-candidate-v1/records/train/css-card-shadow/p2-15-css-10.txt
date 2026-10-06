@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.catalog-card { box-shadow: 0 1px 2px #0002; border-radius: 0.5rem; }
+
+Replace the shadow with 0 4px 12px #0003 and keep the radius. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.catalog-card { box-shadow: 0 4px 12px #0003; border-radius: 0.5rem; }

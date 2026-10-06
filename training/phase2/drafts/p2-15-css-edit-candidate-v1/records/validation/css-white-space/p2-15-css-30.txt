@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.message-preview { white-space: pre-wrap; color: #1e293b; }
+
+Collapse whitespace normally and retain the text color. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.message-preview { white-space: normal; color: #1e293b; }
