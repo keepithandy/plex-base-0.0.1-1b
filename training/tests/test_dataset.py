@@ -152,6 +152,51 @@ class DatasetPipelineTests(unittest.TestCase):
             self.assertFalse(staging.exists())
             self.assertTrue((output / "manifest.json").is_file())
 
+    def test_build_dataset_uses_retrying_promotion_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            alpha = self._source(root, "alpha", "group-alpha")
+            bravo = self._source(root, "bravo", "group-bravo")
+            (root / "raw/alpha/README.md").write_text(
+                "Alpha dataset source used for retry integration testing.\n",
+                encoding="utf-8",
+            )
+            (root / "raw/bravo/README.md").write_text(
+                "Bravo dataset source used for retry integration testing.\n",
+                encoding="utf-8",
+            )
+            catalog = self._write_catalog(root, [alpha, bravo])
+            output = root / "dataset"
+            real_replace = os.replace
+            calls = 0
+
+            def flaky_replace(source, destination):
+                nonlocal calls
+                calls += 1
+                if calls < 3:
+                    error = PermissionError(13, "Access is denied")
+                    error.winerror = 5
+                    raise error
+                return real_replace(source, destination)
+
+            with patch("plex_training.dataset.time.sleep", return_value=None), patch(
+                "plex_training.dataset.os.replace", side_effect=flaky_replace
+            ):
+                result = build_dataset(
+                    catalog,
+                    output,
+                    validation_percent=50,
+                    seed=1337,
+                    storage_limit_bytes=1024 * 1024,
+                )
+
+            self.assertEqual(calls, 3)
+            self.assertEqual(result["records"], 2)
+            self.assertTrue((output / "train.jsonl").is_file())
+            self.assertTrue((output / "validation.jsonl").is_file())
+            self.assertTrue((output / "manifest.json").is_file())
+            self.assertEqual(list(root.glob(".dataset.staging-*")), [])
+
     def test_unreviewed_source_is_rejected_before_output_is_created(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
