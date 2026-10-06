@@ -1,14 +1,16 @@
 import hashlib
 import json
+import os
 import shutil
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from plex_training.cli import main
-from plex_training.dataset import _validate_syntax, build_dataset
+from plex_training.dataset import _promote_staging_directory, _validate_syntax, build_dataset
 
 
 class DatasetPipelineTests(unittest.TestCase):
@@ -121,6 +123,34 @@ class DatasetPipelineTests(unittest.TestCase):
                 copied_notice = (root / "output-one" / source["licenseNoticeFile"]).read_bytes()
                 self.assertEqual(original_notice, copied_notice)
                 self.assertEqual(hashlib.sha256(copied_notice).hexdigest(), source["licenseNoticeSha256"])
+
+    def test_transient_windows_access_denied_is_retried_during_dataset_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            staging = root / ".dataset.staging-test"
+            output = root / "dataset"
+            staging.mkdir()
+            (staging / "manifest.json").write_text("{}\n", encoding="utf-8")
+            real_replace = os.replace
+            calls = 0
+
+            def flaky_replace(source, destination):
+                nonlocal calls
+                calls += 1
+                if calls < 3:
+                    error = PermissionError(13, "Access is denied")
+                    error.winerror = 5
+                    raise error
+                return real_replace(source, destination)
+
+            with patch("plex_training.dataset.time.sleep", return_value=None), patch(
+                "plex_training.dataset.os.replace", side_effect=flaky_replace
+            ):
+                _promote_staging_directory(staging, output)
+
+            self.assertEqual(calls, 3)
+            self.assertFalse(staging.exists())
+            self.assertTrue((output / "manifest.json").is_file())
 
     def test_unreviewed_source_is_rejected_before_output_is_created(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
