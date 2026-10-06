@@ -70,7 +70,7 @@ def _promote_staging_directory(staging: Path, output_dir: Path) -> None:
     attempts = 1 + len(_WINDOWS_PROMOTION_RETRY_DELAYS)
     for attempt in range(attempts):
         try:
-            _promote_staging_directory(staging, output_dir)
+            os.replace(staging, output_dir)
             return
         except PermissionError as exc:
             winerror = getattr(exc, "winerror", None)
@@ -671,7 +671,7 @@ def build_dataset(
         if total_bytes > storage_limit_bytes:
             raise ValueError("Curated dataset and manifest exceed the remaining artifact storage allocation")
         (staging / "manifest.json").write_bytes(manifest_bytes)
-        os.replace(staging, output_dir)
+        _promote_staging_directory(staging, output_dir)
         return {
             "directory": output_dir.name,
             "manifest": "manifest.json",
