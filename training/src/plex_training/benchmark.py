@@ -19,7 +19,10 @@ from pathlib import Path
 from typing import Any, Iterable
 
 LANGUAGES = ("html", "css", "javascript")
-ALLOWED_CHECKS = {"contains", "html_element", "html_text_contains", "css_declaration", "js_function"}
+ALLOWED_CHECKS = {
+    "contains", "html_element", "html_text_contains", "css_declaration",
+    "css_stylesheet_exact", "js_function",
+}
 DEFAULT_RESPONSE_LIMIT_BYTES = 65_536
 DEFAULT_NODE_TIMEOUT_SECONDS = 5.0
 MAX_TASK_SET_BYTES = 1_048_576
@@ -232,6 +235,15 @@ def _check_task(task: dict[str, Any], source: str, node_executable: str | None, 
             property_name = assertion["property"].lower()
             expected_value = " ".join(assertion["value"].split())
             passed = css_rules.get(selector, {}).get(property_name) == expected_value
+        elif kind == "css_stylesheet_exact":
+            expected_rules = {
+                " ".join(selector.split()): {
+                    name.lower(): " ".join(value.split())
+                    for name, value in declarations.items()
+                }
+                for selector, declarations in assertion["rules"].items()
+            }
+            passed = css_rules == expected_rules
         elif kind == "js_function" and language == "javascript":
             name = re.escape(assertion["name"])
             passed = bool(re.search(
@@ -295,8 +307,12 @@ def validate_task_set(value: Any) -> dict[str, Any]:
             "contract", contracts[task["language"]]
         ).strip():
             raise ValueError(f"Task {task_id} is missing its output contract")
-        if task.get("provenance", value.get("provenance")) != "owner-authored":
-            raise ValueError(f"Task {task_id} must identify owner-authored provenance")
+        provenance = task.get("provenance", value.get("provenance"))
+        allowed_provenance = {"owner-authored"} if value["kind"] == "final" else {
+            "owner-authored", "codex-authored",
+        }
+        if provenance not in allowed_provenance:
+            raise ValueError(f"Task {task_id} has provenance that is not permitted for this task-set kind")
         assertions = task.get("checks")
         if not isinstance(assertions, list) or not assertions:
             raise ValueError(f"Task {task_id} must have at least one check")
@@ -305,7 +321,7 @@ def validate_task_set(value: Any) -> dict[str, Any]:
                 raise ValueError(f"Task {task_id} has an unsupported assertion")
             kind = assertion["kind"]
             if ((kind.startswith("html_") and task["language"] != "html")
-                    or (kind == "css_declaration" and task["language"] != "css")
+                    or (kind in {"css_declaration", "css_stylesheet_exact"} and task["language"] != "css")
                     or (kind == "js_function" and task["language"] != "javascript")):
                 raise ValueError(f"Task {task_id} uses a check for another language")
             if kind == "contains" and not isinstance(assertion.get("text"), str):
@@ -328,6 +344,19 @@ def validate_task_set(value: Any) -> dict[str, Any]:
                 isinstance(assertion.get(key), str) for key in ("selector", "property", "value")
             ):
                 raise ValueError(f"Task {task_id} CSS check needs selector, property, and value")
+            if kind == "css_stylesheet_exact":
+                rules = assertion.get("rules")
+                if (not isinstance(rules, dict) or not rules
+                        or any(not isinstance(selector, str) or not selector.strip()
+                               or not isinstance(declarations, dict) or not declarations
+                               or any(not isinstance(name, str) or not name.strip()
+                                      or not isinstance(css_value, str) or not css_value.strip()
+                                      for name, css_value in declarations.items())
+                               for selector, declarations in rules.items())):
+                    raise ValueError(f"Task {task_id} exact CSS check needs selector/declaration maps")
+                selectors = [" ".join(selector.split()) for selector in rules]
+                if len(selectors) != len(set(selectors)):
+                    raise ValueError(f"Task {task_id} exact CSS check has duplicate normalized selectors")
             if kind == "js_function" and not isinstance(assertion.get("name"), str):
                 raise ValueError(f"Task {task_id} function check needs a name")
     return value

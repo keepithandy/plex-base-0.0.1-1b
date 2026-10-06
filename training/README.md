@@ -181,6 +181,8 @@ uv run --project training --no-sync python -m plex_training.cli task-evaluate `
 
 The trained report recorded 0/30 complete tasks, 20/181 checks passed, 30/30 truncated outputs, HTML syntax pass 10/10, CSS syntax pass 0/10, and JavaScript syntax pass 0/10. Compare pass counts, truncation, and per-language results with the step-zero report. These static scores do not execute JavaScript behavior.
 
+The P2-14 development evaluation scored the matching P2-12 step-zero and step-200 checkpoints on 12 constrained CSS edits. Both scored 0/12 complete edits. Step-zero produced 12/12 truncated outputs; step 200 produced 2/12 truncated outputs but mostly short `.actions` fragments. The tokenizer hashes match, so these fragments are model behavior rather than a bundle mismatch. See the [P2-14 report](../docs/PHASE-2-P2-14-CSS-EDIT-EVALUATION.md), the [hash-pinned task set and review metadata](phase2/drafts/p2-14-css-edit-step200-v1/), and the ignored local token-level artifacts in `training/artifacts/experiments/`. No training or runtime validation loss used these requests, and the final holdout remains closed. Any training follow-up requires a separate candidate and hash approval.
+
 ## Train Plex's tokenizer (P1-15)
 
 The approved starter bundle is built at `training/artifacts/tokenizers/p1-15-starter-v1`. It contains a new byte-level BPE tokenizer, settings, the model configuration, encoded train/validation corpora, record indexes, provenance, and license notices. It has 9,976 learned token entries within the unchanged 16,384 model capacity. All 88 records preserve their text exactly. See the [tokenizer report](../docs/PLEX-TOKENIZER.md) for hashes, settings, limits, and results.
