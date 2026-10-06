@@ -72,7 +72,7 @@ The runner uses the existing complete-record pilot trainer with ordinary next-to
 
 ## Matched scoring
 
-Both step zero and the trained checkpoint are scored on:
+Both step zero and the trained checkpoint are scored on. Node.js must be available on PATH so JavaScript tasks in P2-01b can receive real syntax checks; the runner fails before training if that requirement is missing:
 
 - P2-15: 24 supplied training edits + 12 withheld-family validation edits;
 - P2-01b: the existing 30-task development set, reported overall and by language;
