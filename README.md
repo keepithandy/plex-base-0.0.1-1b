@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-19B-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-20-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -164,28 +164,39 @@ Training B/C reached **36/36** and **35/36**, while held-out B/C remained weak. 
 
 ### P2-20 — semantic role + reference lookup decomposition
 
-P2-20 is the current **owner-approved first-run** milestone.
+The first P2-20 CUDA run is complete at step 100.
 
-It removes raw repository literals completely and isolates three primitives:
+| Measure | Step 100 |
+|---|---:|
+| Supplied training complete | **45 / 144** |
+| Level A | **30 / 48** |
+| Level B | **8 / 48** |
+| Level C | **7 / 48** |
+| Tier A | **6 / 24** |
+| Tier B | **4 / 24** |
+| Tier C | **6 / 24** |
+| Validation loss | **6.580 → 3.271** |
+| Mean recent loss | **0.183** |
 
-```text
-A  semantic wording -> SELECTOR / OLD / NEW
-B  explicit role + bindings -> R0-R5
-C  semantic wording + bindings -> R0-R5
-```
+Level A is learning much faster than B/C, but all three primitives remain too underfit for a final decomposition diagnosis. Tier B is exactly at the simple six-way chance expectation, while Tier C is modestly above it.
 
-The candidate contains **144 training + 72 evaluation** records. Training/evaluation semantic phrases are disjoint, binding-pattern families are disjoint, role frequencies are balanced, and B/C target references are exactly uniform.
+**First-run result:** [P2-20 Role Decomposition Result](docs/PHASE-2-P2-20-RESULT.md)
 
-Approved candidate SHA:
+### P2-20b — optimization continuation
 
-```text
-8d7c54ceed8a0c90a437626e504e2ba39582f0ca5c57c243db5c564e2c02985d
-```
+P2-20b is now **owner-approved**.
 
-The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
+The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
 
-**Approved run:** [P2-20 Role Decomposition Run](docs/PHASE-2-P2-20-APPROVED-RUN.md)  
-**Candidate review:** [P2-20 Role Decomposition Candidate](training/phase2/drafts/p2-20-role-decomposition-candidate-v1/REVIEW.md)
+- the exact tokenizer and 144/72 dataset;
+- the 27.6M-parameter architecture;
+- optimizer/sampler/RNG state;
+- the complete-record objective;
+- the existing A/B/C scorer.
+
+No automatic continuation beyond step 500 is authorized.
+
+**Continuation plan:** [P2-20b Role Decomposition Continuation](docs/PHASE-2-P2-20B-CONTINUATION.md)
 
 ---
 
