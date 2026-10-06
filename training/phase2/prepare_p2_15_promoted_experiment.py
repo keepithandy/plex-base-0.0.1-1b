@@ -16,7 +16,6 @@ from plex_training.initialization import initialize_model
 from plex_training.pilot import inspect_pilot_bundle
 from plex_training.tokenizer import PlexTokenizer, sha256_file, train_tokenizer
 
-from prepare_code_pair_candidate import prompt_text, source_text
 from prepare_p2_15_css_edit_candidate import (
     CANDIDATE_JSONL_SHA256,
     INPUT,
@@ -45,6 +44,22 @@ EXPECTED_VALIDATION_GROUPS = {
     "css-aspect-ratio",
     "css-outline",
 }
+P2_15_OUTPUT_CONTRACT = "Return CSS rules only. Do not include HTML, Markdown fences, or explanations."
+
+
+def p2_15_prompt(row: dict) -> str:
+    return (
+        f"Write a small CSS coding solution.\n"
+        f"Request: {row['request']}\n"
+        f"Output contract: {P2_15_OUTPUT_CONTRACT}\n"
+        "Return code only. Do not include Markdown fences or explanations."
+    )
+
+
+def p2_15_source(row: dict) -> str:
+    return p2_15_prompt(row) + "\n" + row["solution"]
+
+
 EXPECTED_TRAIN_GROUPS = {
     "css-button-radius",
     "css-callout-border",
@@ -94,24 +109,32 @@ def _verify_owner_approval() -> dict:
     return approval
 
 
-def _expected_promoted_text(row: dict, contracts: dict[str, str]) -> bytes:
-    return source_text(row, contracts).encode("utf-8")
+def _expected_promoted_text(row: dict) -> bytes:
+    return p2_15_source(row).encode("utf-8")
 
 
-def _verify_promoted_sources(settings: dict) -> None:
+def _verify_promoted_sources() -> None:
     promoted_approval = json.loads((PROMOTED / "approval.json").read_text(encoding="utf-8"))
     source_approval = json.loads(APPROVAL.read_text(encoding="utf-8"))
     if promoted_approval != source_approval:
         raise ValueError("Promoted P2-15 approval copy differs from the source approval")
 
     expected_files = set()
-    contracts = settings["outputContracts"]
     for row in candidate_rows():
         path = PROMOTED / "sources" / row["splitGroupId"] / f"{row['id']}.txt"
         expected_files.add(path.resolve())
         if not path.is_file() or path.is_symlink():
             raise ValueError(f"Missing promoted P2-15 source: {row['id']}")
-        if path.read_bytes() != _expected_promoted_text(row, contracts):
+        candidate_path = (
+            PHASE2 / "drafts/p2-15-css-edit-candidate-v1/records"
+            / row["candidateSplit"] / row["splitGroupId"] / f"{row['id']}.txt"
+        )
+        if not candidate_path.is_file() or candidate_path.is_symlink():
+            raise ValueError(f"Reviewed P2-15 candidate source is missing: {row['id']}")
+        expected = _expected_promoted_text(row)
+        if candidate_path.read_bytes() != expected:
+            raise ValueError(f"Reviewed P2-15 candidate prompt format drifted: {row['id']}")
+        if path.read_bytes() != candidate_path.read_bytes():
             raise ValueError(f"Promoted P2-15 source differs from the approved candidate: {row['id']}")
 
     actual_files = {
@@ -138,8 +161,8 @@ def _verify_budgets(tokenizer: PlexTokenizer, settings: dict) -> dict:
     records = []
     css_limit = settings["inferenceDefaults"]["maxNewTokens"]["css"]
     for row in candidate_rows():
-        prompt_ids = tokenizer.encode(prompt_text(row, settings["outputContracts"]))
-        whole_ids = tokenizer.encode(source_text(row, settings["outputContracts"]))
+        prompt_ids = tokenizer.encode(p2_15_prompt(row))
+        whole_ids = tokenizer.encode(p2_15_source(row))
         if whole_ids[: len(prompt_ids)] != prompt_ids:
             raise ValueError(f"Prompt is not an exact token prefix for {row['id']}")
         record_tokens = len(whole_ids) + 1
@@ -170,7 +193,7 @@ def _verify_budgets(tokenizer: PlexTokenizer, settings: dict) -> dict:
 def prepare(output: Path) -> dict:
     approval = _verify_owner_approval()
     task_settings = json.loads(P2_14_TASK_SET.read_text(encoding="utf-8"))
-    _verify_promoted_sources(task_settings)
+    _verify_promoted_sources()
 
     output = output.resolve()
     output.relative_to(ARTIFACT_ROOT.resolve())
