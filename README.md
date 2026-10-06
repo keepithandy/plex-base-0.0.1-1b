@@ -180,7 +180,7 @@ Semantic role classification showed the first useful held-out signal: Level A re
 
 ### P2-21 — semantic role generalization
 
-P2-21 is the current **candidate-only** milestone.
+P2-21 is the current **owner-approved first-run** milestone.
 
 The model has only three legal answers:
 
@@ -206,8 +206,9 @@ Candidate SHA:
 8206798467f74bda9867c0179495b535eade3849ca1d8a5d3147de00f27e5584
 ```
 
-No tokenizer fitting, initialization, or P2-21 training is authorized yet.
+The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
 
+**Approved run:** [P2-21 Semantic Role Generalization Run](docs/PHASE-2-P2-21-APPROVED-RUN.md)  
 **Candidate review:** [P2-21 Semantic Role Generalization Candidate](training/phase2/drafts/p2-21-semantic-role-generalization-candidate-v1/REVIEW.md)
 
 ---
