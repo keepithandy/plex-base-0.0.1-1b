@@ -125,6 +125,13 @@ test('runtime accounting receives complete prompt inputs and can override a prel
   assert.equal(context.budget.inputTokens, 2_000);
 });
 
+test('runtime accounting rejects invalid token counts before returning a selection bundle', async t => {
+  const { manifest, ranking } = await setup(t);
+  for (const count of [0, -1, 1.5]) {
+    await assert.rejects(buildContext(task, manifest, ranking, { countTokens: async () => count }), contextError('invalid_counter'));
+  }
+});
+
 test('same-size edits after ranking invalidate the selection hash', async t => {
   const { manifest, ranking } = await setup(t);
   await writeFile(join(manifest.root, 'index.html'), page.replaceAll('Example', 'Updated'));
