@@ -1,0 +1,135 @@
+{
+  "candidate": "p2-17-semantic-binding-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "purpose": "teach literal selector/property/value binding before final CSS composition",
+  "records": 180,
+  "trainingRecords": 120,
+  "evaluationRecords": 60,
+  "trainingScenarioCount": 60,
+  "evaluationScenarioCount": 20,
+  "trainingTaskKindCounts": {
+    "extract-plan": 60,
+    "apply-plan": 60
+  },
+  "evaluationTierCounts": {
+    "A": 20,
+    "B": 20,
+    "C": 20
+  },
+  "evaluationTierTaskKinds": {
+    "A": "extract-plan",
+    "B": "apply-plan",
+    "C": "chain-edit"
+  },
+  "trainingOperationScenarioCounts": {
+    "replace": 20,
+    "add": 20,
+    "remove": 20
+  },
+  "trainingPropertyScenarioCounts": {
+    "border-radius": 10,
+    "opacity": 10,
+    "width": 10,
+    "padding": 10,
+    "font-size": 10,
+    "line-height": 10
+  },
+  "candidateJsonlSha256": "2cf3285fb2548519f1733bae2da7f3260a473c7de76bc2bcf538d300753dbca5",
+  "trainingRowsSha256": "6a27b5fc1ab84ffe389215d0f19ce2a25257ec689e063dd4de21b0b9369c3da2",
+  "tierSha256": {
+    "A": "63f6097826d838165b4d45631c9001c5cbe865e2e7c10b85cd144a88c0c840eb",
+    "B": "6abbbb86c5ec644092327b123ffce56ef187a5297d50f049e36236e3b82151a8",
+    "C": "a016e6cf47a8c74e48b706d916902081328a3a227ab5ab9aaee218dc207b9688"
+  },
+  "p214DevelopmentTaskSetSha256": "0527d9c93321bd34a5c065b23e7551dc9a4a8cc55adec49f04168a68f7e7166e",
+  "p201bDevelopmentTaskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+  "trainEvaluationSelectorOverlap": 0,
+  "trainEvaluationLiteralValueOverlap": 0,
+  "exactDuplicateRequests": 0,
+  "exactDuplicateRecordIds": 0,
+  "evaluationLiteralsAreHeldOut": true,
+  "directChainTasksIncludedInTraining": false,
+  "canonicalEditPlanFields": [
+    "selector",
+    "operation",
+    "property",
+    "old",
+    "new"
+  ],
+  "tierIntent": {
+    "A": "extract the exact five-field edit plan from source CSS plus instruction using unseen selector/value literals",
+    "B": "apply an explicit correct edit plan to source CSS using unseen selector/value literals",
+    "C": "chain extraction plus application from source CSS plus instruction with no explicit edit plan"
+  },
+  "scoringIntent": {
+    "A": [
+      "full-plan exact",
+      "selector exact",
+      "operation exact",
+      "property exact",
+      "old-value exact",
+      "new-value exact",
+      "EOS"
+    ],
+    "B": [
+      "complete CSS task",
+      "exact string",
+      "selector preserved",
+      "requested edit applied",
+      "unrelated declarations preserved",
+      "syntax valid",
+      "EOS"
+    ],
+    "C": [
+      "complete CSS task",
+      "exact string",
+      "selector preserved",
+      "requested edit applied",
+      "unrelated declarations preserved",
+      "syntax valid",
+      "EOS"
+    ]
+  },
+  "provenance": "original local candidate authored for Plex P2-17",
+  "externalSourceTextIncluded": false,
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false,
+  "proposedFirstRun": {
+    "status": "proposal-only-owner-approval-required",
+    "majorVariableChanged": "semantic-binding-representation",
+    "lossObjective": "ordinary-next-token-over-complete-records",
+    "freshInitialization": true,
+    "seed": 1337,
+    "tokenizerFitSplit": "train-only-after-approval",
+    "device": "cuda",
+    "samplingPolicy": "complete-record-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "matchedStepZeroEvaluation": true,
+    "maximumUpdates": 100,
+    "maximumMinutes": 10,
+    "automaticExtension": false,
+    "prerequisite": "verify exact candidate and token budgets; keep all 60 evaluation rows plus P2-14/P2-01b out of tokenizer fitting and gradient training"
+  },
+  "developmentPromptAudit": {
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.358974,
+      "maxPair": [
+        "p2-17-bind-162",
+        "p2-14-css-edit-gap"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.102564,
+      "maxPair": [
+        "p2-17-bind-147",
+        "p2dev-css-06-button-hover"
+      ]
+    }
+  }
+}
