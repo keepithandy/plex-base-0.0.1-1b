@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-16-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-17B-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -100,58 +100,51 @@ The repository side is intentionally deterministic. Model output is treated as a
 
 ## Current research milestone
 
-### P2-16 — CSS generalization curriculum
+### P2-17/P2-17b — semantic binding result
 
-P2-16 expanded the active curriculum to:
+Plex can now completely fit the supplied semantic-binding curriculum, but that capability does **not** transfer cleanly to unseen literals.
 
-- **120** training examples
-- **60** evaluation examples
-- a fresh tokenizer fitted on the training split
-- a fresh seed-1337 model initialization
-- the same 27.6M-parameter architecture
-
-After the first **100 updates**:
+By cumulative step **500**:
 
 | Measure | Result |
 |---|---:|
-| Training complete-task passes | **3 / 120** |
-| Training syntax-valid outputs | **45 / 120** |
-| Training EOS completion | **120 / 120** |
-| Tier A complete passes | **0 / 24** |
-| Tier B complete passes | **0 / 12** |
-| Tier C complete passes | **0 / 12** |
-| Tier D complete passes | **0 / 12** |
-| Validation loss | **6.71646 → 3.38711** |
+| Supplied training complete-task passes | **120 / 120** |
+| Training extraction plans | **60 / 60** |
+| Training explicit-plan applications | **60 / 60** |
+| Tier A full plans | **0 / 20** |
+| Tier A selector exact | **0 / 20** |
+| Tier A new-value exact | **3 / 20** |
+| Tier A operation exact | **13 / 20** |
+| Tier A property exact | **15 / 20** |
+| Tier B complete | **0 / 20** |
+| Tier C complete | **0 / 20** |
+| Validation loss | **2.574 → 3.369** from step 100 to 500 |
 
-The model learned substantially better completion behavior and CSS syntax, but exact held-out edit completion remains at zero.
+The current bottleneck is narrower than "CSS generation": Plex learns categorical semantics and memorizes supplied mappings, but it has not yet demonstrated reliable **exact copying/binding of unseen repository literals**.
 
-**Full report:** [P2-16 CSS Generalization Result](docs/PHASE-2-P2-16-RESULT.md)
+**Full report:** [P2-17b Semantic Binding Result](docs/PHASE-2-P2-17B-RESULT.md)
 
-### P2-16b — optimization continuation
+### P2-18 — literal copy primitive
 
-P2-16b continues the **same** P2-16 step-100 checkpoint instead of starting another model.
+P2-18 is now the active candidate milestone.
+
+It strips away CSS transformation and tests four increasingly difficult primitives:
 
 ```text
-STEP 100
-   ↓
-STEP 200
-   ↓
-STEP 300
-   ↓
-STEP 400
-   ↓
-STEP 500
-   ↓
-REVIEW THE FULL LEARNING CURVE
+A  direct unseen literal copy
+↓
+B  labeled unseen literal copy
+↓
+C  select one literal from several fields
+↓
+D  assemble a tiny selector/old/new plan
 ```
 
-The dataset, tokenizer, architecture, optimizer state, objective, and RNG trajectory stay fixed.
+The candidate contains **144 training** and **72 evaluation-only** records with zero train/evaluation selector overlap and zero old/new literal-value overlap.
 
-No automatic continuation beyond step 500 is authorized.
+The model remains **27.6M parameters**. Scaling toward the long-term 0.5B–1.5B target is intentionally deferred until literal copying/reference binding is understood.
 
-The question is simple: **does the larger curriculum need more optimization, or does Plex need a different training approach?**
-
-**Plan:** [P2-16b Optimization Continuation](docs/PHASE-2-P2-16B-CONTINUATION.md)
+**Candidate review:** [P2-18 Literal Copy Primitive](training/phase2/drafts/p2-18-literal-copy-candidate-v1/REVIEW.md)
 
 ---
 
@@ -309,6 +302,8 @@ Plex development follows a few strict rules:
 For the technical details and experiment history:
 
 - [Full Plex roadmap](Plex-ROADMAP.md)
+- [P2-17b semantic binding result](docs/PHASE-2-P2-17B-RESULT.md)
+- [P2-18 literal copy candidate review](training/phase2/drafts/p2-18-literal-copy-candidate-v1/REVIEW.md)
 - [P2-16 CSS generalization result](docs/PHASE-2-P2-16-RESULT.md)
 - [P2-16b optimization continuation](docs/PHASE-2-P2-16B-CONTINUATION.md)
 - [Phase 1 experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md)
