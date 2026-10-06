@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-19-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-19B-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -142,38 +142,49 @@ Training Level C reached **36/36**, but held-out selected-field exactness remain
 
 **Full result:** [P2-18b Literal Copy Result](docs/PHASE-2-P2-18B-RESULT.md)
 
-### P2-19 — reference-mediated symbol binding
+### P2-19/P2-19b — reference binding result
 
-The first P2-19 CUDA run is complete at step 100 and shows the first nonzero held-out transfer in this experiment line:
+P2-19 is now **complete and closed**.
 
-| Measure | Step 100 |
-|---|---:|
-| Supplied training complete | **51 / 144** |
-| Level A | **18 / 36** |
-| Level B | **12 / 36** |
-| Level C | **17 / 36** |
-| Level D | **4 / 36** |
-| Tier A reference exact | **4 / 18** |
-| Tier B reference exact | **6 / 18** |
-| Tier C reference exact | **3 / 18** |
-| Tier D full plan | **1 / 18** |
-| Validation loss | **6.687 → 3.048** |
+Reference mediation fixed an important output problem: Plex learned to use stable `R0`–`R5` symbols and reached **14/18** held-out full symbolic plans on Tier D.
 
-Tiers A/B/C all produced a known `R0`–`R5` reference on **18/18** rows. Tier D reached **17/18 format-valid** plans.
+But semantic reference selection did not generalize reliably:
 
-This is materially different from P2-18: reference mediation is already producing held-out symbolic behavior while supplied training is still only 51/144.
+| Step | Training /144 | Tier A /18 | Tier B /18 | Tier C /18 | Tier D full /18 | Validation loss |
+|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 51 | 4 | 6 | 3 | 1 | 3.048 |
+| 200 | 116 | 6 | 5 | 2 | 12 | 3.241 |
+| 300 | 129 | 8 | 4 | 4 | 11 | 3.549 |
+| 400 | 137 | 8 | 6 | 2 | 11 | 3.979 |
+| 500 | **143** | 6 | 6 | **2** | **14** | **4.277** |
 
-**First-run result:** [P2-19 Reference Binding Result](docs/PHASE-2-P2-19-RESULT.md)
+Training B/C reached **36/36** and **35/36**, while held-out B/C remained weak. The model can manipulate stable references, but semantic role selection and reference lookup are still conflated.
 
-### P2-19b — optimization continuation
+**Full result:** [P2-19b Reference Binding Result](docs/PHASE-2-P2-19B-RESULT.md)
 
-P2-19b is now **owner-approved**.
+### P2-20 — semantic role + reference lookup decomposition
 
-The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400, and 500** in isolated +100-update CUDA increments, preserving the same tokenizer, 144/72 dataset, 27.6M-parameter architecture, optimizer/sampler/RNG state, complete-record objective and P2-19 A/B/C/D scoring.
+P2-20 is the current **candidate-only** milestone.
 
-No automatic continuation beyond step 500 is authorized.
+It removes raw repository literals completely and isolates three primitives:
 
-**Continuation plan:** [P2-19b Reference Binding Continuation](docs/PHASE-2-P2-19B-CONTINUATION.md)
+```text
+A  semantic wording -> SELECTOR / OLD / NEW
+B  explicit role + bindings -> R0-R5
+C  semantic wording + bindings -> R0-R5
+```
+
+The candidate contains **144 training + 72 evaluation** records. Training/evaluation semantic phrases are disjoint, binding-pattern families are disjoint, role frequencies are balanced, and B/C target references are exactly uniform.
+
+Candidate SHA:
+
+```text
+8d7c54ceed8a0c90a437626e504e2ba39582f0ca5c57c243db5c564e2c02985d
+```
+
+No tokenizer fitting, initialization, or P2-20 training is authorized yet.
+
+**Candidate review:** [P2-20 Role Decomposition Candidate](training/phase2/drafts/p2-20-role-decomposition-candidate-v1/REVIEW.md)
 
 ---
 

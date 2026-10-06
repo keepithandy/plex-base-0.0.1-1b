@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-20-role-decomposition-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "records": 216,
+  "trainingRecords": 144,
+  "evaluationRecords": 72,
+  "trainingLevelCounts": {
+    "A": 48,
+    "B": 48,
+    "C": 48
+  },
+  "evaluationTierCounts": {
+    "A": 24,
+    "B": 24,
+    "C": 24
+  },
+  "candidateJsonlSha256": "8d7c54ceed8a0c90a437626e504e2ba39582f0ca5c57c243db5c564e2c02985d",
+  "trainingRowsSha256": "006c8e307dfefa63f95dfa1d4e26e696b3cf74577a958f5f7c217162f7a712c4",
+  "tierSha256": {
+    "A": "1ced4992163fce863443708fbce6c03719ce1339377f96dbc4a478da533f9516",
+    "B": "4b39d3f07afac206cea39a897b50bf710531ca0bdbcfc60483912fb4287b59dd",
+    "C": "806b02955173f7b2810bbdd3a342d055dfc5de25ab5ea8692b47707bbde23784"
+  },
+  "roleVocabulary": [
+    "SELECTOR",
+    "OLD",
+    "NEW"
+  ],
+  "referenceVocabulary": [
+    "R0",
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5"
+  ],
+  "trainRoleCountsPerLevel": {
+    "SELECTOR": 16,
+    "OLD": 16,
+    "NEW": 16
+  },
+  "evaluationRoleCountsPerTier": {
+    "SELECTOR": 8,
+    "OLD": 8,
+    "NEW": 8
+  },
+  "trainTargetReferenceCountsForBandC": {
+    "R0": 8,
+    "R1": 8,
+    "R2": 8,
+    "R3": 8,
+    "R4": 8,
+    "R5": 8
+  },
+  "evaluationTargetReferenceCountsForBandC": {
+    "R0": 4,
+    "R1": 4,
+    "R2": 4,
+    "R3": 4,
+    "R4": 4,
+    "R5": 4
+  },
+  "trainEvaluationSemanticPhraseOverlap": 0,
+  "trainEvaluationExactRequestOverlap": 0,
+  "duplicateRequests": 0,
+  "rawRepositoryLiteralsPresent": false,
+  "levelA": "semantic wording -> canonical role label",
+  "levelB": "explicit role label + bindings -> reference",
+  "levelC": "semantic wording + bindings -> reference",
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false,
+  "developmentPromptAudit": {
+    "P2-19": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.4,
+      "maxPair": [
+        "p2-20-t-c-046",
+        "p2-19-t-c-026"
+      ]
+    },
+    "P2-18": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.32,
+      "maxPair": [
+        "p2-20-t-a-048",
+        "p2-18-copy-073"
+      ]
+    },
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.179487,
+      "maxPair": [
+        "p2-20-e-a-001",
+        "p2-17-bind-064"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.093023,
+      "maxPair": [
+        "p2-20-t-c-047",
+        "p2-14-css-edit-show-menu"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.115385,
+      "maxPair": [
+        "p2-20-t-a-018",
+        "p2dev-js-05-format-usd"
+      ]
+    }
+  }
+}
