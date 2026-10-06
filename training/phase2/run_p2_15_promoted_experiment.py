@@ -42,7 +42,6 @@ def _score_candidate(
         (prepared / "scoring/p2-14-task-set.json").read_text(encoding="utf-8")
     )
     device = select_device(device_name)
-    node_executable = _development_node(task_set)
     model, payload = read_checkpoint(checkpoint, device)
     if payload.get("tokenizerRecord") != bundle["tokenizer"]:
         raise ValueError("P2-15 checkpoint tokenizer differs from prepared bundle")
@@ -98,7 +97,6 @@ def _score_candidate(
         "checkpointSha256": sha256_file(checkpoint),
         "training": _summarize(train),
         "validation": _summarize(validation),
-        "nodeExecutable": node_executable,
         "records": records,
     }
     output_path.write_text(
@@ -131,6 +129,7 @@ def _score_task_set(
     tokenizer = PlexTokenizer.load(prepared / "tokenizer")
     task_set = json.loads(task_set_path.read_text(encoding="utf-8"))
     device = select_device(device_name)
+    node_executable = _development_node(task_set)
     model, payload = read_checkpoint(checkpoint, device)
     if payload.get("tokenizerRecord") != bundle["tokenizer"]:
         raise ValueError("Development checkpoint tokenizer differs from prepared bundle")
@@ -188,6 +187,7 @@ def _score_task_set(
         "completeTaskPasses": sum(bool(row["passed"]) for row in records),
         "eos": sum(bool(row["eos"]) for row in records),
         "byLanguage": by_language,
+        "nodeExecutable": node_executable,
         "records": records,
     }
     output_path.write_text(
