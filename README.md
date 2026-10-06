@@ -16,7 +16,7 @@
   ·
   <a href="./training/README.md"><strong>Training</strong></a>
   ·
-  <a href="./docs/PHASE-2-P2-20B-RESULT.md"><strong>Latest Result</strong></a>
+  <a href="./docs/PHASE-2-P2-21-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
@@ -180,36 +180,40 @@ Semantic role classification showed the first useful held-out signal: Level A re
 
 ### P2-21 — semantic role generalization
 
-P2-21 is the current **owner-approved first-run** milestone.
+The first P2-21 CUDA run is complete at step 100.
 
-The model has only three legal answers:
+| Measure | Step 100 |
+|---|---:|
+| Supplied training complete | **68 / 144** |
+| Level A | **21 / 48** |
+| Level B | **21 / 48** |
+| Level C | **26 / 48** |
+| Tier A | **6 / 24** |
+| Tier B | **8 / 24** |
+| Tier C | **10 / 24** |
+| Validation loss | **6.950 → 3.356** |
+| Mean recent loss | **0.309** |
 
-```text
-SELECTOR
-OLD
-NEW
-```
+The model learned the three-label output grammar cleanly, but semantic class selection remains underfit. The strongest step-100 asymmetry is `OLD`, which scored only **0/8, 0/8 and 1/8** on held-out A/B/C.
 
-The candidate contains **144 training + 72 evaluation** records across three semantic bands:
+**First-run result:** [P2-21 Semantic Role Generalization Result](docs/PHASE-2-P2-21-RESULT.md)
 
-```text
-A  clean unseen paraphrases
-B  hard minimal contrasts
-C  repository-style edit language
-```
+### P2-21b — optimization continuation
 
-Every band is exactly role-balanced. Training/evaluation requests are disjoint, contrast contexts are disjoint, there are no learned R0-R5 references, and the model is not asked to reproduce raw repository bytes.
+P2-21b is now **owner-approved**.
 
-Candidate SHA:
+The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
 
-```text
-8206798467f74bda9867c0179495b535eade3849ca1d8a5d3147de00f27e5584
-```
+- the exact tokenizer and 144/72 dataset;
+- the 27.6M-parameter architecture;
+- optimizer/sampler/RNG state;
+- the complete-record objective;
+- the existing semantic A/B/C scorer;
+- SELECTOR / OLD / NEW breakdowns at every checkpoint.
 
-The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
+No automatic continuation beyond step 500 is authorized.
 
-**Approved run:** [P2-21 Semantic Role Generalization Run](docs/PHASE-2-P2-21-APPROVED-RUN.md)  
-**Candidate review:** [P2-21 Semantic Role Generalization Candidate](training/phase2/drafts/p2-21-semantic-role-generalization-candidate-v1/REVIEW.md)
+**Continuation plan:** [P2-21b Semantic Role Continuation](docs/PHASE-2-P2-21B-CONTINUATION.md)
 
 ---
 
