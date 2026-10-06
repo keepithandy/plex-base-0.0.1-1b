@@ -164,7 +164,7 @@ Training B/C reached **36/36** and **35/36**, while held-out B/C remained weak. 
 
 ### P2-20 — semantic role + reference lookup decomposition
 
-P2-20 is the current **candidate-only** milestone.
+P2-20 is the current **owner-approved first-run** milestone.
 
 It removes raw repository literals completely and isolates three primitives:
 
@@ -176,14 +176,15 @@ C  semantic wording + bindings -> R0-R5
 
 The candidate contains **144 training + 72 evaluation** records. Training/evaluation semantic phrases are disjoint, binding-pattern families are disjoint, role frequencies are balanced, and B/C target references are exactly uniform.
 
-Candidate SHA:
+Approved candidate SHA:
 
 ```text
 8d7c54ceed8a0c90a437626e504e2ba39582f0ca5c57c243db5c564e2c02985d
 ```
 
-No tokenizer fitting, initialization, or P2-20 training is authorized yet.
+The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
 
+**Approved run:** [P2-20 Role Decomposition Run](docs/PHASE-2-P2-20-APPROVED-RUN.md)  
 **Candidate review:** [P2-20 Role Decomposition Candidate](training/phase2/drafts/p2-20-role-decomposition-candidate-v1/REVIEW.md)
 
 ---
