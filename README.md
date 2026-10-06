@@ -196,38 +196,40 @@ The model showed useful semantic transfer under structured and repository-style 
 
 ### P2-22 — edit intent classification
 
-P2-22 is the current **owner-approved first-run** milestone.
+The first P2-22 CUDA run is complete at step 100.
 
-The model has five legal answers:
+| Measure | Step 100 |
+|---|---:|
+| Supplied training complete | **64 / 150** |
+| Level A | **24 / 50** |
+| Level B | **22 / 50** |
+| Level C | **18 / 50** |
+| Tier A | **6 / 25** |
+| Tier B | **2 / 25** |
+| Tier C | **7 / 25** |
+| Validation loss | **7.073 → 3.321** |
+| Mean recent loss | **0.439** |
 
-```text
-REPLACE
-INSERT
-DELETE
-RENAME
-TOGGLE
-```
+The five-label output grammar is learned, but semantic intent selection is still underfit. The strongest step-100 asymmetry is `REPLACE` at only **1/30** supplied examples, with `INSERT` at **8/30**.
 
-The candidate contains **150 training + 75 evaluation** records across three balanced semantic bands:
+**First-run result:** [P2-22 Edit Intent Classification Result](docs/PHASE-2-P2-22-RESULT.md)
 
-```text
-A  clean unseen intent paraphrases
-B  five-way minimal semantic contrasts
-C  repository-style edit language
-```
+### P2-22b — optimization continuation
 
-Every tier is intent-balanced. Training/evaluation requests are disjoint, contrast contexts are disjoint, same-intent train/eval near-duplicates at >=0.65 Jaccard are zero, and the model is not asked to reproduce raw repository bytes or code.
+P2-22b is **owner-approved**.
 
-Candidate SHA:
+The exact v1 step-100 checkpoint will continue through cumulative steps **200, 300, 400 and 500** in isolated +100-update CUDA increments while preserving:
 
-```text
-592cac0e1c18ad9139057352b132cb39621279c7ec331aad9963610869b25bc0
-```
+- the exact tokenizer and 150/75 dataset;
+- the 27.6M-parameter architecture;
+- optimizer/sampler/RNG state;
+- the complete-record objective;
+- the existing edit-intent A/B/C scorer;
+- REPLACE / INSERT / DELETE / RENAME / TOGGLE breakdowns at every checkpoint.
 
-The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
+No automatic continuation beyond step 500 is authorized.
 
-**Approved run:** [P2-22 Edit Intent Classification Run](docs/PHASE-2-P2-22-APPROVED-RUN.md)  
-**Candidate review:** [P2-22 Edit Intent Classification Candidate](training/phase2/drafts/p2-22-edit-intent-classification-candidate-v1/REVIEW.md)
+**Continuation plan:** [P2-22b Edit Intent Continuation](docs/PHASE-2-P2-22B-CONTINUATION.md)
 
 ---
 
