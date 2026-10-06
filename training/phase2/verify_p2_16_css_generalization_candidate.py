@@ -57,8 +57,13 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _canonical_text_bytes(path: Path) -> bytes:
+    raw = path.read_bytes()
+    return raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
 def _file_sha(path: Path) -> str:
-    return _sha(path.read_bytes())
+    return _sha(_canonical_text_bytes(path))
 
 
 def _encoded(rows: list[dict[str, Any]]) -> bytes:
@@ -204,7 +209,7 @@ def verify() -> dict[str, Any]:
     rows = _load_rows()
     if len(rows) != 180:
         raise ValueError("P2-16 candidate must contain 180 records")
-    if _encoded(rows) != CANDIDATE.read_bytes():
+    if _encoded(rows) != _canonical_text_bytes(CANDIDATE):
         raise ValueError("candidate JSONL is not canonical deterministic JSON")
 
     ids = [row.get("id") for row in rows]
