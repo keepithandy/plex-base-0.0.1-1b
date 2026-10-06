@@ -126,7 +126,7 @@ The current bottleneck is narrower than "CSS generation": Plex learns categorica
 
 ### P2-18 — literal copy primitive
 
-P2-18 is now the active candidate milestone.
+P2-18 is now **owner-approved for one bounded first run**.
 
 It strips away CSS transformation and tests four increasingly difficult primitives:
 
@@ -140,10 +140,11 @@ C  select one literal from several fields
 D  assemble a tiny selector/old/new plan
 ```
 
-The candidate contains **144 training** and **72 evaluation-only** records with zero train/evaluation selector overlap and zero old/new literal-value overlap.
+The candidate contains **144 training** and **72 evaluation-only** records with zero train/evaluation selector overlap and zero old/new literal-value overlap. The approved run uses a fresh training-only tokenizer, fresh seed-1337 initialization, the unchanged **27.6M-parameter** model, `complete-record-v1`, and a hard **100-update / 10-minute** ceiling with no automatic extension.
 
-The model remains **27.6M parameters**. Scaling toward the long-term 0.5B–1.5B target is intentionally deferred until literal copying/reference binding is understood.
+Scaling toward the long-term 0.5B–1.5B target is intentionally deferred until literal copying/reference binding is understood.
 
+**Approved run:** [P2-18 Literal Copy Run](docs/PHASE-2-P2-18-APPROVED-RUN.md)  
 **Candidate review:** [P2-18 Literal Copy Primitive](training/phase2/drafts/p2-18-literal-copy-candidate-v1/REVIEW.md)
 
 ---
