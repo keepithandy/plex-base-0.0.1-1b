@@ -196,7 +196,7 @@ The model showed useful semantic transfer under structured and repository-style 
 
 ### P2-22 — edit intent classification
 
-P2-22 is the current **candidate-only** milestone.
+P2-22 is the current **owner-approved first-run** milestone.
 
 The model has five legal answers:
 
@@ -224,8 +224,9 @@ Candidate SHA:
 592cac0e1c18ad9139057352b132cb39621279c7ec331aad9963610869b25bc0
 ```
 
-No tokenizer fitting, initialization, or P2-22 training is authorized yet.
+The authorized run uses the unchanged **27.6M-parameter** architecture, a fresh train-only tokenizer and seed-1337 initialization, `complete-record-v1`, and stops at **100 updates / 10 minutes** with no automatic extension.
 
+**Approved run:** [P2-22 Edit Intent Classification Run](docs/PHASE-2-P2-22-APPROVED-RUN.md)  
 **Candidate review:** [P2-22 Edit Intent Classification Candidate](training/phase2/drafts/p2-22-edit-intent-classification-candidate-v1/REVIEW.md)
 
 ---
