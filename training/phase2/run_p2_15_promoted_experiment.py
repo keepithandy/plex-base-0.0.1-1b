@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import shutil
 import sys
 from pathlib import Path
 
@@ -41,6 +42,7 @@ def _score_candidate(
         (prepared / "scoring/p2-14-task-set.json").read_text(encoding="utf-8")
     )
     device = select_device(device_name)
+    node_executable = _development_node(task_set)
     model, payload = read_checkpoint(checkpoint, device)
     if payload.get("tokenizerRecord") != bundle["tokenizer"]:
         raise ValueError("P2-15 checkpoint tokenizer differs from prepared bundle")
@@ -96,6 +98,7 @@ def _score_candidate(
         "checkpointSha256": sha256_file(checkpoint),
         "training": _summarize(train),
         "validation": _summarize(validation),
+        "nodeExecutable": node_executable,
         "records": records,
     }
     output_path.write_text(
@@ -104,6 +107,17 @@ def _score_candidate(
         newline="\n",
     )
     return result
+
+
+def _development_node(task_set: dict) -> str | None:
+    if not any(task.get("language") == "javascript" for task in task_set.get("tasks", [])):
+        return None
+    node = shutil.which("node")
+    if node is None:
+        raise ValueError(
+            "Node.js is required to score JavaScript tasks in the P2-01b development set"
+        )
+    return node
 
 
 def _score_task_set(
@@ -147,7 +161,7 @@ def _score_task_set(
             device=device,
         )
         completion = tokenizer.decode(tokens)
-        checked = _check_task(task, completion, None, 5.0)
+        checked = _check_task(task, completion, node_executable, 5.0)
         records.append({
             "id": task["id"],
             "language": task["language"],
