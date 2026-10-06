@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "diagnostic": "p2-22c-presence-transition-diagnostic-v1",
+  "authorizationStatus": "owner-authorized-evaluation-only",
+  "sourceExperiment": "p2-22b-edit-intent-continuation-v1",
+  "sourceStep": 500,
+  "records": 45,
+  "tierCounts": {
+    "A": 15,
+    "B": 15,
+    "C": 15
+  },
+  "intentCounts": {
+    "INSERT": 15,
+    "DELETE": 15,
+    "REPLACE": 15
+  },
+  "intentCountsPerTier": {
+    "INSERT": 5,
+    "DELETE": 5,
+    "REPLACE": 5
+  },
+  "diagnosticJsonlSha256": "4d445110d7688e2c9e3d1ba83eb9597eb3320550b71ac9324bf970f6bc1fa479",
+  "tierSha256": {
+    "A": "f94aa202d263128044e64ec1eb8cc9e4c724df5218e4ccba4577368cdfc41f5b",
+    "B": "a2a1f014ca0bfbcd589a9a95cb226299f2393f1ccee89d9ae17d29dbbbc6a638",
+    "C": "42c61d12689fa337d691949c0217675fbc90a93a080edc7b2633853f6d352a27"
+  },
+  "legalDiagnosticOutputs": [
+    "INSERT",
+    "DELETE",
+    "REPLACE"
+  ],
+  "transitionDefinitions": {
+    "INSERT": "ABSENT -> PRESENT",
+    "DELETE": "PRESENT -> ABSENT",
+    "REPLACE": "PRESENT -> PRESENT with changed content"
+  },
+  "chanceBaselinePerTier": 0.3333333333333333,
+  "p222ExactRequestOverlap": 0,
+  "p222MaxWordJaccard": 0.432432,
+  "p222MaxPair": [
+    "p2-22c-e-a-007",
+    "p2-22-e-a-006"
+  ],
+  "matchedContrastSimilarityIntentional": true,
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "gradientTrainingPerformed": false,
+  "modelWeightsModified": false,
+  "finalHoldoutOpened": false
+}
