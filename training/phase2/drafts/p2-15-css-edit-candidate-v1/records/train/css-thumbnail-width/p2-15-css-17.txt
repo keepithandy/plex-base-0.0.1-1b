@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.avatar-preview { width: 5rem; object-fit: cover; }
+
+Add a 100% maximum width and preserve the width and object-fit settings. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.avatar-preview { width: 5rem; object-fit: cover; max-width: 100%; }

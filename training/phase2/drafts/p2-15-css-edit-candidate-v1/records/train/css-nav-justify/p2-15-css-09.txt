@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.footer-navigation { display: flex; justify-content: space-around; flex-wrap: wrap; }
+
+Set the main-axis alignment to space-evenly and keep wrapping enabled. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.footer-navigation { display: flex; justify-content: space-evenly; flex-wrap: wrap; }

@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.feature-list { list-style-type: circle; color: #334155; }
+
+Remove the list markers but keep the text color. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.feature-list { list-style-type: none; color: #334155; }

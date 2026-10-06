@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.main-navigation { display: flex; justify-content: flex-start; gap: 1rem; }
+
+Align the flex items at the inline end. Keep the gap and display mode. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.main-navigation { display: flex; justify-content: flex-end; gap: 1rem; }

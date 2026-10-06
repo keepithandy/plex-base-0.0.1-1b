@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.inline-code-sample { white-space: pre; background: #f1f5f9; }
+
+Allow normal wrapping and preserve the background. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.inline-code-sample { white-space: normal; background: #f1f5f9; }

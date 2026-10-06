@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.success-callout { border: 3px solid #475569; background: #f8fafc; }
+
+Use #15803d for the border color and preserve the other declarations. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.success-callout { border: 3px solid #15803d; background: #f8fafc; }

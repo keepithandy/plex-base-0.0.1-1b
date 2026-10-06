@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.inactive-menu-item { opacity: 0.5; pointer-events: none; }
+
+Restore opacity to 1 while keeping pointer events disabled. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.inactive-menu-item { opacity: 1; pointer-events: none; }

@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.dialog-close { outline: none; color: #334155; }
+
+Add a 2px solid #0f766e outline and retain the text color. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.dialog-close { outline: 2px solid #0f766e; color: #334155; }

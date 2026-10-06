@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.keyboard-control { outline: 2px solid #2563eb; outline-offset: 0; }
+
+Move the outline 3px away from the control; preserve its style and color. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.keyboard-control { outline: 2px solid #2563eb; outline-offset: 3px; }

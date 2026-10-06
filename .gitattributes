@@ -8,3 +8,8 @@ training/dataset-source-lock.json text eol=lf
 # P2-12 candidate hashes are computed over canonical LF JSONL and review bytes.
 training/phase2/drafts/p2-12-answer-start-transfer-v1/** text eol=lf
 training/phase2/drafts/p2-12-answer-start-transfer-v2/** text eol=lf
+
+# Hash-pinned evaluation/candidate inputs use canonical LF bytes on Windows too.
+training/phase2/drafts/p2-14-css-edit-step200-v1/** text eol=lf
+training/phase2/drafts/p2-15-css-edit-candidate-v1/** text eol=lf
+training/phase2/drafts/p2-15-css-edit-candidate-v1.jsonl text eol=lf

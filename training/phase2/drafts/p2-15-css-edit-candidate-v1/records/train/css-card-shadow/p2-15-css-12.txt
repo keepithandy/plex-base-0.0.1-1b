@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.summary-card { box-shadow: 0 6px 18px #0004; border: 1px solid #cbd5e1; }
+
+Remove the shadow while leaving the border declaration unchanged. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.summary-card { box-shadow: none; border: 1px solid #cbd5e1; }

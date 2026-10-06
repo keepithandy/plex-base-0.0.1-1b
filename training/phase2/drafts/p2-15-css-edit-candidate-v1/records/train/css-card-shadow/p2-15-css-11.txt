@@ -1,0 +1,8 @@
+Write a small CSS coding solution.
+Request: Starting CSS:
+.profile-card { box-shadow: none; padding: 1.25rem; }
+
+Add a shadow of 0 2px 8px #1e293b33; preserve the padding. Return the complete updated CSS rule with no unrelated changes.
+Output contract: Return CSS rules only. Do not include HTML, Markdown fences, or explanations.
+Return code only. Do not include Markdown fences or explanations.
+.profile-card { box-shadow: 0 2px 8px #1e293b33; padding: 1.25rem; }
