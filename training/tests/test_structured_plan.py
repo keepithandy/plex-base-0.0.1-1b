@@ -13,6 +13,7 @@ from pathlib import Path
 
 from plex_training.cli import main
 from plex_training.structured_plan import (
+    canonical_text_sha256,
     evaluate_plan_files,
     evaluate_plan_set,
     parse_plan_response,
@@ -179,11 +180,19 @@ class StructuredPlanSchemaTests(unittest.TestCase):
 
 
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
+    def test_canonical_task_hash_is_identical_for_lf_and_crlf(self) -> None:
+        path = Path(__file__).parents[1] / "phase2" / "evaluation" / "p2-31-plan-dev-v1.json"
+        lf = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        crlf = lf.replace(b"\n", b"\r\n")
+        expected = "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
+        self.assertEqual(canonical_text_sha256(lf), expected)
+        self.assertEqual(canonical_text_sha256(crlf), expected)
+
     def test_shipped_set_is_balanced_hash_pinned_and_gate_is_predeclared(self) -> None:
         path = Path(__file__).parents[1] / "phase2" / "evaluation" / "p2-31-plan-dev-v1.json"
         raw = path.read_bytes()
         value = validate_plan_task_set(json.loads(raw.decode("utf-8")))
-        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+        self.assertEqual(canonical_text_sha256(raw),
                          "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5")
         self.assertEqual(len(value["tasks"]), 18)
         self.assertEqual(Counter(task["language"] for task in value["tasks"]),
