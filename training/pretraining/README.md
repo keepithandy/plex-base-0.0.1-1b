@@ -124,3 +124,32 @@ A missing or failing contamination report blocks tokenizer fitting and pretraini
 The first byte-scale target is roughly **4–6 MiB of accepted normalized HTML/CSS/JavaScript**. Exact token count waits for P2-27 tokenizer review.
 
 See [P2-26 Plex Web Corpus v1](../../docs/PHASE-2-P2-26-WEB-CORPUS-V1.md).
+
+## P2-26 source batch #2
+
+Batch #2 is recorded in:
+
+```text
+training/pretraining/p2-26-source-batch-2.json
+```
+
+It contains four CC0-1.0 MDN example repositories plus two MIT repositories. Pinned-tree screening estimates **5,849,962 eligible bytes / 3,322 eligible files** before Plex content filtering. The four MDN repositories share one source-family group to prevent related-example leakage across train/validation.
+
+Materialize batch #2:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-source-materialize `
+  --registry training\pretraining\p2-26-source-batch-2.json `
+  --manifest-output training\pretraining\sources.p2-26-batch-2.local.json
+```
+
+Verify it:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-source-verify `
+  --source-manifest training\pretraining\sources.p2-26-batch-2.local.json
+```
+
+Do not assume the 5.85 MB estimate survives filtering. `web-source-verify` is authoritative.
+
+See [P2-26 source batch #2](../../docs/PHASE-2-P2-26-SOURCE-BATCH-2.md).
