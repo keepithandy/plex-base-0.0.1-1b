@@ -8,6 +8,9 @@ _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
 
+- Verified the **P2-28 fresh step-zero initialization**: **27,566,080 parameters**, 16,384-token frozen tokenizer, seed **1337**, checkpoint SHA-256 `06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86`, initial-weight SHA-256 `98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193`, and both pretrained-weight flags false.
+- Authorized one **100-step / 10-minute CUDA P2-28 base-pretraining pilot** from that exact step-zero checkpoint using ordinary next-token loss, micro-batch 1, gradient accumulation 16, and random-window sampling. Continuation beyond the bounded run remains blocked pending review.
+
 - Completed **P2-27 — Web Tokenizer Review**. Four fresh train-only byte-level BPE candidates were compared at 4,096 / 8,192 / 12,288 / 16,384 vocabulary. The owner froze the **16,384-token** candidate, which led validation compression (**3.5236116328 bytes/token**) and representative review-sample compression (**3.0941176471 bytes/token**). Frozen tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`; review SHA-256: `3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8`. No model training occurred.
 - Opened **P2-28 — Fresh 27.6M Scratch Domain-Pretraining Pilot** at an **initialization-only gate**. The exact contract requires a seed-1337 CPU step-zero initialization of the unchanged **27,566,080-parameter** architecture using the frozen 16,384-token bundle, with no pretrained or resumed model weights. Training remains unauthorized until the initialization hashes and provenance fields are verified.
 
