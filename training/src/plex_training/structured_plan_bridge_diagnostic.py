@@ -1,4 +1,4 @@
-"""P2-37 read-only error decomposition for structured-plan bridge outputs."""
+"""Read-only error decomposition for structured-plan bridge outputs."""
 
 from __future__ import annotations
 
@@ -28,22 +28,27 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 def _contract(path: Path) -> dict[str, Any]:
     if path.is_symlink() or not path.is_file() or path.stat().st_size > 1024 * 1024:
-        raise ValueError("P2-37 diagnostic contract must be a regular JSON file under 1 MiB")
+        raise ValueError("Bridge diagnostic contract must be a regular JSON file under 1 MiB")
     value = json.loads(path.read_text(encoding="utf-8"))
+    allowed = {
+        "P2-37": "plex-p2-37-bridge-error-decomposition-contract-v1",
+        "P2-40": "plex-p2-40-bridge-error-decomposition-contract-v1",
+    }
+    milestone = value.get("milestone") if isinstance(value, dict) else None
     if (not isinstance(value, dict)
             or value.get("schemaVersion") != 1
-            or value.get("milestone") != "P2-37"
-            or value.get("kind") != "plex-p2-37-bridge-error-decomposition-contract-v1"
+            or milestone not in allowed
+            or value.get("kind") != allowed[milestone]
             or value.get("status") != "diagnostic-authorized"
             or value.get("modelTrainingAuthorized") is not False):
-        raise ValueError("P2-37 diagnostic contract is invalid")
+        raise ValueError("Bridge diagnostic contract is invalid")
     protected = value.get("protectedEvaluation")
     if (not isinstance(protected, dict)
             or protected.get("noResponseRepair") is not True
             or protected.get("noRescoring") is not True
             or protected.get("noGradientUpdates") is not True
             or protected.get("finalProjectHoldoutMustRemainClosed") is not True):
-        raise ValueError("P2-37 protected diagnostic boundary is invalid")
+        raise ValueError("Bridge protected diagnostic boundary is invalid")
     return value
 
 
@@ -83,7 +88,7 @@ def diagnose_bridge_errors(
 ) -> dict[str, Any]:
     if (task_set_path.is_symlink() or not task_set_path.is_file()
             or task_set_path.stat().st_size > MAX_PLAN_TASK_SET_BYTES):
-        raise ValueError("P2-37 task set is missing, linked, or oversized")
+        raise ValueError("Bridge task set is missing, linked, or oversized")
     task_raw = task_set_path.read_bytes()
     task_set = validate_plan_task_set(json.loads(task_raw.decode("utf-8")))
     responses, responses_raw = _load_responses(responses_path)
@@ -96,16 +101,16 @@ def diagnose_bridge_errors(
     if (not isinstance(expected_task, dict)
             or expected_task.get("sha256") != task_sha
             or expected_task.get("tasks") != len(task_set["tasks"])):
-        raise ValueError("P2-37 task set differs from authorized diagnostic input")
+        raise ValueError("Bridge task set differs from authorized diagnostic input")
     if (not isinstance(expected_responses, dict)
             or expected_responses.get("sha256") != responses_sha):
-        raise ValueError("P2-37 responses differ from authorized diagnostic input")
+        raise ValueError("Bridge responses differ from authorized diagnostic input")
 
     by_response: dict[str, dict[str, Any]] = {}
     for row in responses:
         task_id = row["taskId"]
         if task_id in by_response:
-            raise ValueError(f"Duplicate P2-37 response for task {task_id}")
+            raise ValueError(f"Duplicate bridge response for task {task_id}")
         by_response[task_id] = row
 
     failure_classes = Counter()
@@ -200,8 +205,8 @@ def diagnose_bridge_errors(
     schema_valid = sum(schema_valid_by_language.values())
     return {
         "schemaVersion": 1,
-        "milestone": "P2-37",
-        "kind": "plex-p2-37-bridge-error-decomposition-result-v1",
+        "milestone": contract["milestone"],
+        "kind": f"plex-{contract['milestone'].lower()}-bridge-error-decomposition-result-v1",
         "trainingPerformed": False,
         "researchOptimizerUpdates": 0,
         "finalHoldoutOpened": False,
