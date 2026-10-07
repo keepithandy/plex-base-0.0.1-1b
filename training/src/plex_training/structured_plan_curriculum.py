@@ -15,7 +15,6 @@ from .structured_plan import (
     render_plan_request_prompt,
     validate_plan_task_set,
 )
-from .tokenizer import EOS_ID
 
 EXPECTED_CANDIDATE_SHA256 = "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3"
 EXPECTED_DEV_SHA256 = "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
