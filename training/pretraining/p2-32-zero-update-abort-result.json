@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-32",
+  "kind": "plex-p2-32-zero-update-abort-v1",
+  "recordedDate": "2026-10-07",
+  "status": "aborted-before-first-optimizer-update",
+  "error": "P2-32 complete-record sampling requires a padding mask",
+  "rootCause": "P2-32 StructuredPlanCompleteRecordCorpus exposes sample_masked_batch, but the shared runner _training_step only recognizes the older CompleteRecordTokenCorpus class and therefore called the intentionally-disabled sample_batch method.",
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "authorizationConsumed": false,
+  "stageCheckpointSha256": "7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3",
+  "bundleManifestSha256": "a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd",
+  "candidateSha256": "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "recoveryPolicy": "Only an output directory containing no checkpoints and no metrics event other than run_started may be automatically removed before the authorized retry.",
+  "fix": "Use a P2-32-specific mask-aware training step that calls sample_masked_batch directly while preserving the verified sampler and target-weight semantics."
+}
