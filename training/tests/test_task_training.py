@@ -351,7 +351,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                     require_cuda=False,
                 )
 
-            existing = self.root / "existing"
+            existing = self.root / "authorized-output"
             existing.mkdir()
             with self.assertRaisesRegex(FileExistsError, "resume and overwrite"):
                 _preflight(
