@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-31",
+  "kind": "plex-p2-31-structured-bridge-contract-v1",
+  "status": "evaluation-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Evaluate whether the fixed P2-30 step-100 Plex Nano checkpoint can normalize unseen repository-style requests into bounded semantic edit plans for deterministic Plex Code resolution.",
+  "checkpoint": {
+    "path": "training/artifacts/task-finetune/p2-30-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e"
+  },
+  "tokenizer": {
+    "bundle": "training/artifacts/task-finetune/p2-30-request-v3-16k",
+    "sha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+    "vocabularySize": 16384
+  },
+  "developmentEvaluation": {
+    "taskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "setId": "p2-31-plan-dev-v1",
+    "tasks": 18,
+    "perLanguage": {
+      "html": 6,
+      "css": 6,
+      "javascript": 6
+    },
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1",
+    "temperature": 0,
+    "seed": 1337,
+    "maxNewTokens": 256,
+    "gate": {
+      "minimumPassed": 12,
+      "minimumPerLanguage": 3,
+      "minimumSchemaValid": 15
+    }
+  },
+  "boundary": {
+    "plexNanoOwns": [
+      "language",
+      "semantic action",
+      "target kind",
+      "target role",
+      "normalized constraints",
+      "bounded search hints"
+    ],
+    "plexCodeOwns": [
+      "repository enumeration",
+      "exact file lookup",
+      "exact symbol/selector resolution",
+      "current-state inspection",
+      "mutation",
+      "validation",
+      "diff generation"
+    ],
+    "exactRepositoryResolutionRequiredFromModel": false
+  },
+  "protectedEvaluation": {
+    "finalProjectHoldoutMustRemainClosed": true,
+    "p201bRemainsDevelopmentEvidence": true,
+    "noGradientUpdates": true
+  },
+  "continuationRule": "Evaluation only. Do not authorize new optimizer updates from P2-31 results without a separate reviewed training contract."
+}
