@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-27",
+  "status": "frozen-for-p2-28",
+  "kind": "plex-web-tokenizer-selection-v1",
+  "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+  "tokenizerReviewSha256": "3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8",
+  "reviewOutputDirectory": "training/artifacts/tokenizer-reviews/p2-27-web-v1",
+  "selectedCandidate": {
+    "requestedVocabularySize": 16384,
+    "actualVocabularySize": 16384,
+    "bundleRelativePath": "candidates/vocab-16384",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainBytesPerTextToken": 3.5223250861382027,
+    "validationBytesPerTextToken": 3.523611632794956,
+    "reviewSampleBytesPerToken": 3.0941176470588236
+  },
+  "fitPolicy": {
+    "split": "train",
+    "validationUsedForFitting": false,
+    "pretrainedTokenizerLoadedForCandidateFit": false
+  },
+  "selectionPolicy": {
+    "automaticPromotion": false,
+    "selectedByOwnerReview": true,
+    "rationale": "Best measured validation compression and representative review-sample compression while using the unchanged 16384-token model vocabulary capacity."
+  },
+  "scratchTrainingBoundary": {
+    "pretrainedModelWeightsLoaded": false,
+    "modelTrainingPerformed": false,
+    "finalProjectHoldoutOpened": false
+  }
+}
