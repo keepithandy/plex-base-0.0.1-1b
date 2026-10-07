@@ -489,7 +489,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan_train_preflight.add_argument("--stage-checkpoint", type=Path, required=True)
     plan_train_preflight.add_argument(
         "--authorization-contract", type=Path,
-        default=Path("training/pretraining/p2-32-first-run-contract.draft.json"),
+        default=Path("training/pretraining/p2-32-first-run-contract.json"),
     )
     plan_train_preflight.add_argument(
         "--preparation-contract", type=Path,
@@ -507,7 +507,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan_train_run.add_argument("--stage-checkpoint", type=Path, required=True)
     plan_train_run.add_argument(
         "--authorization-contract", type=Path,
-        default=Path("training/pretraining/p2-32-first-run-contract.draft.json"),
+        default=Path("training/pretraining/p2-32-first-run-contract.json"),
     )
     plan_train_run.add_argument(
         "--preparation-contract", type=Path,
