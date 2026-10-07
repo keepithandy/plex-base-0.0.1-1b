@@ -188,6 +188,29 @@ def build_parser() -> argparse.ArgumentParser:
     task_stage.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(task_stage)
 
+    task_run = subparsers.add_parser(
+        "task-finetune-run",
+        help="Run the single owner-authorized bounded P2-30 task fine-tune",
+    )
+    task_run.add_argument("--checkpoint", type=Path, required=True)
+    task_run.add_argument("--bundle-dir", type=Path, required=True)
+    task_run.add_argument(
+        "--contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-first-finetune-contract.json"),
+    )
+    task_run.add_argument(
+        "--preparation-contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-task-finetune-contract.json"),
+    )
+    task_run.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("task-finetune/p2-30-first-run"),
+    )
+    _add_artifact_root(task_run)
+
     initialize = subparsers.add_parser(
         "initialize", help="Create and record a fresh, randomly initialized Plex checkpoint"
     )
@@ -602,6 +625,21 @@ def _task_finetune_stage(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _task_finetune_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .task_train import run_authorized_task_finetune
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_authorized_task_finetune(
+        checkpoint_path=args.checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        contract_path=args.contract,
+        preparation_contract_path=args.preparation_contract,
+    )
+
+
 def _initialize(args: argparse.Namespace) -> dict[str, Any]:
     from .initialization import initialize_model
     from .artifacts import artifact_bytes
@@ -766,6 +804,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_task_finetune_repack(args))
         elif args.command == "task-finetune-stage":
             _json_print(_task_finetune_stage(args))
+        elif args.command == "task-finetune-run":
+            _json_print(_task_finetune_run(args))
         elif args.command == "initialize":
             _json_print(_initialize(args))
         elif args.command == "learn-check":
