@@ -2,7 +2,7 @@
 
 ## Status
 
-**Complete owner-approval packet frozen. Model training remains unauthorized.**
+**First bounded run owner-approved — October 7, 2026. No P2-35 optimizer update has been executed yet.**
 
 The owner-reported local P2-35 curriculum/tokenizer preflight reproduced:
 
@@ -36,22 +36,11 @@ P2-35 now has its own isolated path:
 - `plan-serialization-preflight`
 - `plan-serialization-run`
 
-The run command is present only so the complete execution path can be reviewed and tested. Its default contract is:
+The run command now defaults to the sole owner-approved contract:
 
-`training/pretraining/p2-35-first-run-contract.draft.json`
+`training/pretraining/p2-35-first-run-contract.json`
 
-That contract has:
-
-- `status: draft-awaiting-owner-review`
-- `modelTrainingAuthorized: false`
-- `approvedBy: null`
-- no pinned stage SHA yet
-- no pinned bundle SHA yet
-- no sampler/index identity yet
-- no expected 100-step target count yet
-- no baseline validation loss yet
-
-Therefore **the run command is hard-blocked** until a later owner-approved contract pins the exact local evidence.
+That contract pins the exact stage, bundle, dataset, sampler, target-count, and baseline identities from the frozen preflight packet. It authorizes one bounded first run only.
 
 ## Fixed base checkpoint
 
@@ -185,11 +174,11 @@ Machine-readable evidence:
 
 `training/pretraining/p2-35-stage-preflight-result.json`
 
-The draft contract now contains these exact values and sets `approvalPacketComplete=true`, but it deliberately remains:
+The approved contract contains these exact values and sets `approvalPacketComplete=true` with:
 
-- `status: draft-awaiting-owner-review`
-- `modelTrainingAuthorized: false`
-- `approvedBy: null`
-- `command: null`
+- `status: owner-approved-first-run`
+- `modelTrainingAuthorized: true`
+- `approvedBy: keepithandy`
+- `approvedDate: 2026-10-07`
 
-This means the packet is complete, but the optimizer path remains locked until explicit owner authorization is given and committed separately.
+The authorization is limited to the single bounded first run. Resume, overwrite, automatic continuation, and any second run remain unauthorized.

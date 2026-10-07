@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Approved the **first bounded P2-35 serialization-stability run** using the frozen packet unchanged: 100 CUDA updates maximum, 600 seconds maximum, no resume, no automatic continuation, and no P2-35 optimizer update executed yet.
 - Froze the **complete P2-35 first-run approval packet** after the final read-only CUDA preflight exposed every required identity: stage SHA `735554ac725acdcf063c2bb7ab27c71fafe187b82751c6b951c38900501a198d`, bundle SHA `17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d`, train JSONL `b921dd54...`, validation JSONL `e48d45b8...`, train index `e10af50b...`, validation index `cd93cc1d...`, **299,958** expected real target positions, and baseline validation loss **4.335327882033128**. The draft contract now contains the full packet but remains **unauthorized** with `modelTrainingAuthorized=false`, `approvedBy=null`, and no run command.
 - Tightened **P2-35 preflight evidence reporting** after the first successful local stage/preflight exposed all required authorization values except the validation JSONL identity. `plan-serialization-preflight` now prints train/validation JSONL SHA-256s and train/validation index SHA-256s explicitly while remaining read-only and unauthorized.
 - Passed the **P2-35 frozen-tokenizer curriculum preflight** and prepared a separate locked execution path without authorizing training. The reviewed candidate reproduced **144/144 JSON-object solutions**, **48 strict full plans**, **108/36 train/validation records**, **346-token** maximum record, **20,427 train / 6,727 validation tokens**, frozen tokenizer identity, zero P2-31 request/role overlap, no P2-33 response reuse, and **0 optimizer updates**. Added isolated `plan-serialization-prepare`, `plan-serialization-stage`, `plan-serialization-preflight`, and contract-blocked `plan-serialization-run` commands rooted at the official P2-32 step-100 checkpoint. The first-run contract remains draft-only.
@@ -70,7 +71,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** The P2-35 packet is complete. Await explicit owner authorization before changing the draft contract to an executable first-run contract. Do not train yet. The final project holdout remains sealed.
+> 🔭 **Up next:** Pull the approved P2-35 contract, rerun the read-only preflight, then execute the single bounded first run only if it reports `authorized: true`. No continuation is authorized. The final project holdout remains sealed.
 
 
 ---
