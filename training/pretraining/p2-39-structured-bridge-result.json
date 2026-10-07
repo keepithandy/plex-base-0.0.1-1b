@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-39",
+  "kind": "plex-p2-39-structured-bridge-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "gate-failed-no-net-bridge-improvement",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "checkpointSha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+  "responsesSha256": "e9aca13ac5fed3286ad00294dc6fc87960ea66e7f22a9abd9cce375e0c92a3e6",
+  "evaluator": "plex-structured-plan-evaluator-v1",
+  "gate": {
+    "minimumPassed": 12,
+    "minimumPerLanguage": 3,
+    "minimumSchemaValid": 15
+  },
+  "gatePassed": false,
+  "tasks": 18,
+  "passed": 0,
+  "passRate": 0,
+  "schemaValid": 5,
+  "schemaValidRate": 0.2777777777777778,
+  "checksPassed": 54,
+  "checksTotal": 162,
+  "partialTaskCount": 18,
+  "perLanguagePassed": {
+    "html": {
+      "tasks": 6,
+      "passed": 0
+    },
+    "css": {
+      "tasks": 6,
+      "passed": 0
+    },
+    "javascript": {
+      "tasks": 6,
+      "passed": 0
+    }
+  },
+  "schemaValidByLanguage": {
+    "html": 3,
+    "css": 1,
+    "javascript": 1
+  },
+  "schemaValidTasks": [
+    "p231-html-02-email-field",
+    "p231-html-04-disclosure",
+    "p231-html-06-checkbox-group",
+    "p231-css-01-card-layout",
+    "p231-js-03-format-usd"
+  ],
+  "schemaValidFieldPattern": {
+    "tasks": 5,
+    "languageCorrect": 5,
+    "actionCorrect": 3,
+    "targetKindCorrect": 5,
+    "targetRoleCorrect": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "comparisonToP236": {
+    "passed": {
+      "before": 0,
+      "after": 0
+    },
+    "schemaValid": {
+      "before": 5,
+      "after": 5
+    },
+    "checksPassed": {
+      "before": 56,
+      "after": 54
+    },
+    "checksTotal": 162
+  },
+  "preliminaryInvalidBreakdown": {
+    "nonSchemaValid": 13,
+    "evaluatorInvalidJsonOrDuplicateKey": 9,
+    "evaluatorParseableButSchemaInvalid": 4,
+    "note": "P2-40 raw-response diagnostic is required for authoritative failure classification."
+  },
+  "interpretation": {
+    "semanticBridgeImproved": false,
+    "schemaValidityImproved": false,
+    "checksImproved": false,
+    "nextQuestion": "Inspect exact P2-39 raw outputs to determine whether P2-38 created new semantic-template collapse, retained prior collapse, or shifted the serialization failure distribution."
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-40 bridge error decomposition"
+}
