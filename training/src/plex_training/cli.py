@@ -48,6 +48,23 @@ def build_parser() -> argparse.ArgumentParser:
     dataset.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(dataset)
 
+    web_dataset = subparsers.add_parser(
+        "web-dataset-build",
+        help="Build a Plex Web corpus from exactly the file paths accepted by web-source-verify",
+    )
+    web_dataset.add_argument("--source-manifest", type=Path, required=True)
+    web_dataset.add_argument("--output-dir", type=Path, required=True)
+    web_dataset.add_argument("--validation-percent", type=int, default=10)
+    web_dataset.add_argument("--seed", type=int, default=1337)
+    web_dataset.add_argument("--storage-limit-gib", type=float, default=200.0)
+    web_dataset.add_argument(
+        "--policy",
+        type=Path,
+        default=None,
+        help="Optional Plex Web source-policy JSON",
+    )
+    _add_artifact_root(web_dataset)
+
     web_source_verify = subparsers.add_parser(
         "web-source-verify",
         help="Preflight reviewed local HTML/CSS/JavaScript sources against Plex Web policy",
@@ -344,6 +361,30 @@ def _dataset_build(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _web_dataset_build(args: argparse.Namespace) -> dict[str, Any]:
+    from .web_dataset import build_web_dataset
+
+    root = args.artifact_root.resolve()
+    output_dir = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - _artifact_size(root)
+    result = build_web_dataset(
+        args.source_manifest,
+        output_dir,
+        validation_percent=args.validation_percent,
+        seed=args.seed,
+        storage_limit_bytes=remaining,
+        policy_path=args.policy,
+    )
+    return {
+        **result,
+        "outputDirectory": str(output_dir.relative_to(root)),
+        "storageLimitBytes": limit,
+    }
+
+
 def _web_source_verify(args: argparse.Namespace) -> dict[str, Any]:
     from .web_sources import verify_web_sources
 
@@ -570,6 +611,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_prepare(args))
         elif args.command == "dataset-build":
             _json_print(_dataset_build(args))
+        elif args.command == "web-dataset-build":
+            _json_print(_web_dataset_build(args))
         elif args.command == "web-source-verify":
             _json_print(_web_source_verify(args))
         elif args.command == "web-contamination-check":
