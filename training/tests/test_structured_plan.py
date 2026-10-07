@@ -212,6 +212,47 @@ class StructuredPlanFilesAndContractTests(unittest.TestCase):
         self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
         self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
 
+    def test_p233_contract_reuses_original_gate_and_pins_p232_endpoint(self) -> None:
+        path = Path("training/pretraining/p2-33-structured-bridge-contract.json")
+        value = _contract(path)
+        self.assertEqual(value["milestone"], "P2-33")
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["checkpoint"]["sha256"],
+            "707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["taskSetSha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["gate"],
+            {"minimumPassed": 12, "minimumPerLanguage": 3, "minimumSchemaValid": 15},
+        )
+        self.assertEqual(
+            value["checkpointProvenance"],
+            {
+                "stageKind": "plex-structured-plan-stage-transition-v1",
+                "stageMilestone": "P2-32",
+                "trainingSettingsKind": "p2-32-authorized-structured-plan-training-v1",
+            },
+        )
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+
+    def test_contract_rejects_unknown_structured_bridge_milestone(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "contract.json"
+            path.write_text(json.dumps({
+                "schemaVersion": 1,
+                "milestone": "P2-99",
+                "kind": "made-up",
+                "status": "evaluation-authorized",
+                "modelTrainingAuthorized": False,
+            }), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "missing or does not block training"):
+                _contract(path)
+
     def test_final_kind_generation_is_blocked_before_checkpoint_access(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

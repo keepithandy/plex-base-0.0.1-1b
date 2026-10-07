@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-33 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-32 step-100 checkpoint SHA `707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4`; no gradient updates are authorized.
+- Completed the **first bounded P2-32 structured-plan run**: **100/100 CUDA updates**, **605,231** real target positions, **1,600** sampled records, all **72** train records selected, and validation **8.0029 → 2.9286 → 2.6066 → 2.6039 → 2.6796**. Official step-100 checkpoint SHA: `707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4`. Final holdout remained sealed and continuation is not authorized.
 - Fixed the **P2-32 first-run mask-aware sampling integration** after the first authorized attempt aborted before optimizer update 1. The P2-32 verified corpus intentionally disables unmasked `sample_batch`, while the shared runner only recognized the older P2-30 complete-record class. P2-32 now uses its own mask-aware optimizer step, and the runner safely clears only zero-update debris containing no checkpoint or training-progress event. The failed attempt consumed **0 optimizer updates** and did not open the final holdout.
 - Authorized the **first bounded P2-32 structured-plan training run** after local weights-only staging and read-only CUDA preflight passed. Pinned stage SHA `7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3`, bundle SHA `a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd`, complete-record sampler/index identity, **605,231** expected real target positions, and baseline validation loss **8.002869129180908**. The approved run is limited to **100 CUDA updates / 600 seconds** with no resume, overwrite, or automatic continuation. No P2-32 optimizer update has occurred yet.
 - Implemented the **locked P2-32 training path** without authorizing or executing model training. Added dedicated `plan-train-prepare`, `plan-train-stage`, `plan-train-preflight`, and `plan-train-run` commands; a P2-32-specific verified complete-record sampler; weights-only stage transition from the official P2-30 step-100 checkpoint; draft-only first-run contract; and safety tests. Recorded the passed local curriculum/tokenizer preflight: **96/96 schema-valid targets**, **447-token max record**, **27,251 train / 8,992 validation tokens**, zero P2-31 leakage, and **0 optimizer updates**.
@@ -61,7 +63,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Pull the approved P2-32 authorization, rerun `plan-train-preflight` against the exact local bundle/stage, then execute the single bounded `plan-train-run` only if preflight returns `authorized: true`. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-33 `plan-generate` and `plan-evaluate` against the fixed P2-32 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
 
 
 ---
