@@ -56,3 +56,5 @@ training/pretraining/p2-35-first-run-contract.json text eol=lf
 training/pretraining/p2-35-stage-preflight-result.json text eol=lf
 training/pretraining/p2-35-first-run-result.json text eol=lf
 training/pretraining/p2-36-structured-bridge-contract.json text eol=lf
+training/pretraining/p2-36-structured-bridge-result.json text eol=lf
+training/pretraining/p2-37-bridge-error-decomposition-contract.json text eol=lf

@@ -26,6 +26,7 @@ from plex_training.structured_plan_diagnostic import (
     _diagnostic_contract,
     diagnose_structured_plan_responses,
 )
+from plex_training.structured_plan_bridge_diagnostic import diagnose_bridge_errors
 
 
 def _task_set(kind: str = "development") -> dict:
@@ -238,7 +239,88 @@ class StructuredPlanDiagnosticTests(unittest.TestCase):
         self.assertEqual(report["duplicateResponseTexts"], 1)
 
 
+class StructuredPlanBridgeDiagnosticTests(unittest.TestCase):
+    def test_p237_diagnostic_separates_syntax_schema_and_semantic_failures(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            task_path = root / "tasks.json"
+            responses_path = root / "responses.jsonl"
+            contract_path = root / "contract.json"
+            task = _task_set()
+            task_path.write_text(json.dumps(task), encoding="utf-8")
+            good = json.loads(_good_responses()[0]["text"])
+            semantic_wrong = {
+                **good,
+                "targetRole": "other-role",
+                "constraints": [{"kind": "attribute", "key": "aria-label", "value": "Wrong"}],
+                "searchHints": ["other"],
+            }
+            rows = [
+                {"taskId": "h1", "text": json.dumps(semantic_wrong), "truncated": False},
+                {"taskId": "c1", "text": "{broken", "truncated": False},
+                {"taskId": "j1", "text": json.dumps({"schemaVersion": 1}), "truncated": False},
+            ]
+            response_text = "".join(json.dumps(row) + "\n" for row in rows)
+            responses_path.write_text(response_text, encoding="utf-8")
+            contract_path.write_text(json.dumps({
+                "schemaVersion": 1,
+                "milestone": "P2-37",
+                "kind": "plex-p2-37-bridge-error-decomposition-contract-v1",
+                "status": "diagnostic-authorized",
+                "modelTrainingAuthorized": False,
+                "taskSet": {
+                    "sha256": canonical_text_sha256(task_path.read_bytes()),
+                    "tasks": 3,
+                },
+                "responses": {
+                    "sha256": hashlib.sha256(responses_path.read_bytes()).hexdigest(),
+                },
+                "protectedEvaluation": {
+                    "noResponseRepair": True,
+                    "noRescoring": True,
+                    "noGradientUpdates": True,
+                    "finalProjectHoldoutMustRemainClosed": True,
+                },
+            }), encoding="utf-8")
+            report = diagnose_bridge_errors(
+                task_set_path=task_path,
+                responses_path=responses_path,
+                contract_path=contract_path,
+            )
+        self.assertEqual(report["schemaValid"], 1)
+        self.assertEqual(report["classifications"]["schema-valid-semantic-mismatch"], 1)
+        self.assertEqual(report["classifications"]["invalid-json"], 1)
+        self.assertEqual(report["classifications"]["parseable-json-invalid-plan-schema"], 1)
+        self.assertEqual(report["schemaValidFieldCorrect"]["language"], 1)
+        self.assertEqual(report["schemaValidFieldCorrect"]["action"], 1)
+        self.assertEqual(report["schemaValidFieldCorrect"]["targetKind"], 1)
+        self.assertEqual(report["schemaValidFieldCorrect"]["targetRole"], 0)
+        self.assertEqual(report["schemaValidFieldCorrect"]["constraintsExact"], 0)
+        self.assertEqual(report["schemaValidFieldCorrect"]["hintCoverage"], 0)
+        self.assertFalse(report["trainingPerformed"])
+        self.assertEqual(report["researchOptimizerUpdates"], 0)
+        self.assertFalse(report["finalHoldoutOpened"])
+
+
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
+    def test_committed_p237_contract_pins_p236_responses(self) -> None:
+        path = Path("training/pretraining/p2-37-bridge-error-decomposition-contract.json")
+        value = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(value["milestone"], "P2-37")
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["taskSet"]["sha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["responses"]["sha256"],
+            "7492c8d0158381b979b319a4d3a880c0bbba7d7b4227e300c4c68ff357ae7fbd",
+        )
+        self.assertTrue(value["protectedEvaluation"]["noResponseRepair"])
+        self.assertTrue(value["protectedEvaluation"]["noRescoring"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+
     def test_committed_p234_contract_pins_failed_p233_responses(self) -> None:
         path = Path("training/pretraining/p2-34-output-boundary-contract.json")
         value = _diagnostic_contract(path)

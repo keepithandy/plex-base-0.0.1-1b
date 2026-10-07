@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-36",
+  "kind": "plex-p2-36-structured-bridge-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "gate-failed-with-structural-improvement",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "7492c8d0158381b979b319a4d3a880c0bbba7d7b4227e300c4c68ff357ae7fbd",
+  "evaluator": "plex-structured-plan-evaluator-v1",
+  "gate": {
+    "minimumPassed": 12,
+    "minimumPerLanguage": 3,
+    "minimumSchemaValid": 15
+  },
+  "gatePassed": false,
+  "tasks": 18,
+  "passed": 0,
+  "passRate": 0,
+  "schemaValid": 5,
+  "schemaValidRate": 0.2777777777777778,
+  "checksPassed": 56,
+  "checksTotal": 162,
+  "partialTaskCount": 18,
+  "perLanguage": {
+    "html": {
+      "tasks": 6,
+      "passed": 0,
+      "schemaValid": 0
+    },
+    "css": {
+      "tasks": 6,
+      "passed": 0,
+      "schemaValid": 2
+    },
+    "javascript": {
+      "tasks": 6,
+      "passed": 0,
+      "schemaValid": 3
+    }
+  },
+  "schemaValidTasks": [
+    "p231-css-03-focus-style",
+    "p231-css-06-toolbar-wrap",
+    "p231-js-02-unique-by-id",
+    "p231-js-03-format-usd",
+    "p231-js-05-sum-by"
+  ],
+  "invalidPlanBreakdown": {
+    "totalInvalid": 13,
+    "jsonSyntaxInvalid": 7,
+    "jsonParseableButPlanSchemaInvalid": 6
+  },
+  "schemaValidFieldPattern": {
+    "tasks": 5,
+    "languageCorrect": 5,
+    "actionCorrect": 5,
+    "targetKindCorrect": 5,
+    "targetRoleCorrect": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "comparisonToP233": {
+    "passed": {
+      "before": 0,
+      "after": 0
+    },
+    "schemaValid": {
+      "before": 0,
+      "after": 5
+    },
+    "checksPassed": {
+      "before": 36,
+      "after": 56
+    },
+    "checksTotal": 162
+  },
+  "interpretation": {
+    "serializationImproved": true,
+    "semanticPlanGatePassed": false,
+    "nextQuestion": "Inspect the exact targetRole, constraints, searchHints, and remaining invalid-JSON/schema failure shapes before designing any further training."
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-37 bridge error decomposition"
+}
