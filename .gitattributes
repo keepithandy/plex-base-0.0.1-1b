@@ -39,5 +39,6 @@ training/phase2/drafts/p2-32-structured-plan-candidate-v1.review.json text eol=l
 training/pretraining/p2-32-structured-plan-preparation-contract.json text eol=lf
 training/pretraining/p2-31-structured-bridge-result.json text eol=lf
 
-training/pretraining/p2-32-first-run-contract.draft.json text eol=lf
+training/pretraining/p2-32-first-run-contract.json text eol=lf
 training/pretraining/p2-32-preparation-result.json text eol=lf
+training/pretraining/p2-32-stage-preflight-result.json text eol=lf

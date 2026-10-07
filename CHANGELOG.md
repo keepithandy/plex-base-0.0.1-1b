@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Authorized the **first bounded P2-32 structured-plan training run** after local weights-only staging and read-only CUDA preflight passed. Pinned stage SHA `7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3`, bundle SHA `a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd`, complete-record sampler/index identity, **605,231** expected real target positions, and baseline validation loss **8.002869129180908**. The approved run is limited to **100 CUDA updates / 600 seconds** with no resume, overwrite, or automatic continuation. No P2-32 optimizer update has occurred yet.
 - Implemented the **locked P2-32 training path** without authorizing or executing model training. Added dedicated `plan-train-prepare`, `plan-train-stage`, `plan-train-preflight`, and `plan-train-run` commands; a P2-32-specific verified complete-record sampler; weights-only stage transition from the official P2-30 step-100 checkpoint; draft-only first-run contract; and safety tests. Recorded the passed local curriculum/tokenizer preflight: **96/96 schema-valid targets**, **447-token max record**, **27,251 train / 8,992 validation tokens**, zero P2-31 leakage, and **0 optimizer updates**.
 - Opened **P2-32 — Structured-Plan Representation Curriculum** after P2-31 failed at strict JSON serialization. Added a **96-record / 24-group** authored candidate with a leak-resistant **72 train / 24 validation** split, balanced HTML/CSS/JavaScript coverage, staged A/B/C serialization → field-binding → semantic-composition examples, a preparation-only contract, and `plan-curriculum-review` with optional frozen-tokenizer roundtrip/context checks. **P2-32 model training remains unauthorized.**
 - Closed **P2-31 — Structured Coding Bridge** as **gate failed**: **0/18 complete plans**, **0/18 schema-valid plans**, **36/162 checks**, and **0/6** in each language. All 18 responses were present and untruncated; every response failed strict JSON parsing before semantic fields could be scored. Phase 3 remains blocked and the final holdout remains sealed.
@@ -59,7 +60,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run `plan-curriculum-review` for P2-32, including the local frozen-tokenizer bundle preflight. Do not train yet. The final project holdout remains sealed.
+> 🔭 **Up next:** Pull the approved P2-32 authorization, rerun `plan-train-preflight` against the exact local bundle/stage, then execute the single bounded `plan-train-run` only if preflight returns `authorized: true`. The final project holdout remains sealed.
 
 
 ---

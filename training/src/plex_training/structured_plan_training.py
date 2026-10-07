@@ -70,7 +70,7 @@ DEFAULT_PREPARATION_CONTRACT = Path(
     "training/pretraining/p2-32-structured-plan-preparation-contract.json"
 )
 DEFAULT_AUTHORIZATION_CONTRACT = Path(
-    "training/pretraining/p2-32-first-run-contract.draft.json"
+    "training/pretraining/p2-32-first-run-contract.json"
 )
 
 
