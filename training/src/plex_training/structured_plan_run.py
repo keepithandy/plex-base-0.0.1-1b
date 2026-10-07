@@ -29,20 +29,26 @@ DEFAULT_CONTRACT = Path("training/pretraining/p2-31-structured-bridge-contract.j
 
 def _contract(path: Path) -> dict[str, Any]:
     if path.is_symlink() or not path.is_file() or path.stat().st_size > 1024 * 1024:
-        raise ValueError("P2-31 contract must be a regular local file under 1 MiB")
+        raise ValueError("Structured-plan evaluation contract must be a regular local file under 1 MiB")
     value = json.loads(path.read_text(encoding="utf-8"))
-    if (not isinstance(value, dict)
-            or value.get("schemaVersion") != 1
-            or value.get("milestone") != "P2-31"
-            or value.get("kind") != "plex-p2-31-structured-bridge-contract-v1"
+    if not isinstance(value, dict) or value.get("schemaVersion") != 1:
+        raise ValueError("Structured-plan evaluation contract is invalid")
+    milestone = value.get("milestone")
+    kind = value.get("kind")
+    allowed = {
+        "P2-31": "plex-p2-31-structured-bridge-contract-v1",
+        "P2-33": "plex-p2-33-structured-bridge-recheck-contract-v1",
+    }
+    if (milestone not in allowed
+            or kind != allowed[milestone]
             or value.get("status") != "evaluation-authorized"
             or value.get("modelTrainingAuthorized") is not False):
-        raise ValueError("P2-31 evaluation contract is missing or does not block training")
+        raise ValueError("Structured-plan evaluation contract is missing or does not block training")
     protected = value.get("protectedEvaluation")
     if (not isinstance(protected, dict)
             or protected.get("finalProjectHoldoutMustRemainClosed") is not True
             or protected.get("noGradientUpdates") is not True):
-        raise ValueError("P2-31 protected-evaluation boundary is invalid")
+        raise ValueError("Structured-plan protected-evaluation boundary is invalid")
     development = value.get("developmentEvaluation")
     if (not isinstance(development, dict)
             or development.get("planSchemaVersion") != PLAN_SCHEMA_VERSION
@@ -50,7 +56,7 @@ def _contract(path: Path) -> dict[str, Any]:
             or development.get("temperature") != 0.0
             or development.get("seed") != 1337
             or development.get("maxNewTokens") != 256):
-        raise ValueError("P2-31 deterministic evaluation settings changed")
+        raise ValueError("Structured-plan deterministic evaluation settings changed")
     return value
 
 
@@ -67,29 +73,29 @@ def generate_structured_plans(
     """Generate raw structured-plan responses without parsing, scoring, or training."""
     contract = _contract(contract_path)
     if task_set_path.is_symlink() or not task_set_path.is_file():
-        raise ValueError("P2-31 task set must be a regular local file")
+        raise ValueError("Structured-plan task set must be a regular local file")
     if task_set_path.stat().st_size > MAX_PLAN_TASK_SET_BYTES:
-        raise ValueError("P2-31 task set exceeds the 1 MiB limit")
+        raise ValueError("Structured-plan task set exceeds the 1 MiB limit")
     raw_task_set = task_set_path.read_bytes()
     task_set_sha = canonical_text_sha256(raw_task_set)
     development = contract["developmentEvaluation"]
     if task_set_sha != development.get("taskSetSha256"):
-        raise ValueError("P2-31 task set hash differs from the authorized development set")
+        raise ValueError("Structured-plan task set hash differs from the authorized development set")
     task_set = validate_plan_task_set(json.loads(raw_task_set.decode("utf-8")))
     if task_set["kind"] != "development":
-        raise ValueError("P2-31 generation is development-only; final holdouts stay sealed")
+        raise ValueError("Structured-plan generation is development-only; final holdouts stay sealed")
     if (task_set["setId"] != development.get("setId")
             or len(task_set["tasks"]) != development.get("tasks")
             or task_set["inferenceDefaults"]["temperature"] != development.get("temperature")
             or task_set["inferenceDefaults"]["seed"] != development.get("seed")
             or task_set["inferenceDefaults"]["maxNewTokens"] != development.get("maxNewTokens")):
-        raise ValueError("P2-31 task-set metadata differs from the authorization")
+        raise ValueError("Structured-plan task-set metadata differs from the authorization")
 
     checkpoint = contract.get("checkpoint")
     if (not isinstance(checkpoint, dict)
             or checkpoint_path.is_symlink() or not checkpoint_path.is_file()
             or sha256_file(checkpoint_path) != checkpoint.get("sha256")):
-        raise ValueError("P2-31 requires the exact fixed P2-30 step-100 checkpoint")
+        raise ValueError("Structured-plan evaluation requires the exact authorized checkpoint")
 
     vocabulary, tokenizer_record = _completion_tokenizer(bundle_dir)
     tokenizer = contract.get("tokenizer")
@@ -97,12 +103,23 @@ def generate_structured_plans(
             or tokenizer_record.get("tokenizerSha256") != tokenizer.get("sha256")
             or tokenizer_record.get("bundleManifestSha256") != tokenizer.get("bundleManifestSha256")
             or tokenizer_record.get("actualVocabularySize") != tokenizer.get("vocabularySize")):
-        raise ValueError("P2-31 requires the exact frozen P2-30 tokenizer bundle")
+        raise ValueError("Structured-plan evaluation requires the exact authorized tokenizer bundle")
 
     device = select_device(device_name)
     model, payload = read_checkpoint(checkpoint_path, device)
     initialization = payload.get("initializationRecord")
     stage = payload.get("stageTransitionRecord")
+    provenance = contract.get("checkpointProvenance")
+    expected_stage_kind = "plex-task-finetune-stage-transition-v1"
+    expected_stage_milestone = "P2-30"
+    expected_training_kind = None
+    if provenance is not None:
+        if not isinstance(provenance, dict):
+            raise ValueError("Structured-plan checkpoint provenance contract is invalid")
+        expected_stage_kind = provenance.get("stageKind")
+        expected_stage_milestone = provenance.get("stageMilestone")
+        expected_training_kind = provenance.get("trainingSettingsKind")
+    settings = payload.get("trainingSettings")
     if (payload.get("codec") != CODEC
             or payload.get("tokenizerRecord") != tokenizer_record
             or payload.get("step") != checkpoint.get("step")
@@ -110,19 +127,23 @@ def generate_structured_plans(
             or initialization.get("pretrainedCheckpointLoaded") is not False
             or initialization.get("pretrainedModelWeightsLoaded") is not False
             or not isinstance(stage, dict)
-            or stage.get("kind") != "plex-task-finetune-stage-transition-v1"):
-        raise ValueError("P2-31 checkpoint provenance does not match the fixed Plex lineage")
+            or stage.get("kind") != expected_stage_kind
+            or stage.get("milestone") != expected_stage_milestone
+            or (expected_training_kind is not None
+                and (not isinstance(settings, dict)
+                     or settings.get("kind") != expected_training_kind))):
+        raise ValueError("Structured-plan checkpoint provenance does not match the authorized Plex lineage")
     if vocabulary.vocabulary_size != tokenizer.get("vocabularySize"):
-        raise ValueError("P2-31 tokenizer vocabulary size changed")
+        raise ValueError("Structured-plan tokenizer vocabulary size changed")
 
     artifact_root = artifact_root.resolve()
     output_dir = output_dir.resolve(strict=False)
     try:
         output_dir.relative_to(artifact_root)
     except ValueError as exc:
-        raise ValueError("P2-31 outputs must stay under the configured artifact root") from exc
+        raise ValueError("Structured-plan outputs must stay under the configured artifact root") from exc
     if output_dir.exists():
-        raise FileExistsError("P2-31 output directory already exists; choose a fresh path")
+        raise FileExistsError("Structured-plan output directory already exists; choose a fresh path")
     output_dir.parent.mkdir(parents=True, exist_ok=True)
 
     defaults = task_set["inferenceDefaults"]
@@ -131,7 +152,7 @@ def generate_structured_plans(
         prompt = render_plan_prompt(task_set, task)
         prompt_ids = vocabulary.encode(prompt)
         if len(prompt_ids) >= model.config.context_length:
-            raise ValueError(f"P2-31 prompt for {task['id']} exceeds the model context")
+            raise ValueError(f"Structured-plan prompt for {task['id']} exceeds the model context")
         generated_ids, stopped_at_eos = _generate_token_ids(
             model,
             prompt_ids,
@@ -147,7 +168,7 @@ def generate_structured_plans(
             "truncated": not stopped_at_eos,
         })
 
-    staging = Path(tempfile.mkdtemp(prefix=".plex-p2-31-", dir=output_dir.parent)).resolve()
+    staging = Path(tempfile.mkdtemp(prefix=f".plex-{contract['milestone'].lower()}-", dir=output_dir.parent)).resolve()
     try:
         responses_path = staging / "responses.jsonl"
         with responses_path.open("x", encoding="utf-8", newline="\n") as stream:
@@ -157,7 +178,7 @@ def generate_structured_plans(
             os.fsync(stream.fileno())
         manifest = {
             "schemaVersion": 1,
-            "runKind": "p2-31-structured-plan-development-generation",
+            "runKind": f"{contract['milestone'].lower()}-structured-plan-development-generation",
             "trainingPerformed": False,
             "researchOptimizerUpdates": 0,
             "finalHoldoutOpened": False,
@@ -176,6 +197,7 @@ def generate_structured_plans(
             "device": str(device),
             "responsesSha256": sha256_file(responses_path),
             "contractSha256": sha256_file(contract_path),
+            "milestone": contract["milestone"],
         }
         with (staging / "run-manifest.json").open("x", encoding="utf-8", newline="\n") as stream:
             json.dump(manifest, stream, indent=2, ensure_ascii=False, sort_keys=True)
