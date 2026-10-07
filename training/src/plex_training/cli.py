@@ -60,6 +60,44 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional source-policy JSON; defaults to training/pretraining/source-policy.json",
     )
 
+    web_contamination = subparsers.add_parser(
+        "web-contamination-check",
+        help="Block Plex Web corpus promotion when protected evaluation content overlaps the corpus",
+    )
+    web_contamination.add_argument("--dataset-dir", type=Path, required=True)
+    web_contamination.add_argument(
+        "--protected-config",
+        type=Path,
+        default=None,
+        help="Optional protected-evaluation config; defaults to training/pretraining/protected-eval-paths.json",
+    )
+    web_contamination.add_argument(
+        "--report",
+        type=Path,
+        default=None,
+        help="Optional contamination report path; defaults to DATASET_DIR/contamination-report.json",
+    )
+
+    web_materialize = subparsers.add_parser(
+        "web-source-materialize",
+        help="Fetch pinned reviewed P2-26 GitHub sources and write a local source manifest",
+    )
+    web_materialize.add_argument(
+        "--registry",
+        type=Path,
+        default=Path("training/pretraining/p2-26-source-candidates.json"),
+    )
+    web_materialize.add_argument(
+        "--policy",
+        type=Path,
+        default=Path("training/pretraining/source-policy.json"),
+    )
+    web_materialize.add_argument(
+        "--manifest-output",
+        type=Path,
+        default=Path("training/pretraining/sources.p2-26.local.json"),
+    )
+
     tokenizer = subparsers.add_parser("tokenizer-train", help="Fit Plex byte-level BPE on reviewed training text only")
     tokenizer.add_argument("--dataset-dir", type=Path, required=True)
     tokenizer.add_argument("--output-dir", type=Path, default=Path("tokenizers/p1-15-starter-v1"))
@@ -312,6 +350,27 @@ def _web_source_verify(args: argparse.Namespace) -> dict[str, Any]:
     return verify_web_sources(args.source_manifest, args.policy)
 
 
+def _web_contamination_check(args: argparse.Namespace) -> dict[str, Any]:
+    from .web_contamination import DEFAULT_PROTECTED_CONFIG, require_clean_contamination
+
+    config = DEFAULT_PROTECTED_CONFIG if args.protected_config is None else args.protected_config
+    return require_clean_contamination(
+        args.dataset_dir,
+        protected_config=config,
+        report_path=args.report,
+    )
+
+
+def _web_source_materialize(args: argparse.Namespace) -> dict[str, Any]:
+    from .web_materialize import materialize_sources
+
+    return materialize_sources(
+        args.registry,
+        policy_path=args.policy,
+        manifest_output=args.manifest_output,
+    )
+
+
 def _smoke(args: argparse.Namespace) -> dict[str, Any]:
     from .runner import SyntheticTokenSource, default_run_directory, run_training
 
@@ -513,6 +572,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_dataset_build(args))
         elif args.command == "web-source-verify":
             _json_print(_web_source_verify(args))
+        elif args.command == "web-contamination-check":
+            _json_print(_web_contamination_check(args))
+        elif args.command == "web-source-materialize":
+            _json_print(_web_source_materialize(args))
         elif args.command == "tokenizer-train":
             _json_print(_tokenizer_train(args))
         elif args.command == "initialize":

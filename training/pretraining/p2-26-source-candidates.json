@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "kind": "plex-web-p2-26-source-candidates-v1",
+  "status": "reviewed-candidate-pool",
+  "target": {
+    "name": "Plex Web 1M",
+    "measurement": "exact token count deferred until P2-27 tokenizer review",
+    "byteScaleProxy": "aim for roughly 4-6 MiB of accepted normalized HTML/CSS/JavaScript before tokenizer fitting"
+  },
+  "sources": [
+    {
+      "id": "mailgun-transactional-email-templates",
+      "repo": "mailgun/transactional-email-templates",
+      "origin": "https://github.com/mailgun/transactional-email-templates",
+      "revision": "e05e59e8c1e0fa7ffbacc7a165a609fd37c590b5",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/mailgun-transactional-email-templates",
+      "groupId": "github-mailgun-transactional-email-templates",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 215,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    },
+    {
+      "id": "bradtraversy-vanilla-parcel-boilerplate",
+      "repo": "bradtraversy/vanilla-parcel-boilerplate",
+      "origin": "https://github.com/bradtraversy/vanilla-parcel-boilerplate",
+      "revision": "bbb80fc71c9fa1d5ac5a4aa5a143c26b357ef353",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/bradtraversy-vanilla-parcel-boilerplate",
+      "groupId": "github-bradtraversy-vanilla-parcel-boilerplate",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 349,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    },
+    {
+      "id": "adamschwartz-magic-of-css",
+      "repo": "adamschwartz/magic-of-css",
+      "origin": "https://github.com/adamschwartz/magic-of-css",
+      "revision": "066aa596b420029f72b553f027773c5de74c1b21",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE.md",
+      "localPath": "data/raw/adamschwartz-magic-of-css",
+      "groupId": "github-adamschwartz-magic-of-css",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 3866,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    },
+    {
+      "id": "sparksuite-simple-html-invoice-template",
+      "repo": "sparksuite/simple-html-invoice-template",
+      "origin": "https://github.com/sparksuite/simple-html-invoice-template",
+      "revision": "7d74fe34c862b7712f1a23a3f12147a4a8bd53e1",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/sparksuite-simple-html-invoice-template",
+      "groupId": "github-sparksuite-simple-html-invoice-template",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 53,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    },
+    {
+      "id": "micku7zu-vanilla-tilt-js",
+      "repo": "micku7zu/vanilla-tilt.js",
+      "origin": "https://github.com/micku7zu/vanilla-tilt.js",
+      "revision": "48f4ee931d4d91dcdd2f91803db67a9f3a16587e",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/micku7zu-vanilla-tilt-js",
+      "groupId": "github-micku7zu-vanilla-tilt-js",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 713,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    },
+    {
+      "id": "andy-set-studio-vanilla-js-state-management",
+      "repo": "Andy-set-studio/vanilla-js-state-management",
+      "origin": "https://github.com/Andy-set-studio/vanilla-js-state-management",
+      "revision": "818586cf3f010e646ae068e6d09a543f299b5bda",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/andy-set-studio-vanilla-js-state-management",
+      "groupId": "github-andy-set-studio-vanilla-js-state-management",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 20,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z"
+    }
+  ],
+  "notes": [
+    "Repository size is only a discovery proxy and includes non-training files/history; accepted corpus bytes must be measured after Plex filters.",
+    "Candidates are pinned and have a verified root MIT license file, but still pass the normal local source preflight before corpus inclusion.",
+    "No gated dataset terms are accepted by this registry."
+  ]
+}

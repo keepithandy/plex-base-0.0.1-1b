@@ -1,0 +1,244 @@
+"""Contamination checks for Plex Web corpus promotion."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from pathlib import Path
+from typing import Any
+
+TRAINING_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = TRAINING_ROOT.parent
+DEFAULT_PROTECTED_CONFIG = TRAINING_ROOT / "pretraining" / "protected-eval-paths.json"
+MAX_PROTECTED_FILE_BYTES = 2 * 1024 * 1024
+
+
+def _normalise(text: str) -> str:
+    return re.sub(r"\s+", " ", text.replace("\r\n", "\n").replace("\r", "\n")).strip()
+
+
+def _sha256(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def _read_json(path: Path, label: str) -> dict[str, Any]:
+    if path.is_symlink():
+        raise ValueError(f"{label} must not be a symbolic link")
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError(f"{label} is unavailable: {path}") from exc
+    if not resolved.is_file() or resolved.stat().st_size > MAX_PROTECTED_FILE_BYTES:
+        raise ValueError(f"{label} must be a regular file no larger than 2 MiB")
+    try:
+        value = json.loads(resolved.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label} must be valid UTF-8 JSON") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must contain a JSON object")
+    return value
+
+
+def _strings(value: Any, output: list[str]) -> None:
+    if isinstance(value, str):
+        output.append(value)
+    elif isinstance(value, list):
+        for item in value:
+            _strings(item, output)
+    elif isinstance(value, dict):
+        for item in value.values():
+            _strings(item, output)
+
+
+def _protected_segments(path: Path, minimum: int) -> list[str]:
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > MAX_PROTECTED_FILE_BYTES:
+        return []
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    values: list[str] = []
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        try:
+            _strings(json.loads(raw), values)
+        except json.JSONDecodeError:
+            values.append(raw)
+    elif suffix == ".jsonl":
+        for line in raw.splitlines():
+            if not line.strip():
+                continue
+            try:
+                _strings(json.loads(line), values)
+            except json.JSONDecodeError:
+                values.append(line)
+    else:
+        values.append(raw)
+    normalised = {_normalise(value) for value in values}
+    return sorted(value for value in normalised if len(value) >= minimum)
+
+
+def _resolve_protected_files(config: dict[str, Any]) -> list[Path]:
+    raw_paths = config.get("protectedPaths")
+    if not isinstance(raw_paths, list) or not raw_paths or not all(isinstance(v, str) for v in raw_paths):
+        raise ValueError("Protected-eval config must list protectedPaths")
+    files: set[Path] = set()
+    for value in raw_paths:
+        relative = Path(value)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError("Protected paths must stay beneath the repository root")
+        candidate = (REPO_ROOT / relative).resolve(strict=False)
+        try:
+            candidate.relative_to(REPO_ROOT.resolve())
+        except ValueError as exc:
+            raise ValueError("Protected paths must stay beneath the repository root") from exc
+        if not candidate.exists():
+            raise ValueError(f"Protected path is unavailable: {value}")
+        if candidate.is_file():
+            files.add(candidate)
+        else:
+            for path in candidate.rglob("*"):
+                if path.is_file() and not path.is_symlink():
+                    files.add(path.resolve())
+    return sorted(files)
+
+
+def _read_dataset_records(dataset_dir: Path) -> list[dict[str, str]]:
+    records: list[dict[str, str]] = []
+    for split in ("train", "validation"):
+        path = dataset_dir / f"{split}.jsonl"
+        if not path.is_file():
+            raise ValueError(f"Dataset is missing {path.name}")
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{path.name}:{line_number} is not valid JSON") from exc
+            text = row.get("text")
+            if not isinstance(text, str) or not text:
+                raise ValueError(f"{path.name}:{line_number} is missing text")
+            records.append(
+                {
+                    "split": split,
+                    "sourceId": str(row.get("sourceId", "")),
+                    "path": str(row.get("path", "")),
+                    "text": _normalise(text),
+                }
+            )
+    if not records:
+        raise ValueError("Dataset contains no records")
+    return records
+
+
+def check_contamination(
+    dataset_dir: Path,
+    *,
+    protected_config: Path = DEFAULT_PROTECTED_CONFIG,
+    report_path: Path | None = None,
+) -> dict[str, Any]:
+    dataset_dir = dataset_dir.resolve(strict=True)
+    if not dataset_dir.is_dir():
+        raise ValueError("Dataset path must be a directory")
+
+    config = _read_json(protected_config, "Protected-eval config")
+    if config.get("schemaVersion") != 1:
+        raise ValueError("Protected-eval config schemaVersion must be 1")
+    minimum = config.get("minimumSubstringCharacters", 120)
+    if type(minimum) is not int or not 80 <= minimum <= 4096:
+        raise ValueError("minimumSubstringCharacters must be an integer from 80 to 4096")
+
+    manifest_path = dataset_dir / "manifest.json"
+    manifest = _read_json(manifest_path, "Dataset manifest")
+    blocked_origins = config.get("blockedSourceOrigins", [])
+    if not isinstance(blocked_origins, list) or not all(isinstance(v, str) and v for v in blocked_origins):
+        raise ValueError("blockedSourceOrigins must be an array of nonempty strings")
+    blocked = {value.rstrip("/").casefold() for value in blocked_origins}
+    blocked_origin_matches = []
+    for source in manifest.get("sources", []):
+        if not isinstance(source, dict):
+            continue
+        origin = source.get("origin")
+        if isinstance(origin, str) and origin.rstrip("/").casefold() in blocked:
+            blocked_origin_matches.append(
+                {"sourceId": str(source.get("id", "")), "origin": origin}
+            )
+
+    protected_files = _resolve_protected_files(config)
+    segments: list[tuple[str, str]] = []
+    for path in protected_files:
+        display = path.relative_to(REPO_ROOT).as_posix()
+        for segment in _protected_segments(path, minimum):
+            segments.append((display, segment))
+
+    records = _read_dataset_records(dataset_dir)
+    exact_matches: list[dict[str, Any]] = []
+    substring_matches: list[dict[str, Any]] = []
+    for record in records:
+        text = record["text"]
+        for protected_path, segment in segments:
+            if text == segment:
+                exact_matches.append(
+                    {
+                        "split": record["split"],
+                        "sourceId": record["sourceId"],
+                        "path": record["path"],
+                        "protectedPath": protected_path,
+                        "characters": len(segment),
+                    }
+                )
+            elif segment in text or (len(text) >= minimum and text in segment):
+                substring_matches.append(
+                    {
+                        "split": record["split"],
+                        "sourceId": record["sourceId"],
+                        "path": record["path"],
+                        "protectedPath": protected_path,
+                        "overlapAtLeastCharacters": min(len(text), len(segment)),
+                    }
+                )
+
+    passed = not blocked_origin_matches and not exact_matches and not substring_matches
+    report = {
+        "schemaVersion": 1,
+        "kind": "plex-web-contamination-report-v1",
+        "passed": passed,
+        "datasetDirectory": dataset_dir.name,
+        "datasetManifestSha256": _sha256(manifest_path.read_bytes()),
+        "recordsScanned": len(records),
+        "protectedFilesScanned": len(protected_files),
+        "protectedSegmentsScanned": len(segments),
+        "minimumSubstringCharacters": minimum,
+        "blockedOriginMatches": blocked_origin_matches,
+        "exactMatches": exact_matches,
+        "substringMatches": substring_matches,
+        "finalHoldout": config.get("finalHoldout", "closed-not-addressable"),
+    }
+
+    target = report_path or dataset_dir / "contamination-report.json"
+    if target.exists():
+        raise FileExistsError(f"Contamination report already exists: {target}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    return {**report, "report": str(target)}
+
+
+def require_clean_contamination(
+    dataset_dir: Path,
+    *,
+    protected_config: Path = DEFAULT_PROTECTED_CONFIG,
+    report_path: Path | None = None,
+) -> dict[str, Any]:
+    report = check_contamination(
+        dataset_dir,
+        protected_config=protected_config,
+        report_path=report_path,
+    )
+    if not report["passed"]:
+        raise ValueError(
+            "Plex Web contamination check failed; corpus promotion is blocked. "
+            f"See {report['report']}"
+        )
+    return report

@@ -4,11 +4,11 @@ This directory is the control surface for Plex's HTML/CSS/JavaScript domain-pret
 
 ## Current milestone
 
-**P2-25 — corpus ingestion pipeline (started).**
+**P2-26 — Plex Web Corpus v1 (active).**
 
-P2-24's specification and machine-readable source policy are committed. The first P2-25 slice adds a local-source preflight verifier before any corpus copying or training.
+P2-25 is closed. The ingestion path now has source/license preflight, deterministic grouped corpus building, reproducibility evidence, and a mandatory contamination gate.
 
-No large corpus is stored in Git.
+P2-26 expands the reviewed source pool toward the first meaningful corpus. No large corpus is stored in Git and no pretraining starts in this milestone.
 
 ## Pipeline
 
@@ -79,4 +79,48 @@ It rejects sources outside the committed license allowlist and filters candidate
 
 At least two independent repository/source groups are required so later train/validation splitting can remain leak-resistant.
 
-P2-25 is not complete until the verified source set can be promoted into a deterministic corpus build with provenance and contamination reports.
+P2-25 is complete. See [the closeout](../../docs/PHASE-2-P2-25-CLOSEOUT.md).
+
+## P2-26 — build the first larger corpus
+
+The reviewed candidate pool lives at:
+
+```text
+training/pretraining/p2-26-source-candidates.json
+```
+
+Materialize the pinned sources and generate the local source manifest:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-source-materialize
+```
+
+Then verify the materialized source set:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-source-verify `
+  --source-manifest training\pretraining\sources.p2-26.local.json
+```
+
+Build a fresh grouped corpus candidate:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli dataset-build `
+  --source-manifest training\pretraining\sources.p2-26.local.json `
+  --output-dir datasets\p2-26-web-1m-candidate-v1 `
+  --validation-percent 20 `
+  --seed 1337
+```
+
+Before promotion, require a clean contamination report:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-contamination-check `
+  --dataset-dir training\artifacts\datasets\p2-26-web-1m-candidate-v1
+```
+
+A missing or failing contamination report blocks tokenizer fitting and pretraining.
+
+The first byte-scale target is roughly **4–6 MiB of accepted normalized HTML/CSS/JavaScript**. Exact token count waits for P2-27 tokenizer review.
+
+See [P2-26 Plex Web Corpus v1](../../docs/PHASE-2-P2-26-WEB-CORPUS-V1.md).
