@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-37",
+  "kind": "plex-p2-37-bridge-error-decomposition-contract-v1",
+  "status": "diagnostic-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Decompose the P2-36 bridge failure into remaining JSON/schema failures versus semantic-field binding failures without repairing, rescoring, or training.",
+  "taskSet": {
+    "path": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "sha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "tasks": 18
+  },
+  "responses": {
+    "path": "training/artifacts/structured-plan/p2-36-step100/responses.jsonl",
+    "sha256": "7492c8d0158381b979b319a4d3a880c0bbba7d7b4227e300c4c68ff357ae7fbd"
+  },
+  "comparison": {
+    "milestone": "P2-36",
+    "passed": 0,
+    "schemaValid": 5,
+    "checksPassed": 56,
+    "checksTotal": 162
+  },
+  "protectedEvaluation": {
+    "noResponseRepair": true,
+    "noRescoring": true,
+    "noGradientUpdates": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  }
+}
