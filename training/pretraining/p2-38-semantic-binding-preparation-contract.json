@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-38",
+  "kind": "plex-p2-38-semantic-binding-preparation-contract-v1",
+  "status": "design-preparation-only",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "purpose": "Prepare a request-conditioned full-plan curriculum that reduces memorized-role collapse while retaining strict JSON plan serialization.",
+  "baseCheckpoint": {
+    "milestone": "P2-35",
+    "step": 100,
+    "sha256": "1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0"
+  },
+  "design": {
+    "recordTarget": 108,
+    "contrastGroups": 36,
+    "recordsPerGroup": 3,
+    "trainGroups": 24,
+    "validationGroups": 12,
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "perLanguage": {
+      "html": {
+        "trainGroups": 8,
+        "validationGroups": 4,
+        "trainRecords": 24,
+        "validationRecords": 12
+      },
+      "css": {
+        "trainGroups": 8,
+        "validationGroups": 4,
+        "trainRecords": 24,
+        "validationRecords": 12
+      },
+      "javascript": {
+        "trainGroups": 8,
+        "validationGroups": 4,
+        "trainRecords": 24,
+        "validationRecords": 12
+      }
+    },
+    "renderMode": "structured-plan-production-prompt-only",
+    "targetFormat": "strict-full-plan-only",
+    "uniqueTargetRolePerRecord": true,
+    "contrastRule": "Each three-record group uses closely related request framing but three distinct semantic targets so the model must condition on request details.",
+    "noMicroJsonStages": true,
+    "tokenizerRefit": false
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExactRequestsExcluded": true,
+    "p231DevelopmentTargetRolesExcluded": true,
+    "p235TargetRolesExcluded": true,
+    "p236ResponsesExcludedFromTraining": true,
+    "p201bExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "requiredReviewChecks": [
+    "all solutions are strict plex-structured-edit-plan-v1 plans",
+    "all records use the production structured-plan prompt surface",
+    "all requests are unique",
+    "all targetRole values are unique",
+    "zero exact P2-31 development request overlap",
+    "zero P2-31 development targetRole overlap",
+    "zero P2-35 targetRole overlap",
+    "contrast groups stay entirely within train or validation",
+    "every contrast group has exactly three distinct semantic targets",
+    "frozen tokenizer roundtrip and context-limit preflight pass"
+  ],
+  "trainingCommand": null,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false
+}
