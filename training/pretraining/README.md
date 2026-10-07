@@ -269,3 +269,38 @@ Machine-readable records:
 
 - `p2-28-initialization-result.json`
 - `p2-28-training-contract.json`
+
+
+## P2-28 result and P2-29 matched run
+
+P2-28 completed all **100 / 100** authorized updates.
+
+```text
+validation before: 9.80930100440979
+validation after:  5.6959015655517575
+independent eval:  5.6959015655517575
+checkpoint:
+cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87
+```
+
+P2-29 is a matched longer run. It starts again from the same verified step-zero checkpoint rather than resuming the P2-28 step-100 checkpoint.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --bundle-dir training\artifacts\tokenizer-reviews\p2-27-web-v1\candidates\vocab-16384 `
+  --initialization training\artifacts\initializations\p2-28-web-v1-step0\initialization.pt `
+  --output-dir pilot\p2-29-web-v1-500step `
+  --minutes 10 `
+  --steps 500 `
+  --device cuda `
+  --micro-batch 1 `
+  --gradient-accumulation 16 `
+  --checkpoint-every-minutes 5
+```
+
+Do not continue beyond step 500 until the run and an independent held-out evaluation are reviewed.
+
+Machine-readable records:
+
+- `p2-28-result.json`
+- `p2-29-training-contract.json`
