@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-37",
+  "kind": "plex-p2-37-bridge-error-decomposition-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "diagnostic-complete",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "7492c8d0158381b979b319a4d3a880c0bbba7d7b4227e300c4c68ff357ae7fbd",
+  "contractSha256": "4893913f089d4cbfe698d3cacf44c59a8f75391a0977a9b92b6edbf2d98b2886",
+  "responsesPresent": 18,
+  "schemaValid": 5,
+  "schemaValidByLanguage": {
+    "html": 0,
+    "css": 2,
+    "javascript": 3
+  },
+  "classifications": {
+    "invalid-json": 7,
+    "parseable-json-invalid-plan-schema": 6,
+    "schema-valid-semantic-mismatch": 5
+  },
+  "schemaValidFieldCorrect": {
+    "language": 5,
+    "action": 5,
+    "targetKind": 5,
+    "targetRole": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "schemaValidRoleReuse": {
+    "reusedP235RoleCount": 5,
+    "totalSchemaValid": 5,
+    "roles": {
+      "modal-state": 2,
+      "keyed-dedupe": 2,
+      "range-normalizer": 1
+    }
+  },
+  "structuralFailureSignals": [
+    "targetRole populated with constraint arrays",
+    "targetKind populated with a constraint array",
+    "required targetRole or constraints fields omitted",
+    "nested/repeated searchHints fragments",
+    "malformed key/value transitions remain in some outputs"
+  ],
+  "interpretation": {
+    "primaryFailure": "request-conditioned semantic binding / memorized concept collapse",
+    "secondaryFailure": "residual JSON and strict-schema instability",
+    "serializationImprovedFromP233": true,
+    "recommendation": "Do not extend P2-35. Prepare a full-plan-only contrastive semantic-binding curriculum with unique targets and no P2-31/P2-35 role reuse."
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-38 semantic-binding contrast curriculum"
+}
