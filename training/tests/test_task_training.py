@@ -147,6 +147,12 @@ class P230AuthorizedRunTests(unittest.TestCase):
             "status": "owner-approved-first-run",
             "modelTrainingAuthorized": True,
             "approvedBy": "keepithandy",
+            "outputDirectory": "authorized-output",
+            "executionState": {
+                "trainingExecuted": False,
+                "researchOptimizerUpdates": 0,
+                "finalHoldoutOpened": False,
+            },
             "baseStage": {
                 "checkpointSha256": sha256_file(self.stage),
                 "taskStep": 0,
@@ -162,6 +168,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 "validationJsonlSha256": self.dataset["validationJsonlSha256"],
                 "trainRecords": 156,
                 "validationRecords": 78,
+                "additionalCurricula": [],
             },
             "training": {
                 "sampler": {
@@ -194,8 +201,11 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 "contextLength": 512,
                 "dropout": 0.1,
                 "tokenAccounting": "nonpadding-next-token-targets-v1",
+                "expectedSamplesAt100Steps": 1600,
+                "expectedRealTargetPositionsAt100Steps": 181849,
                 "resumeAllowed": False,
                 "automaticContinuation": False,
+                "timeLimitPolicy": "Stop before the next optimizer update when the run deadline is reached; save/report completed updates only.",
             },
             "evaluation": {
                 "taskValidation": {
@@ -209,6 +219,18 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 },
                 "checkpointSteps": [25, 50, 75, 100],
                 "alwaysSaveFinalCompletedStep": True,
+                "checkpointSelection": "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+                "development": {
+                    "taskSet": "training/phase2/evaluation/p2-01b-dev-v1.json",
+                    "taskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+                    "runAt": "final completed step only; existing stage-zero baseline retained",
+                    "temperature": 0,
+                    "seed": 1337,
+                    "maxNewTokens": {"css": 128, "html": 192, "javascript": 192},
+                    "baselinePassed": 0,
+                    "baselineTasks": 30,
+                    "baselineTruncated": 30,
+                },
             },
             "protectedEvaluation": {
                 "validationExcludedFromGradients": True,
@@ -309,7 +331,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 stage_checkpoint=self.stage,
                 authorization_contract_path=self.authorization_path,
                 preparation_contract_path=self.preparation_path,
-                output_dir=self.root / "new-output",
+                output_dir=self.root / "authorized-output",
                 artifact_root=self.root,
                 require_cuda=False,
             )
@@ -324,7 +346,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                     stage_checkpoint=self.stage,
                     authorization_contract_path=self.authorization_path,
                     preparation_contract_path=self.preparation_path,
-                    output_dir=self.root / "other-output",
+                    output_dir=self.root / "authorized-output",
                     artifact_root=self.root,
                     require_cuda=False,
                 )
@@ -346,7 +368,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
         self._write_stage()
         self.authorization = self._authorization()
         self._write_json(self.authorization_path, self.authorization)
-        output = self.root / "dry-run"
+        output = self.root / "authorized-output"
         with patch("plex_training.task_training.inspect_task_bundle", return_value=self.bundle), \
              patch("plex_training.task_training._verify_stage",
                    return_value=(PlexLanguageModel(self.config), {"step": 0})), \
