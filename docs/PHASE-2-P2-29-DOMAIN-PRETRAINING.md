@@ -2,7 +2,7 @@
 
 ## Status
 
-**Active — one 500-step matched run authorized.**
+**Complete and closed.**
 
 P2-29 extends only the training horizon. All other controlled inputs remain identical to P2-28.
 
@@ -73,3 +73,21 @@ After the run:
 6. do not continue beyond step 500 without another reviewed decision
 
 The final project holdout remains closed.
+
+
+## Completion
+
+The matched run completed all **500 / 500** optimizer updates.
+
+- validation loss before: **9.80930100440979**
+- validation loss after: **4.8241992592811584**
+- independent evaluation: **4.8241992592811584**
+- checkpoint SHA-256: `3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e`
+- token positions processed: **4,096,000**
+- interrupted: **false**
+
+Validation was measured at run start and run end. The training-loss log was inspected across the run, but no intermediate held-out validation measurements exist, so monotonic validation improvement is not claimed.
+
+See [P2-29 result](PHASE-2-P2-29-RESULT.md).
+
+**Next:** [P2-30 task-format fine-tuning preparation](PHASE-2-P2-30-TASK-FINETUNING.md).
