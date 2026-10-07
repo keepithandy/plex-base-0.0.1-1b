@@ -49,6 +49,7 @@ GRADIENT_ACCUMULATION = 16
 SEED = 1337
 VALIDATION_MAXIMUM_BATCHES = 100
 GRADIENT_CLIP_NORM = 1.0
+AUTHORIZED_OUTPUT_DIRECTORY = "task-finetune/p2-30-first-run"
 
 
 def _json(path: Path, maximum_bytes: int = 4 * 1024 * 1024) -> dict[str, Any]:
@@ -72,6 +73,26 @@ def _validate_authorization(contract: dict[str, Any]) -> None:
     _require_exact(contract.get("status"), AUTHORIZED_STATUS, "status")
     _require_exact(contract.get("modelTrainingAuthorized"), True, "modelTrainingAuthorized")
     _require_exact(contract.get("approvedBy"), AUTHORIZED_APPROVER, "approvedBy")
+    _require_exact(contract.get("outputDirectory"), AUTHORIZED_OUTPUT_DIRECTORY, "outputDirectory")
+
+    execution = contract.get("executionState")
+    if not isinstance(execution, dict):
+        raise ValueError("P2-30 execution-state gate is missing")
+    _require_exact(execution.get("trainingExecuted"), False, "executionState.trainingExecuted")
+    _require_exact(execution.get("researchOptimizerUpdates"), 0,
+                   "executionState.researchOptimizerUpdates")
+    _require_exact(execution.get("finalHoldoutOpened"), False,
+                   "executionState.finalHoldoutOpened")
+
+    base = contract.get("baseStage")
+    if not isinstance(base, dict):
+        raise ValueError("P2-30 base-stage contract is missing")
+    _require_exact(base.get("taskStep"), 0, "baseStage.taskStep")
+
+    data = contract.get("data")
+    if not isinstance(data, dict):
+        raise ValueError("P2-30 task-data authorization is missing")
+    _require_exact(data.get("additionalCurricula"), [], "data.additionalCurricula")
 
     training = contract.get("training")
     if not isinstance(training, dict):
@@ -98,6 +119,9 @@ def _validate_authorization(contract: dict[str, Any]) -> None:
         "tokenAccounting": "nonpadding-next-token-targets-v1",
         "resumeAllowed": False,
         "automaticContinuation": False,
+        "expectedSamplesAt100Steps": 1600,
+        "expectedRealTargetPositionsAt100Steps": 181849,
+        "timeLimitPolicy": "Stop before the next optimizer update when the run deadline is reached; save/report completed updates only.",
     }
     for key, expected in expected_training.items():
         _require_exact(training.get(key), expected, f"training.{key}")
@@ -132,6 +156,27 @@ def _validate_authorization(contract: dict[str, Any]) -> None:
                    "evaluation.checkpointSteps")
     _require_exact(evaluation.get("alwaysSaveFinalCompletedStep"), True,
                    "evaluation.alwaysSaveFinalCompletedStep")
+    _require_exact(
+        evaluation.get("checkpointSelection"),
+        "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+        "evaluation.checkpointSelection",
+    )
+    development = evaluation.get("development")
+    if not isinstance(development, dict):
+        raise ValueError("P2-30 development-evaluation contract is missing")
+    expected_development = {
+        "taskSet": "training/phase2/evaluation/p2-01b-dev-v1.json",
+        "taskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+        "runAt": "final completed step only; existing stage-zero baseline retained",
+        "temperature": 0,
+        "seed": SEED,
+        "maxNewTokens": {"css": 128, "html": 192, "javascript": 192},
+        "baselinePassed": 0,
+        "baselineTasks": 30,
+        "baselineTruncated": 30,
+    }
+    for key, expected in expected_development.items():
+        _require_exact(development.get(key), expected, f"evaluation.development.{key}")
 
     protected = contract.get("protectedEvaluation")
     if not isinstance(protected, dict):
@@ -304,14 +349,26 @@ def _preflight(
 ) -> dict[str, Any]:
     root = artifact_root.resolve()
     output = path_within_root(output_dir, root)
+
+    for path, label in (
+        (authorization_contract_path, "authorization contract"),
+        (preparation_contract_path, "preparation contract"),
+        (stage_checkpoint, "stage-zero checkpoint"),
+    ):
+        if path.is_symlink():
+            raise ValueError(f"P2-30 {label} must not be a symlink")
+
+    contract = _json(authorization_contract_path)
+    _validate_authorization(contract)
+    authorization_path = authorization_contract_path.resolve(strict=True)
+    expected_output = path_within_root(root / Path(contract["outputDirectory"]), root)
+    if output != expected_output:
+        raise ValueError("P2-30 first run must use the single authorized output directory")
     if output.exists():
         raise FileExistsError("P2-30 first-run output already exists; resume and overwrite are forbidden")
 
-    authorization_path = authorization_contract_path.resolve(strict=True)
+    preparation_contract = _json(preparation_contract_path)
     preparation_path = preparation_contract_path.resolve(strict=True)
-    contract = _json(authorization_path)
-    _validate_authorization(contract)
-    preparation_contract = _json(preparation_path)
     if (preparation_contract.get("milestone") != "P2-30"
             or preparation_contract.get("status") != "preparation-gate-passed"):
         raise ValueError("P2-30 preparation gate is not passed")
@@ -588,6 +645,11 @@ def run_first_finetune(
         elapsed = time.perf_counter() - started
         if sha256_file(checked["stageCheckpoint"]) != source_hash:
             raise ValueError("P2-30 stage-zero source checkpoint changed during the run")
+        if (sha256_file(bundle["root"] / "manifest.json") != contract["data"]["bundleManifestSha256"]
+                or sha256_file(bundle["trainPath"]) != bundle["dataset"]["trainTokensSha256"]
+                or sha256_file(bundle["validationPath"]) != bundle["dataset"]["validationTokensSha256"]
+                or sha256_file(bundle["root"] / "train.index.json") != contract["training"]["sampler"]["indexSha256"]):
+            raise ValueError("P2-30 task bundle changed during the run")
 
         result = {
             "schemaVersion": 1,
