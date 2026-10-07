@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-30",
+  "kind": "plex-p2-30-first-task-finetune-contract-v1",
+  "status": "owner-approved",
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
+  "prerequisites": [
+    "P2-30 preparation evidence and exact artifacts verified",
+    "Explicit owner authorization recorded in this contract",
+    "Dedicated task-stage training command implemented, tested by repository unit coverage, and reviewed; generic pilot/runner/resume remain forbidden"
+  ],
+  "baseStage": {
+    "checkpoint": "training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt",
+    "checkpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+    "taskStep": 0,
+    "baseWebCheckpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "parameterCount": 27566080,
+    "weightsOrigin": "Fresh random Plex initialization -> P2-29 scratch Web pretraining -> weights-only P2-30 task stage"
+  },
+  "data": {
+    "bundle": "training/artifacts/task-finetune/p2-30-request-v3-16k",
+    "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "vocabularySize": 16384,
+    "sourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+    "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+    "validationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+    "trainRecords": 156,
+    "validationRecords": 78,
+    "additionalCurricula": []
+  },
+  "training": {
+    "sampler": {
+      "kind": "complete-record-v1",
+      "selection": "uniform-record-with-replacement",
+      "endPolicy": "stop-at-record-eos-v1",
+      "records": 156,
+      "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+      "indexSha256": "6f19b1d34b452efc0027a882b7702dff23c568506eba65aa949f877ed03a71ca",
+      "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+      "tokenAccounting": "nonpadding-next-token-targets-v1",
+      "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+    },
+    "objective": "ordinary-next-token-v1",
+    "answerWeight": 1,
+    "optimizer": "AdamW",
+    "optimizerStatePolicy": "fresh-empty-task-stage-optimizer; never P2-29 moments",
+    "learningRate": 0.0003,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "epsilon": 1e-8,
+    "weightDecay": 0.1,
+    "gradientClippingNorm": 1,
+    "schedule": "constant-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "contextLength": 512,
+    "dropout": 0.1,
+    "tokenAccounting": "nonpadding-next-token-targets-v1",
+    "expectedSamplesAt100Steps": 1600,
+    "expectedRealTargetPositionsAt100Steps": 181849,
+    "resumeAllowed": false,
+    "automaticContinuation": false,
+    "timeLimitPolicy": "Stop before the next optimizer update when the run deadline is reached; save/report completed updates only."
+  },
+  "evaluation": {
+    "taskValidation": {
+      "method": "sequential-packed-next-token-loss",
+      "maximumBatches": 100,
+      "steps": [
+        0,
+        25,
+        50,
+        75,
+        100
+      ],
+      "baselineLoss": 6.821033537387848,
+      "baselineTokens": 8192,
+      "baselineBatches": 16,
+      "tailTargetPositionsExcluded": 468
+    },
+    "checkpointSteps": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "alwaysSaveFinalCompletedStep": true,
+    "checkpointSelection": "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+    "development": {
+      "taskSet": "training/phase2/evaluation/p2-01b-dev-v1.json",
+      "taskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+      "runAt": "final completed step only; existing stage-zero baseline retained",
+      "temperature": 0,
+      "seed": 1337,
+      "maxNewTokens": {
+        "css": 128,
+        "html": 192,
+        "javascript": 192
+      },
+      "baselinePassed": 0,
+      "baselineTasks": 30,
+      "baselineTruncated": 30
+    },
+    "report": [
+      "completed updates",
+      "actual target positions",
+      "record exposure counts",
+      "elapsed time",
+      "validation at each scheduled step",
+      "complete development tasks",
+      "truncations",
+      "all artifact identities"
+    ]
+  },
+  "protectedEvaluation": {
+    "validationExcludedFromGradients": true,
+    "p2_01bExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true,
+    "developmentBaselineMustNotBeUsedForOptimization": true
+  },
+  "implementationRequirements": [
+    "Verify exact contract and checkpoint hashes before allocating outputs",
+    "Reject any stageTransitionRecord with a different base, tokenizer, task dataset or step",
+    "Keep original initialization provenance and propagate stage transition unchanged into checkpoints",
+    "Maintain task-only step/token accounting and fresh sampler",
+    "Fresh output directory; no implicit resume or extension",
+    "Reverify saved model and checkpoint identities before final evaluation"
+  ],
+  "rationale": {
+    "sampler": "All records fit comfortably (train 89-145, validation 92-131 tokens including EOS). Complete records preserve prompt/answer alignment at position zero and EOS; the previous complete-record arm showed 3/156 exact seen answers versus 0/156 for packed arms. This is a historical comparison, not proof of held-out improvement.",
+    "objective": "Ordinary next-token loss with answer weight 1; historical 4x weighting did not improve complete development tasks. No objective, curriculum, architecture or learning-rate-schedule sweep.",
+    "historicalComparator": "docs/PHASE-2-COMPLETE-RECORD-COMPARISON.md: 100 updates, ordinary loss, complete-record-v1, same task split, micro-batch 1, accumulation 16, seed and AdamW settings.",
+    "comparisonLimit": "Historical tokenizer was 1509 entries and is not reused. The frozen Web tokenizer and learned starting weights differ, and real target positions are 181849 versus historical 149760. This cannot isolate a pure causal pretraining effect or support direct cross-tokenizer loss comparisons."
+  },
+  "continuationRule": "Stop after the bounded run. No resume or automatic continuation is authorized. Owner reviews artifact identities, learning behavior and development results before any further optimizer update.",
+  "command": "uv run --project training --no-sync python -m plex_training.cli task-finetune-run --checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --output-dir task-finetune/p2-30-first-run",
+  "approvedDate": "2026-10-07"
+}
