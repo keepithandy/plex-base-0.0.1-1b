@@ -466,3 +466,9 @@ For the technical details and experiment history:
 **Plex is a working scratch-training research project with a real repository-editing foundation — not yet a finished coding model.**
 
 </div>
+
+## License
+
+The code is licensed under the [MIT License](LICENSE). The training corpus has
+its own source and license records in [source-policy.json](source-policy.json);
+review those records before reusing corpus material.
