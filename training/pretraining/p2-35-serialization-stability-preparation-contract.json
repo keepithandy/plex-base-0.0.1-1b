@@ -21,7 +21,7 @@
   },
   "curriculum": {
     "candidate": "training/phase2/drafts/p2-35-serialization-stability-candidate-v1.jsonl",
-    "candidateSha256": "d06c63978e8e1b571bc022eed68a9bdd0290e88b6c7f77014343da5d3e4e07a0",
+    "candidateSha256": "2abd94ee05da241848e06500b0df43fd0f70e19af75c199ef6d73181fa8a1bad",
     "review": "training/phase2/drafts/p2-35-serialization-stability-candidate-v1.review.json",
     "records": 144,
     "trainRecords": 108,
