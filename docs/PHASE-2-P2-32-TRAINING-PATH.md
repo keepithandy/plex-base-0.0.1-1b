@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implementation prepared; real model training remains unauthorized.**
+**First bounded run owner-authorized — October 7, 2026. No optimizer update has been executed yet.**
 
 The P2-32 curriculum/tokenizer gate passed locally with:
 
@@ -73,18 +73,24 @@ The implementation supports only the existing draft envelope:
 
 Those settings are **not authorization**.
 
-The draft contract is:
+The sole approved first-run contract is:
 
-`training/pretraining/p2-32-first-run-contract.draft.json`
+`training/pretraining/p2-32-first-run-contract.json`
 
-It deliberately leaves the following values unset until local staging/preflight supplies them:
+The owner-approved contract pins:
 
-- exact P2-32 stage checkpoint SHA-256
-- packed bundle manifest SHA-256
-- train/validation JSONL SHA-256
-- sampler/index identity
-- exact expected real target positions at 100 steps
-- stage-zero validation loss
+- P2-32 stage checkpoint SHA-256: `7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3`
+- packed bundle manifest SHA-256: `a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd`
+- train JSONL SHA-256: `239eaf48f6ad5701e0abe7fcb1e98a2ea379a7377d7e8c523f267e5b9dbd4e71`
+- validation JSONL SHA-256: `2eccc8136f4f7e216b0819e795b56fbbae9d69da50e9ee3cccc5746abe5b3a36`
+- sampler index SHA-256: `d60e6ab00cb2d5f750ee14d75565c0791d7a5bbe2e05b5e6163d86cf88f00813`
+- expected 100-step examples: **1,600**
+- expected real target positions: **605,231**
+- stage-zero validation loss: **8.002869129180908**
+
+The read-only local stage-preflight evidence is recorded in:
+
+`training/pretraining/p2-32-stage-preflight-result.json`
 
 ## Local staging sequence
 
@@ -113,13 +119,13 @@ uv run --project training --no-sync python -m plex_training.cli plan-train-prefl
   --stage-checkpoint training/artifacts/structured-plan/p2-32-stage0/stage-checkpoint.pt
 ```
 
-The expected preflight result must still say:
+After pulling the approved contract, repeat the same preflight. It must say:
 
-- `authorized: false`
+- `authorized: true`
 - `trainingPerformed: false`
 - `researchOptimizerUpdates: 0`
 - `finalHoldoutOpened: false`
+- stage/bundle/sampler identities exactly match the approved contract
+- baseline validation loss remains exactly **8.002869129180908**
 
-The returned stage/bundle/sampler/baseline identities are then eligible for a **separate owner authorization review**.
-
-Do not run `plan-train-run` before that authorization is committed.
+Only then run the single bounded `plan-train-run`. No continuation after that run is authorized.
