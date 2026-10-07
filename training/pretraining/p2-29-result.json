@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-29",
+  "kind": "plex-p2-29-matched-longer-domain-pretraining-result-v1",
+  "status": "complete",
+  "provenance": {
+    "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "tokenizerBundleManifestSha256": "fb650f91bbc7f53e788a7f7c22af4950b079423229c1ef85bdd865025e56e880",
+    "initializationCheckpointSha256": "06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86",
+    "initialModelWeightsSha256": "98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193",
+    "seed": 1337,
+    "parameterCount": 27566080
+  },
+  "run": {
+    "requestedSteps": 500,
+    "completedSteps": 500,
+    "requestedMinutes": 10,
+    "elapsedSeconds": 88.24457460001577,
+    "interrupted": false,
+    "device": "cuda",
+    "samplingPolicy": "random-window-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "learningRateSchedule": "constant-v1",
+    "weightDecay": 0.1,
+    "tokensProcessedThisRun": 4096000,
+    "tokensPerSecond": 46416.45130667635,
+    "meanRecentLoss": 2.657110434025526,
+    "validationLossBefore": 9.80930100440979,
+    "validationLossAfter": 4.8241992592811584,
+    "validationImproved": true,
+    "checkpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "checkpointBytes": 330898523,
+    "peakGpuAllocatedBytes": 832899584,
+    "peakGpuReservedBytes": 874512384,
+    "processPeakWorkingSetBytes": 1399693312
+  },
+  "trainingProgressSnapshots": [
+    {
+      "step": 1,
+      "loss": 9.821168065071106
+    },
+    {
+      "step": 100,
+      "loss": 4.5400326400995255
+    },
+    {
+      "step": 200,
+      "loss": 2.917886972427368
+    },
+    {
+      "step": 300,
+      "loss": 3.824255384504795
+    },
+    {
+      "step": 400,
+      "loss": 2.962820015847683
+    },
+    {
+      "step": 500,
+      "loss": 2.3645400926470757
+    }
+  ],
+  "independentEvaluation": {
+    "split": "held-out-validation",
+    "device": "cuda",
+    "batches": 100,
+    "tokens": 51200,
+    "checkpointStep": 500,
+    "meanLoss": 4.8241992592811584,
+    "exactMatchToTrainingReportedValidationLoss": true
+  },
+  "comparisonToP2_28": {
+    "p2_28Step100ValidationLoss": 5.6959015655517575,
+    "p2_29Step500ValidationLoss": 4.8241992592811584,
+    "interpretation": "The matched 500-step endpoint improves on the matched 100-step endpoint. Validation was measured only at run start and run end, so monotonic held-out improvement between those endpoints is not claimed."
+  },
+  "decision": {
+    "p2_29Closed": true,
+    "p2_30TaskFineTuningPreparationJustified": true,
+    "codingCapabilityEstablished": false,
+    "finalProjectHoldoutOpened": false
+  }
+}

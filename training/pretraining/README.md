@@ -4,11 +4,9 @@ This directory is the control surface for Plex's HTML/CSS/JavaScript domain-pret
 
 ## Current milestone
 
-**P2-26 — Plex Web Corpus v1 (active).**
+**P2-30 — Task-Format Fine-Tuning Preparation (active).**
 
-P2-25 is closed. The ingestion path now has source/license preflight, deterministic grouped corpus building, reproducibility evidence, and a mandatory contamination gate.
-
-P2-26 expands the reviewed source pool toward the first meaningful corpus. No large corpus is stored in Git and no pretraining starts in this milestone.
+P2-24 through P2-29 are complete. The reviewed Web corpus, frozen 16K tokenizer, fresh 27.6M scratch initialization, and matched 100-step/500-step domain-pretraining results are recorded. P2-30 now prepares a stage-safe transition from the verified P2-29 Web checkpoint into task-format fine-tuning. No P2-30 model training is authorized yet.
 
 ## Pipeline
 
@@ -304,3 +302,43 @@ Machine-readable records:
 
 - `p2-28-result.json`
 - `p2-29-training-contract.json`
+
+
+## P2-29 result and P2-30 preparation gate
+
+P2-29 completed the matched 500-step Web-domain run:
+
+```text
+steps:              500 / 500
+tokens processed:   4,096,000
+validation before:  9.80930100440979
+validation after:   4.8241992592811584
+independent eval:   4.8241992592811584
+checkpoint:
+3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e
+```
+
+P2-30 begins from that verified checkpoint, but **not** by using the generic Web-pilot resume path to swap datasets.
+
+The first task curriculum is the already approved P2-02 request-following v3 corpus:
+
+```text
+candidate SHA-256:
+555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016
+
+records:      234
+train:        156
+validation:   78
+```
+
+P2-30 must:
+
+1. preserve the exact approved task text split
+2. retokenize it with the frozen P2-27 16,384-token tokenizer
+3. load only model weights from the P2-29 checkpoint
+4. initialize a fresh task-stage optimizer/state counter
+5. record the base checkpoint provenance
+6. keep task validation, P2-01b, and the final project holdout out of gradient training
+7. obtain a separate bounded training authorization before the first optimizer update
+
+See [P2-29 result](../../docs/PHASE-2-P2-29-RESULT.md) and [P2-30 preparation](../../docs/PHASE-2-P2-30-TASK-FINETUNING.md).

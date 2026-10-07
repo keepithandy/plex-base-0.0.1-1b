@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "milestone": "P2-29",
   "kind": "plex-p2-29-matched-longer-domain-pretraining-contract-v1",
-  "status": "authorized",
+  "status": "complete",
   "purpose": "Measure a longer scratch domain-pretraining trajectory while changing only the training horizon from P2-28.",
   "matchedInputs": {
     "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
@@ -63,5 +63,15 @@
   ],
   "finalProjectHoldout": {
     "mustRemainClosed": true
+  },
+  "completion": {
+    "completedSteps": 500,
+    "interrupted": false,
+    "checkpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "validationLossAfter": 4.8241992592811584,
+    "independentValidationLoss": 4.8241992592811584,
+    "exactIndependentReproduction": true,
+    "continuationAuthorized": false,
+    "nextMilestone": "P2-30"
   }
 }
