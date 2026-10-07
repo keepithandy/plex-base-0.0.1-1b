@@ -88,6 +88,8 @@ The development task-set SHA-256 is:
 
 `8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5`
 
+This identity is computed from UTF-8 text with line endings canonically normalized to LF, so the same checked-out JSON has the same authorized identity on Windows (CRLF) and Unix-like systems. `.gitattributes` also pins the P2-31 task set and contract to LF for stable repository bytes.
+
 ## Predeclared development gate
 
 Before generation, the gate is fixed at:
