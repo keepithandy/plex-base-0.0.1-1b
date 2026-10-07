@@ -22,6 +22,7 @@ from plex_training.structured_plan_serialization_training import (
     _structured_plan_training_step,
     _validate_authorization,
     create_structured_plan_stage,
+    preflight_structured_plan_training,
     run_structured_plan_training,
 )
 from plex_training.tokenizer import CODEC, sha256_file
@@ -250,6 +251,103 @@ class P235LockedTrainingTests(unittest.TestCase):
             payload = torch.load(output / "stage-checkpoint.pt", weights_only=True)
             self.assertEqual(payload["optimizerStateDict"]["state"], {})
             self.assertEqual(payload["samplingRngState"], random.Random(1337).getstate())
+
+    def test_preflight_exposes_all_dataset_identities(self) -> None:
+        class FakeCorpus:
+            sampler_record = {
+                "kind": "complete-record-v1",
+                "records": 108,
+                "indexSha256": "train-index",
+                "trainJsonlSha256": "train-jsonl",
+            }
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def replay_progress(self, seed, draws):
+                return 123456, None
+
+        class FakeValidation:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            stage = root / "stage.pt"
+            stage.write_bytes(b"stage")
+            draft = root / "draft.json"
+            draft.write_text(json.dumps({
+                "schemaVersion": 1,
+                "milestone": "P2-35",
+                "kind": "plex-p2-35-first-serialization-stability-run-contract-v1",
+                "status": "draft-awaiting-owner-review",
+                "modelTrainingAuthorized": False,
+                "approvedBy": None,
+            }), encoding="utf-8")
+            bundle = {
+                "root": root,
+                "trainPath": root / "train.tokens.u16le",
+                "validationPath": root / "validation.tokens.u16le",
+                "tokenizer": {
+                    "actualVocabularySize": 16384,
+                    "tokenizerSha256": "tok",
+                },
+                "dataset": {
+                    "trainJsonlSha256": "train-jsonl",
+                    "validationJsonlSha256": "validation-jsonl",
+                    "trainIndexSha256": "train-index",
+                    "validationIndexSha256": "validation-index",
+                    "trainTokenCount": 20427,
+                    "validationTokenCount": 6727,
+                },
+            }
+            (root / "manifest.json").write_text("{}", encoding="utf-8")
+            model = PlexLanguageModel(ModelConfig(
+                vocab_size=64, width=16, layers=1, heads=2,
+                feed_forward_width=32, dropout=0.0,
+            ))
+            with patch(
+                "plex_training.structured_plan_serialization_training._preparation_contract",
+                return_value={},
+            ), patch(
+                "plex_training.structured_plan_serialization_training.inspect_structured_plan_bundle",
+                return_value=bundle,
+            ), patch(
+                "plex_training.structured_plan_serialization_training._verify_stage",
+                return_value=(model, {}),
+            ), patch(
+                "plex_training.structured_plan_serialization_training.StructuredPlanCompleteRecordCorpus",
+                return_value=FakeCorpus(),
+            ), patch(
+                "plex_training.structured_plan_serialization_training.TokenCorpus",
+                return_value=FakeValidation(),
+            ), patch(
+                "plex_training.structured_plan_serialization_training._validation_loss",
+                return_value=4.25,
+            ), patch(
+                "plex_training.structured_plan_serialization_training.select_device",
+                return_value=torch.device("cpu"),
+            ):
+                report = preflight_structured_plan_training(
+                    bundle_dir=root,
+                    stage_checkpoint=stage,
+                    authorization_contract_path=draft,
+                    preparation_contract_path=root / "prep.json",
+                    output_dir=root / "structured-plan" / "p2-35-first-run",
+                    artifact_root=root,
+                    require_cuda=False,
+                )
+        self.assertFalse(report["authorized"])
+        self.assertEqual(report["trainJsonlSha256"], "train-jsonl")
+        self.assertEqual(report["validationJsonlSha256"], "validation-jsonl")
+        self.assertEqual(report["trainIndexSha256"], "train-index")
+        self.assertEqual(report["validationIndexSha256"], "validation-index")
 
     def test_draft_run_rejects_before_optimizer_update(self) -> None:
         path = Path("training/pretraining/p2-35-first-run-contract.draft.json")
