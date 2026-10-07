@@ -188,6 +188,52 @@ def build_parser() -> argparse.ArgumentParser:
     task_stage.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(task_stage)
 
+    task_preflight = subparsers.add_parser(
+        "task-finetune-preflight",
+        help="Verify the owner-authorized P2-30 first run without creating outputs or training",
+    )
+    task_preflight.add_argument("--bundle-dir", type=Path, required=True)
+    task_preflight.add_argument("--stage-checkpoint", type=Path, required=True)
+    task_preflight.add_argument(
+        "--authorization-contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-first-finetune-contract.json"),
+    )
+    task_preflight.add_argument(
+        "--preparation-contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-task-finetune-contract.json"),
+    )
+    task_preflight.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("task-finetune/p2-30-first-run"),
+    )
+    _add_artifact_root(task_preflight)
+
+    task_run = subparsers.add_parser(
+        "task-finetune-run",
+        help="Execute the single bounded owner-authorized P2-30 first fine-tuning run",
+    )
+    task_run.add_argument("--bundle-dir", type=Path, required=True)
+    task_run.add_argument("--stage-checkpoint", type=Path, required=True)
+    task_run.add_argument(
+        "--authorization-contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-first-finetune-contract.json"),
+    )
+    task_run.add_argument(
+        "--preparation-contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-task-finetune-contract.json"),
+    )
+    task_run.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("task-finetune/p2-30-first-run"),
+    )
+    _add_artifact_root(task_run)
+
     initialize = subparsers.add_parser(
         "initialize", help="Create and record a fresh, randomly initialized Plex checkpoint"
     )
@@ -602,6 +648,36 @@ def _task_finetune_stage(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _task_finetune_preflight(args: argparse.Namespace) -> dict[str, Any]:
+    from .task_training import preflight_first_finetune
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return preflight_first_finetune(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
+def _task_finetune_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .task_training import run_first_finetune
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_first_finetune(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
 def _initialize(args: argparse.Namespace) -> dict[str, Any]:
     from .initialization import initialize_model
     from .artifacts import artifact_bytes
@@ -766,6 +842,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_task_finetune_repack(args))
         elif args.command == "task-finetune-stage":
             _json_print(_task_finetune_stage(args))
+        elif args.command == "task-finetune-preflight":
+            _json_print(_task_finetune_preflight(args))
+        elif args.command == "task-finetune-run":
+            _json_print(_task_finetune_run(args))
         elif args.command == "initialize":
             _json_print(_initialize(args))
         elif args.command == "learn-check":

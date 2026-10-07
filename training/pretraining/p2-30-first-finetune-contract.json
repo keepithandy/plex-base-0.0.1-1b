@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "milestone": "P2-30",
   "kind": "plex-p2-30-first-task-finetune-contract-v1",
-  "status": "draft-awaiting-owner-review",
-  "modelTrainingAuthorized": false,
-  "approvedBy": null,
+  "status": "owner-approved-first-run",
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
   "prerequisites": [
     "Preparation evidence and exact artifacts verified",
-    "Explicit owner authorization recorded and committed",
-    "Dedicated task-stage training command implemented, tested and reviewed; generic pilot/runner/resume remain forbidden"
+    "Explicit owner authorization recorded in this contract",
+    "Dedicated task-stage training command merged with contract-enforcing preflight/tests; generic pilot/runner/resume remain forbidden"
   ],
   "baseStage": {
     "checkpoint": "training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt",
@@ -51,9 +51,9 @@
       0.9,
       0.95
     ],
-    "epsilon": 1e-08,
+    "epsilon": 1e-8,
     "weightDecay": 0.1,
-    "gradientClippingNorm": 1.0,
+    "gradientClippingNorm": 1,
     "schedule": "constant-v1",
     "microBatch": 1,
     "gradientAccumulation": 16,
@@ -141,5 +141,15 @@
     "comparisonLimit": "Historical tokenizer was 1509 entries and is not reused. The frozen Web tokenizer and learned starting weights differ, and real target positions are 181849 versus historical 149760. This cannot isolate a pure causal pretraining effect or support direct cross-tokenizer loss comparisons."
   },
   "continuationRule": "Stop after the bounded run. Owner reviews artifact identities, learning behavior and development results before any further optimizer update.",
-  "command": null
+  "command": "uv run --project training --no-sync python -m plex_training.cli task-finetune-run --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --stage-checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt --output-dir task-finetune/p2-30-first-run",
+  "approvedDate": "2026-10-07",
+  "authorizationScope": "Exactly one fresh P2-30 first-run invocation from the pinned stage-zero checkpoint. No resume, extension, alternate data, alternate optimizer, alternate device, or automatic continuation is authorized.",
+  "preflightCommand": "uv run --project training --no-sync python -m plex_training.cli task-finetune-preflight --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --stage-checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt --output-dir task-finetune/p2-30-first-run",
+  "executionState": {
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "finalHoldoutOpened": false,
+    "note": "Authorization and tooling do not constitute execution. Run only after this authorization/tooling PR is merged and preflight passes."
+  },
+  "outputDirectory": "task-finetune/p2-30-first-run"
 }

@@ -1,10 +1,10 @@
-# P2-30 — Task-Format Fine-Tuning Preparation
+# P2-30 — Task-Format Fine-Tuning
 
 ## Status
 
-**Preparation gate passed — October 7, 2026. No model training is authorized yet.**
+**Preparation gate passed — October 7, 2026. The first bounded run is owner-authorized but has not been executed.**
 
-The [preparation result](PHASE-2-P2-30-PREPARATION-RESULT.md) records exact identities, unchanged P2-29 weights, a reproducible **6.821033537387848** task-text baseline and **0/30** development tasks. All **44 targeted / 207 full-suite tests** passed. The separate [100-step first-run draft](../training/pretraining/p2-30-first-finetune-contract.draft.json) remains unauthorized and requires owner review plus a dedicated contract-enforcing training path.
+The [preparation result](PHASE-2-P2-30-PREPARATION-RESULT.md) records exact identities, unchanged P2-29 weights, a reproducible **6.821033537387848** task-text baseline and **0/30** development tasks. The separate [first-run authorization](../training/pretraining/p2-30-first-finetune-contract.json) pins the only permitted first run: **100 maximum optimizer updates / 600 seconds**, CUDA, seed 1337, complete-record-v1, ordinary next-token loss, and fixed validation/checkpoint steps. Authorization and tooling themselves perform **zero** research optimizer updates.
 
 P2-30 transitions Plex from Web-domain pretraining into task-format fine-tuning.
 
@@ -84,7 +84,7 @@ Before the first P2-30 optimizer update:
 - freeze learning rate, task objective, sampler, maximum updates and evaluation cadence
 - commit a separate training authorization
 
-Preparation evidence now passes these checks, and proposed settings are pinned in the separate draft. **P2-30 training remains blocked until explicit owner authorization and review of the dedicated training path.** Fine-tuning itself is not complete.
+Preparation evidence now passes these checks. The owner has explicitly authorized the separate first-run contract, and the dedicated training path enforces it. **Fine-tuning itself is still unexecuted and therefore not complete.** No continuation beyond the fixed first run is authorized.
 
 ## Machine-readable contract
 
@@ -100,7 +100,7 @@ P2-30 preparation now has two explicit no-training commands:
 - `task-finetune-repack` — verifies the exact approved P2-02 request-following v3 dataset identity and repacks its 156/78 split using the frozen P2-27 16K tokenizer.
 - `task-finetune-stage` — verifies the exact P2-29 step-500 checkpoint, loads only its model weights, creates a fresh AdamW optimizer with no carried moments, resets the task-stage step to zero, binds the task dataset/tokenizer identity, and records a `stageTransitionRecord`.
 
-The ordinary Web `pilot` command explicitly rejects a checkpoint carrying a task-stage transition record. This prevents accidental task training through the pretraining path.
+The ordinary Web `pilot`, generic runner, and `pilot-resume` paths reject task-stage checkpoints. Only the dedicated first-run path below can consume the verified P2-30 stage-zero checkpoint.
 
 ### 1. Rebuild the approved task dataset
 
@@ -157,4 +157,31 @@ uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
 
 A separate development-task generation/scoring baseline may then be run from the unchanged stage-zero model.
 
-No fine-tuning command is authorized by this document.
+### 5. Preflight the owner-authorized first run
+
+This performs all contract, hash, dataset, tokenizer, stage-provenance, optimizer-state, sampler-state, step/token-counter and CUDA checks. It creates no run output and performs zero optimizer updates.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-preflight `
+  --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k `
+  --stage-checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt `
+  --output-dir task-finetune/p2-30-first-run
+```
+
+### 6. Execute the single authorized first run
+
+Run this only after preflight succeeds and the authorization/tooling change is on `master`:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-run `
+  --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k `
+  --stage-checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt `
+  --output-dir task-finetune/p2-30-first-run
+```
+
+There are deliberately no CLI overrides for steps, wall time, optimizer, sampler, learning rate, device, resume, or automatic continuation. The run validates at task steps 0/25/50/75/100, saves at 25/50/75/100 plus any early final completed step, and preserves the final project holdout as sealed. Afterward, run the existing P2-01b development generation/scoring only on the fixed final completed checkpoint and review the evidence before any further optimizer update.
+
+The machine authorization is:
+
+`training/pretraining/p2-30-first-finetune-contract.json`
+
