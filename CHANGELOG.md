@@ -4,9 +4,12 @@
 
 ## 🚧 Unreleased
 
-_🗓️ Updated October 4, 2026_
+_🗓️ Updated October 6, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+
+- Completed **P2-23b target-kind continuation** through the authorized cumulative step 500. Supplied fit rose from **46/144** at step 100 to **143/144** at step 500; held-out Tier A/B/C reached **19/24, 12/24, and 11/24** (**42/72 total**). Step-500 held-out per-kind totals were CSS_SELECTOR **8/12**, CSS_PROPERTY **5/12**, HTML_ELEMENT **8/12**, HTML_ATTRIBUTE **4/12**, JS_IDENTIFIER **9/12**, and JS_PROPERTY **8/12**. P2-14 and P2-01b remained **0/12** and **0/30**. Validation loss rose while recent training loss fell, so the unchanged representation is closed rather than extended. See the [P2-23b result](docs/PHASE-2-P2-23B-RESULT.md).
+- Realigned the roadmap around the measured model/tool boundary. Phase 2 is capped at **P2-24 Semantic Confusion Closure** and **P2-25 Structured Coding Bridge**. Phase 3 now treats Plex Base as a semantic planner and Plex Code as the deterministic exact repository resolver, patch builder, validator, and repair substrate.
 
 - Completed the approved **234-example request-following v3** experiment: 156 training / 78 validation records, a fresh 1,509-entry tokenizer fitted on training text only, and a new random initialization. The 100-step CUDA run reduced held-out loss from **7.45021 to 3.28499**, but complete development tasks remained **0/30**, matching step zero. Truncated responses fell from 30/30 to 0/30. See the [v3 result report](docs/PHASE-2-FAILURE-GAP-100-STEP-REPORT.md).
 - Reviewed the 180-example model's development failures and prepared the subsequently approved v3 corpus. Replaced repeated CSS selectors and JavaScript function names and added **54 examples** covering navigation, forms, multi-part content, layout, states, sizing, arrays, strings, and objects. Kept related examples together across 38 split groups. All 234 supplied answers passed 1,007 static checks; these checks assess dataset preparation, not model capability. See the [failure review and data changes](docs/PHASE-2-FAILURE-GAP-REVIEW.md).
@@ -23,9 +26,10 @@ _🗓️ Updated October 4, 2026_
 
 ### 🧭 Current limits and next experiment
 
-> ⚠️ **Reality check:** All completed Phase 2 experiments still score **0/30 complete tasks** on the static development set. Lower next-token loss and fewer truncated outputs have not established useful coding ability. Static-check totals vary with truncation, so their raw fractions are not a fixed-denominator benchmark. JavaScript behavior and browser-backed HTML/CSS checks remain unavailable; the 60-task final holdout remains unbuilt and unused.
+> ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** The next planned comparison addresses answer learning on the approved 234-record corpus with an answer-weighted objective or a controlled format change. No completed answer-weighted experiment is recorded here. Longer training remains deferred; the $0 paid-services and 200 GiB storage limits remain in force. See the [roadmap](Plex-ROADMAP.md).
+> 🔭 **Up next:** P2-24 will isolate the residual **CSS_PROPERTY** and **HTML_ATTRIBUTE** target-kind confusions. P2-25 will then test a bounded structured edit-plan contract on unseen repository-style development requests. If that bridge transfers, Phase 2 closes and P3-01 begins. Exact repository lookup, state transitions, file mutation, validation, and diff generation remain deterministic Plex Code responsibilities.
+
 
 ---
 
