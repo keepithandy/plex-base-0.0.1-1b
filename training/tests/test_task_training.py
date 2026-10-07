@@ -103,6 +103,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
         }
 
     def _write_stage(self, *, optimizer_has_state=False) -> None:
+        self.stage.unlink(missing_ok=True)
         model = PlexLanguageModel(self.config)
         optimizer = torch.optim.AdamW(
             model.parameters(), lr=3e-4, betas=(0.9, 0.95), weight_decay=0.1, eps=1e-8
