@@ -322,6 +322,9 @@ class P235LockedTrainingTests(unittest.TestCase):
                 "plex_training.structured_plan_serialization_training._verify_stage",
                 return_value=(model, {}),
             ), patch(
+                "plex_training.structured_plan_serialization_training.PlexTokenizer.load",
+                return_value=FakeTokenizer(),
+            ), patch(
                 "plex_training.structured_plan_serialization_training.StructuredPlanCompleteRecordCorpus",
                 return_value=FakeCorpus(),
             ), patch(
