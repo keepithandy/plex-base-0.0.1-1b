@@ -14,6 +14,16 @@ MAX_PLAN_RESPONSE_BYTES = 16 * 1024
 PLAN_SCHEMA_VERSION = "plex-structured-edit-plan-v1"
 PROMPT_TEMPLATE_VERSION = "plex-structured-plan-v1"
 LANGUAGES = ("html", "css", "javascript")
+
+
+def canonical_text_sha256(raw: bytes) -> str:
+    """Hash UTF-8 text after normalizing platform line endings to LF."""
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("Hash-pinned text input must be UTF-8") from exc
+    canonical = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 ACTIONS = {"create", "modify", "remove"}
 TARGET_KINDS = {
     "html": "html-element",
@@ -399,6 +409,6 @@ def evaluate_plan_files(task_set_path: Path, responses_path: Path) -> dict[str, 
     return evaluate_plan_set(
         task_set,
         responses,
-        task_set_sha256=hashlib.sha256(task_raw).hexdigest(),
+        task_set_sha256=canonical_text_sha256(task_raw),
         responses_sha256=hashlib.sha256(raw_responses).hexdigest(),
     )
