@@ -36,15 +36,25 @@ class FakeTokenizer:
 
 
 class P232LockedTrainingTests(unittest.TestCase):
-    def test_committed_contract_is_draft_and_training_false(self) -> None:
-        path = Path("training/pretraining/p2-32-first-run-contract.draft.json")
+    def test_committed_contract_is_owner_approved_and_exact(self) -> None:
+        path = Path("training/pretraining/p2-32-first-run-contract.json")
         contract = json.loads(path.read_text(encoding="utf-8"))
-        self.assertTrue(_draft_authorization(contract))
-        self.assertFalse(contract["modelTrainingAuthorized"])
-        self.assertIsNone(contract["approvedBy"])
-        self.assertIsNone(contract["command"])
-        with self.assertRaises(ValueError):
-            _validate_authorization(contract)
+        self.assertFalse(_draft_authorization(contract))
+        _validate_authorization(contract)
+        self.assertTrue(contract["modelTrainingAuthorized"])
+        self.assertEqual(contract["approvedBy"], "keepithandy")
+        self.assertEqual(
+            contract["baseStage"]["checkpointSha256"],
+            "7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3",
+        )
+        self.assertEqual(
+            contract["data"]["bundleManifestSha256"],
+            "a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd",
+        )
+        self.assertEqual(contract["training"]["expectedRealTargetPositionsAt100Steps"], 605231)
+        self.assertEqual(contract["evaluation"]["baselineLoss"], 8.002869129180908)
+        self.assertIsInstance(contract["command"], str)
+        self.assertIn("plan-train-run", contract["command"])
 
     def test_cli_has_no_runtime_step_or_resume_override(self) -> None:
         parser = build_parser()
@@ -173,11 +183,11 @@ class P232LockedTrainingTests(unittest.TestCase):
             self.assertEqual(payload["optimizerStateDict"]["state"], {})
             self.assertEqual(payload["samplingRngState"], random.Random(1337).getstate())
 
-    def test_run_rejects_committed_draft_before_optimizer_update(self) -> None:
-        path = Path("training/pretraining/p2-32-first-run-contract.draft.json")
+    def test_authorized_run_still_rejects_missing_verified_inputs_before_optimizer_update(self) -> None:
+        path = Path("training/pretraining/p2-32-first-run-contract.json")
         with patch.object(
             torch.optim.AdamW, "step",
-            side_effect=AssertionError("draft P2-32 must never update weights"),
+            side_effect=AssertionError("invalid P2-32 inputs must never update weights"),
         ), self.assertRaises(ValueError):
             run_structured_plan_training(
                 bundle_dir=Path("missing"),
