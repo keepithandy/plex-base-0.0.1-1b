@@ -1,6 +1,6 @@
 <div align="center">
 
-# Plex Base
+# Plex Nano
 
 ### Repository-native coding intelligence, trained from scratch.
 
@@ -56,7 +56,7 @@ Plex is being built as two connected layers:
 
 | Layer | Purpose |
 |---|---|
-| **Plex Base** | Scratch-trained model for semantic normalization, edit intent, target kind/role, bounded search hints, structured planning, checkpoints, and evaluation |
+| **Plex Nano** | Scratch-trained model for semantic normalization, edit intent, target kind/role, bounded search hints, structured planning, checkpoints, and evaluation |
 | **Plex Code** | Deterministic repository scanning, exact source resolution, state inspection, edit validation, proposal building, and diff generation |
 
 ---
@@ -88,7 +88,7 @@ flowchart LR
     A[Task] --> B[Scan Repository]
     B --> C[Rank Candidate Files]
     C --> D[Build Focused Context]
-    D --> E[Plex Base]
+    D --> E[Plex Nano]
     E --> F[Validate Proposed Edits]
     F --> G[Build Proposal]
     G --> H[Unified Diff]
@@ -253,7 +253,7 @@ The remaining Phase 2 path is now deliberately short:
 2. **P2-25 — Structured Coding Bridge:** test whether Plex can turn unseen repository-style requests into a bounded semantic edit plan.
 3. If P2-25 succeeds, **close Phase 2 and begin P3-01** rather than extending Phase 2 with open-ended probes.
 
-This also formalizes the working architecture split: **Plex Base owns semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
+This also formalizes the working architecture split: **Plex Nano owns semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
 ### New training direction — Plex Web
 
@@ -299,7 +299,7 @@ Plex Code can already:
 
 ### Training stack
 
-Plex Base can already:
+Plex Nano can already:
 
 - initialize a model from random weights
 - train locally with PyTorch
