@@ -14,7 +14,7 @@ from typing import Any
 
 import torch
 
-from .artifacts import enforce_storage_limit, path_within_root
+from .artifacts import path_within_root
 from .checkpoint import read_checkpoint, save_checkpoint
 from .config import DEFAULT_CONFIG
 from .pilot import inspect_pilot_bundle
