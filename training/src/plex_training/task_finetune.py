@@ -265,7 +265,8 @@ def create_task_stage(
             or source_tokenizer.get("tokenizerSha256") != tokenizer_contract.get("tokenizerSha256")
             or not isinstance(source_dataset, dict)
             or not isinstance(payload.get("initializationRecord"), dict)
-            or payload["initializationRecord"].get("pretrainedModelWeightsLoaded") is not False):
+            or payload["initializationRecord"].get("pretrainedModelWeightsLoaded") is not False
+            or payload.get("stageTransitionRecord") is not None):
         raise ValueError("P2-29 checkpoint provenance does not satisfy the P2-30 contract")
 
     seed = int(payload["seed"])
@@ -306,42 +307,47 @@ def create_task_stage(
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(exist_ok=False)
     checkpoint_path = output_dir / "stage-checkpoint.pt"
-    saved = save_checkpoint(
-        model,
-        optimizer,
-        step=0,
-        seed=seed,
-        codec=CODEC,
-        sampling_rng=sampling_rng,
-        device=torch.device("cpu"),
-        destination=checkpoint_path,
-        artifact_root=root,
-        initialization_record=payload["initializationRecord"],
-        tokenizer_record=bundle["tokenizer"],
-        dataset_record=bundle["dataset"],
-        training_settings=None,
-        schedule_state=None,
-        tokens_processed_total=0,
-        stage_transition_record=stage_record,
-    )
-    stage_sha = sha256_file(checkpoint_path)
-    report = {
-        "schemaVersion": 1,
-        "milestone": "P2-30",
-        "trainingPerformed": False,
-        "baseCheckpointSha256": expected_sha,
-        "stageCheckpointSha256": stage_sha,
-        "stageCheckpoint": saved,
-        "parameterCount": DEFAULT_CONFIG.parameter_count(),
-        "tokenizer": bundle["tokenizer"],
-        "dataset": bundle["dataset"],
-        "optimizerStateReused": False,
-        "taskStageStep": 0,
-        "stageTransition": stage_record,
-    }
-    (output_dir / "stage-report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-    return report
+    try:
+        saved = save_checkpoint(
+            model,
+            optimizer,
+            step=0,
+            seed=seed,
+            codec=CODEC,
+            sampling_rng=sampling_rng,
+            device=torch.device("cpu"),
+            destination=checkpoint_path,
+            artifact_root=root,
+            initialization_record=payload["initializationRecord"],
+            tokenizer_record=bundle["tokenizer"],
+            dataset_record=bundle["dataset"],
+            training_settings=None,
+            schedule_state=None,
+            tokens_processed_total=0,
+            stage_transition_record=stage_record,
+        )
+        stage_sha = sha256_file(checkpoint_path)
+        report = {
+            "schemaVersion": 1,
+            "milestone": "P2-30",
+            "trainingPerformed": False,
+            "baseCheckpointSha256": expected_sha,
+            "stageCheckpointSha256": stage_sha,
+            "stageCheckpoint": saved,
+            "parameterCount": DEFAULT_CONFIG.parameter_count(),
+            "tokenizer": bundle["tokenizer"],
+            "dataset": bundle["dataset"],
+            "optimizerStateReused": False,
+            "taskStageStep": 0,
+            "stageTransition": stage_record,
+        }
+        (output_dir / "stage-report.json").write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        return report
+    except Exception:
+        if output_dir.exists():
+            shutil.rmtree(output_dir)
+        raise
