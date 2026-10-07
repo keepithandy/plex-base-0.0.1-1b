@@ -16,6 +16,7 @@ from .completion import _completion_tokenizer, _generate_token_ids
 from .structured_plan import (
     MAX_PLAN_TASK_SET_BYTES,
     PLAN_SCHEMA_VERSION,
+    canonical_text_sha256,
     PROMPT_TEMPLATE_VERSION,
     render_plan_prompt,
     validate_plan_task_set,
@@ -70,7 +71,7 @@ def generate_structured_plans(
     if task_set_path.stat().st_size > MAX_PLAN_TASK_SET_BYTES:
         raise ValueError("P2-31 task set exceeds the 1 MiB limit")
     raw_task_set = task_set_path.read_bytes()
-    task_set_sha = hashlib.sha256(raw_task_set).hexdigest()
+    task_set_sha = canonical_text_sha256(raw_task_set)
     development = contract["developmentEvaluation"]
     if task_set_sha != development.get("taskSetSha256"):
         raise ValueError("P2-31 task set hash differs from the authorized development set")
