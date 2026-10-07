@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "milestone": "P2-38",
   "kind": "plex-p2-38-first-semantic-binding-run-contract-v1",
-  "status": "draft-awaiting-owner-review",
+  "status": "owner-approved-first-run",
   "approvalPacketComplete": true,
-  "modelTrainingAuthorized": false,
-  "approvedBy": null,
-  "approvedDate": null,
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
+  "approvedDate": "2026-10-07",
   "outputDirectory": "structured-plan/p2-38-first-run",
   "executionState": {
     "trainingExecuted": false,
@@ -93,6 +93,6 @@
     "finalProjectHoldoutMustRemainClosed": true
   },
   "continuationRule": "Stop after the bounded first run. No resume, overwrite, or automatic continuation.",
-  "command": null,
+  "command": "uv run --project training --no-sync python -m plex_training.cli plan-semantic-binding-run --bundle-dir training/artifacts/structured-plan/p2-38-training-bundle --stage-checkpoint training/artifacts/structured-plan/p2-38-stage0/stage-checkpoint.pt",
   "preflightEvidence": "training/pretraining/p2-38-stage-preflight-result.json"
 }

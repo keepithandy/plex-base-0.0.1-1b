@@ -578,7 +578,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan_semantic_binding_preflight.add_argument("--stage-checkpoint", type=Path, required=True)
     plan_semantic_binding_preflight.add_argument(
         "--authorization-contract", type=Path,
-        default=Path("training/pretraining/p2-38-first-run-contract.draft.json"),
+        default=Path("training/pretraining/p2-38-first-run-contract.json"),
     )
     plan_semantic_binding_preflight.add_argument(
         "--preparation-contract", type=Path,
@@ -597,7 +597,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan_semantic_binding_run.add_argument("--stage-checkpoint", type=Path, required=True)
     plan_semantic_binding_run.add_argument(
         "--authorization-contract", type=Path,
-        default=Path("training/pretraining/p2-38-first-run-contract.draft.json"),
+        default=Path("training/pretraining/p2-38-first-run-contract.json"),
     )
     plan_semantic_binding_run.add_argument(
         "--preparation-contract", type=Path,

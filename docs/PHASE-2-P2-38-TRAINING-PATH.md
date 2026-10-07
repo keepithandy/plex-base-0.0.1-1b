@@ -2,7 +2,7 @@
 
 ## Status
 
-**Candidate review, bundle packing, weights-only staging, and CUDA preflight complete. Approval packet frozen; model training remains unauthorized.**
+**First bounded P2-38 run owner-authorized — October 7, 2026. No P2-38 optimizer update has been executed yet.**
 
 P2-38 uses the reviewed semantic-binding contrast candidate:
 
@@ -48,24 +48,11 @@ P2-38 now has isolated commands:
 - `plan-semantic-binding-preflight`
 - `plan-semantic-binding-run`
 
-The run command exists only so the path can be tested. Its default contract is:
+The run command now defaults to the sole owner-approved contract:
 
-`training/pretraining/p2-38-first-run-contract.draft.json`
+`training/pretraining/p2-38-first-run-contract.json`
 
-That draft explicitly has:
-
-- `approvalPacketComplete=false`
-- `modelTrainingAuthorized=false`
-- `approvedBy=null`
-- stage SHA: **null**
-- bundle SHA: **null**
-- train/validation JSONL SHAs: **null**
-- sampler: **null**
-- expected 100-step target count: **null**
-- baseline validation loss: **null**
-- command: **null**
-
-Therefore real P2-38 training is still blocked.
+That contract preserves the exact frozen stage, bundle, dataset, sampler, expected-position, and baseline identities. It authorizes one bounded first run only.
 
 ## Step 1 — pack the P2-38 bundle
 
@@ -191,15 +178,28 @@ Machine-readable evidence:
 
 `training/pretraining/p2-38-stage-preflight-result.json`
 
-The draft first-run contract is now a complete approval packet, but it remains non-executable:
+The owner explicitly authorized the frozen packet on October 7, 2026. The approved contract now has:
 
 - `approvalPacketComplete=true`
-- `status=draft-awaiting-owner-review`
-- `modelTrainingAuthorized=false`
-- `approvedBy=null`
-- `command=null`
+- `status=owner-approved-first-run`
+- `modelTrainingAuthorized=true`
+- `approvedBy=keepithandy`
+- `approvedDate=2026-10-07`
 - `trainingExecuted=false`
 - `researchOptimizerUpdates=0`
 - `finalHoldoutOpened=false`
 
-A separate explicit owner authorization is required before any P2-38 optimizer update.
+The authorization permits exactly one bounded first run:
+
+- maximum optimizer updates: **100**
+- maximum wall time: **600 seconds**
+- device: **CUDA**
+- seed: **1337**
+- validation: **0 / 25 / 50 / 75 / 100**
+- checkpoints: **25 / 50 / 75 / 100**
+- no resume
+- no overwrite
+- no automatic continuation
+- fixed endpoint reporting; no retrospective lowest-validation checkpoint selection
+
+Continuation after this run requires a separate later authorization.
