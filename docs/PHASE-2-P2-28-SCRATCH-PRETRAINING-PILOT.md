@@ -2,9 +2,9 @@
 
 ## Status
 
-**Active — initialization gate only.**
+**Active — first bounded training pilot authorized.**
 
-P2-28 starts by creating and verifying a brand-new step-zero Plex checkpoint from random weights. This contract authorizes the initialization step only. It does **not** authorize model training yet.
+P2-28 starts by creating and verifying a brand-new step-zero Plex checkpoint from random weights. The step-zero initialization has now been verified. A separate bounded training contract authorizes one 100-step / 10-minute CUDA base-pretraining pilot and no continuation beyond it.
 
 The purpose of separating initialization from training is to make the scratch provenance auditable before any optimizer update occurs.
 
@@ -144,3 +144,18 @@ Plex remains scratch-trained because P2-28 begins from newly generated random mo
 See:
 
 `training/pretraining/p2-28-scratch-pilot-contract.json`
+
+
+## Verified initialization result
+
+The required step-zero initialization passed all provenance checks.
+
+- checkpoint SHA-256: `06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86`
+- initial model weights SHA-256: `98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193`
+- tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`
+- parameters: **27,566,080**
+- seed: **1337**
+- pretrained checkpoint loaded: **false**
+- pretrained model weights loaded: **false**
+
+Training is now authorized only under [the first-pilot authorization](PHASE-2-P2-28-FIRST-PILOT-AUTHORIZATION.md).

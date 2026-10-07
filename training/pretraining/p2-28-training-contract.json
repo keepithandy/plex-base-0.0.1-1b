@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-28",
+  "kind": "plex-p2-28-bounded-pretraining-pilot-contract-v1",
+  "status": "authorized",
+  "authorization": {
+    "modelTrainingAuthorized": true,
+    "scope": "one bounded 100-step pretraining pilot only",
+    "continuationBeyondAuthorizedRun": false
+  },
+  "sourceDataset": {
+    "directory": "training/artifacts/datasets/p2-26-web-batch-2-v2",
+    "manifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91"
+  },
+  "tokenizer": {
+    "directory": "training/artifacts/tokenizer-reviews/p2-27-web-v1/candidates/vocab-16384",
+    "actualVocabularySize": 16384,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+  },
+  "initialization": {
+    "checkpoint": "training/artifacts/initializations/p2-28-web-v1-step0/initialization.pt",
+    "checkpointSha256": "06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86",
+    "initialModelWeightsSha256": "98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193",
+    "seed": 1337,
+    "parameterCount": 27566080,
+    "pretrainedCheckpointLoaded": false,
+    "pretrainedModelWeightsLoaded": false
+  },
+  "training": {
+    "command": "pilot",
+    "outputDirectory": "training/artifacts/pilot/p2-28-web-v1-100step",
+    "device": "cuda",
+    "requestedMinutes": 10,
+    "requestedSteps": 100,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "checkpointEveryMinutes": 5,
+    "samplingPolicy": "random-window-v1",
+    "answerWeight": 1,
+    "objective": "ordinary next-token pretraining loss",
+    "taskInstructionFineTuning": false,
+    "validationMaximumBatches": 100
+  },
+  "stopConditions": [
+    "stop after 100 optimizer updates even if time remains",
+    "stop if 10 minutes is reached first",
+    "do not resume or extend the run without a new reviewed authorization",
+    "do not change corpus, tokenizer, model size, sampling policy, objective, batch, accumulation, or seed inside this comparison"
+  ],
+  "requiredResultEvidence": [
+    "initializationCheckpointSha256 equals the authorized step-zero checkpoint",
+    "tokenizer SHA-256 matches the frozen P2-27 tokenizer",
+    "dataset manifest identity matches the frozen P2-26 corpus",
+    "validation loss before and after are recorded",
+    "completed step count and sampled token positions are recorded",
+    "output checkpoint SHA-256 is recorded",
+    "training settings are recorded"
+  ],
+  "finalProjectHoldout": {
+    "mustRemainClosed": true
+  }
+}

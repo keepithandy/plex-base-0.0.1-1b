@@ -231,3 +231,41 @@ uv run --project training --no-sync python -m plex_training.cli initialize `
 This creates a step-zero checkpoint only. **Do not start training yet.** First verify the initialization output reports 27,566,080 parameters, vocabulary 16,384, seed 1337, `pretrainedCheckpointLoaded: false`, and both checkpoint/initial-weight hashes.
 
 See [P2-27 result](../../docs/PHASE-2-P2-27-RESULT.md) and [P2-28 contract](../../docs/PHASE-2-P2-28-SCRATCH-PRETRAINING-PILOT.md).
+
+
+## P2-28 verified initialization and first training authorization
+
+The step-zero initialization passed:
+
+```text
+checkpoint:
+06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86
+
+initial weights:
+98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193
+
+tokenizer:
+2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697
+```
+
+One bounded training run is now authorized:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot `
+  --bundle-dir training\artifacts\tokenizer-reviews\p2-27-web-v1\candidates\vocab-16384 `
+  --initialization training\artifacts\initializations\p2-28-web-v1-step0\initialization.pt `
+  --output-dir pilot\p2-28-web-v1-100step `
+  --minutes 10 `
+  --steps 100 `
+  --device cuda `
+  --micro-batch 1 `
+  --gradient-accumulation 16 `
+  --checkpoint-every-minutes 5
+```
+
+Do not resume or extend this run until its report is reviewed.
+
+Machine-readable records:
+
+- `p2-28-initialization-result.json`
+- `p2-28-training-contract.json`
