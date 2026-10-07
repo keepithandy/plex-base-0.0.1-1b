@@ -37,17 +37,40 @@ class FakeTokenizer:
 
 
 class P235LockedTrainingTests(unittest.TestCase):
-    def test_committed_contract_is_draft_and_blocks_training(self) -> None:
+    def test_committed_contract_has_complete_packet_but_stays_draft(self) -> None:
         path = Path("training/pretraining/p2-35-first-run-contract.draft.json")
         contract = json.loads(path.read_text(encoding="utf-8"))
         self.assertTrue(_draft_authorization(contract))
+        self.assertTrue(contract["approvalPacketComplete"])
         self.assertFalse(contract["modelTrainingAuthorized"])
         self.assertIsNone(contract["approvedBy"])
-        self.assertIsNone(contract["baseStage"]["checkpointSha256"])
-        self.assertIsNone(contract["data"]["bundleManifestSha256"])
-        self.assertIsNone(contract["training"]["sampler"])
-        self.assertIsNone(contract["training"]["expectedRealTargetPositionsAt100Steps"])
-        self.assertIsNone(contract["evaluation"]["baselineLoss"])
+        self.assertEqual(
+            contract["baseStage"]["checkpointSha256"],
+            "735554ac725acdcf063c2bb7ab27c71fafe187b82751c6b951c38900501a198d",
+        )
+        self.assertEqual(
+            contract["data"]["bundleManifestSha256"],
+            "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+        )
+        self.assertEqual(
+            contract["data"]["trainJsonlSha256"],
+            "b921dd54657e77619835c5d9bce7a92c12c3a8f388d8ebe8ab8f6a9550ad69f3",
+        )
+        self.assertEqual(
+            contract["data"]["validationJsonlSha256"],
+            "e48d45b81e7431180990224ed50b6b097b38bac705966e7524f54d1ac5d0d0ce",
+        )
+        self.assertEqual(
+            contract["training"]["sampler"]["indexSha256"],
+            "e10af50b9b2f9dd3f4d67a3a772122be15d82c472db3f2e87469ba9904a79f44",
+        )
+        self.assertEqual(contract["training"]["expectedRealTargetPositionsAt100Steps"], 299958)
+        self.assertEqual(contract["evaluation"]["baselineLoss"], 4.335327882033128)
+        self.assertEqual(
+            contract["preflightEvidence"],
+            "training/pretraining/p2-35-stage-preflight-result.json",
+        )
+        self.assertIsNone(contract["command"])
         with self.assertRaises(ValueError):
             _validate_authorization(contract)
 
