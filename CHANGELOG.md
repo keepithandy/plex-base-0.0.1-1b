@@ -8,6 +8,10 @@ _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
 
+- Completed **P2-27 — Web Tokenizer Review**. Four fresh train-only byte-level BPE candidates were compared at 4,096 / 8,192 / 12,288 / 16,384 vocabulary. The owner froze the **16,384-token** candidate, which led validation compression (**3.5236116328 bytes/token**) and representative review-sample compression (**3.0941176471 bytes/token**). Frozen tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`; review SHA-256: `3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8`. No model training occurred.
+- Opened **P2-28 — Fresh 27.6M Scratch Domain-Pretraining Pilot** at an **initialization-only gate**. The exact contract requires a seed-1337 CPU step-zero initialization of the unchanged **27,566,080-parameter** architecture using the frozen 16,384-token bundle, with no pretrained or resumed model weights. Training remains unauthorized until the initialization hashes and provenance fields are verified.
+
+
 - Completed **P2-26 — Plex Web Corpus v1** with a corrected verifier-locked corpus of **3,140 records** (**3,071 train / 69 validation**) from **5,463,479 accepted normalized source bytes**. Dataset manifest SHA-256: `2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91`. The contamination gate passed with zero blocked origins, zero exact protected matches, and zero long-substring matches; the final project holdout remained closed.
 - Opened **P2-27 — Web Tokenizer Review**. Added `tokenizer-review` to fit fresh train-only byte-level BPE candidates at 4,096 / 8,192 / 12,288 / 16,384 requested vocabulary sizes, measure train/validation and representative web-code/Plex-format compression, require exact roundtrips, and explicitly avoid model initialization/training during review.
 
@@ -36,7 +40,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** P2-24 now freezes the **Plex Web pretraining specification**: conservative license/source policy, provenance, HTML/CSS/JavaScript scope, repository-grouped splits, deduplication, secret/generated/minified filters, contamination controls, and corpus-size ladder. The existing task datasets move to the later fine-tuning/evaluation stage rather than serving as substitute pretraining data.
+> 🔭 **Up next:** P2-28 now creates the **fresh step-zero Plex checkpoint** from the frozen P2-27 tokenizer. Only initialization is authorized first: seed 1337, CPU initialization, 27,566,080 parameters, no pretrained checkpoint, and no resume. The initialization output must be reviewed before any pretraining update is allowed.
 
 
 ---
