@@ -240,6 +240,10 @@ class P238LockedTrainingTests(unittest.TestCase):
                 "dataPreparationAuthorized": True,
                 "modelTrainingAuthorized": False,
                 "automaticTrainingExtension": False,
+                "trainingCommand": None,
+                "trainingPerformed": False,
+                "researchOptimizerUpdates": 0,
+                "finalHoldoutOpened": False,
                 "baseCheckpoint": {"sha256": sha256_file(base)},
             }), encoding="utf-8")
             output = root / "stage"
