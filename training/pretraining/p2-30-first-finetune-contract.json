@@ -150,5 +150,6 @@
     "researchOptimizerUpdates": 0,
     "finalHoldoutOpened": false,
     "note": "Authorization and tooling do not constitute execution. Run only after this authorization/tooling PR is merged and preflight passes."
-  }
+  },
+  "outputDirectory": "task-finetune/p2-30-first-run"
 }
