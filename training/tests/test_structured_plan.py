@@ -22,6 +22,7 @@ from plex_training.structured_plan import (
     validate_plan_task_set,
 )
 from plex_training.structured_plan_run import _contract, generate_structured_plans
+from plex_training.structured_plan_diagnostic import diagnose_structured_plan_responses
 
 
 def _task_set(kind: str = "development") -> dict:
@@ -177,6 +178,61 @@ class StructuredPlanSchemaTests(unittest.TestCase):
         self.assertIn("Do not choose a file path, exact selector, or exact repository symbol", prompt)
         self.assertIn("deterministic Plex Code lookup", prompt)
         self.assertTrue(prompt.endswith("JSON:"))
+
+
+class StructuredPlanDiagnosticTests(unittest.TestCase):
+    def test_diagnostic_classifies_boundary_failures_without_repairing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            task_path = root / "tasks.json"
+            responses_path = root / "responses.jsonl"
+            task = _task_set()
+            task_path.write_text(json.dumps(task), encoding="utf-8")
+            good = json.dumps(json.loads(_good_responses()[0]["text"]))
+            rows = [
+                {"taskId": "h1", "text": "Answer: " + good, "truncated": False},
+                {"taskId": "c1", "text": "{broken", "truncated": False},
+                {"taskId": "j1", "text": "plain prose", "truncated": False},
+            ]
+            responses_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+            report = diagnose_structured_plan_responses(
+                task_set_path=task_path,
+                responses_path=responses_path,
+            )
+        self.assertEqual(report["tasksExpected"], 3)
+        self.assertEqual(report["responsesPresent"], 3)
+        self.assertEqual(report["strictValidPlans"], 0)
+        self.assertEqual(report["classifications"]["extra-text-around-valid-plan"], 1)
+        self.assertEqual(report["classifications"]["malformed-json-candidate"], 1)
+        self.assertEqual(report["classifications"]["no-json-object-start"], 1)
+        self.assertEqual(report["signals"]["embeddedStrictPlanValid"], 1)
+        self.assertEqual(report["trainingPerformed"], False)
+        self.assertEqual(report["researchOptimizerUpdates"], 0)
+        self.assertEqual(report["finalHoldoutOpened"], False)
+
+    def test_diagnostic_reports_duplicate_outputs_and_missing_tasks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            task_path = root / "tasks.json"
+            responses_path = root / "responses.jsonl"
+            task_path.write_text(json.dumps(_task_set()), encoding="utf-8")
+            same = "no json"
+            responses_path.write_text(
+                json.dumps({"taskId": "h1", "text": same, "truncated": False}) + "\n"
+                + json.dumps({"taskId": "c1", "text": same, "truncated": False}) + "\n",
+                encoding="utf-8",
+            )
+            report = diagnose_structured_plan_responses(
+                task_set_path=task_path,
+                responses_path=responses_path,
+            )
+        self.assertEqual(report["responsesPresent"], 2)
+        self.assertEqual(report["missingResponses"], ["j1"])
+        self.assertEqual(report["uniqueResponseTexts"], 1)
+        self.assertEqual(report["duplicateResponseTexts"], 1)
 
 
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
