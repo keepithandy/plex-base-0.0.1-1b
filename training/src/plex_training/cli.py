@@ -441,6 +441,83 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_curriculum_review.add_argument("--report", type=Path, default=None)
 
+    plan_train_prepare = subparsers.add_parser(
+        "plan-train-prepare", help="Pack the reviewed P2-32 curriculum with the frozen tokenizer"
+    )
+    plan_train_prepare.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-32-structured-plan-candidate-v1.jsonl"),
+    )
+    plan_train_prepare.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-32-structured-plan-candidate-v1.review.json"),
+    )
+    plan_train_prepare.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_train_prepare.add_argument("--source-bundle-dir", type=Path, required=True)
+    plan_train_prepare.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-32-structured-plan-preparation-contract.json"),
+    )
+    plan_train_prepare.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-32-training-bundle")
+    )
+    plan_train_prepare.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(plan_train_prepare)
+
+    plan_train_stage = subparsers.add_parser(
+        "plan-train-stage", help="Create a weights-only P2-32 step-zero stage"
+    )
+    plan_train_stage.add_argument("--base-checkpoint", type=Path, required=True)
+    plan_train_stage.add_argument("--bundle-dir", type=Path, required=True)
+    plan_train_stage.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-32-structured-plan-preparation-contract.json"),
+    )
+    plan_train_stage.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-32-stage0")
+    )
+    plan_train_stage.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(plan_train_stage)
+
+    plan_train_preflight = subparsers.add_parser(
+        "plan-train-preflight", help="Verify the P2-32 stage and draft authorization without training"
+    )
+    plan_train_preflight.add_argument("--bundle-dir", type=Path, required=True)
+    plan_train_preflight.add_argument("--stage-checkpoint", type=Path, required=True)
+    plan_train_preflight.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-32-first-run-contract.draft.json"),
+    )
+    plan_train_preflight.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-32-structured-plan-preparation-contract.json"),
+    )
+    plan_train_preflight.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-32-first-run")
+    )
+    _add_artifact_root(plan_train_preflight)
+
+    plan_train_run = subparsers.add_parser(
+        "plan-train-run", help="Run only a separately owner-authorized P2-32 first run"
+    )
+    plan_train_run.add_argument("--bundle-dir", type=Path, required=True)
+    plan_train_run.add_argument("--stage-checkpoint", type=Path, required=True)
+    plan_train_run.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-32-first-run-contract.draft.json"),
+    )
+    plan_train_run.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-32-structured-plan-preparation-contract.json"),
+    )
+    plan_train_run.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-32-first-run")
+    )
+    _add_artifact_root(plan_train_run)
+
     return parser
 
 
@@ -909,6 +986,78 @@ def _plan_curriculum_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_train_prepare(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .structured_plan_training import prepare_structured_plan_bundle
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    return prepare_structured_plan_bundle(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        source_bundle_dir=args.source_bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        preparation_contract_path=args.preparation_contract,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+
+
+def _plan_train_stage(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .structured_plan_training import create_structured_plan_stage
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    result = create_structured_plan_stage(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        preparation_contract_path=args.preparation_contract,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+    return {**result, "outputDirectory": str(output.relative_to(root))}
+
+
+def _plan_train_preflight(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_training import preflight_structured_plan_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return preflight_structured_plan_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+        require_cuda=True,
+    )
+
+
+def _plan_train_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_training import run_structured_plan_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_structured_plan_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -1023,6 +1172,14 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_generate(args))
         elif args.command == "plan-curriculum-review":
             _json_print(_plan_curriculum_review(args))
+        elif args.command == "plan-train-prepare":
+            _json_print(_plan_train_prepare(args))
+        elif args.command == "plan-train-stage":
+            _json_print(_plan_train_stage(args))
+        elif args.command == "plan-train-preflight":
+            _json_print(_plan_train_preflight(args))
+        elif args.command == "plan-train-run":
+            _json_print(_plan_train_run(args))
         return 0
     except (FileExistsError, ImportError, OSError, RuntimeError, ValueError) as exc:
         print(f"plex-train: {exc}", file=sys.stderr)
