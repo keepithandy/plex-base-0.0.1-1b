@@ -12,7 +12,7 @@ from plex_training.structured_plan import canonical_text_sha256
 from plex_training.structured_plan_curriculum import review_structured_plan_curriculum
 
 
-ROOT = Path(__file__).parents[2]
+ROOT = Path(__file__).parents[1]
 CANDIDATE = ROOT / "phase2" / "drafts" / "p2-32-structured-plan-candidate-v1.jsonl"
 REVIEW = ROOT / "phase2" / "drafts" / "p2-32-structured-plan-candidate-v1.review.json"
 DEV = ROOT / "phase2" / "evaluation" / "p2-31-plan-dev-v1.json"
