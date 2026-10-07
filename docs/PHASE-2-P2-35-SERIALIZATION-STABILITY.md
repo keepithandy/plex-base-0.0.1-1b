@@ -119,6 +119,8 @@ P2-35 excludes:
 
 Validation groups remain separate from training groups.
 
+After the first clean-checkout review caught repeated micro-prompts, levels A-E were concept-labeled rather than relaxing the uniqueness gate. The reviewed candidate now has **144 / 144 unique prompts**, so no exact prompt crosses the train/validation boundary.
+
 ## Frozen tokenizer
 
 P2-35 keeps the existing frozen 16K tokenizer:
