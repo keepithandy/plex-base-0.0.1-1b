@@ -60,16 +60,21 @@
     "Freeze the first fine-tuning learning rate, objective, sampling policy, update ceiling, and evaluation cadence in a separate authorization.",
     "Keep P2-01b and the final project holdout out of gradient training."
   ],
-  "nextAuthorization": "Preparation passed. No optimizer update is permitted until the separate first-run draft is explicitly owner-approved and a dedicated contract-enforcing task-stage training path is reviewed and committed.",
+  "nextAuthorization": "The separate P2-30 first-run contract is owner-approved. Actual CUDA training remains unexecuted until the dedicated task-finetune-run path is merged and task-finetune-preflight passes on the local artifacts.",
   "implementation": {
     "preparationToolingImplemented": true,
     "taskDatasetRepackCommand": "task-finetune-repack",
     "weightsOnlyStageCommand": "task-finetune-stage",
     "genericWebPilotRejectsTaskStage": true,
-    "fineTuneTrainingCommandAuthorized": false,
+    "fineTuneTrainingCommandAuthorized": true,
     "localPreparationExecutionPending": false,
-    "fineTuneTrainingCommandImplemented": false,
-    "genericRunnerAndResumeRejectTaskStage": true
+    "fineTuneTrainingCommandImplemented": true,
+    "genericRunnerAndResumeRejectTaskStage": true,
+    "dedicatedFineTuneTrainingCommand": "task-finetune-run",
+    "dedicatedFineTunePreflightCommand": "task-finetune-preflight",
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "authorizationSource": "training/pretraining/p2-30-first-finetune-contract.json"
   },
   "preparationEvidence": {
     "resultPath": "training/pretraining/p2-30-preparation-result.json",
@@ -85,5 +90,5 @@
     "fullTestsPassed": 207,
     "trainingPerformed": false
   },
-  "firstTrainingContract": "training/pretraining/p2-30-first-finetune-contract.draft.json"
+  "firstTrainingContract": "training/pretraining/p2-30-first-finetune-contract.json"
 }
