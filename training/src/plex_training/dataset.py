@@ -403,6 +403,7 @@ def build_dataset(
     validation_percent: int = DEFAULT_VALIDATION_PERCENT,
     seed: int = DEFAULT_SEED,
     storage_limit_bytes: int,
+    allowed_paths_by_source: dict[str, frozenset[str]] | None = None,
 ) -> dict[str, Any]:
     """Build local JSONL splits from reviewed, pinned sources without network access."""
     if storage_limit_bytes <= 0:
@@ -412,6 +413,18 @@ def build_dataset(
     if not isinstance(validation_percent, int) or isinstance(validation_percent, bool) or not 1 <= validation_percent <= 50:
         raise ValueError("validation-percent must be an integer from 1 to 50")
     sources, raw_catalog, split_strategy = _parse_catalog(source_manifest)
+    if allowed_paths_by_source is not None:
+        source_ids = {source["id"] for source in sources}
+        allowed_ids = set(allowed_paths_by_source)
+        if source_ids != allowed_ids:
+            missing = sorted(source_ids - allowed_ids)
+            extra = sorted(allowed_ids - source_ids)
+            details = []
+            if missing:
+                details.append("missing source ids: " + ", ".join(missing))
+            if extra:
+                details.append("unknown source ids: " + ", ".join(extra))
+            raise ValueError("Allowed-path map must cover the source manifest exactly (" + "; ".join(details) + ")")
     output_dir = output_dir.resolve(strict=False)
     if output_dir.exists():
         raise FileExistsError("Dataset output already exists; select a new output directory")
@@ -431,6 +444,12 @@ def build_dataset(
     license_notice_bytes = 0
     try:
         for source in sources:
+            allowed_paths = (
+                None
+                if allowed_paths_by_source is None
+                else allowed_paths_by_source[source["id"]]
+            )
+            seen_allowed_paths: set[str] = set()
             notice_info = {}
             if source["_licenseNotice"] is not None:
                 notice = source["_licenseNotice"]
@@ -448,6 +467,10 @@ def build_dataset(
             source_counts = {"accepted": 0, "duplicates": 0, "skipped": 0}
             source_split_groups: set[str] = set()
             for path, relative_path in _iter_source_files(source):
+                if allowed_paths is not None and relative_path not in allowed_paths:
+                    continue
+                if allowed_paths is not None:
+                    seen_allowed_paths.add(relative_path)
                 text = None
                 try:
                     size = path.stat().st_size
@@ -501,6 +524,12 @@ def build_dataset(
                 )
                 source_counts["accepted"] += 1
                 source_split_groups.add(split_group_id)
+            if allowed_paths is not None and seen_allowed_paths != set(allowed_paths):
+                missing_paths = sorted(set(allowed_paths) - seen_allowed_paths)
+                raise ValueError(
+                    f"Verified source {source['id']!r} changed before dataset build; "
+                    f"missing accepted paths: {', '.join(missing_paths[:10])}"
+                )
             source_summaries.append(
                 {
                     "id": source["id"],

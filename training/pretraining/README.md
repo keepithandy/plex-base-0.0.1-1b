@@ -153,3 +153,17 @@ uv run --project training --no-sync python -m plex_training.cli web-source-verif
 Do not assume the 5.85 MB estimate survives filtering. `web-source-verify` is authoritative.
 
 See [P2-26 source batch #2](../../docs/PHASE-2-P2-26-SOURCE-BATCH-2.md).
+
+## Plex Web build parity
+
+Use `web-dataset-build` for P2-26 and later Plex Web corpora. The older generic `dataset-build` command is retained for non-Web training workflows, but it does not apply the full Plex Web minified/disallowed-suffix policy.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli web-dataset-build `
+  --source-manifest training\pretraining\sources.p2-26-batch-2.local.json `
+  --output-dir datasets\p2-26-web-batch-2-v2 `
+  --validation-percent 20 `
+  --seed 1337
+```
+
+The Web builder first runs the normal source verifier, captures its exact accepted paths, and then permits the dataset builder to read only those paths. The dataset builder may still reject a verified JavaScript file if Node syntax validation fails; it may never reintroduce a path rejected by the Web verifier.
