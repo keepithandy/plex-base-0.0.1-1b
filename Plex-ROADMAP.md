@@ -213,6 +213,6 @@ The P2-22c result strengthens the architecture boundary: keep Plex Nano focused 
 
 **Current task: P2-26 — Plex Web Corpus v1.** The first six-source candidate built **69 records** and passed contamination checking with **0 blocked origins, 0 exact matches, and 0 long substring matches** across 533 protected files / 567 protected segments. Source batch #2 is now staged with four CC0-1.0 MDN repositories plus two MIT repositories, estimated at **5,849,962 eligible HTML/CSS/JavaScript bytes** before Plex filtering. The MDN repositories share one source-family split group.
 
-Next gate: materialize and run `web-source-verify` on batch #2. If accepted bytes land near the 4–6 MiB target, build a fresh grouped corpus and require a clean contamination report before P2-27.
+Batch #2 verification accepted **3,142 files / 5,463,479 bytes**, landing inside the 4–6 MiB target. The first generic build exposed a policy-parity bug: it produced 3,150 records by reintroducing Web-policy rejects while separately dropping two invalid JavaScript files. P2-26 now uses verifier-locked `web-dataset-build`; rebuild batch #2 with that command, then require a clean contamination report before P2-27.
 
 Keep the current **27.6M** architecture unchanged. No pretraining begins in P2-26.
