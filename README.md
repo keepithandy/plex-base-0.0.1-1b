@@ -56,8 +56,8 @@ Plex is being built as two connected layers:
 
 | Layer | Purpose |
 |---|---|
-| **Plex Base** | Model architecture, tokenizer, datasets, checkpoints, training, and evaluation |
-| **Plex Code** | Repository scanning, file ranking, context construction, edit validation, proposal building, and diff generation |
+| **Plex Base** | Scratch-trained model for semantic normalization, edit intent, target kind/role, bounded search hints, structured planning, checkpoints, and evaluation |
+| **Plex Code** | Deterministic repository scanning, exact source resolution, state inspection, edit validation, proposal building, and diff generation |
 
 ---
 
@@ -224,65 +224,39 @@ P2-22c then tested explicit before/after presence transitions without training t
 
 ### P2-23/P2-23b — target-kind classification
 
-P2-23's first bounded run is complete at **step 100**.
+P2-23b is **complete and closed** at cumulative step **500**.
 
-Step-100 supplied fit:
+| Step | Supplied fit | Tier A | Tier B | Tier C | Held-out total |
+|---:|---:|---:|---:|---:|---:|
+| 100 | 46/144 | 4/24 | 3/24 | 6/24 | 13/72 |
+| 200 | 99/144 | 13/24 | 11/24 | 6/24 | 30/72 |
+| 300 | 128/144 | 13/24 | 12/24 | 8/24 | 33/72 |
+| 400 | 138/144 | 16/24 | 14/24 | 10/24 | 40/72 |
+| 500 | **143/144** | **19/24** | **12/24** | **11/24** | **42/72** |
 
-```text
-Total  46 / 144
-A      20 / 48
-B      12 / 48
-C      14 / 48
-```
-
-Held-out transfer:
-
-```text
-Tier A   4 / 24
-Tier B   3 / 24
-Tier C   6 / 24
-Chance   4 / 24
-```
-
-Training target-kind totals:
+Step-500 held-out target-kind totals:
 
 ```text
-CSS_SELECTOR    10 / 24
-CSS_PROPERTY    19 / 24
-HTML_ELEMENT     0 / 24
-HTML_ATTRIBUTE   4 / 24
-JS_IDENTIFIER    4 / 24
-JS_PROPERTY      9 / 24
+CSS_SELECTOR     8 / 12
+CSS_PROPERTY     5 / 12
+HTML_ELEMENT     8 / 12
+HTML_ATTRIBUTE   4 / 12
+JS_IDENTIFIER    9 / 12
+JS_PROPERTY      8 / 12
 ```
 
-Validation loss improved from **7.13836 to 3.49394** while recent training loss remained **0.33622**, so step 100 is still clearly underfit.
+P2-14 remained **0/12** and P2-01b remained **0/30**. Validation loss rose to **4.34508** while recent training loss fell to **0.06088**, so further optimization of the unchanged P2-23 representation is not planned. The final project holdout remained closed and no continuation beyond step 500 ran.
 
-P2-23b is now the current **owner-approved continuation** milestone.
+The remaining Phase 2 path is now deliberately short:
 
-The continuation preserves:
+1. **P2-24 — Semantic Confusion Closure:** diagnose the residual CSS_PROPERTY / HTML_ATTRIBUTE confusion.
+2. **P2-25 — Structured Coding Bridge:** test whether Plex can turn unseen repository-style requests into a bounded semantic edit plan.
+3. If P2-25 succeeds, **close Phase 2 and begin P3-01** rather than extending Phase 2 with open-ended probes.
 
-- exact 144 training / 72 evaluation dataset
-- tokenizer SHA `4a476b8671591da259fd0e7f5180c845726d22153e492b63b35cee445d88644a`
-- 27,566,080 parameters
-- optimizer state
-- sampler state
-- CPU/CUDA RNG state
-- seed 1337
-- `complete-record-v1`
-- micro-batch 1
-- gradient accumulation 16
-- existing six-kind A/B/C scorer
+This also formalizes the working architecture split: **Plex Base owns semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
-Fixed learning curve:
-
-```text
-100 -> 200 -> 300 -> 400 -> 500
-```
-
-Each transition is one isolated **+100 update** CUDA continuation. No continuation beyond step 500 is authorized.
-
-**First-run result:** [P2-23 Target-Kind Classification Result](docs/PHASE-2-P2-23-RESULT.md)  
-**Continuation plan:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
+**Result:** [P2-23b Target-Kind Continuation Result](docs/PHASE-2-P2-23B-RESULT.md)  
+**Continuation contract:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
 
 ---
 
@@ -440,6 +414,7 @@ Plex development follows a few strict rules:
 For the technical details and experiment history:
 
 - [Full Plex roadmap](Plex-ROADMAP.md)
+- [P2-23b target-kind continuation result](docs/PHASE-2-P2-23B-RESULT.md)
 - [P2-17b semantic binding result](docs/PHASE-2-P2-17B-RESULT.md)
 - [P2-18 literal copy candidate review](training/phase2/drafts/p2-18-literal-copy-candidate-v1/REVIEW.md)
 - [P2-16 CSS generalization result](docs/PHASE-2-P2-16-RESULT.md)
