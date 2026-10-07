@@ -253,7 +253,8 @@ The measured P2-23b result led to a larger training-strategy pivot instead of mo
 2. **P2-25 — Corpus Ingestion Pipeline:** complete.
 3. **P2-26 — Plex Web Corpus v1:** complete with **3,140 records**, **5,463,479 accepted normalized source bytes**, and a clean contamination report.
 4. **P2-27 — Web Tokenizer Review:** complete; the **16,384-token** candidate is frozen for P2-28.
-5. **P2-28 — Fresh 27.6M Scratch Pilot:** **active now**; the seed-1337 step-zero checkpoint is verified and one 100-step / 10-minute CUDA base-pretraining pilot is authorized.
+5. **P2-28 — Fresh 27.6M Scratch Pilot:** complete; **100/100 steps**, validation loss **9.8093 → 5.6959**, independently reproduced.
+6. **P2-29 — Matched Longer Domain Pretraining:** **active now**; replay the same scratch trajectory from step zero to 500 updates while changing only the training horizon.
 
 The architecture split remains: **Plex Nano owns learned web-code priors and semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
@@ -275,7 +276,7 @@ Plex Code deterministic resolution
 
 The current 27.6M model remains the first controlled pretraining architecture. Scaling toward the longer-term 0.5B–1.5B range is deferred until the corpus, tokenizer, and pretraining measurements justify it.
 
-See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md), [P2-25 closeout](docs/PHASE-2-P2-25-CLOSEOUT.md), [P2-26 closeout](docs/PHASE-2-P2-26-CLOSEOUT.md), [P2-27 result](docs/PHASE-2-P2-27-RESULT.md), and [P2-28 scratch-pilot contract](docs/PHASE-2-P2-28-SCRATCH-PRETRAINING-PILOT.md) and [first-pilot authorization](docs/PHASE-2-P2-28-FIRST-PILOT-AUTHORIZATION.md).
+See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md), [P2-25 closeout](docs/PHASE-2-P2-25-CLOSEOUT.md), [P2-26 closeout](docs/PHASE-2-P2-26-CLOSEOUT.md), [P2-27 result](docs/PHASE-2-P2-27-RESULT.md), and [P2-28 result](docs/PHASE-2-P2-28-RESULT.md) and [P2-29 matched domain-pretraining contract](docs/PHASE-2-P2-29-DOMAIN-PRETRAINING.md).
 
 **Result:** [P2-23b Target-Kind Continuation Result](docs/PHASE-2-P2-23B-RESULT.md)  
 **Continuation contract:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
