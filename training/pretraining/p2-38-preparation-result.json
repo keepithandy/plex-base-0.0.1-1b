@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-38",
+  "status": "candidate-review-passed",
+  "candidateSha256": "137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8",
+  "records": 108,
+  "groups": 36,
+  "trainGroups": 24,
+  "validationGroups": 12,
+  "trainRecords": 72,
+  "validationRecords": 36,
+  "perLanguage": {
+    "html": {
+      "train": 24,
+      "validation": 12
+    },
+    "css": {
+      "train": 24,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 12
+    }
+  },
+  "uniqueRequests": 108,
+  "uniqueTargetRoles": 108,
+  "p231ExactRequestOverlap": 0,
+  "p231TargetRoleOverlap": 0,
+  "p235TargetRoleOverlap": 0,
+  "strictFullPlanSolutions": 108,
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+    "maximumRecordTokensIncludingEos": 395,
+    "trainTokenCount": 24793,
+    "validationTokenCount": 12409
+  },
+  "portableTestsPassed": 103,
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "mergeCommit": "6487a64632ec0e56c8c11e7ed083b2ffe7dd5408",
+  "evidenceSource": "owner-reported merged P2-38 candidate review and frozen-tokenizer preflight"
+}
