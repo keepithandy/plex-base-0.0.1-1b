@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-32 — Structured-Plan Representation Curriculum** after P2-31 failed at strict JSON serialization. Added a **96-record / 24-group** authored candidate with a leak-resistant **72 train / 24 validation** split, balanced HTML/CSS/JavaScript coverage, staged A/B/C serialization → field-binding → semantic-composition examples, a preparation-only contract, and `plan-curriculum-review` with optional frozen-tokenizer roundtrip/context checks. **P2-32 model training remains unauthorized.**
+- Closed **P2-31 — Structured Coding Bridge** as **gate failed**: **0/18 complete plans**, **0/18 schema-valid plans**, **36/162 checks**, and **0/6** in each language. All 18 responses were present and untruncated; every response failed strict JSON parsing before semantic fields could be scored. Phase 3 remains blocked and the final holdout remains sealed.
 - Fixed **P2-31 Windows hash portability**: task-set authorization now hashes canonical UTF-8 text with CRLF/CR normalized to LF, and `.gitattributes` pins the P2-31 task set/contract to LF. This preserves the authorized `8e3f30f...` identity across Windows and Unix checkouts without changing task content or evaluation rules.
 - Opened **P2-31 — Structured Coding Bridge** as an evaluation-only milestone. Added an 18-task development set (6 HTML / 6 CSS / 6 JavaScript), strict JSON semantic-plan schema, deterministic `plan-generate` / `plan-evaluate` commands, a fixed gate of **12/18 overall + 3/6 per language + 15/18 schema-valid**, and a contract pinned to the official P2-30 step-100 checkpoint. Exact repository lookup/mutation remains Plex Code work; P2-31 authorizes **zero gradient updates** and keeps the final holdout sealed.
 - Completed the **first bounded P2-30 task-format fine-tuning run**: **100/100 CUDA updates** in **21.606s**, **181,849** real target positions, validation **6.8210 → 3.1709 → 3.0633 → 3.1766 → 3.4313**, and final checkpoint SHA-256 `28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e`. P2-01b remained **0/30 complete tasks**, but truncation improved from **30/30 to 0/30** and the endpoint passed **41/151** static assertions. No continuation is authorized; P2-31 tests the semantic-planner boundary instead.
@@ -56,7 +58,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run the new P2-31 `plan-generate` and `plan-evaluate` commands on the fixed P2-30 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
+> 🔭 **Up next:** Run `plan-curriculum-review` for P2-32, including the local frozen-tokenizer bundle preflight. Do not train yet. The final project holdout remains sealed.
 
 
 ---

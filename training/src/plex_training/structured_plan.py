@@ -253,10 +253,10 @@ def validate_plan_task_set(value: Any) -> dict[str, Any]:
     return {**value, "setId": set_id, "tasks": normalized_tasks}
 
 
-def render_plan_prompt(task_set: dict[str, Any], task: dict[str, Any]) -> str:
-    task_set = validate_plan_task_set(task_set)
-    if task["id"] not in {item["id"] for item in task_set["tasks"]}:
-        raise ValueError("Task does not belong to the validated P2-31 set")
+def render_plan_request_prompt(language: str, request: str) -> str:
+    if language not in LANGUAGES:
+        raise ValueError("Structured-plan prompt language is invalid")
+    request = _bounded_string(request, label="structured-plan request", maximum=1024)
     prompt = (
         "Convert the repository-style request into one semantic edit plan.\n"
         "Do not write code. Do not choose a file path, exact selector, or exact repository symbol.\n"
@@ -267,13 +267,20 @@ def render_plan_prompt(task_set: dict[str, Any], task: dict[str, Any]) -> str:
         '"searchHints":["semantic term"]}\n'
         "The constraints must capture all requested behavior. Search hints are broad semantic terms for "
         "deterministic Plex Code lookup, never file paths.\n"
-        f"Language: {task['language']}\n"
-        f"Request: {task['request']}\n"
+        f"Language: {language}\n"
+        f"Request: {request}\n"
         "JSON:"
     )
     if len(prompt.encode("utf-8")) > 4096:
-        raise ValueError("Rendered P2-31 prompt exceeds 4096 UTF-8 bytes")
+        raise ValueError("Rendered structured-plan prompt exceeds 4096 UTF-8 bytes")
     return prompt
+
+
+def render_plan_prompt(task_set: dict[str, Any], task: dict[str, Any]) -> str:
+    task_set = validate_plan_task_set(task_set)
+    if task["id"] not in {item["id"] for item in task_set["tasks"]}:
+        raise ValueError("Task does not belong to the validated P2-31 set")
+    return render_plan_request_prompt(task["language"], task["request"])
 
 
 def _constraint_set(plan: dict[str, Any]) -> set[tuple[str, str, str]]:

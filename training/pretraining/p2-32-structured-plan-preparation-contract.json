@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-32",
+  "kind": "plex-p2-32-structured-plan-preparation-contract-v1",
+  "status": "preparation-only-awaiting-owner-review",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "purpose": "Prepare a leak-resistant strict-JSON structured-plan curriculum after P2-31 failed at the representation boundary.",
+  "baseCheckpoint": {
+    "path": "training/artifacts/task-finetune/p2-30-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e"
+  },
+  "tokenizer": {
+    "sourceBundle": "training/artifacts/task-finetune/p2-30-request-v3-16k",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+    "vocabularySize": 16384,
+    "refitAllowed": false
+  },
+  "curriculum": {
+    "candidate": "training/phase2/drafts/p2-32-structured-plan-candidate-v1.jsonl",
+    "candidateSha256": "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3",
+    "review": "training/phase2/drafts/p2-32-structured-plan-candidate-v1.review.json",
+    "records": 96,
+    "trainRecords": 72,
+    "validationRecords": 24,
+    "groups": 24,
+    "trainGroups": 18,
+    "validationGroups": 6,
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1"
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExcludedFromTraining": true,
+    "p201bExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "preparationExitGate": [
+    "candidate/review hashes and split counts verified",
+    "every solution parses under the strict P2-31 plan schema",
+    "no semantic concept group crosses train/validation",
+    "no targetRole overlaps P2-31 development target roles",
+    "no exact request overlaps P2-31 development requests",
+    "frozen tokenizer roundtrip/context budgets verified locally before any training authorization",
+    "separate weights-only P2-32 stage transition implemented and tested",
+    "separate bounded P2-32 training authorization reviewed and committed"
+  ],
+  "proposedFirstRun": {
+    "status": "draft-only-not-authorized",
+    "objective": "ordinary-next-token-v1",
+    "sampler": "complete-record-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "validationCadence": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointCadence": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "automaticContinuation": false,
+    "resumeAllowed": false
+  },
+  "trainingCommand": null
+}

@@ -415,6 +415,32 @@ def build_parser() -> argparse.ArgumentParser:
     plan_generate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     _add_artifact_root(plan_generate)
 
+    plan_curriculum_review = subparsers.add_parser(
+        "plan-curriculum-review",
+        help="Review the P2-32 structured-plan curriculum without training",
+    )
+    plan_curriculum_review.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-32-structured-plan-candidate-v1.jsonl"),
+    )
+    plan_curriculum_review.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-32-structured-plan-candidate-v1.review.json"),
+    )
+    plan_curriculum_review.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_curriculum_review.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-32-structured-plan-preparation-contract.json"),
+    )
+    plan_curriculum_review.add_argument(
+        "--bundle-dir", type=Path, default=None,
+        help="Optional frozen tokenizer bundle for local roundtrip/context preflight",
+    )
+    plan_curriculum_review.add_argument("--report", type=Path, default=None)
+
     return parser
 
 
@@ -861,6 +887,28 @@ def _plan_generate(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _plan_curriculum_review(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_curriculum import review_structured_plan_curriculum
+
+    report = review_structured_plan_curriculum(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        contract_path=args.contract,
+        bundle_dir=args.bundle_dir,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Curriculum review report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -973,6 +1021,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_evaluate(args))
         elif args.command == "plan-generate":
             _json_print(_plan_generate(args))
+        elif args.command == "plan-curriculum-review":
+            _json_print(_plan_curriculum_review(args))
         return 0
     except (FileExistsError, ImportError, OSError, RuntimeError, ValueError) as exc:
         print(f"plex-train: {exc}", file=sys.stderr)

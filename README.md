@@ -256,7 +256,8 @@ The measured P2-23b result led to a larger training-strategy pivot instead of mo
 5. **P2-28 — Fresh 27.6M Scratch Pilot:** complete; **100/100 steps**, validation loss **9.8093 → 5.6959**, independently reproduced.
 6. **P2-29 — Matched Longer Domain Pretraining:** complete; **500/500 steps**, validation loss **9.8093 → 4.8242**, independently reproduced.
 7. **P2-30 — Task-Format Fine-Tuning:** **first bounded run complete**. The authorized 100-step CUDA run improved task validation loss from **6.8210** to a descriptive low of **3.0633 at step 50**, ending at **3.4313 at the fixed step-100 endpoint**. P2-01b remained **0/30 complete tasks**, but truncations fell from **30/30 to 0/30** and the endpoint passed **41/151** static assertions. No continuation is authorized. See the [P2-30 result](docs/PHASE-2-P2-30-FIRST-RUN-RESULT.md).
-8. **P2-31 — Structured Coding Bridge:** **evaluation implementation prepared; local checkpoint run pending**. A new 18-task development set measures whether the fixed P2-30 step-100 model can emit strict JSON semantic edit plans while Plex Code retains exact repository lookup and mutation. The predeclared gate is **12/18 overall, at least 3/6 per language, and 15/18 schema-valid plans**. P2-31 authorizes **zero** gradient updates and keeps the final holdout sealed. See the [P2-31 bridge](docs/PHASE-2-P2-31-STRUCTURED-BRIDGE.md).
+8. **P2-31 — Structured Coding Bridge:** **development gate failed**. All **18/18** responses were present and untruncated, but **0/18** were schema-valid JSON plans, so complete semantic plans were **0/18** and the fixed gate failed. The failure is classified as a representation-format failure; Phase 3 remains blocked. See the [P2-31 result](docs/PHASE-2-P2-31-RESULT.md).
+9. **P2-32 — Structured-Plan Representation Curriculum:** **preparation candidate ready; training not authorized**. A new **96-record / 24-group** curriculum uses **72 train / 24 validation** records across HTML/CSS/JavaScript and stages strict serialization → field binding → full semantic composition. The P2-31 development roles/requests remain excluded. See the [P2-32 preparation](docs/PHASE-2-P2-32-STRUCTURED-PLAN-CURRICULUM.md).
 
 The architecture split remains: **Plex Nano owns learned web-code priors and semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
@@ -278,7 +279,7 @@ Plex Code deterministic resolution
 
 The current 27.6M model remains the first controlled pretraining architecture. Scaling toward the longer-term 0.5B–1.5B range is deferred until the corpus, tokenizer, and pretraining measurements justify it.
 
-See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md), [P2-25 closeout](docs/PHASE-2-P2-25-CLOSEOUT.md), [P2-26 closeout](docs/PHASE-2-P2-26-CLOSEOUT.md), [P2-27 result](docs/PHASE-2-P2-27-RESULT.md), [P2-28 result](docs/PHASE-2-P2-28-RESULT.md), [P2-29 result](docs/PHASE-2-P2-29-RESULT.md), [P2-30 result](docs/PHASE-2-P2-30-FIRST-RUN-RESULT.md), and [P2-31 structured bridge](docs/PHASE-2-P2-31-STRUCTURED-BRIDGE.md).
+See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md), [P2-25 closeout](docs/PHASE-2-P2-25-CLOSEOUT.md), [P2-26 closeout](docs/PHASE-2-P2-26-CLOSEOUT.md), [P2-27 result](docs/PHASE-2-P2-27-RESULT.md), [P2-28 result](docs/PHASE-2-P2-28-RESULT.md), [P2-29 result](docs/PHASE-2-P2-29-RESULT.md), [P2-30 result](docs/PHASE-2-P2-30-FIRST-RUN-RESULT.md), [P2-31 result](docs/PHASE-2-P2-31-RESULT.md), and [P2-32 preparation](docs/PHASE-2-P2-32-STRUCTURED-PLAN-CURRICULUM.md).
 
 **Result:** [P2-23b Target-Kind Continuation Result](docs/PHASE-2-P2-23B-RESULT.md)  
 **Continuation contract:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
@@ -342,7 +343,7 @@ The full plan lives in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 |---|---|---|
 | **Phase 1** | Build repository tooling and prove scratch training works | **Complete** |
 | **Phase 2** | Pretrain on permissively licensed web code, then fine-tune task semantics | **Active — Plex Web program** |
-| **Phase 3** | Connect the tuned Plex semantic planner to repository editing | **After P2-31** |
+| **Phase 3** | Connect the tuned Plex semantic planner to repository editing | **Blocked pending a successful post-P2-32 structured-plan bridge gate** |
 | **Phase 4** | Scale, optimize, quantize, and prepare a local release | **Later** |
 
 ### Long-term direction

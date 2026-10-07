@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-31",
+  "kind": "plex-p2-31-structured-bridge-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "gate-failed",
+  "checkpoint": {
+    "step": 100,
+    "sha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e"
+  },
+  "taskSet": {
+    "setId": "p2-31-plan-dev-v1",
+    "kind": "development",
+    "sha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "tasks": 18,
+    "gate": {
+      "minimumPassed": 12,
+      "minimumPerLanguage": 3,
+      "minimumSchemaValid": 15
+    }
+  },
+  "responsesSha256": "f4e2dcdc43cdb42bf2835f15bd3ab7ba54a1e97fc23ecdae523985702e69be4c",
+  "evaluation": {
+    "evaluator": "plex-structured-plan-evaluator-v1",
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "passed": 0,
+    "passRate": 0,
+    "schemaValid": 0,
+    "schemaValidRate": 0,
+    "partialTaskCount": 18,
+    "checksPassed": 36,
+    "checksTotal": 162,
+    "perLanguage": {
+      "html": {
+        "tasks": 6,
+        "passed": 0,
+        "passRate": 0
+      },
+      "css": {
+        "tasks": 6,
+        "passed": 0,
+        "passRate": 0
+      },
+      "javascript": {
+        "tasks": 6,
+        "passed": 0,
+        "passRate": 0
+      }
+    },
+    "gatePassed": false
+  },
+  "failureMode": {
+    "category": "representation-format",
+    "evidence": "Every response was present and untruncated, but every response failed strict JSON parsing before semantic fields could be scored.",
+    "semanticCorrectnessEstablished": false,
+    "repositoryResolutionTested": false
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "phase3EntryAuthorized": false,
+  "nextMilestone": "P2-32 structured-plan representation curriculum"
+}
