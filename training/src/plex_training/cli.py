@@ -407,6 +407,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
     )
     plan_diagnose.add_argument("--responses", type=Path, required=True)
+    plan_diagnose.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-34-output-boundary-contract.json"),
+    )
     plan_diagnose.add_argument("--report", type=Path, default=None)
 
     plan_generate = subparsers.add_parser(
@@ -965,6 +969,7 @@ def _plan_diagnose(args: argparse.Namespace) -> dict[str, Any]:
     report = diagnose_structured_plan_responses(
         task_set_path=args.task_set,
         responses_path=args.responses,
+        contract_path=args.contract,
     )
     if args.report is not None:
         if args.report.exists():
