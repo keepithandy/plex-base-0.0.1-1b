@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-37 — Bridge Error Decomposition** after P2-36 produced the first schema-valid development outputs but still failed all complete plans. The diagnostic is pinned to response SHA `7492c8d0158381b979b319a4d3a880c0bbba7d7b4227e300c4c68ff357ae7fbd` and reports invalid JSON versus invalid strict schema plus the actual/expected targetRole, constraints, and hints for schema-valid outputs. It performs no repair, rescoring, or training.
+- Closed **P2-36 — Structured Bridge Re-evaluation** as **gate failed with structural improvement**: **0/18 complete plans**, **5/18 schema-valid plans**, **56/162 checks**, with schema-valid coverage **0/6 HTML, 2/6 CSS, 3/6 JavaScript**. All five schema-valid plans got language/action/targetKind correct but missed targetRole, exact constraints, and hint coverage. Final holdout remained sealed.
 - Opened **P2-36 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-35 step-100 checkpoint SHA `1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0`; no gradient updates are authorized.
 - Completed the **first bounded P2-35 serialization-stability run**: **100/100 CUDA updates**, **299,958** real target positions, **1,600** sampled records, all **108** training records selected, and validation **4.3353 → 2.3458 → 2.5825 → 2.5264 → 2.6547**. Step 25 was the descriptive validation low, but the official fixed endpoint remains step 100 with checkpoint SHA `1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0`. Final holdout remained sealed and continuation is not authorized.
 - Approved the **first bounded P2-35 serialization-stability run** using the frozen packet unchanged: 100 CUDA updates maximum, 600 seconds maximum, no resume, no automatic continuation, and no P2-35 optimizer update executed yet.
@@ -73,7 +75,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run P2-36 `plan-generate` and `plan-evaluate` against the fixed P2-35 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-37 `plan-bridge-diagnose` on the exact P2-36 responses. Do not train further until semantic substitutions and remaining serialization failures are decomposed. The final project holdout remains sealed.
 
 
 ---
