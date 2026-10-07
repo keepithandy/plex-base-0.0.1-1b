@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-32",
+  "kind": "plex-p2-32-first-structured-plan-run-contract-v1",
+  "status": "draft-awaiting-owner-review",
+  "modelTrainingAuthorized": false,
+  "approvedBy": null,
+  "outputDirectory": "structured-plan/p2-32-first-run",
+  "executionState": {
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "finalHoldoutOpened": false
+  },
+  "baseStage": {
+    "checkpointSha256": null,
+    "p232Step": 0,
+    "baseCheckpointSha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e",
+    "parameterCount": 27566080
+  },
+  "data": {
+    "bundleManifestSha256": null,
+    "candidateSha256": "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainJsonlSha256": null,
+    "validationJsonlSha256": null,
+    "trainRecords": 72,
+    "validationRecords": 24
+  },
+  "training": {
+    "sampler": null,
+    "objective": "ordinary-next-token-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "epsilon": 1e-8,
+    "weightDecay": 0.1,
+    "gradientClippingNorm": 1,
+    "schedule": "constant-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "contextLength": 512,
+    "dropout": 0.1,
+    "expectedRealTargetPositionsAt100Steps": null,
+    "resumeAllowed": false,
+    "automaticContinuation": false
+  },
+  "evaluation": {
+    "method": "sequential-packed-next-token-loss",
+    "steps": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
+    "maximumBatches": 100,
+    "checkpointSteps": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "baselineLoss": null,
+    "checkpointSelection": "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+    "p231DevelopmentRunAt": "final completed step only after bounded training; never used in gradients or checkpoint selection"
+  },
+  "protectedEvaluation": {
+    "validationExcludedFromGradients": true,
+    "p231DevelopmentExcludedFromGradients": true,
+    "p201bExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "continuationRule": "Stop after the bounded first run. No resume, overwrite, or automatic continuation.",
+  "command": null,
+  "nextAuthorization": "Fill exact stage/bundle/sampler/baseline identities from plan-train-preflight, then require explicit owner approval in a separate reviewed commit before plan-train-run can execute."
+}
