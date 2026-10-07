@@ -352,7 +352,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 )
 
             existing = self.root / "task-finetune/p2-30-first-run"
-            existing.mkdir()
+            existing.mkdir(parents=True)
             with self.assertRaisesRegex(FileExistsError, "resume and overwrite"):
                 _preflight(
                     bundle_dir=self.bundle_root,
