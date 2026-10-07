@@ -192,3 +192,42 @@ uv run --project training --no-sync python -m plex_training.cli tokenizer-review
 This command fits tokenizer candidates only. It does **not** initialize or train model weights, and it does not open the final holdout.
 
 See [P2-26 closeout](../../docs/PHASE-2-P2-26-CLOSEOUT.md) and [P2-27 tokenizer review](../../docs/PHASE-2-P2-27-TOKENIZER-REVIEW.md).
+
+
+## P2-27 closeout and P2-28 initialization gate
+
+P2-27 is complete. The owner selected the **16,384-token** candidate.
+
+Frozen identities:
+
+```text
+dataset manifest:
+2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91
+
+tokenizer:
+2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697
+
+tokenizer review:
+3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8
+```
+
+Machine-readable selection:
+
+`training/pretraining/p2-27-tokenizer-selection.json`
+
+P2-28 is active at the fresh-random-initialization gate. The exact machine-readable contract is:
+
+`training/pretraining/p2-28-scratch-pilot-contract.json`
+
+Authorized initialization command:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli initialize `
+  --tokenizer-dir training\artifacts\tokenizer-reviews\p2-27-web-v1\candidates\vocab-16384 `
+  --output-dir initializations\p2-28-web-v1-step0 `
+  --seed 1337
+```
+
+This creates a step-zero checkpoint only. **Do not start training yet.** First verify the initialization output reports 27,566,080 parameters, vocabulary 16,384, seed 1337, `pretrainedCheckpointLoaded: false`, and both checkpoint/initial-weight hashes.
+
+See [P2-27 result](../../docs/PHASE-2-P2-27-RESULT.md) and [P2-28 contract](../../docs/PHASE-2-P2-28-SCRATCH-PRETRAINING-PILOT.md).
