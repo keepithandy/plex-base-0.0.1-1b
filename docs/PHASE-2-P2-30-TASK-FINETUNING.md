@@ -2,7 +2,9 @@
 
 ## Status
 
-**Active — preparation gate. No model training is authorized yet.**
+**Preparation gate passed — October 7, 2026. No model training is authorized yet.**
+
+The [preparation result](PHASE-2-P2-30-PREPARATION-RESULT.md) records exact identities, unchanged P2-29 weights, a reproducible **6.821033537387848** task-text baseline and **0/30** development tasks. All **44 targeted / 207 full-suite tests** passed. The separate [100-step first-run draft](../training/pretraining/p2-30-first-finetune-contract.draft.json) remains unauthorized and requires owner review plus a dedicated contract-enforcing training path.
 
 P2-30 transitions Plex from Web-domain pretraining into task-format fine-tuning.
 
@@ -82,7 +84,7 @@ Before the first P2-30 optimizer update:
 - freeze learning rate, task objective, sampler, maximum updates and evaluation cadence
 - commit a separate training authorization
 
-Until those checks pass, **P2-30 training is blocked**.
+Preparation evidence now passes these checks, and proposed settings are pinned in the separate draft. **P2-30 training remains blocked until explicit owner authorization and review of the dedicated training path.** Fine-tuning itself is not complete.
 
 ## Machine-readable contract
 

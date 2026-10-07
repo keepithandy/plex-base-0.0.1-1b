@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-30",
+  "kind": "plex-p2-30-preparation-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "preparation-gate-passed",
+  "repository": {
+    "name": "keepithandy/plex-nano-27m-v0.0.1-p2-24",
+    "baseMasterSha": "6e6771ccc6242a78cbb21c470b83934e54dc74f2",
+    "branch": "codex/p2-30-prep-validation"
+  },
+  "modelTrainingAuthorized": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "datasetVerification": {
+    "records": 234,
+    "trainRecords": 156,
+    "validationRecords": 78,
+    "manifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+    "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+    "validationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+    "approvedIdentitiesReproduced": true,
+    "recordIdOverlap": 0
+  },
+  "repack": {
+    "bundleBytes": 1420491,
+    "milestone": "P2-30",
+    "outputDirectory": "task-finetune\\p2-30-request-v3-16k",
+    "schemaVersion": 1,
+    "sourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+    "sourceTokenizerBundleManifestSha256": "fb650f91bbc7f53e788a7f7c22af4950b079423229c1ef85bdd865025e56e880",
+    "storageLimitBytes": 214748364800,
+    "taskBundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "train": {
+      "bytesPerTextToken": 3.6815027923506514,
+      "contextLength": 512,
+      "contextLimitPassed": true,
+      "jsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+      "maximumRecordTokensIncludingEos": 145,
+      "path": "train.tokens.u16le",
+      "records": 156,
+      "roundtripRecords": 156,
+      "sha256": "27d6682349c4917aba43c6e9eadd95f468b692eb718ea330582302b9e2bacf58",
+      "textBytes": 65262,
+      "tokenCount": 17883
+    },
+    "trainingPerformed": false,
+    "validation": {
+      "bytesPerTextToken": 3.7477571944541537,
+      "contextLength": 512,
+      "contextLimitPassed": true,
+      "jsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+      "maximumRecordTokensIncludingEos": 131,
+      "path": "validation.tokens.u16le",
+      "records": 78,
+      "roundtripRecords": 78,
+      "sha256": "4017d14c6bfab12c7d627cce8a29ec1170ba24e5929e242eca279a8f98fbaa7c",
+      "textBytes": 32167,
+      "tokenCount": 8661
+    }
+  },
+  "stage": {
+    "baseCheckpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "dataset": {
+      "sourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+      "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+      "trainRecords": 156,
+      "trainTokenCount": 17883,
+      "trainTokensSha256": "27d6682349c4917aba43c6e9eadd95f468b692eb718ea330582302b9e2bacf58",
+      "validationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+      "validationRecords": 78,
+      "validationTokenCount": 8661,
+      "validationTokensSha256": "4017d14c6bfab12c7d627cce8a29ec1170ba24e5929e242eca279a8f98fbaa7c"
+    },
+    "milestone": "P2-30",
+    "modelWeightEqualityMethod": "torch.equal for every model-state tensor after checkpoint reload",
+    "modelWeightsPreserved": true,
+    "optimizerStateReused": false,
+    "outputDirectory": "task-finetune\\p2-30-stage0",
+    "parameterCount": 27566080,
+    "samplerStateReset": true,
+    "schemaVersion": 1,
+    "stageCheckpoint": {
+      "bytes": 110306108,
+      "path": "stage-checkpoint.pt",
+      "step": 0
+    },
+    "stageCheckpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+    "stageTransition": {
+      "baseCheckpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+      "baseCheckpointStep": 500,
+      "baseDatasetRecord": {
+        "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+        "trainJsonlSha256": "8d621a488f3554a976ea4ee0e9581fae2c07aff58ad7912b2f69f2cc0233aaa6",
+        "trainRecords": 3071,
+        "trainTokenCount": 1428687,
+        "trainTokensSha256": "a8ce0d446eb2edc7fbf1d93718a0696f24ef9d869300d64ec7b8aa87bb80278d",
+        "validationJsonlSha256": "77f3e5658663be0d000f75e67a913add192382be2b8a44dd7cc1b9ae33c6c52e",
+        "validationRecords": 69,
+        "validationTokenCount": 125198,
+        "validationTokensSha256": "a71f19c20b875721ba7069b50aa282a7ff978a146134e955fb5586be3ea05d9c"
+      },
+      "baseTokenizerRecord": {
+        "actualVocabularySize": 16384,
+        "bundleManifestSha256": "fb650f91bbc7f53e788a7f7c22af4950b079423229c1ef85bdd865025e56e880",
+        "codec": "plex-byte-bpe-v1",
+        "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+        "modelVocabularyCapacity": 16384,
+        "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+      },
+      "kind": "plex-task-finetune-stage-transition-v1",
+      "milestone": "P2-30",
+      "modelTrainingPerformed": false,
+      "modelWeightsLoadedFromBase": true,
+      "pretrainingOptimizerStateReused": false,
+      "pretrainingSamplerStateReused": false,
+      "pretrainingStepReusedAsTaskStep": false,
+      "schemaVersion": 1,
+      "taskDatasetRecord": {
+        "sourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+        "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+        "trainRecords": 156,
+        "trainTokenCount": 17883,
+        "trainTokensSha256": "27d6682349c4917aba43c6e9eadd95f468b692eb718ea330582302b9e2bacf58",
+        "validationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+        "validationRecords": 78,
+        "validationTokenCount": 8661,
+        "validationTokensSha256": "4017d14c6bfab12c7d627cce8a29ec1170ba24e5929e242eca279a8f98fbaa7c"
+      },
+      "taskStageStep": 0,
+      "taskTokenizerRecord": {
+        "actualVocabularySize": 16384,
+        "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+        "codec": "plex-byte-bpe-v1",
+        "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+        "modelVocabularyCapacity": 16384,
+        "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+      }
+    },
+    "storageLimitBytes": 214748364800,
+    "taskStageStep": 0,
+    "taskTokensProcessed": 0,
+    "tokenizer": {
+      "actualVocabularySize": 16384,
+      "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+      "codec": "plex-byte-bpe-v1",
+      "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+      "modelVocabularyCapacity": 16384,
+      "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+    },
+    "trainingPerformed": false
+  },
+  "independentVerification": {
+    "schemaVersion": 1,
+    "modelStateTensorCount": 76,
+    "allModelStateTensorsExactlyEqual": true,
+    "optimizerReset": true,
+    "samplerReset": true,
+    "taskStageStep": 0,
+    "taskTokensProcessed": 0,
+    "initializationProvenancePreserved": true,
+    "initialModelWeightsSha256": "98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193",
+    "baseCheckpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "stageCheckpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+    "splitRecordIdOverlap": 0,
+    "recordLengths": {
+      "train": {
+        "records": 156,
+        "minimumTokensIncludingEos": 89,
+        "maximumTokensIncludingEos": 145,
+        "meanTokensIncludingEos": 114.63461538461539,
+        "tokenCount": 17883
+      },
+      "validation": {
+        "records": 78,
+        "minimumTokensIncludingEos": 92,
+        "maximumTokensIncludingEos": 131,
+        "meanTokensIncludingEos": 111.03846153846153,
+        "tokenCount": 8661
+      }
+    },
+    "completeRecordSamplerVerified": {
+      "kind": "complete-record-v1",
+      "selection": "uniform-record-with-replacement",
+      "endPolicy": "stop-at-record-eos-v1",
+      "records": 156,
+      "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+      "indexSha256": "6f19b1d34b452efc0027a882b7702dff23c568506eba65aa949f877ed03a71ca",
+      "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+      "tokenAccounting": "nonpadding-next-token-targets-v1",
+      "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+    },
+    "proposed100StepCompleteRecordRealTargets": 181849,
+    "baselineIndependentRepeatExact": true,
+    "validationTailTargetPositionsNotEvaluated": 468,
+    "trainingPerformed": false,
+    "finalHoldoutOpened": false
+  },
+  "baseline": {
+    "batches": 16,
+    "checkpointStep": 0,
+    "codec": "plex-byte-bpe-v1",
+    "dataset": {
+      "sourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+      "trainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+      "trainRecords": 156,
+      "trainTokenCount": 17883,
+      "trainTokensSha256": "27d6682349c4917aba43c6e9eadd95f468b692eb718ea330582302b9e2bacf58",
+      "validationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+      "validationRecords": 78,
+      "validationTokenCount": 8661,
+      "validationTokensSha256": "4017d14c6bfab12c7d627cce8a29ec1170ba24e5929e242eca279a8f98fbaa7c"
+    },
+    "device": "cuda",
+    "meanLoss": 6.821033537387848,
+    "split": "held-out-validation",
+    "tokenizer": {
+      "actualVocabularySize": 16384,
+      "bundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+      "codec": "plex-byte-bpe-v1",
+      "modelConfigSha256": "0179591365be51ddac2feebb8767c19916084629e9a3a51b553d1bb0d62d00b0",
+      "modelVocabularyCapacity": 16384,
+      "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+    },
+    "tokens": 8192,
+    "independentRepeatExact": true,
+    "maximumBatchesRequested": 100,
+    "coverage": "16 complete sequential 512-target windows; 468 trailing target positions excluded by the existing evaluator"
+  },
+  "development": {
+    "taskSetId": "p2-01b-dev-v1",
+    "taskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+    "passed": 0,
+    "tasks": 30,
+    "truncated": 30,
+    "assertionsPassed": 49,
+    "assertionsTotal": 181,
+    "missingOutputs": 0,
+    "emptyOutputs": 0,
+    "unavailable": 0,
+    "timeouts": 0,
+    "perLanguage": {
+      "css": {
+        "evaluable": 10,
+        "passRate": 0.0,
+        "passRateWilson95": {
+          "high": 0.277533,
+          "low": 0.0
+        },
+        "passed": 0,
+        "tasks": 10,
+        "unavailable": 0
+      },
+      "html": {
+        "evaluable": 10,
+        "passRate": 0.0,
+        "passRateWilson95": {
+          "high": 0.277533,
+          "low": 0.0
+        },
+        "passed": 0,
+        "tasks": 10,
+        "unavailable": 0
+      },
+      "javascript": {
+        "evaluable": 10,
+        "passRate": 0.0,
+        "passRateWilson95": {
+          "high": 0.277533,
+          "low": 0.0
+        },
+        "passed": 0,
+        "tasks": 10,
+        "unavailable": 0
+      }
+    },
+    "checkpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+    "responsesSha256": "639af0d8b593d4f1d433637e568da03f077f4f3cda72bd8f325ef459a8e68faa",
+    "runManifestSha256": "daa38056ca1275f19d9845305ec7dfe0aca37fe1779a522bc4e512fabd7c6571",
+    "scoreSha256": "5d4dee96d7321e8f5d73fd49948bccb163b7fe939f152cdd3476ce0bfedb270a",
+    "temperature": 0.0,
+    "seed": 1337,
+    "maxNewTokens": {
+      "css": 128,
+      "html": 192,
+      "javascript": 192
+    },
+    "generatedJavaScriptExecuted": false,
+    "use": "development evidence only; excluded from gradients"
+  },
+  "tests": {
+    "targeted": {
+      "passed": 44,
+      "failed": 0,
+      "logSha256": "3a9fec4ae5fdb9eb795eeeaf59661dd0c1958683197aa3eeb2bd7a31dd9b2f29"
+    },
+    "fullPytest": {
+      "passed": 207,
+      "failed": 0,
+      "warnings": 2,
+      "logSha256": "d8cf7216e388ee39fcebef32694177b0b353d87ccc61a48a35ae73b474e9aae0"
+    },
+    "initialUnittestAttempt": {
+      "passed": 189,
+      "importErrors": 2,
+      "cause": "Two existing test modules import undeclared pytest; unittest also omits function-style tests. Added pytest dev dependency and used pytest for the full suite."
+    },
+    "warningDetails": [
+      "Failed to initialize NumPy: No module named numpy",
+      "cuBLAS created its primary CUDA context during a synthetic optimizer test"
+    ],
+    "unresolvedFailures": 0,
+    "note": "Test-only synthetic model updates occurred; zero P2-30 research optimizer updates."
+  },
+  "commands": {
+    "targeted": "uv run --project training --no-sync python -m unittest training.tests.test_task_finetune training.tests.test_pilot training.tests.test_tokenizer training.tests.test_cli training.tests.test_data_and_runner training.tests.test_resume_and_completion -v",
+    "full": "uv run --project training --no-sync python -m pytest training/tests -q",
+    "repack": "uv run --project training --no-sync python -m plex_training.cli task-finetune-repack --dataset-dir training/artifacts/datasets/p2-30-request-v3-v1 --tokenizer-dir training/artifacts/tokenizer-reviews/p2-27-web-v1/candidates/vocab-16384 --output-dir task-finetune/p2-30-request-v3-16k",
+    "stage": "uv run --project training --no-sync python -m plex_training.cli task-finetune-stage --base-checkpoint training/artifacts/pilot/p2-29-web-v1-500step/pilot-checkpoint.pt --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --output-dir task-finetune/p2-30-stage0",
+    "baseline": "uv run --project training --no-sync python -m plex_training.cli pilot-evaluate --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt --max-batches 100 --device cuda",
+    "developmentGeneration": "uv run --project training --no-sync python -m plex_training.cli task-generate --task-set training/phase2/evaluation/p2-01b-dev-v1.json --checkpoint training/artifacts/task-finetune/p2-30-stage0/stage-checkpoint.pt --bundle-dir training/artifacts/task-finetune/p2-30-request-v3-16k --output-dir evaluation/p2-30-stage0-dev --device cuda",
+    "developmentScoring": "uv run --project training --no-sync python -m plex_training.cli task-evaluate --task-set training/phase2/evaluation/p2-01b-dev-v1.json --responses training/artifacts/evaluation/p2-30-stage0-dev/responses.jsonl --report training/artifacts/evaluation/p2-30-stage0-dev/score.json"
+  },
+  "rawEvidence": {
+    "training\\artifacts\\p2-30-repack-output.json": "3f57c0b7d4067db401381db25225ed0f7de4cc2cc96cb80830e6151d674e3d63",
+    "training\\artifacts\\p2-30-stage-output.json": "0efefecb5adfa2214661c5ea168991d73c91ee474f1c94a4ad0550acc1680530",
+    "training\\artifacts\\p2-30-baseline-output.json": "701e7d4e9ad308637636c50dacf48e58d3bf5f0b36a235f19f83140b46360170",
+    "training\\artifacts\\p2-30-baseline-repeat.json": "701e7d4e9ad308637636c50dacf48e58d3bf5f0b36a235f19f83140b46360170",
+    "training\\artifacts\\p2-30-independent-verification.json": "6c22e2f94f30798b78329f4689ceca2e141a2390875316b679e9b131a4a7aaeb"
+  }
+}
