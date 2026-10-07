@@ -209,6 +209,8 @@ The P2-22c result strengthens the architecture boundary: keep Plex Nano focused 
 
 **P2-24 complete.** The Plex Web pretraining specification, source/license policy, provenance requirements, repository-level split rule, contamination policy, corpus ladder, owner review gates and fixed 27.6M first-pilot rule are committed.
 
-**Current task: P2-25 — Corpus Ingestion Pipeline.** The first implementation slice adds `web-source-verify`, a read-only local-source preflight that enforces the committed web-language/license policy and rejects generated/minified/disallowed/secret/duplicate content before corpus promotion.
+**P2-25 complete.** The seed pipeline accepted 21 HTML/CSS/JavaScript records, rejected 3 secret-pattern files, rebuilt byte-identically under the same seed/source policy, and now includes a hard `web-contamination-check` promotion gate. Historical seed artifacts remain pipeline-validation only unless they are rechecked with the new contamination report.
 
-P2-25 remains open until a verified source set can be built reproducibly into train/validation corpus artifacts with retained provenance and contamination reports. Keep the current **27.6M** architecture through the first domain-pretraining pilot so corpus/tokenizer effects remain measurable before any model-size increase.
+**Current task: P2-26 — Plex Web Corpus v1.** Scale from the seed corpus toward the first meaningful web-code corpus. Use the reviewed pinned source registry, materialize sources reproducibly, preflight them, build grouped splits, require a passing contamination report, and grow toward roughly 4–6 MiB of accepted normalized web code as the pre-tokenizer proxy for Plex Web 1M.
+
+Keep the current **27.6M** architecture unchanged. No pretraining begins in P2-26.
