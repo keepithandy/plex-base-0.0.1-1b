@@ -8,6 +8,10 @@ _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
 
+- Completed **P2-28 — First Plex Web Scratch-Pretraining Pilot**. The fresh 27.6M model completed **100/100 CUDA steps**, processed **819,200 token positions** in **17.48 seconds**, and improved held-out validation loss from **9.809301 to 5.695902**. Independent evaluation of the saved checkpoint reproduced **5.6959015655517575 exactly**. Output checkpoint SHA-256: `cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87`.
+- Opened **P2-29 — Matched Longer Plex Web Domain Pretraining**. One fresh **500-step / 10-minute CUDA** run is authorized from the same verified step-zero checkpoint. Corpus, tokenizer, seed, optimizer, batch settings, sampler, and objective remain unchanged; only the training horizon increases. The P2-28 step-100 checkpoint is not used as the starting point.
+
+
 - Verified the **P2-28 fresh step-zero initialization**: **27,566,080 parameters**, 16,384-token frozen tokenizer, seed **1337**, checkpoint SHA-256 `06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86`, initial-weight SHA-256 `98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193`, and both pretrained-weight flags false.
 - Authorized one **100-step / 10-minute CUDA P2-28 base-pretraining pilot** from that exact step-zero checkpoint using ordinary next-token loss, micro-batch 1, gradient accumulation 16, and random-window sampling. Continuation beyond the bounded run remains blocked pending review.
 
@@ -43,7 +47,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** P2-28 now creates the **fresh step-zero Plex checkpoint** from the frozen P2-27 tokenizer. Only initialization is authorized first: seed 1337, CPU initialization, 27,566,080 parameters, no pretrained checkpoint, and no resume. The initialization output must be reviewed before any pretraining update is allowed.
+> 🔭 **Up next:** P2-29 replays the same verified scratch trajectory from step zero to a maximum of **500 CUDA updates**. Only training horizon changes. The final checkpoint must be independently re-evaluated before any further scaling decision.
 
 
 ---
