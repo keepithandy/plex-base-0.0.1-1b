@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "mailgun-transactional-email-templates",
+      "localPath": "data/raw/mailgun-transactional-email-templates",
+      "origin": "https://github.com/mailgun/transactional-email-templates",
+      "revision": "e05e59e8c1e0fa7ffbacc7a165a609fd37c590b5",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-mailgun-transactional-email-templates",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "bradtraversy-vanilla-parcel-boilerplate",
+      "localPath": "data/raw/bradtraversy-vanilla-parcel-boilerplate",
+      "origin": "https://github.com/bradtraversy/vanilla-parcel-boilerplate",
+      "revision": "bbb80fc71c9fa1d5ac5a4aa5a143c26b357ef353",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-bradtraversy-vanilla-parcel-boilerplate",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "adamschwartz-magic-of-css",
+      "localPath": "data/raw/adamschwartz-magic-of-css",
+      "origin": "https://github.com/adamschwartz/magic-of-css",
+      "revision": "066aa596b420029f72b553f027773c5de74c1b21",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE.md",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-adamschwartz-magic-of-css",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "sparksuite-simple-html-invoice-template",
+      "localPath": "data/raw/sparksuite-simple-html-invoice-template",
+      "origin": "https://github.com/sparksuite/simple-html-invoice-template",
+      "revision": "7d74fe34c862b7712f1a23a3f12147a4a8bd53e1",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-sparksuite-simple-html-invoice-template",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "micku7zu-vanilla-tilt-js",
+      "localPath": "data/raw/micku7zu-vanilla-tilt-js",
+      "origin": "https://github.com/micku7zu/vanilla-tilt.js",
+      "revision": "48f4ee931d4d91dcdd2f91803db67a9f3a16587e",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-micku7zu-vanilla-tilt-js",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "andy-set-studio-vanilla-js-state-management",
+      "localPath": "data/raw/andy-set-studio-vanilla-js-state-management",
+      "origin": "https://github.com/Andy-set-studio/vanilla-js-state-management",
+      "revision": "818586cf3f010e646ae068e6d09a543f299b5bda",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T01:45:00Z",
+      "groupId": "github-andy-set-studio-vanilla-js-state-management",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    }
+  ]
+}
