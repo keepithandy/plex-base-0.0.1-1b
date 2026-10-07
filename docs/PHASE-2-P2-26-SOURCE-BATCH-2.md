@@ -2,7 +2,7 @@
 
 ## Status
 
-**Reviewed candidate batch ready for local materialization.**
+**Completed and promoted as the corrected P2-26 corpus candidate.**
 
 Batch #1 proved the full P2-26 path with 69 accepted records and a clean contamination report. Batch #2 is intentionally much larger so Plex can test the first meaningful corpus-size target.
 
@@ -16,6 +16,20 @@ Pinned-tree screening estimates:
 - 3 split groups because the 4 MDN repositories are intentionally treated as one source family
 
 These are discovery estimates only. The authoritative numbers come from `web-source-verify`.
+
+The completed local run produced:
+
+- **3,142 Web-preflight accepted files**
+- **5,463,479 accepted normalized source bytes**
+- **3,140 final dataset records** after two additional invalid-JavaScript syntax rejects
+- **3,071 train / 69 validation**
+- dataset manifest SHA-256 `2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91`
+- contamination result: **passed**
+- blocked origins: **0**
+- exact protected matches: **0**
+- long substring matches: **0**
+
+The final project holdout remained closed.
 
 ## Sources
 
@@ -55,7 +69,7 @@ uv run --project training --no-sync python -m plex_training.cli web-source-verif
   --source-manifest training\pretraining\sources.p2-26-batch-2.local.json
 ```
 
-Do not build or train until the verifier reports `readyForDeterministicBuild: true`.
+The verifier reported `readyForDeterministicBuild: true`. The corrected corpus was then built with `web-dataset-build`; the earlier generic v1 build is not the promoted corpus.
 
 ## Promotion gates
 
@@ -68,3 +82,10 @@ Batch #2 must still pass:
 5. accepted-byte review against the 4–6 MiB P2-26 target
 
 No tokenizer fitting or model training occurs in this batch.
+
+
+## Closeout
+
+Batch #2 met the P2-26 first-scale target and passed the contamination gate. It is frozen as the local corpus candidate used by P2-27 tokenizer review.
+
+See [P2-26 closeout](PHASE-2-P2-26-CLOSEOUT.md).
