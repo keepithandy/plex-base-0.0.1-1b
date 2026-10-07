@@ -224,7 +224,7 @@ P2-22c then tested explicit before/after presence transitions without training t
 
 ### P2-23 — target-kind classification
 
-P2-23 is the current **candidate-only** milestone.
+P2-23 is now the current **owner-approved first-run** milestone.
 
 The model has six legal target-kind answers:
 
@@ -237,7 +237,7 @@ JS_IDENTIFIER
 JS_PROPERTY
 ```
 
-The candidate contains **144 training + 72 evaluation** records across three balanced semantic bands:
+The approved candidate contains **144 training + 72 evaluation** records across three balanced semantic bands:
 
 ```text
 A  clean target-kind paraphrases
@@ -253,20 +253,24 @@ Candidate SHA:
 3625f43419c185b567ae0d6849860f3e310016fc9dcc5bf6bc53afa6363d1d08
 ```
 
-Current integrity checks:
+The authorized first run uses:
 
-- train/evaluation exact request overlap: **0**
-- B/C train/evaluation context overlap: **0**
-- same-target-kind train/evaluation near-duplicates at >=0.65 Jaccard: **0**
-- exact request overlap with prior Phase-2 tasks and development sets: **0**
-- tokenizer fitted: **no**
-- checkpoint initialized: **no**
-- training run created: **no**
-- final holdout opened: **no**
+- fresh train-only tokenizer
+- fresh seed-1337 initialization
+- unchanged 27.6M-parameter architecture
+- ordinary next-token complete-record loss
+- `complete-record-v1`
+- micro-batch 1
+- gradient accumulation 16
+- CUDA
+- matched step-zero evaluation
+- maximum **100 updates / 10 minutes**
+- no automatic extension
 
+All 72 evaluation records remain excluded from tokenizer fitting and gradient training. The final project holdout remains closed.
+
+**Approved run:** [P2-23 Target-Kind Classification Run](docs/PHASE-2-P2-23-APPROVED-RUN.md)  
 **Candidate review:** [P2-23 Target-Kind Classification Candidate](training/phase2/drafts/p2-23-target-kind-classification-candidate-v1/REVIEW.md)
-
-P2-23 training is **not authorized yet**.
 
 ---
 
