@@ -89,3 +89,70 @@ Until those checks pass, **P2-30 training is blocked**.
 See:
 
 `training/pretraining/p2-30-task-finetune-contract.json`
+
+
+## Preparation tooling
+
+P2-30 preparation now has two explicit no-training commands:
+
+- `task-finetune-repack` — verifies the exact approved P2-02 request-following v3 dataset identity and repacks its 156/78 split using the frozen P2-27 16K tokenizer.
+- `task-finetune-stage` — verifies the exact P2-29 step-500 checkpoint, loads only its model weights, creates a fresh AdamW optimizer with no carried moments, resets the task-stage step to zero, binds the task dataset/tokenizer identity, and records a `stageTransitionRecord`.
+
+The ordinary Web `pilot` command explicitly rejects a checkpoint carrying a task-stage transition record. This prevents accidental task training through the pretraining path.
+
+### 1. Rebuild the approved task dataset
+
+From the repository root:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli dataset-build `
+  --source-manifest training\phase2\data\authored\p2-02-request-following-v3\dataset-sources.approved.json `
+  --output-dir datasets\p2-30-request-v3-v1 `
+  --validation-percent 30 `
+  --seed 51
+```
+
+The build must reproduce:
+
+- dataset manifest SHA-256: `bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea`
+- train JSONL SHA-256: `05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554`
+- validation JSONL SHA-256: `1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce`
+- 156 train / 78 validation records
+
+### 2. Repack with the frozen Web tokenizer
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-repack `
+  --dataset-dir training\artifacts\datasets\p2-30-request-v3-v1 `
+  --tokenizer-dir training\artifacts\tokenizer-reviews\p2-27-web-v1\candidates\vocab-16384 `
+  --output-dir task-finetune\p2-30-request-v3-16k
+```
+
+This command does **not** fit a tokenizer and does **not** train model weights.
+
+### 3. Create the task-stage step-zero checkpoint
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-stage `
+  --base-checkpoint training\artifacts\pilot\p2-29-web-v1-500step\pilot-checkpoint.pt `
+  --bundle-dir training\artifacts\task-finetune\p2-30-request-v3-16k `
+  --output-dir task-finetune\p2-30-stage0
+```
+
+This command performs **zero optimizer updates**. It creates a new task-stage checkpoint whose model weights come from P2-29 but whose optimizer/state counter are fresh.
+
+### 4. Baseline before fine-tuning
+
+After the stage checkpoint is verified, measure its held-out task-text loss:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli pilot-evaluate `
+  --bundle-dir training\artifacts\task-finetune\p2-30-request-v3-16k `
+  --checkpoint training\artifacts\task-finetune\p2-30-stage0\stage-checkpoint.pt `
+  --max-batches 100 `
+  --device cuda
+```
+
+A separate development-task generation/scoring baseline may then be run from the unchanged stage-zero model.
+
+No fine-tuning command is authorized by this document.

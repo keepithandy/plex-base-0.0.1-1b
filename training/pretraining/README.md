@@ -342,3 +342,36 @@ P2-30 must:
 7. obtain a separate bounded training authorization before the first optimizer update
 
 See [P2-29 result](../../docs/PHASE-2-P2-29-RESULT.md) and [P2-30 preparation](../../docs/PHASE-2-P2-30-TASK-FINETUNING.md).
+
+
+## P2-30 preparation commands
+
+Rebuild the already-approved request-following v3 split:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli dataset-build `
+  --source-manifest training\phase2\data\authored\p2-02-request-following-v3\dataset-sources.approved.json `
+  --output-dir datasets\p2-30-request-v3-v1 `
+  --validation-percent 30 `
+  --seed 51
+```
+
+Then repack that exact dataset with the frozen P2-27 tokenizer:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-repack `
+  --dataset-dir training\artifacts\datasets\p2-30-request-v3-v1 `
+  --tokenizer-dir training\artifacts\tokenizer-reviews\p2-27-web-v1\candidates\vocab-16384 `
+  --output-dir task-finetune\p2-30-request-v3-16k
+```
+
+Then create the task-stage step-zero checkpoint from P2-29 model weights only:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli task-finetune-stage `
+  --base-checkpoint training\artifacts\pilot\p2-29-web-v1-500step\pilot-checkpoint.pt `
+  --bundle-dir training\artifacts\task-finetune\p2-30-request-v3-16k `
+  --output-dir task-finetune\p2-30-stage0
+```
+
+These commands do not perform model training. The generic Web `pilot` path rejects task-stage checkpoints; a separate reviewed P2-30 training authorization is still required.

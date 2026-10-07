@@ -60,5 +60,13 @@
     "Freeze the first fine-tuning learning rate, objective, sampling policy, update ceiling, and evaluation cadence in a separate authorization.",
     "Keep P2-01b and the final project holdout out of gradient training."
   ],
-  "nextAuthorization": "No P2-30 optimizer update may run until the preparation gate is closed by a reviewed training contract."
+  "nextAuthorization": "No P2-30 optimizer update may run until the preparation gate is closed by a reviewed training contract.",
+  "implementation": {
+    "preparationToolingImplemented": true,
+    "taskDatasetRepackCommand": "task-finetune-repack",
+    "weightsOnlyStageCommand": "task-finetune-stage",
+    "genericWebPilotRejectsTaskStage": true,
+    "fineTuneTrainingCommandAuthorized": false,
+    "localPreparationExecutionPending": true
+  }
 }

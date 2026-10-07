@@ -296,6 +296,7 @@ def run_training(
     rng = random.Random(seed)
     device = select_device(device_name)
     start_positions = 0
+    stage_transition_record: dict[str, Any] | None = None
     if resume_from is None:
         model = PlexLanguageModel(config).to(device)
         optimizer = torch.optim.AdamW(
@@ -340,6 +341,9 @@ def run_training(
             restore_random_states(payload, rng, device)
         start_step = int(payload.get("step", 0))
         initialization_record = payload.get("initializationRecord")
+        stage_transition_record = payload.get("stageTransitionRecord")
+        if stage_transition_record is not None and not isinstance(stage_transition_record, dict):
+            raise ValueError("Checkpoint stage-transition record must be an object")
     if resume_from is None:
         initialization_record = None
 
@@ -368,6 +372,7 @@ def run_training(
         "codec": codec,
         "tokenizerRecord": tokenizer_record,
         "datasetRecord": dataset_record,
+        "stageTransitionRecord": stage_transition_record,
         "lossVocabularySize": loss_vocabulary_size,
         "validationMaximumBatches": validation_maximum_batches,
         "trainingSettings": training_settings,
@@ -423,6 +428,7 @@ def run_training(
                     artifact_root=artifact_root,
                     overwrite=output_checkpoint.exists(),
                     initialization_record=initialization_record,
+                    stage_transition_record=stage_transition_record,
                     tokenizer_record=tokenizer_record,
                     dataset_record=dataset_record,
                     training_settings=training_settings,
@@ -454,6 +460,7 @@ def run_training(
         artifact_root=artifact_root,
         overwrite=output_checkpoint.exists(),
         initialization_record=initialization_record,
+        stage_transition_record=stage_transition_record,
         tokenizer_record=tokenizer_record,
         dataset_record=dataset_record,
         training_settings=training_settings,
@@ -483,6 +490,7 @@ def run_training(
         "scheduleState": _schedule_state(step) if training_settings is not None else None,
         "tokenizerRecord": tokenizer_record,
         "datasetRecord": dataset_record,
+        "stageTransitionRecord": stage_transition_record,
         "interrupted": interrupted,
     }
     _write_event(metrics_path, artifact_root, summary)
