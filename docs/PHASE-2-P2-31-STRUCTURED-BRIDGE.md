@@ -2,7 +2,7 @@
 
 ## Status
 
-**Evaluation implementation prepared — October 7, 2026. No model training is authorized. The final project holdout remains sealed.**
+**Evaluation complete — October 7, 2026. Gate failed: 0/18 complete plans and 0/18 schema-valid plans. Phase 3 is not authorized.**
 
 P2-31 follows the P2-30 result that sharply improved task-text loss and eliminated truncation but still passed **0/30** complete P2-01b coding tasks. Rather than immediately extending the same fine-tuning run, P2-31 tests a narrower capability boundary:
 
@@ -150,3 +150,14 @@ No training command is added by P2-31.
 A pass would show that the current small model is more useful as a semantic planner than as a direct code generator and would justify wiring that plan into deterministic Plex Code resolution.
 
 A fail still provides actionable evidence: parse/schema failures indicate representation-format weakness; correct structure with wrong semantic fields indicates instruction-binding weakness; correct semantic plans with later repository-resolution failures would belong to Plex Code rather than Plex Nano.
+
+
+## Result and closeout
+
+The fixed P2-30 step-100 checkpoint generated all **18/18** responses without truncation, but every response failed strict JSON parsing. The evaluator recorded **0/18 complete plans**, **0/18 schema-valid plans**, and **36/162 checks passed**. HTML, CSS, and JavaScript each scored **0/6**.
+
+See [P2-31 result](PHASE-2-P2-31-RESULT.md) and the machine-readable `training/pretraining/p2-31-structured-bridge-result.json`.
+
+Because parsing failed before semantic fields could be scored, the result is classified as a representation-format failure rather than evidence that every semantic field is wrong. Repository resolution was not reached.
+
+Next: [P2-32 Structured-Plan Representation Curriculum](PHASE-2-P2-32-STRUCTURED-PLAN-CURRICULUM.md).
