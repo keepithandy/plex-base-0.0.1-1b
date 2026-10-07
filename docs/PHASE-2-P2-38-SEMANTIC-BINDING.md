@@ -2,7 +2,7 @@
 
 ## Status
 
-**Preparation design authorized — October 7, 2026. Model training is not authorized.**
+**Candidate prepared and statically reviewed — October 7, 2026. Model training is not authorized.**
 
 P2-37 showed that P2-35 improved JSON serialization but introduced a new dominant failure mode: Plex often reuses familiar curriculum concepts instead of binding the new request to the correct semantic target.
 
@@ -23,7 +23,7 @@ There will be:
 
 Every training example will use the real production structured-plan prompt and require one complete strict plan.
 
-## Planned candidate
+## Reviewed candidate
 
 - **108 records**
 - **36 contrast groups**
@@ -97,4 +97,15 @@ Current state:
 - research optimizer updates: **0**
 - final holdout opened: **false**
 
-The next step is to author and review the exact 108-record candidate. Training requires a later, separate stage/preflight/owner-authorization sequence.
+## Static review and tokenizer preflight
+
+The [candidate](../training/phase2/drafts/p2-38-semantic-binding-candidate-v1.jsonl) and [review metadata](../training/phase2/drafts/p2-38-semantic-binding-candidate-v1.review.json) are pinned to SHA-256 `137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8` (86,973 bytes). The authored candidate contains 108 strict full plans, 36 intact three-record groups, 72 train records, and 36 validation records. Each language has 8 train groups and 4 validation groups. All 108 requests and all 108 target roles are unique. P2-31 exact-request overlap, P2-31 target-role overlap, and P2-35 target-role overlap are all zero. No P2-36 response strings were used as candidate data.
+
+The dedicated read-only reviewer uses the production `render_plan_request_prompt(...)` and strict `parse_plan_response(...)`. It passed static review. Local frozen-tokenizer preflight also passed: tokenizer SHA-256 `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`, 16,384 vocabulary entries, 108/108 rendered-record roundtrips, maximum **395 tokens including EOS** within the 512-token context, **24,793 train tokens**, and **12,409 validation tokens**. The bundle manifest SHA-256 was `17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d`.
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-semantic-binding-review `
+  --bundle-dir training/artifacts/structured-plan/p2-35-training-bundle
+```
+
+This command performs zero optimizer updates. The candidate remains pending owner review. A separate stage/preflight/authorization sequence is required before any P2-38 model training. `modelTrainingAuthorized=false`, `researchOptimizerUpdates=0`, and `finalHoldoutOpened=false`.
