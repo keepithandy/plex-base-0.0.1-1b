@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "policy": "plex-web-pretraining-source-policy-v1",
+  "status": "active-specification",
+  "languages": {
+    "HTML": [
+      ".html",
+      ".htm"
+    ],
+    "CSS": [
+      ".css"
+    ],
+    "JavaScript": [
+      ".js",
+      ".mjs",
+      ".cjs"
+    ]
+  },
+  "allowedSpdx": [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "0BSD",
+    "CC0-1.0",
+    "Unlicense"
+  ],
+  "defaultLicenseDecision": "reject",
+  "requireLicenseEvidence": true,
+  "requireSourceProvenance": true,
+  "splitUnit": "repository-or-stronger-source-family",
+  "disallowedPathSegments": [
+    "node_modules",
+    "vendor",
+    "vendors",
+    "dist",
+    "build",
+    "coverage",
+    ".next",
+    ".cache"
+  ],
+  "disallowedSuffixes": [
+    ".map",
+    ".min.js",
+    ".min.css",
+    ".lock"
+  ],
+  "rejectGenerated": true,
+  "rejectMinified": true,
+  "rejectSecrets": true,
+  "rejectBinary": true,
+  "rejectUndecodable": true,
+  "rejectUnknownLicense": true,
+  "requireExactDedup": true,
+  "requireNearDedupBeforeSeriousPretraining": true,
+  "requireContaminationReport": true,
+  "gatedDatasetTermsMustBeAcceptedByOwner": true,
+  "ownerReviewRequiredFor": [
+    "new-license-identifier",
+    "new-source-family-with-materially-different-terms",
+    "third-party-gated-dataset-terms",
+    "promotion-to-p2-29-serious-pretraining",
+    "opening-final-project-holdout"
+  ],
+  "notes": [
+    "This file records project policy, not a legal determination.",
+    "Dataset-level permissive labeling does not replace original-source license/provenance checks.",
+    "P2-25 will freeze exact size thresholds and deterministic filter implementations."
+  ]
+}
