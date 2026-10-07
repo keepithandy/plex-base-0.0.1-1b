@@ -61,13 +61,16 @@ def production_text(language: str, request: str, role: str) -> str:
 
 
 class P238LockedTrainingTests(unittest.TestCase):
-    def test_committed_contract_is_complete_draft_and_blocks_training(self) -> None:
-        path = Path("training/pretraining/p2-38-first-run-contract.draft.json")
+    def test_committed_contract_is_owner_approved_and_exact(self) -> None:
+        path = Path("training/pretraining/p2-38-first-run-contract.json")
         contract = json.loads(path.read_text(encoding="utf-8"))
-        self.assertTrue(_draft_authorization(contract))
+        self.assertFalse(_draft_authorization(contract))
+        _validate_authorization(contract)
         self.assertTrue(contract["approvalPacketComplete"])
-        self.assertFalse(contract["modelTrainingAuthorized"])
-        self.assertIsNone(contract["approvedBy"])
+        self.assertTrue(contract["modelTrainingAuthorized"])
+        self.assertEqual(contract["status"], "owner-approved-first-run")
+        self.assertEqual(contract["approvedBy"], "keepithandy")
+        self.assertEqual(contract["approvedDate"], "2026-10-07")
         self.assertEqual(
             contract["baseStage"]["checkpointSha256"],
             "325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8",
@@ -102,16 +105,15 @@ class P238LockedTrainingTests(unittest.TestCase):
             contract["preflightEvidence"],
             "training/pretraining/p2-38-stage-preflight-result.json",
         )
-        self.assertIsNone(contract["command"])
-        with self.assertRaises(ValueError):
-            _validate_authorization(contract)
+        self.assertIsInstance(contract["command"], str)
+        self.assertIn("plan-semantic-binding-run", contract["command"])
 
     def test_committed_preflight_result_matches_frozen_packet(self) -> None:
         result = json.loads(
             Path("training/pretraining/p2-38-stage-preflight-result.json").read_text(encoding="utf-8")
         )
         contract = json.loads(
-            Path("training/pretraining/p2-38-first-run-contract.draft.json").read_text(encoding="utf-8")
+            Path("training/pretraining/p2-38-first-run-contract.json").read_text(encoding="utf-8")
         )
         self.assertEqual(result["status"], "preflight-passed-awaiting-owner-authorization")
         self.assertFalse(result["authorized"])
@@ -372,7 +374,15 @@ class P238LockedTrainingTests(unittest.TestCase):
             root = Path(temporary)
             stage = root / "stage.pt"
             stage.write_bytes(b"stage")
-            draft = Path("training/pretraining/p2-38-first-run-contract.draft.json")
+            draft = root / "draft.json"
+            draft.write_text(json.dumps({
+                "schemaVersion": 1,
+                "milestone": "P2-38",
+                "kind": "plex-p2-38-first-semantic-binding-run-contract-v1",
+                "status": "draft-awaiting-owner-review",
+                "modelTrainingAuthorized": False,
+                "approvedBy": None,
+            }), encoding="utf-8")
             bundle = {
                 "root": root,
                 "trainPath": root / "train.tokens.u16le",
@@ -438,11 +448,11 @@ class P238LockedTrainingTests(unittest.TestCase):
         self.assertEqual(report["validationIndexSha256"], "validation-index")
         self.assertEqual(report["expectedRealTargetPositionsAt100Steps"], 222222)
 
-    def test_draft_run_rejects_before_optimizer_update(self) -> None:
-        path = Path("training/pretraining/p2-38-first-run-contract.draft.json")
+    def test_authorized_run_rejects_invalid_inputs_before_optimizer_update(self) -> None:
+        path = Path("training/pretraining/p2-38-first-run-contract.json")
         with patch.object(
             torch.optim.AdamW, "step",
-            side_effect=AssertionError("draft P2-38 contract must never update weights"),
+            side_effect=AssertionError("invalid P2-38 inputs must never update weights"),
         ), self.assertRaises(ValueError):
             run_structured_plan_training(
                 bundle_dir=Path("missing"),
