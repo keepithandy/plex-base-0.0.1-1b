@@ -497,6 +497,36 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_semantic_binding_review = subparsers.add_parser(
+        "plan-semantic-binding-review",
+        help="Review the P2-38 full-plan semantic-binding candidate without training",
+    )
+    plan_semantic_binding_review.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-38-semantic-binding-candidate-v1.jsonl"),
+    )
+    plan_semantic_binding_review.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-38-semantic-binding-candidate-v1.review.json"),
+    )
+    plan_semantic_binding_review.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_semantic_binding_review.add_argument(
+        "--p235-candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-35-serialization-stability-candidate-v1.jsonl"),
+    )
+    plan_semantic_binding_review.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json"),
+    )
+    plan_semantic_binding_review.add_argument(
+        "--bundle-dir", type=Path, default=None,
+        help="Optional frozen tokenizer bundle for read-only roundtrip/context preflight",
+    )
+    plan_semantic_binding_review.add_argument("--report", type=Path, default=None)
+
     plan_serialization_prepare = subparsers.add_parser(
         "plan-serialization-prepare",
         help="Pack the reviewed P2-35 serialization curriculum with the frozen tokenizer",
@@ -1187,6 +1217,28 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_semantic_binding_review(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_semantic_binding_curriculum import review_semantic_binding_curriculum
+
+    report = review_semantic_binding_curriculum(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        p235_candidate_path=args.p235_candidate,
+        contract_path=args.contract,
+        bundle_dir=args.bundle_dir,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Semantic-binding review report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8", newline="\n",
+        )
+    return report
+
+
 def _plan_serialization_prepare(args: argparse.Namespace) -> dict[str, Any]:
     from .artifacts import artifact_bytes
     from .structured_plan_serialization_training import prepare_structured_plan_bundle
@@ -1451,6 +1503,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-semantic-binding-review":
+            _json_print(_plan_semantic_binding_review(args))
         elif args.command == "plan-serialization-prepare":
             _json_print(_plan_serialization_prepare(args))
         elif args.command == "plan-serialization-stage":

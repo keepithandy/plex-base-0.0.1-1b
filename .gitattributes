@@ -60,3 +60,5 @@ training/pretraining/p2-36-structured-bridge-result.json text eol=lf
 training/pretraining/p2-37-bridge-error-decomposition-contract.json text eol=lf
 training/pretraining/p2-37-bridge-error-decomposition-result.json text eol=lf
 training/pretraining/p2-38-semantic-binding-preparation-contract.json text eol=lf
+training/phase2/drafts/p2-38-semantic-binding-candidate-v1.jsonl text eol=lf
+training/phase2/drafts/p2-38-semantic-binding-candidate-v1.review.json text eol=lf
