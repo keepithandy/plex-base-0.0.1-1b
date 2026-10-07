@@ -455,6 +455,40 @@ class StructuredPlanFilesAndContractTests(unittest.TestCase):
         self.assertTrue(value["protectedEvaluation"]["p231DevelopmentWasExcludedFromP235Gradients"])
         self.assertTrue(value["protectedEvaluation"]["p233ResponsesWereExcludedFromP235Gradients"])
 
+    def test_p239_contract_reuses_original_gate_and_pins_p238_endpoint(self) -> None:
+        path = Path("training/pretraining/p2-39-structured-bridge-contract.json")
+        value = _contract(path)
+        self.assertEqual(value["milestone"], "P2-39")
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["checkpoint"]["sha256"],
+            "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["taskSetSha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["gate"],
+            {"minimumPassed": 12, "minimumPerLanguage": 3, "minimumSchemaValid": 15},
+        )
+        self.assertEqual(
+            value["checkpointProvenance"],
+            {
+                "stageKind": "plex-semantic-binding-stage-transition-v1",
+                "stageMilestone": "P2-38",
+                "trainingSettingsKind":
+                    "p2-38-authorized-semantic-binding-training-v1",
+            },
+        )
+        self.assertEqual(value["comparisonBaseline"]["milestone"], "P2-36")
+        self.assertEqual(value["comparisonBaseline"]["schemaValid"], 5)
+        self.assertEqual(value["comparisonBaseline"]["checksPassed"], 56)
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+        self.assertTrue(value["protectedEvaluation"]["p231DevelopmentWasExcludedFromP238Gradients"])
+        self.assertTrue(value["protectedEvaluation"]["p236ResponsesWereExcludedFromP238Gradients"])
+
     def test_contract_rejects_unknown_structured_bridge_milestone(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "contract.json"

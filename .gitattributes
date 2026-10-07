@@ -65,3 +65,5 @@ training/phase2/drafts/p2-38-semantic-binding-candidate-v1.review.json text eol=
 training/pretraining/p2-38-preparation-result.json text eol=lf
 training/pretraining/p2-38-first-run-contract.json text eol=lf
 training/pretraining/p2-38-stage-preflight-result.json text eol=lf
+training/pretraining/p2-38-first-run-result.json text eol=lf
+training/pretraining/p2-39-structured-bridge-contract.json text eol=lf
