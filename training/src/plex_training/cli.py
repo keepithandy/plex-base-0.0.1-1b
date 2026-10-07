@@ -123,6 +123,32 @@ def build_parser() -> argparse.ArgumentParser:
     tokenizer.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(tokenizer)
 
+    tokenizer_review = subparsers.add_parser(
+        "tokenizer-review",
+        help="Fit and compare fresh train-only tokenizer candidates without training model weights",
+    )
+    tokenizer_review.add_argument("--dataset-dir", type=Path, required=True)
+    tokenizer_review.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("tokenizer-reviews/p2-27-web-v1"),
+    )
+    tokenizer_review.add_argument(
+        "--vocab-sizes",
+        type=int,
+        nargs="+",
+        default=[4096, 8192, 12288, 16384],
+    )
+    tokenizer_review.add_argument("--min-frequency", type=int, default=2)
+    tokenizer_review.add_argument(
+        "--baseline-tokenizer",
+        type=Path,
+        default=None,
+        help="Optional existing Plex tokenizer bundle to measure on the frozen corpus",
+    )
+    tokenizer_review.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(tokenizer_review)
+
     initialize = subparsers.add_parser(
         "initialize", help="Create and record a fresh, randomly initialized Plex checkpoint"
     )
@@ -463,6 +489,30 @@ def _tokenizer_train(args: argparse.Namespace) -> dict[str, Any]:
     return {**result, "outputDirectory": str(output.relative_to(root)), "storageLimitBytes": limit}
 
 
+def _tokenizer_review(args: argparse.Namespace) -> dict[str, Any]:
+    from .tokenizer_review import review_tokenizers
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - _artifact_size(root)
+    result = review_tokenizers(
+        args.dataset_dir,
+        output,
+        vocab_sizes=args.vocab_sizes,
+        min_frequency=args.min_frequency,
+        baseline_tokenizer=args.baseline_tokenizer,
+        storage_limit_bytes=remaining,
+    )
+    return {
+        **result,
+        "outputDirectory": str(output.relative_to(root)),
+        "storageLimitBytes": limit,
+    }
+
+
 def _initialize(args: argparse.Namespace) -> dict[str, Any]:
     from .initialization import initialize_model
     from .artifacts import artifact_bytes
@@ -621,6 +671,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_web_source_materialize(args))
         elif args.command == "tokenizer-train":
             _json_print(_tokenizer_train(args))
+        elif args.command == "tokenizer-review":
+            _json_print(_tokenizer_review(args))
         elif args.command == "initialize":
             _json_print(_initialize(args))
         elif args.command == "learn-check":

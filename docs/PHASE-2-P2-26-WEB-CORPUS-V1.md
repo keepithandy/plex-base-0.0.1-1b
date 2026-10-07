@@ -2,9 +2,9 @@
 
 ## Status
 
-**Active.**
+**Complete.**
 
-P2-25 closed the ingestion-pipeline milestone. P2-26 scales that pipeline toward the first meaningful Plex Web corpus.
+P2-25 closed the ingestion-pipeline milestone. P2-26 then scaled that pipeline to the first meaningful Plex Web corpus and is now closed. The final corrected candidate is documented in [P2-26 closeout](PHASE-2-P2-26-CLOSEOUT.md).
 
 ## Immediate target
 
@@ -47,7 +47,7 @@ web-source-materialize
         ↓
 web-source-verify
         ↓
-dataset-build
+web-dataset-build
         ↓
 web-contamination-check
         ↓
@@ -68,6 +68,22 @@ freeze Plex Web Corpus v1 candidate
 - Do not promote a corpus with a failing or missing contamination report.
 - Keep the current 27.6M architecture unchanged through the first pretraining pilot.
 
+## Final result
+
+The corrected verifier-locked batch #2 corpus contains:
+
+- **3,140 records**
+- **3,071 train / 69 validation**
+- **5,463,479 accepted normalized source bytes**
+- dataset manifest SHA-256 `2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91`
+- zero blocked-origin contamination matches
+- zero exact protected-content matches
+- zero long-substring matches
+
+The final project holdout remained closed.
+
 ## Exit condition
 
-P2-26 completes when a reproducible, provenance-complete, contamination-clean corpus candidate reaches the agreed first-scale target and is ready for P2-27 tokenizer review.
+P2-26 required a reproducible, provenance-complete, contamination-clean corpus candidate at the agreed first-scale target and ready for P2-27 tokenizer review.
+
+**Met. P2-26 is complete and P2-27 is active.**

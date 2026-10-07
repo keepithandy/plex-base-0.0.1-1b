@@ -4,9 +4,12 @@
 
 ## 🚧 Unreleased
 
-_🗓️ Updated October 6, 2026_
+_🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+
+- Completed **P2-26 — Plex Web Corpus v1** with a corrected verifier-locked corpus of **3,140 records** (**3,071 train / 69 validation**) from **5,463,479 accepted normalized source bytes**. Dataset manifest SHA-256: `2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91`. The contamination gate passed with zero blocked origins, zero exact protected matches, and zero long-substring matches; the final project holdout remained closed.
+- Opened **P2-27 — Web Tokenizer Review**. Added `tokenizer-review` to fit fresh train-only byte-level BPE candidates at 4,096 / 8,192 / 12,288 / 16,384 requested vocabulary sizes, measure train/validation and representative web-code/Plex-format compression, require exact roundtrips, and explicitly avoid model initialization/training during review.
 
 - Added **P2-26 Web build parity** after the first batch-2 build exposed an 8-record verifier/builder mismatch. The generic dataset builder had reintroduced 6 disallowed-suffix and 4 minified files while independently removing 2 invalid-JavaScript files. New `web-dataset-build` consumes the verifier's exact accepted path set so Web-policy rejects cannot re-enter a corpus; syntax validation may only remove additional files.
 
