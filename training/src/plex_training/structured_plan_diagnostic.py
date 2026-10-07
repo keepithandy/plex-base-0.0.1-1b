@@ -61,10 +61,32 @@ def _embedded_object(text: str) -> tuple[bool, bool]:
     return True, True
 
 
+def _diagnostic_contract(path: Path) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > 1024 * 1024:
+        raise ValueError("P2-34 diagnostic contract must be a regular JSON file under 1 MiB")
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if (not isinstance(value, dict)
+            or value.get("schemaVersion") != 1
+            or value.get("milestone") != "P2-34"
+            or value.get("kind") != "plex-p2-34-output-boundary-diagnostic-contract-v1"
+            or value.get("status") != "diagnostic-authorized"
+            or value.get("modelTrainingAuthorized") is not False):
+        raise ValueError("P2-34 diagnostic contract is invalid")
+    protected = value.get("protectedEvaluation")
+    if (not isinstance(protected, dict)
+            or protected.get("noResponseRepair") is not True
+            or protected.get("noRescoring") is not True
+            or protected.get("noGradientUpdates") is not True
+            or protected.get("finalProjectHoldoutMustRemainClosed") is not True):
+        raise ValueError("P2-34 protected diagnostic boundary is invalid")
+    return value
+
+
 def diagnose_structured_plan_responses(
     *,
     task_set_path: Path,
     responses_path: Path,
+    contract_path: Path | None = None,
 ) -> dict[str, Any]:
     """Classify raw output-boundary failures without changing or repairing responses."""
     if (task_set_path.is_symlink() or not task_set_path.is_file()
@@ -73,6 +95,20 @@ def diagnose_structured_plan_responses(
     task_raw = task_set_path.read_bytes()
     task_set = validate_plan_task_set(json.loads(task_raw.decode("utf-8")))
     responses, response_raw = _load_responses(responses_path)
+    task_sha = canonical_text_sha256(task_raw)
+    responses_sha = hashlib.sha256(response_raw).hexdigest()
+    contract = None
+    if contract_path is not None:
+        contract = _diagnostic_contract(contract_path)
+        expected_task = contract.get("taskSet")
+        expected_responses = contract.get("responses")
+        if (not isinstance(expected_task, dict)
+                or expected_task.get("sha256") != task_sha
+                or expected_task.get("tasks") != len(task_set["tasks"])):
+            raise ValueError("P2-34 task set differs from the authorized diagnostic input")
+        if (not isinstance(expected_responses, dict)
+                or expected_responses.get("sha256") != responses_sha):
+            raise ValueError("P2-34 responses differ from the authorized diagnostic input")
 
     task_ids = {task["id"] for task in task_set["tasks"]}
     seen: set[str] = set()
@@ -156,8 +192,9 @@ def diagnose_structured_plan_responses(
         "researchOptimizerUpdates": 0,
         "finalHoldoutOpened": False,
         "taskSetId": task_set["setId"],
-        "taskSetSha256": canonical_text_sha256(task_raw),
-        "responsesSha256": hashlib.sha256(response_raw).hexdigest(),
+        "taskSetSha256": task_sha,
+        "responsesSha256": responses_sha,
+        "contractSha256": hashlib.sha256(contract_path.read_bytes()).hexdigest() if contract_path is not None else None,
         "tasksExpected": len(task_ids),
         "responsesPresent": len(responses),
         "missingResponses": missing,
