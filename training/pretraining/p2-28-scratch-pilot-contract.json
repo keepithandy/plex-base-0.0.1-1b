@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-28",
+  "status": "active-initialization-gate",
+  "kind": "plex-p2-28-fresh-random-initialization-contract-v1",
+  "sourceDataset": {
+    "directory": "training/artifacts/datasets/p2-26-web-batch-2-v2",
+    "manifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+    "records": 3140,
+    "trainRecords": 3071,
+    "validationRecords": 69
+  },
+  "tokenizer": {
+    "directory": "training/artifacts/tokenizer-reviews/p2-27-web-v1/candidates/vocab-16384",
+    "requestedVocabularySize": 16384,
+    "actualVocabularySize": 16384,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "reviewSha256": "3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8",
+    "fitSplit": "train",
+    "validationUsedForFitting": false
+  },
+  "model": {
+    "modelFamily": "plex-from-scratch",
+    "parameterCount": 27566080,
+    "config": {
+      "vocab_size": 16384,
+      "context_length": 512,
+      "width": 512,
+      "layers": 6,
+      "heads": 8,
+      "feed_forward_width": 2048,
+      "dropout": 0.1
+    }
+  },
+  "initialization": {
+    "seed": 1337,
+    "device": "cpu",
+    "initializationThreadCount": 1,
+    "outputDirectory": "training/artifacts/initializations/p2-28-web-v1-step0",
+    "requiredPurpose": "fresh-random-initialization",
+    "pretrainedCheckpointLoaded": false,
+    "pretrainedModelWeightsLoaded": false,
+    "resumeFromCheckpoint": null,
+    "forbiddenStartingPoints": [
+      "P2-23b checkpoint",
+      "P1 pilot checkpoints",
+      "Qwen weights",
+      "Llama weights",
+      "GPT weights",
+      "any third-party pretrained model checkpoint"
+    ]
+  },
+  "authorization": {
+    "initializationAuthorized": true,
+    "modelTrainingAuthorized": false,
+    "reason": "P2-28 opens at the step-zero initialization gate. Training parameters are frozen only after the fresh initialization output is verified and recorded."
+  },
+  "requiredInitializationEvidence": [
+    "parameterCount == 27566080",
+    "actualTokenizerVocabularySize == 16384",
+    "seed == 1337",
+    "pretrainedCheckpointLoaded == false",
+    "checkpointSha256 recorded",
+    "initialModelWeightsSha256 recorded"
+  ],
+  "finalProjectHoldout": {
+    "mustRemainClosed": true,
+    "openedByThisContract": false
+  }
+}
