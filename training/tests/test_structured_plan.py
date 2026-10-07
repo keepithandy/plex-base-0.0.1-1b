@@ -348,6 +348,27 @@ class StructuredPlanFilesAndContractTests(unittest.TestCase):
         self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
         self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
 
+    def test_committed_p240_contract_pins_p239_responses(self) -> None:
+        path = Path("training/pretraining/p2-40-bridge-error-decomposition-contract.json")
+        value = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(value["milestone"], "P2-40")
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["taskSet"]["sha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["responses"]["sha256"],
+            "e9aca13ac5fed3286ad00294dc6fc87960ea66e7f22a9abd9cce375e0c92a3e6",
+        )
+        self.assertEqual(value["comparison"]["milestone"], "P2-39")
+        self.assertEqual(value["comparison"]["schemaValid"], 5)
+        self.assertEqual(value["comparison"]["checksPassed"], 54)
+        self.assertTrue(value["protectedEvaluation"]["noResponseRepair"])
+        self.assertTrue(value["protectedEvaluation"]["noRescoring"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+
     def test_committed_p234_contract_pins_failed_p233_responses(self) -> None:
         path = Path("training/pretraining/p2-34-output-boundary-contract.json")
         value = _diagnostic_contract(path)
