@@ -104,6 +104,7 @@ def generate_development_responses(
             "taskCount": len(responses),
             "checkpointSha256": sha256_file(checkpoint_path),
             "checkpointStep": payload["step"],
+            "stageTransitionRecord": payload.get("stageTransitionRecord"),
             "initialModelWeightsSha256": initialization.get("initialModelWeightsSha256"),
             "tokenizer": tokenizer_record,
             "modelConfig": model.config.to_dict(),

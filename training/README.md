@@ -358,10 +358,11 @@ The [24-example binding-diversity candidate](../docs/PHASE-2-BINDING-CANDIDATE-R
 uv run --project training --no-sync python -m unittest discover -s training/tests -p test_binding_experiment.py -v
 ```
 
-The focused preparation test uses the approved local candidate, frozen tokenizer and reserved cases; those ignored local artifacts must exist. The following full-suite command remains available; its recorded 116-test result below belongs to the earlier continuation, not this new experiment:
+The focused preparation test uses the approved local candidate, frozen tokenizer and reserved cases; those ignored local artifacts must exist. Use pytest for the full suite so both unittest classes and function-style tests run. Sync the locked development dependencies once if needed. P2-30 preparation passed 207 tests; the 116-test result below is historical.
 
 ```powershell
-uv run --project training --no-sync python -m unittest discover -s training/tests -v
+uv sync --project training --locked --group dev
+uv run --project training --no-sync python -m pytest training/tests -q
 ```
 
 All 116 training-workspace tests passed, including complete-record CLI continuation, rejection before output creation, ordinary-pilot compatibility, padding exclusion, actual target accounting, exact variable-length resume, and GPU optimizer-state placement with an identical next update. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, answer-weighted span and checkpoint checks, and verified record-start sampling, circular targets, sampler identity, and experiment bounds; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.

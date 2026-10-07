@@ -25,3 +25,6 @@ training/phase2/drafts/p2-17-semantic-binding-candidate-v1.jsonl text eol=lf
 # P2-18 candidate/review hashes use canonical LF bytes on every platform.
 training/phase2/drafts/p2-18-literal-copy-candidate-v1/** text eol=lf
 training/phase2/drafts/p2-18-literal-copy-candidate-v1.jsonl text eol=lf
+
+# P2-30 preparation evidence and exact contracts retain hash-stable bytes.
+training/pretraining/p2-30-*.json text eol=lf

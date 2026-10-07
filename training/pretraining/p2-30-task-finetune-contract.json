@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "milestone": "P2-30",
   "kind": "plex-p2-30-task-format-finetuning-preparation-contract-v1",
-  "status": "active-preparation-gate",
+  "status": "preparation-gate-passed",
   "authorization": {
     "dataPreparationAuthorized": true,
     "bridgeImplementationAuthorized": true,
@@ -60,13 +60,30 @@
     "Freeze the first fine-tuning learning rate, objective, sampling policy, update ceiling, and evaluation cadence in a separate authorization.",
     "Keep P2-01b and the final project holdout out of gradient training."
   ],
-  "nextAuthorization": "No P2-30 optimizer update may run until the preparation gate is closed by a reviewed training contract.",
+  "nextAuthorization": "Preparation passed. No optimizer update is permitted until the separate first-run draft is explicitly owner-approved and a dedicated contract-enforcing task-stage training path is reviewed and committed.",
   "implementation": {
     "preparationToolingImplemented": true,
     "taskDatasetRepackCommand": "task-finetune-repack",
     "weightsOnlyStageCommand": "task-finetune-stage",
     "genericWebPilotRejectsTaskStage": true,
     "fineTuneTrainingCommandAuthorized": false,
-    "localPreparationExecutionPending": true
-  }
+    "localPreparationExecutionPending": false,
+    "fineTuneTrainingCommandImplemented": false,
+    "genericRunnerAndResumeRejectTaskStage": true
+  },
+  "preparationEvidence": {
+    "resultPath": "training/pretraining/p2-30-preparation-result.json",
+    "resultSha256": "500f4bd9c34b2a0095f63fc3ba6df3eed3e3b19a83a5bdaa300de15dc5e9899e",
+    "taskBundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+    "stageCheckpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+    "baselineMeanLoss": 6.821033537387848,
+    "baselineBatches": 16,
+    "baselineTokens": 8192,
+    "developmentPassed": 0,
+    "developmentTasks": 30,
+    "targetedTestsPassed": 44,
+    "fullTestsPassed": 207,
+    "trainingPerformed": false
+  },
+  "firstTrainingContract": "training/pretraining/p2-30-first-finetune-contract.draft.json"
 }

@@ -309,6 +309,8 @@ def run_training(
         start_step = 0
     else:
         model, payload = read_checkpoint(resume_from, device)
+        if payload.get("stageTransitionRecord") is not None:
+            raise ValueError("Task-stage checkpoints require a separately authorized fine-tuning path")
         if model.config != config:
             if not allow_tiny_config or config != model.config:
                 raise ValueError("Resume checkpoint configuration does not match this run")

@@ -268,6 +268,7 @@ def resume_pilot(*, bundle_dir: Path, checkpoint_path: Path, output_dir: Path,
             or type(source_payload.get("seed")) is not int
             or source_payload.get("tokenizerRecord") != bundle["tokenizer"]
             or source_payload.get("datasetRecord") != bundle["dataset"]
+            or source_payload.get("stageTransitionRecord") is not None
             or not isinstance(source_payload.get("optimizerStateDict"), dict)
             or not isinstance(source_payload.get("initializationRecord"), dict)
             or source_payload["initializationRecord"].get("pretrainedCheckpointLoaded") is not False):

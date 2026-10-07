@@ -17,11 +17,93 @@ import torch
 from .artifacts import path_within_root
 from .checkpoint import read_checkpoint, save_checkpoint
 from .config import DEFAULT_CONFIG
+from .model import parameter_count
 from .pilot import inspect_pilot_bundle
 from .runner import ADAMW_BETAS, ADAMW_EPSILON, ADAMW_LEARNING_RATE, ADAMW_WEIGHT_DECAY
 from .tokenizer import CODEC, PlexTokenizer, sha256_file
 
 EOS_ID = 3
+
+
+def _preparation_contract(path: Path) -> dict[str, Any]:
+    contract = _json(path)
+    if (contract.get("milestone") != "P2-30"
+            or contract.get("status") not in {"active-preparation-gate", "preparation-gate-passed"}
+            or contract.get("authorization", {}).get("modelTrainingAuthorized") is not False):
+        raise ValueError("P2-30 preparation contract is missing or does not block training")
+    return contract
+
+
+def _notices(root: Path, manifest: dict[str, Any]) -> dict[str, bytes]:
+    notices = {}
+    for source in manifest.get("sources", []):
+        relative = source.get("licenseNoticeFile", "")
+        if (source.get("rightsReviewStatus") != "approved"
+                or not isinstance(relative, str) or not relative.startswith("licenses/")
+                or "\\" in relative or len(Path(relative).parts) != 2
+                or ".." in Path(relative).parts):
+            raise ValueError("Invalid approved license notice path")
+        path = root / relative
+        if (path.is_symlink() or path.parent.is_symlink() or not path.is_file()
+                or path.stat().st_size > 1024 * 1024
+                or not path.resolve().is_relative_to(root.resolve())
+                or sha256_file(path) != source.get("licenseNoticeSha256")):
+            raise ValueError("Missing or mismatched license notice")
+        notices[relative] = path.read_bytes()
+    if not notices:
+        raise ValueError("Approved license notices are missing")
+    return notices
+
+
+def inspect_task_bundle(bundle_dir: Path, contract: dict[str, Any]) -> dict[str, Any]:
+    """Bind packed records, EOS and indices back to the exact approved text."""
+    bundle = inspect_pilot_bundle(bundle_dir)
+    root = bundle["root"]
+    curriculum, frozen = contract["firstCurriculum"], contract["tokenizer"]
+    if (bundle["tokenizer"]["tokenizerSha256"] != frozen["tokenizerSha256"]
+            or bundle["tokenizer"]["actualVocabularySize"] != frozen["actualVocabularySize"]
+            or bundle["dataset"]["sourceDatasetManifestSha256"] != curriculum["existingSourceDatasetManifestSha256"]):
+        raise ValueError("Task bundle does not match the P2-30 preparation contract")
+    manifest = _json(root / "manifest.json")
+    if (manifest.get("repackedWithFrozenTokenizer") is not True
+            or manifest.get("frozenTokenizerSourceBundleSha256") != frozen["bundleManifestSha256"]):
+        raise ValueError("Task bundle frozen tokenizer provenance differs")
+    _notices(root, _json(root / "source-dataset-manifest.json"))
+    tokenizer = PlexTokenizer.load(root)
+    split_ids = {}
+    for split in ("train", "validation"):
+        rows = _split_rows(root / f"{split}.jsonl",
+                           curriculum[f"existing{split.title()}JsonlSha256"],
+                           curriculum[f"{split}Records"])
+        split_ids[split] = {row["recordId"] for row in rows}
+        tokens = array("H")
+        tokens.frombytes((root / f"{split}.tokens.u16le").read_bytes())
+        if sys.byteorder != "little":
+            tokens.byteswap()
+        expected_index, offset, maximum = [], 0, 0
+        for row in rows:
+            ids = tokenizer.encode(row["text"])
+            if tokenizer.decode(ids) != row["text"]:
+                raise ValueError("Task record failed exact tokenizer roundtrip")
+            packed = ids + [EOS_ID]
+            if len(packed) > DEFAULT_CONFIG.context_length + 1:
+                raise ValueError("Task record exceeds the context limit")
+            if list(tokens[offset:offset + len(packed)]) != packed:
+                raise ValueError("Task packed tokens/EOS differ from approved text")
+            expected_index.append({"recordId": row["recordId"], "startToken": offset,
+                                   "tokenCount": len(packed)})
+            offset += len(packed)
+            maximum = max(maximum, len(packed))
+        index_path = root / f"{split}.index.json"
+        if (index_path.is_symlink() or not index_path.is_file()
+                or index_path.stat().st_size > 4 * 1024 * 1024):
+            raise ValueError("Task record index is missing, linked, or oversized")
+        if (json.loads(index_path.read_text(encoding="utf-8")) != expected_index
+                or offset != len(tokens) or manifest[split].get("maximumRecordTokensIncludingEos") != maximum):
+            raise ValueError("Task record index/context metadata differs from approved text")
+    if split_ids["train"] & split_ids["validation"]:
+        raise ValueError("Task train/validation record identities overlap")
+    return bundle
 
 
 def _json(path: Path, maximum_bytes: int = 4 * 1024 * 1024) -> dict[str, Any]:
@@ -70,11 +152,10 @@ def prepare_task_bundle(
     dataset_dir = dataset_dir.resolve(strict=True)
     tokenizer_dir = tokenizer_dir.resolve(strict=True)
     output_dir = output_dir.resolve(strict=False)
-    contract = _json(contract_path.resolve(strict=True))
-    if (contract.get("milestone") != "P2-30"
-            or contract.get("status") != "active-preparation-gate"
-            or contract.get("authorization", {}).get("modelTrainingAuthorized") is not False):
-        raise ValueError("P2-30 preparation contract is missing or does not block training")
+    for source in (dataset_dir, tokenizer_dir):
+        if output_dir == source or source in output_dir.parents or output_dir in source.parents:
+            raise ValueError("Task output must be separate from source artifacts")
+    contract = _preparation_contract(contract_path)
 
     curriculum = contract.get("firstCurriculum", {})
     tokenizer_contract = contract.get("tokenizer", {})
@@ -83,6 +164,7 @@ def prepare_task_bundle(
     if source_manifest_hash != curriculum.get("existingSourceDatasetManifestSha256"):
         raise ValueError("Task dataset manifest is not the approved P2-02 request-following v3 build")
     source_manifest = _json(source_manifest_path)
+    notices = _notices(dataset_dir, source_manifest)
     if source_manifest.get("schemaVersion") != 1 or source_manifest.get("pipelineVersion") != "p2-02.0":
         raise ValueError("P2-30 requires the approved P2-02.0 task dataset format")
     summary = source_manifest.get("summary")
@@ -130,12 +212,13 @@ def prepare_task_bundle(
         for name in ("tokenizer.json", "tokenizer-config.json", "model-config.json"):
             shutil.copyfile(tokenizer_dir / name, staging / name)
         shutil.copyfile(source_manifest_path, staging / "source-dataset-manifest.json")
-        licenses = dataset_dir / "licenses"
-        if licenses.is_dir() and not licenses.is_symlink():
-            shutil.copytree(licenses, staging / "licenses")
+        for relative, raw in notices.items():
+            (staging / relative).parent.mkdir(parents=True, exist_ok=True)
+            (staging / relative).write_bytes(raw)
 
         split_info: dict[str, Any] = {}
         for split in ("train", "validation"):
+            shutil.copyfile(dataset_dir / f"{split}.jsonl", staging / f"{split}.jsonl")
             token_path = staging / f"{split}.tokens.u16le"
             index: list[dict[str, Any]] = []
             token_count = text_bytes = 0
@@ -146,6 +229,8 @@ def prepare_task_bundle(
                     if tokenizer.decode(ids) != text:
                         raise ValueError("Task record failed exact tokenizer roundtrip")
                     packed_ids = ids + [EOS_ID]
+                    if len(packed_ids) > DEFAULT_CONFIG.context_length + 1:
+                        raise ValueError("Task record exceeds the context limit")
                     packed = array("H", packed_ids)
                     if packed.itemsize != 2:
                         raise RuntimeError("Platform lacks uint16 arrays")
@@ -172,6 +257,9 @@ def prepare_task_bundle(
                 "textBytes": text_bytes,
                 "bytesPerTextToken": text_bytes / (token_count - len(index)),
                 "roundtripRecords": len(index),
+                "maximumRecordTokensIncludingEos": max(item["tokenCount"] for item in index),
+                "contextLength": DEFAULT_CONFIG.context_length,
+                "contextLimitPassed": True,
                 "jsonlSha256": summary[f"{split}JsonlSha256"],
             }
 
@@ -197,7 +285,7 @@ def prepare_task_bundle(
         bundle_bytes = sum(p.stat().st_size for p in staging.rglob("*") if p.is_file())
         if bundle_bytes > storage_limit_bytes:
             raise ValueError("P2-30 task-token bundle exceeds remaining storage allocation")
-        inspected = inspect_pilot_bundle(staging)
+        inspected = inspect_task_bundle(staging, contract)
         if (inspected["tokenizer"]["tokenizerSha256"] != tokenizer_contract["tokenizerSha256"]
                 or inspected["dataset"]["trainRecords"] != curriculum["trainRecords"]
                 or inspected["dataset"]["validationRecords"] != curriculum["validationRecords"]):
@@ -237,16 +325,14 @@ def create_task_stage(
     output_dir = path_within_root(output_dir, root)
     if output_dir.exists():
         raise FileExistsError("Task-stage output directory already exists")
-    contract = _json(contract_path.resolve(strict=True))
-    if contract.get("authorization", {}).get("modelTrainingAuthorized") is not False:
-        raise ValueError("P2-30 task-stage creation requires training to remain blocked")
+    contract = _preparation_contract(contract_path)
     base = contract.get("baseModel", {})
     expected_sha = base.get("checkpointSha256")
-    base_checkpoint = base_checkpoint.resolve(strict=True)
     if base_checkpoint.is_symlink() or sha256_file(base_checkpoint) != expected_sha:
         raise ValueError("Base checkpoint is not the verified P2-29 step-500 checkpoint")
+    base_checkpoint = base_checkpoint.resolve(strict=True)
 
-    bundle = inspect_pilot_bundle(bundle_dir)
+    bundle = inspect_task_bundle(bundle_dir, contract)
     tokenizer_contract = contract.get("tokenizer", {})
     curriculum = contract.get("firstCurriculum", {})
     if (bundle["tokenizer"]["tokenizerSha256"] != tokenizer_contract.get("tokenizerSha256")
@@ -265,9 +351,13 @@ def create_task_stage(
             or source_tokenizer.get("tokenizerSha256") != tokenizer_contract.get("tokenizerSha256")
             or not isinstance(source_dataset, dict)
             or not isinstance(payload.get("initializationRecord"), dict)
+            or payload["initializationRecord"].get("pretrainedCheckpointLoaded") is not False
             or payload["initializationRecord"].get("pretrainedModelWeightsLoaded") is not False
             or payload.get("stageTransitionRecord") is not None):
         raise ValueError("P2-29 checkpoint provenance does not satisfy the P2-30 contract")
+    actual_parameters = parameter_count(model)
+    if actual_parameters != base.get("parameterCount"):
+        raise ValueError("P2-29 parameter count differs from the P2-30 contract")
 
     seed = int(payload["seed"])
     random.seed(seed)
@@ -327,6 +417,17 @@ def create_task_stage(
             stage_transition_record=stage_record,
         )
         stage_sha = sha256_file(checkpoint_path)
+        saved_model, saved_payload = read_checkpoint(checkpoint_path, torch.device("cpu"))
+        weights_preserved = all(torch.equal(value, saved_model.state_dict()[name])
+                                for name, value in model.state_dict().items())
+        if (not weights_preserved or saved_payload["optimizerStateDict"]["state"]
+                or saved_payload["step"] != 0 or saved_payload["tokensProcessedTotal"] != 0
+                or saved_payload["samplingRngState"] != random.Random(seed).getstate()
+                or saved_payload["initializationRecord"] != payload["initializationRecord"]
+                or saved_payload["stageTransitionRecord"] != stage_record
+                or saved_payload["datasetRecord"] != bundle["dataset"]
+                or saved_payload["tokenizerRecord"] != bundle["tokenizer"]):
+            raise ValueError("Saved task-stage checkpoint failed weights/state verification")
         report = {
             "schemaVersion": 1,
             "milestone": "P2-30",
@@ -334,7 +435,11 @@ def create_task_stage(
             "baseCheckpointSha256": expected_sha,
             "stageCheckpointSha256": stage_sha,
             "stageCheckpoint": saved,
-            "parameterCount": DEFAULT_CONFIG.parameter_count(),
+            "parameterCount": actual_parameters,
+            "modelWeightsPreserved": weights_preserved,
+            "modelWeightEqualityMethod": "torch.equal for every model-state tensor after checkpoint reload",
+            "samplerStateReset": True,
+            "taskTokensProcessed": saved_payload["tokensProcessedTotal"],
             "tokenizer": bundle["tokenizer"],
             "dataset": bundle["dataset"],
             "optimizerStateReused": False,
@@ -346,6 +451,8 @@ def create_task_stage(
             encoding="utf-8",
             newline="\n",
         )
+        if sum(p.stat().st_size for p in output_dir.rglob("*") if p.is_file()) > storage_limit_bytes:
+            raise ValueError("P2-30 task-stage checkpoint exceeds remaining storage allocation")
         return report
     except Exception:
         if output_dir.exists():
