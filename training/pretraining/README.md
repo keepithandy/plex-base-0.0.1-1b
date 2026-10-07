@@ -167,3 +167,28 @@ uv run --project training --no-sync python -m plex_training.cli web-dataset-buil
 ```
 
 The Web builder first runs the normal source verifier, captures its exact accepted paths, and then permits the dataset builder to read only those paths. The dataset builder may still reject a verified JavaScript file if Node syntax validation fails; it may never reintroduce a path rejected by the Web verifier.
+
+
+## P2-26 closeout and P2-27 tokenizer review
+
+P2-26 is complete. The corrected verifier-locked batch #2 corpus contains **3,140 records** (**3,071 train / 69 validation**) from **5,463,479 accepted normalized source bytes**. Its dataset manifest SHA-256 is:
+
+```text
+2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91
+```
+
+The contamination report passed with zero blocked origins, zero exact protected matches, and zero long-substring matches. The final project holdout remained closed.
+
+P2-27 is now active. Run the fresh train-only tokenizer comparison with:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli tokenizer-review `
+  --dataset-dir training\artifacts\datasets\p2-26-web-batch-2-v2 `
+  --output-dir tokenizer-reviews\p2-27-web-v1 `
+  --vocab-sizes 4096 8192 12288 16384 `
+  --min-frequency 2
+```
+
+This command fits tokenizer candidates only. It does **not** initialize or train model weights, and it does not open the final holdout.
+
+See [P2-26 closeout](../../docs/PHASE-2-P2-26-CLOSEOUT.md) and [P2-27 tokenizer review](../../docs/PHASE-2-P2-27-TOKENIZER-REVIEW.md).
