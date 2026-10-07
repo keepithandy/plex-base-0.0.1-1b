@@ -527,6 +527,87 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_semantic_binding_review.add_argument("--report", type=Path, default=None)
 
+    plan_semantic_binding_prepare = subparsers.add_parser(
+        "plan-semantic-binding-prepare",
+        help="Pack the reviewed P2-38 semantic-binding curriculum with the frozen tokenizer",
+    )
+    plan_semantic_binding_prepare.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-38-semantic-binding-candidate-v1.jsonl"),
+    )
+    plan_semantic_binding_prepare.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-38-semantic-binding-candidate-v1.review.json"),
+    )
+    plan_semantic_binding_prepare.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_semantic_binding_prepare.add_argument("--source-bundle-dir", type=Path, required=True)
+    plan_semantic_binding_prepare.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json"),
+    )
+    plan_semantic_binding_prepare.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-38-training-bundle")
+    )
+    plan_semantic_binding_prepare.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(plan_semantic_binding_prepare)
+
+    plan_semantic_binding_stage = subparsers.add_parser(
+        "plan-semantic-binding-stage",
+        help="Create a weights-only P2-38 step-zero stage from the fixed P2-35 endpoint",
+    )
+    plan_semantic_binding_stage.add_argument("--base-checkpoint", type=Path, required=True)
+    plan_semantic_binding_stage.add_argument("--bundle-dir", type=Path, required=True)
+    plan_semantic_binding_stage.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json"),
+    )
+    plan_semantic_binding_stage.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-38-stage0")
+    )
+    plan_semantic_binding_stage.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(plan_semantic_binding_stage)
+
+    plan_semantic_binding_preflight = subparsers.add_parser(
+        "plan-semantic-binding-preflight",
+        help="Verify P2-38 stage/data and draft authorization without training",
+    )
+    plan_semantic_binding_preflight.add_argument("--bundle-dir", type=Path, required=True)
+    plan_semantic_binding_preflight.add_argument("--stage-checkpoint", type=Path, required=True)
+    plan_semantic_binding_preflight.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-38-first-run-contract.draft.json"),
+    )
+    plan_semantic_binding_preflight.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json"),
+    )
+    plan_semantic_binding_preflight.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-38-first-run")
+    )
+    _add_artifact_root(plan_semantic_binding_preflight)
+
+    plan_semantic_binding_run = subparsers.add_parser(
+        "plan-semantic-binding-run",
+        help="Run only a separately owner-authorized P2-38 first semantic-binding run",
+    )
+    plan_semantic_binding_run.add_argument("--bundle-dir", type=Path, required=True)
+    plan_semantic_binding_run.add_argument("--stage-checkpoint", type=Path, required=True)
+    plan_semantic_binding_run.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-38-first-run-contract.draft.json"),
+    )
+    plan_semantic_binding_run.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json"),
+    )
+    plan_semantic_binding_run.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-38-first-run")
+    )
+    _add_artifact_root(plan_semantic_binding_run)
+
     plan_serialization_prepare = subparsers.add_parser(
         "plan-serialization-prepare",
         help="Pack the reviewed P2-35 serialization curriculum with the frozen tokenizer",
@@ -1239,6 +1320,78 @@ def _plan_semantic_binding_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_semantic_binding_prepare(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .structured_plan_semantic_binding_training import prepare_structured_plan_bundle
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    return prepare_structured_plan_bundle(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        source_bundle_dir=args.source_bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        preparation_contract_path=args.preparation_contract,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+
+
+def _plan_semantic_binding_stage(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .structured_plan_semantic_binding_training import create_structured_plan_stage
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    result = create_structured_plan_stage(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        preparation_contract_path=args.preparation_contract,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+    return {**result, "outputDirectory": str(output.relative_to(root))}
+
+
+def _plan_semantic_binding_preflight(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_semantic_binding_training import preflight_structured_plan_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return preflight_structured_plan_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+        require_cuda=True,
+    )
+
+
+def _plan_semantic_binding_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_semantic_binding_training import run_structured_plan_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_structured_plan_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
 def _plan_serialization_prepare(args: argparse.Namespace) -> dict[str, Any]:
     from .artifacts import artifact_bytes
     from .structured_plan_serialization_training import prepare_structured_plan_bundle
@@ -1505,6 +1658,14 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_serialization_review(args))
         elif args.command == "plan-semantic-binding-review":
             _json_print(_plan_semantic_binding_review(args))
+        elif args.command == "plan-semantic-binding-prepare":
+            _json_print(_plan_semantic_binding_prepare(args))
+        elif args.command == "plan-semantic-binding-stage":
+            _json_print(_plan_semantic_binding_stage(args))
+        elif args.command == "plan-semantic-binding-preflight":
+            _json_print(_plan_semantic_binding_preflight(args))
+        elif args.command == "plan-semantic-binding-run":
+            _json_print(_plan_semantic_binding_run(args))
         elif args.command == "plan-serialization-prepare":
             _json_print(_plan_serialization_prepare(args))
         elif args.command == "plan-serialization-stage":

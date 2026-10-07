@@ -128,7 +128,7 @@ def review_semantic_binding_curriculum(
     review = _read_json(review_path)
     if (review.get("schemaVersion") != 1 or review.get("milestone") != "P2-38"
             or review.get("candidateId") != "p2-38-semantic-binding-candidate-v1"
-            or review.get("status") != "pending-owner-review"
+            or review.get("status") != "candidate-review-passed"
             or review.get("candidateSha256") != candidate_sha
             or review.get("byteCount") != len(raw)):
         raise ValueError("P2-38 review metadata differs from the candidate")

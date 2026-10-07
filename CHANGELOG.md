@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Prepared the **locked P2-38 execution path** after candidate review completed: added isolated `plan-semantic-binding-prepare`, `plan-semantic-binding-stage`, `plan-semantic-binding-preflight`, and draft-contract-blocked `plan-semantic-binding-run` commands. The stage is pinned to the official P2-35 step-100 checkpoint SHA `1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0`, requires P2-35 serialization-stage/training provenance, resets optimizer/sampler state, and performs zero updates. Real P2-38 training remains unauthorized.
 - Prepared and statically reviewed the **P2-38 semantic-binding contrast candidate**: **108 full strict plans / 36 three-way groups / 72 train / 36 validation**, with **108 unique requests and target roles** and zero P2-31 exact-request/role or P2-35 role overlap. Frozen-tokenizer preflight passed (**395 tokens maximum including EOS; 24,793 train / 12,409 validation tokens**). Candidate SHA-256: `137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8`. No training or optimizer update occurred; final holdout stayed closed.
 - Opened **P2-38 — Semantic-Binding Contrast Curriculum** after P2-37 showed that all **5/5 schema-valid** development outputs reused literal P2-35 target roles. The preparation-only design targets **108 full-plan records / 36 three-way contrast groups / 72 train / 36 validation**, production structured-plan prompts only, unique targetRole values, zero P2-31 request/role overlap, and zero P2-35 targetRole reuse. Model training remains unauthorized.
 - Closed **P2-37 — Bridge Error Decomposition** as **diagnostic complete**: **7 invalid JSON**, **6 parseable JSON objects that violate the strict plan schema**, and **5 schema-valid semantic mismatches**. Those five all got language/action/targetKind correct, all missed targetRole/exact constraints/hint coverage, and all reused P2-35 roles (`modal-state`, `keyed-dedupe`, or `range-normalizer`). The dominant failure is classified as request-conditioned semantic binding / memorized concept collapse, with residual serialization instability second.
@@ -78,7 +79,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Owner review of the pinned P2-38 candidate and a separate training authorization decision. Model training is not authorized; the final project holdout remains sealed.
+> 🔭 **Up next:** Pack the P2-38 bundle, create the weights-only P2-38 stage, and run `plan-semantic-binding-preflight`. Do not train until exact stage/bundle/sampler/baseline identities are reviewed and separately authorized. The final project holdout remains sealed.
 
 
 ---

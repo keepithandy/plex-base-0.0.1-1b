@@ -2,7 +2,7 @@
 
 ## Status
 
-**Candidate prepared and statically reviewed — October 7, 2026. Model training is not authorized.**
+**Candidate review complete and locked staging/preflight path prepared — October 7, 2026. Model training is not authorized.**
 
 P2-37 showed that P2-35 improved JSON serialization but introduced a new dominant failure mode: Plex often reuses familiar curriculum concepts instead of binding the new request to the correct semantic target.
 
@@ -108,4 +108,4 @@ uv run --project training --no-sync python -m plex_training.cli plan-semantic-bi
   --bundle-dir training/artifacts/structured-plan/p2-35-training-bundle
 ```
 
-This command performs zero optimizer updates. The candidate remains pending owner review. A separate stage/preflight/authorization sequence is required before any P2-38 model training. `modelTrainingAuthorized=false`, `researchOptimizerUpdates=0`, and `finalHoldoutOpened=false`.
+This command performs zero optimizer updates. Candidate review is complete. A separate locked P2-38 bundle/stage/preflight path now exists, but the first-run contract remains draft-only and unauthorized. See [P2-38 Training Path](PHASE-2-P2-38-TRAINING-PATH.md). `modelTrainingAuthorized=false`, `researchOptimizerUpdates=0`, and `finalHoldoutOpened=false`.

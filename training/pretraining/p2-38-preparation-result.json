@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "milestone": "P2-38",
-  "candidateId": "p2-38-semantic-binding-candidate-v1",
   "status": "candidate-review-passed",
   "candidateSha256": "137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8",
-  "byteCount": 86973,
   "records": 108,
   "groups": 36,
+  "trainGroups": 24,
+  "validationGroups": 12,
   "trainRecords": 72,
   "validationRecords": 36,
   "perLanguage": {
@@ -37,8 +37,11 @@
     "trainTokenCount": 24793,
     "validationTokenCount": 12409
   },
+  "portableTestsPassed": 103,
   "modelTrainingAuthorized": false,
   "trainingPerformed": false,
   "researchOptimizerUpdates": 0,
-  "finalHoldoutOpened": false
+  "finalHoldoutOpened": false,
+  "mergeCommit": "6487a64632ec0e56c8c11e7ed083b2ffe7dd5408",
+  "evidenceSource": "owner-reported merged P2-38 candidate review and frozen-tokenizer preflight"
 }

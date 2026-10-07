@@ -23,11 +23,12 @@ jobs:
         run: python -m pip install --disable-pip-version-check uv
       - name: Sync locked training environment
         run: uv sync --project training --frozen --group dev
-      - name: Run portable P2-38 review, P2-35 training, P2-32 training, P2-31, P2-30 and core training tests
+      - name: Run portable P2-38 training/review, P2-35 training, P2-32 training, P2-31, P2-30 and core training tests
         run: >
           uv run --project training --no-sync python -m pytest
           training/tests/test_structured_plan_serialization_training.py
           training/tests/test_structured_plan_serialization_curriculum.py
+          training/tests/test_structured_plan_semantic_binding_training.py
           training/tests/test_structured_plan_semantic_binding_curriculum.py
           training/tests/test_structured_plan_training.py
           training/tests/test_structured_plan_curriculum.py
