@@ -557,9 +557,20 @@ def _clear_aborted_zero_update_output(output: Path) -> bool:
     if output.is_symlink() or not output.is_dir():
         raise FileExistsError("P2-32 first-run output exists and is not a recoverable directory")
     allowed = {"checkpoints", "metrics.jsonl"}
-    names = {path.name for path in output.iterdir()}
-    if not names.issubset(allowed):
-        raise FileExistsError("P2-32 first-run output contains non-recoverable files")
+    metadata_names = {"desktop.ini", ".DS_Store"}
+    entries = {path.name: path for path in output.iterdir()}
+    unexpected = set(entries) - allowed - metadata_names
+    if unexpected:
+        rendered = ", ".join(sorted(unexpected))
+        raise FileExistsError(
+            f"P2-32 first-run output contains non-recoverable files: {rendered}"
+        )
+    for name in sorted(set(entries) & metadata_names):
+        path = entries[name]
+        if path.is_symlink() or not path.is_file() or path.stat().st_size > 64 * 1024:
+            raise FileExistsError(
+                f"P2-32 first-run output contains unsafe metadata entry: {name}"
+            )
     checkpoints = output / "checkpoints"
     if checkpoints.exists():
         if checkpoints.is_symlink() or not checkpoints.is_dir() or any(checkpoints.iterdir()):
