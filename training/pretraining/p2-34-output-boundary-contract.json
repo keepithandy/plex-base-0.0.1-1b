@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-34",
+  "kind": "plex-p2-34-output-boundary-diagnostic-contract-v1",
+  "status": "diagnostic-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Classify why the fixed P2-32 step-100 checkpoint still produced 0/18 schema-valid plans on P2-33 without repairing or rescoring outputs.",
+  "taskSet": {
+    "path": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "sha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "tasks": 18
+  },
+  "responses": {
+    "path": "training/artifacts/structured-plan/p2-33-step100/responses.jsonl",
+    "sha256": "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6"
+  },
+  "allowedClassifications": [
+    "strict-valid-plan",
+    "markdown-fenced",
+    "extra-text-around-valid-plan",
+    "embedded-json-wrong-schema",
+    "malformed-json-candidate",
+    "no-json-object-start"
+  ],
+  "protectedEvaluation": {
+    "noResponseRepair": true,
+    "noRescoring": true,
+    "noGradientUpdates": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  }
+}

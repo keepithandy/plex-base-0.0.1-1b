@@ -22,6 +22,10 @@ from plex_training.structured_plan import (
     validate_plan_task_set,
 )
 from plex_training.structured_plan_run import _contract, generate_structured_plans
+from plex_training.structured_plan_diagnostic import (
+    _diagnostic_contract,
+    diagnose_structured_plan_responses,
+)
 
 
 def _task_set(kind: str = "development") -> dict:
@@ -179,7 +183,78 @@ class StructuredPlanSchemaTests(unittest.TestCase):
         self.assertTrue(prompt.endswith("JSON:"))
 
 
+class StructuredPlanDiagnosticTests(unittest.TestCase):
+    def test_diagnostic_classifies_boundary_failures_without_repairing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            task_path = root / "tasks.json"
+            responses_path = root / "responses.jsonl"
+            task = _task_set()
+            task_path.write_text(json.dumps(task), encoding="utf-8")
+            good = json.dumps(json.loads(_good_responses()[0]["text"]))
+            rows = [
+                {"taskId": "h1", "text": "Answer: " + good, "truncated": False},
+                {"taskId": "c1", "text": "{broken", "truncated": False},
+                {"taskId": "j1", "text": "plain prose", "truncated": False},
+            ]
+            responses_path.write_text(
+                "".join(json.dumps(row) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+            report = diagnose_structured_plan_responses(
+                task_set_path=task_path,
+                responses_path=responses_path,
+            )
+        self.assertEqual(report["tasksExpected"], 3)
+        self.assertEqual(report["responsesPresent"], 3)
+        self.assertEqual(report["strictValidPlans"], 0)
+        self.assertEqual(report["classifications"]["extra-text-around-valid-plan"], 1)
+        self.assertEqual(report["classifications"]["malformed-json-candidate"], 1)
+        self.assertEqual(report["classifications"]["no-json-object-start"], 1)
+        self.assertEqual(report["signals"]["embeddedStrictPlanValid"], 1)
+        self.assertEqual(report["trainingPerformed"], False)
+        self.assertEqual(report["researchOptimizerUpdates"], 0)
+        self.assertEqual(report["finalHoldoutOpened"], False)
+
+    def test_diagnostic_reports_duplicate_outputs_and_missing_tasks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            task_path = root / "tasks.json"
+            responses_path = root / "responses.jsonl"
+            task_path.write_text(json.dumps(_task_set()), encoding="utf-8")
+            same = "no json"
+            responses_path.write_text(
+                json.dumps({"taskId": "h1", "text": same, "truncated": False}) + "\n"
+                + json.dumps({"taskId": "c1", "text": same, "truncated": False}) + "\n",
+                encoding="utf-8",
+            )
+            report = diagnose_structured_plan_responses(
+                task_set_path=task_path,
+                responses_path=responses_path,
+            )
+        self.assertEqual(report["responsesPresent"], 2)
+        self.assertEqual(report["missingResponses"], ["j1"])
+        self.assertEqual(report["uniqueResponseTexts"], 1)
+        self.assertEqual(report["duplicateResponseTexts"], 1)
+
+
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
+    def test_committed_p234_contract_pins_failed_p233_responses(self) -> None:
+        path = Path("training/pretraining/p2-34-output-boundary-contract.json")
+        value = _diagnostic_contract(path)
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["taskSet"]["sha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["responses"]["sha256"],
+            "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6",
+        )
+        self.assertTrue(value["protectedEvaluation"]["noResponseRepair"])
+        self.assertTrue(value["protectedEvaluation"]["noRescoring"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+
     def test_canonical_task_hash_is_identical_for_lf_and_crlf(self) -> None:
         path = Path(__file__).parents[1] / "phase2" / "evaluation" / "p2-31-plan-dev-v1.json"
         lf = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")

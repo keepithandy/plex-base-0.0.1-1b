@@ -398,6 +398,21 @@ def build_parser() -> argparse.ArgumentParser:
     plan_evaluate.add_argument("--responses", type=Path, required=True)
     plan_evaluate.add_argument("--report", type=Path, default=None)
 
+    plan_diagnose = subparsers.add_parser(
+        "plan-diagnose",
+        help="Diagnose raw structured-plan response boundaries without training or repair",
+    )
+    plan_diagnose.add_argument(
+        "--task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_diagnose.add_argument("--responses", type=Path, required=True)
+    plan_diagnose.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-34-output-boundary-contract.json"),
+    )
+    plan_diagnose.add_argument("--report", type=Path, default=None)
+
     plan_generate = subparsers.add_parser(
         "plan-generate", help="Generate deterministic P2-31 semantic edit plans from the fixed checkpoint"
     )
@@ -948,6 +963,26 @@ def _plan_evaluate(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_diagnose(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_diagnostic import diagnose_structured_plan_responses
+
+    report = diagnose_structured_plan_responses(
+        task_set_path=args.task_set,
+        responses_path=args.responses,
+        contract_path=args.contract,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Diagnostic report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def _plan_generate(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_run import generate_structured_plans
 
@@ -1168,6 +1203,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_task_generate(args))
         elif args.command == "plan-evaluate":
             _json_print(_plan_evaluate(args))
+        elif args.command == "plan-diagnose":
+            _json_print(_plan_diagnose(args))
         elif args.command == "plan-generate":
             _json_print(_plan_generate(args))
         elif args.command == "plan-curriculum-review":
