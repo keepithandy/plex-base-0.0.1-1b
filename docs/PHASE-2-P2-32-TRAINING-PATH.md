@@ -129,3 +129,27 @@ After pulling the approved contract, repeat the same preflight. It must say:
 - baseline validation loss remains exactly **8.002869129180908**
 
 Only then run the single bounded `plan-train-run`. No continuation after that run is authorized.
+
+
+## Zero-update first-attempt abort
+
+The first authorized local invocation stopped before optimizer update 1 with:
+
+`P2-32 complete-record sampling requires a padding mask`
+
+The P2-32 corpus was behaving correctly: its unmasked `sample_batch` method is intentionally disabled. The integration bug was that the shared generic training helper only recognized the older P2-30 complete-record corpus type and therefore selected the unmasked path.
+
+The incident is recorded in:
+
+`training/pretraining/p2-32-zero-update-abort-result.json`
+
+It records:
+
+- training performed: **false**
+- research optimizer updates: **0**
+- authorization consumed: **false**
+- final holdout opened: **false**
+
+The fix uses a dedicated P2-32 optimizer step that always calls `sample_masked_batch` and passes the returned target mask into model loss. A recovery guard may delete the failed output directory only when it contains no checkpoints and no metrics event beyond `run_started`; any evidence of training progress blocks automatic cleanup.
+
+The same approved first-run contract remains valid because no optimizer update occurred.

@@ -19,7 +19,9 @@ from plex_training.model import PlexLanguageModel
 from plex_training.structured_plan_training import (
     BASE_CHECKPOINT_SHA256,
     StructuredPlanCompleteRecordCorpus,
+    _clear_aborted_zero_update_output,
     _draft_authorization,
+    _structured_plan_training_step,
     _validate_authorization,
     create_structured_plan_stage,
     run_structured_plan_training,
@@ -111,6 +113,91 @@ class P232LockedTrainingTests(unittest.TestCase):
                 self.assertEqual(corpus.sampler_record["kind"], "complete-record-v1")
                 positions, _ = corpus.replay_progress(1337, 16)
                 self.assertGreater(positions, 0)
+
+    def test_p232_training_step_uses_masked_complete_record_batches(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tokenizer = FakeTokenizer()
+            texts = [
+                "Convert the repository-style request into one semantic edit plan.\nJSON:{\"a\":1}",
+                "Convert the repository-style request into one semantic edit plan.\nJSON:{\"longer\":2}",
+            ]
+            jsonl = root / "train.jsonl"
+            token_path = root / "train.tokens.u16le"
+            index_path = root / "train.index.json"
+            index, offset = [], 0
+            tokens = array("H")
+            with jsonl.open("w", encoding="utf-8", newline="\n") as stream:
+                for number, text in enumerate(texts):
+                    record_id = f"r{number}"
+                    stream.write(json.dumps({"recordId": record_id, "text": text}) + "\n")
+                    encoded = tokenizer.encode(text) + [3]
+                    tokens.extend(encoded)
+                    index.append({
+                        "recordId": record_id,
+                        "startToken": offset,
+                        "tokenCount": len(encoded),
+                    })
+                    offset += len(encoded)
+            token_path.write_bytes(tokens.tobytes())
+            index_path.write_text(json.dumps(index), encoding="utf-8")
+
+            config = ModelConfig(
+                vocab_size=64, width=16, layers=1, heads=2,
+                feed_forward_width=32, dropout=0.0,
+            )
+            model = PlexLanguageModel(config)
+            optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+            before = next(model.parameters()).detach().clone()
+            with StructuredPlanCompleteRecordCorpus(
+                token_path,
+                dataset_jsonl=jsonl,
+                index_path=index_path,
+                tokenizer=tokenizer,
+                expected_jsonl_sha256=sha256_file(jsonl),
+            ) as corpus:
+                loss, real, padding = _structured_plan_training_step(
+                    model,
+                    optimizer,
+                    corpus,
+                    random.Random(1337),
+                    torch.device("cpu"),
+                    micro_batch=1,
+                    accumulation_steps=2,
+                    loss_vocabulary_size=64,
+                )
+                audit = corpus.sampling_audit()
+            self.assertGreater(loss, 0.0)
+            self.assertGreater(real, 0)
+            self.assertGreaterEqual(padding, 0)
+            self.assertEqual(audit["examples"], 2)
+            self.assertEqual(audit["realTargetPositions"], real)
+            self.assertTrue(optimizer.state)
+            self.assertFalse(torch.equal(before, next(model.parameters()).detach()))
+
+    def test_zero_update_abort_directory_is_safely_recoverable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "first-run"
+            (output / "checkpoints").mkdir(parents=True)
+            (output / "metrics.jsonl").write_text(
+                json.dumps({"event": "run_started", "step": 0}) + "\n",
+                encoding="utf-8",
+            )
+            self.assertTrue(_clear_aborted_zero_update_output(output))
+            self.assertFalse(output.exists())
+
+    def test_recovery_rejects_any_training_progress(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "first-run"
+            (output / "checkpoints").mkdir(parents=True)
+            (output / "metrics.jsonl").write_text(
+                json.dumps({"event": "run_started"}) + "\n"
+                + json.dumps({"event": "training_progress", "step": 1}) + "\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(FileExistsError, "progress beyond zero updates"):
+                _clear_aborted_zero_update_output(output)
+            self.assertTrue(output.exists())
 
     def test_weights_only_stage_resets_optimizer_step_and_sampler(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
