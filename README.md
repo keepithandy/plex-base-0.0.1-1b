@@ -222,55 +222,67 @@ P2-22c then tested explicit before/after presence transitions without training t
 **P2-22b result:** [Edit Intent Continuation Result](docs/PHASE-2-P2-22B-RESULT.md)  
 **P2-22c result:** [Presence Transition Diagnostic Result](docs/PHASE-2-P2-22C-RESULT.md)
 
-### P2-23 — target-kind classification
+### P2-23/P2-23b — target-kind classification
 
-P2-23 is now the current **owner-approved first-run** milestone.
+P2-23's first bounded run is complete at **step 100**.
 
-The model has six legal target-kind answers:
-
-```text
-CSS_SELECTOR
-CSS_PROPERTY
-HTML_ELEMENT
-HTML_ATTRIBUTE
-JS_IDENTIFIER
-JS_PROPERTY
-```
-
-The approved candidate contains **144 training + 72 evaluation** records across three balanced semantic bands:
+Step-100 supplied fit:
 
 ```text
-A  clean target-kind paraphrases
-B  six-way minimal target-kind contrasts
-C  repository-style CSS/HTML/JavaScript target language
+Total  46 / 144
+A      20 / 48
+B      12 / 48
+C      14 / 48
 ```
 
-Every target kind appears exactly **8 times in training + 4 times in evaluation per band**.
-
-Candidate SHA:
+Held-out transfer:
 
 ```text
-3625f43419c185b567ae0d6849860f3e310016fc9dcc5bf6bc53afa6363d1d08
+Tier A   4 / 24
+Tier B   3 / 24
+Tier C   6 / 24
+Chance   4 / 24
 ```
 
-The authorized first run uses:
+Training target-kind totals:
 
-- fresh train-only tokenizer
-- fresh seed-1337 initialization
-- unchanged 27.6M-parameter architecture
-- ordinary next-token complete-record loss
+```text
+CSS_SELECTOR    10 / 24
+CSS_PROPERTY    19 / 24
+HTML_ELEMENT     0 / 24
+HTML_ATTRIBUTE   4 / 24
+JS_IDENTIFIER    4 / 24
+JS_PROPERTY      9 / 24
+```
+
+Validation loss improved from **7.13836 to 3.49394** while recent training loss remained **0.33622**, so step 100 is still clearly underfit.
+
+P2-23b is now the current **owner-approved continuation** milestone.
+
+The continuation preserves:
+
+- exact 144 training / 72 evaluation dataset
+- tokenizer SHA `4a476b8671591da259fd0e7f5180c845726d22153e492b63b35cee445d88644a`
+- 27,566,080 parameters
+- optimizer state
+- sampler state
+- CPU/CUDA RNG state
+- seed 1337
 - `complete-record-v1`
 - micro-batch 1
 - gradient accumulation 16
-- CUDA
-- matched step-zero evaluation
-- maximum **100 updates / 10 minutes**
-- no automatic extension
+- existing six-kind A/B/C scorer
 
-All 72 evaluation records remain excluded from tokenizer fitting and gradient training. The final project holdout remains closed.
+Fixed learning curve:
 
-**Approved run:** [P2-23 Target-Kind Classification Run](docs/PHASE-2-P2-23-APPROVED-RUN.md)  
-**Candidate review:** [P2-23 Target-Kind Classification Candidate](training/phase2/drafts/p2-23-target-kind-classification-candidate-v1/REVIEW.md)
+```text
+100 -> 200 -> 300 -> 400 -> 500
+```
+
+Each transition is one isolated **+100 update** CUDA continuation. No continuation beyond step 500 is authorized.
+
+**First-run result:** [P2-23 Target-Kind Classification Result](docs/PHASE-2-P2-23-RESULT.md)  
+**Continuation plan:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
 
 ---
 
