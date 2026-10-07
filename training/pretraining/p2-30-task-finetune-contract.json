@@ -60,16 +60,17 @@
     "Freeze the first fine-tuning learning rate, objective, sampling policy, update ceiling, and evaluation cadence in a separate authorization.",
     "Keep P2-01b and the final project holdout out of gradient training."
   ],
-  "nextAuthorization": "Preparation passed. No optimizer update is permitted until the separate first-run draft is explicitly owner-approved and a dedicated contract-enforcing task-stage training path is reviewed and committed.",
+  "nextAuthorization": "The first bounded 100-step / 600-second P2-30 run is owner-authorized only through training/pretraining/p2-30-first-finetune-contract.json and the dedicated task-finetune-run command. No optimizer update has occurred yet; no resume or automatic continuation is authorized.",
   "implementation": {
     "preparationToolingImplemented": true,
     "taskDatasetRepackCommand": "task-finetune-repack",
     "weightsOnlyStageCommand": "task-finetune-stage",
     "genericWebPilotRejectsTaskStage": true,
-    "fineTuneTrainingCommandAuthorized": false,
+    "fineTuneTrainingCommandAuthorized": true,
     "localPreparationExecutionPending": false,
-    "fineTuneTrainingCommandImplemented": false,
-    "genericRunnerAndResumeRejectTaskStage": true
+    "fineTuneTrainingCommandImplemented": true,
+    "genericRunnerAndResumeRejectTaskStage": true,
+    "dedicatedFineTuneCommand": "task-finetune-run"
   },
   "preparationEvidence": {
     "resultPath": "training/pretraining/p2-30-preparation-result.json",
@@ -85,5 +86,5 @@
     "fullTestsPassed": 207,
     "trainingPerformed": false
   },
-  "firstTrainingContract": "training/pretraining/p2-30-first-finetune-contract.draft.json"
+  "firstTrainingContract": "training/pretraining/p2-30-first-finetune-contract.json"
 }
