@@ -149,6 +149,45 @@ def build_parser() -> argparse.ArgumentParser:
     tokenizer_review.add_argument("--storage-limit-gib", type=float, default=200.0)
     _add_artifact_root(tokenizer_review)
 
+
+    task_repack = subparsers.add_parser(
+        "task-finetune-repack",
+        help="Retokenize an approved task split with the frozen Plex Web tokenizer without training",
+    )
+    task_repack.add_argument("--dataset-dir", type=Path, required=True)
+    task_repack.add_argument("--tokenizer-dir", type=Path, required=True)
+    task_repack.add_argument(
+        "--contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-task-finetune-contract.json"),
+    )
+    task_repack.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("task-finetune/p2-30-request-v3-16k"),
+    )
+    task_repack.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(task_repack)
+
+    task_stage = subparsers.add_parser(
+        "task-finetune-stage",
+        help="Create a step-zero task stage from verified pretrained Plex weights without training",
+    )
+    task_stage.add_argument("--base-checkpoint", type=Path, required=True)
+    task_stage.add_argument("--bundle-dir", type=Path, required=True)
+    task_stage.add_argument(
+        "--contract",
+        type=Path,
+        default=Path("training/pretraining/p2-30-task-finetune-contract.json"),
+    )
+    task_stage.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("task-finetune/p2-30-stage0"),
+    )
+    task_stage.add_argument("--storage-limit-gib", type=float, default=200.0)
+    _add_artifact_root(task_stage)
+
     initialize = subparsers.add_parser(
         "initialize", help="Create and record a fresh, randomly initialized Plex checkpoint"
     )
@@ -513,6 +552,56 @@ def _tokenizer_review(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+
+def _task_finetune_repack(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .task_finetune import prepare_task_bundle
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - artifact_bytes(root)
+    result = prepare_task_bundle(
+        args.dataset_dir,
+        args.tokenizer_dir,
+        output,
+        contract_path=args.contract,
+        storage_limit_bytes=remaining,
+    )
+    return {
+        **result,
+        "outputDirectory": str(output.relative_to(root)),
+        "storageLimitBytes": limit,
+    }
+
+
+def _task_finetune_stage(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .task_finetune import create_task_stage
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    remaining = limit - artifact_bytes(root)
+    result = create_task_stage(
+        args.base_checkpoint,
+        args.bundle_dir,
+        output,
+        contract_path=args.contract,
+        artifact_root=root,
+        storage_limit_bytes=remaining,
+    )
+    return {
+        **result,
+        "outputDirectory": str(output.relative_to(root)),
+        "storageLimitBytes": limit,
+    }
+
+
 def _initialize(args: argparse.Namespace) -> dict[str, Any]:
     from .initialization import initialize_model
     from .artifacts import artifact_bytes
@@ -673,6 +762,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_tokenizer_train(args))
         elif args.command == "tokenizer-review":
             _json_print(_tokenizer_review(args))
+        elif args.command == "task-finetune-repack":
+            _json_print(_task_finetune_repack(args))
+        elif args.command == "task-finetune-stage":
+            _json_print(_task_finetune_stage(args))
         elif args.command == "initialize":
             _json_print(_initialize(args))
         elif args.command == "learn-check":
