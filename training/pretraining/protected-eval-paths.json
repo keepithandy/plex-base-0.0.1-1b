@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "plex-web-protected-evaluation-v1",
+  "protectedPaths": [
+    "training/phase2/evaluation",
+    "training/phase2/data/authored"
+  ],
+  "blockedSourceOrigins": [
+    "https://github.com/keepithandy/plex-nano-27m-v0.0.1-p2-24",
+    "https://github.com/keepithandy/plex-base-0.0.1-1b"
+  ],
+  "minimumSubstringCharacters": 120,
+  "finalHoldout": "closed-not-addressable; remains outside pretraining and is not opened by this checker",
+  "notes": [
+    "Existing Phase 2 authored task material is protected from domain pretraining even when it may later be used for fine-tuning.",
+    "Add future held-out evaluation paths before corpus promotion.",
+    "A passing report is mandatory before any Plex Web corpus is promoted to tokenizer fitting or pretraining."
+  ]
+}
