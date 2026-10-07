@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-40",
+  "kind": "plex-p2-40-bridge-error-decomposition-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "diagnostic-complete",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "e9aca13ac5fed3286ad00294dc6fc87960ea66e7f22a9abd9cce375e0c92a3e6",
+  "contractSha256": "4224dcaba10800262f27770de6b0acaecea0bbb5a09ee7dff78bb520de200d07",
+  "responsesPresent": 18,
+  "tasksExpected": 18,
+  "schemaValid": 5,
+  "schemaValidByLanguage": {
+    "html": 3,
+    "css": 1,
+    "javascript": 1
+  },
+  "classifications": {
+    "invalid-json": 9,
+    "parseable-json-invalid-plan-schema": 4,
+    "schema-valid-semantic-mismatch": 5
+  },
+  "schemaValidFieldCorrect": {
+    "language": 5,
+    "action": 3,
+    "targetKind": 5,
+    "targetRole": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "structuralFailureSignals": [
+    "duplicate top-level JSON keys",
+    "malformed key/value transitions",
+    "required structured-plan fields omitted",
+    "malformed constraint objects",
+    "field names and values partially substituted into neighboring fields"
+  ],
+  "semanticFailureSignals": [
+    "schema-valid outputs preserve broad language and target-kind categories",
+    "targetRole remains wrong in every schema-valid output",
+    "exact constraints remain wrong in every schema-valid output",
+    "required hint coverage remains wrong in every schema-valid output",
+    "unrelated requests receive familiar semantic plan bundles from other task families"
+  ],
+  "interpretation": {
+    "primaryFailure": "request-conditioned semantic binding / semantic-template substitution",
+    "secondaryFailure": "residual JSON and strict-schema instability",
+    "broadCategoryRecognitionEmerging": true,
+    "requestConditionedBindingDemonstrated": false,
+    "recommendation": "Do not extend the unchanged P2-38 setup. Prepare a new contrastive curriculum that makes broad-template reuse insufficient and measures serialization separately from semantic binding."
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-41 request-conditioned plan binding"
+}
