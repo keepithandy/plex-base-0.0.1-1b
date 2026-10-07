@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-33",
+  "kind": "plex-p2-33-structured-bridge-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "gate-failed",
+  "evidenceSource": "owner-reported P2-33 evaluation JSON",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6",
+  "evaluator": "plex-structured-plan-evaluator-v1",
+  "gate": {
+    "minimumPassed": 12,
+    "minimumPerLanguage": 3,
+    "minimumSchemaValid": 15
+  },
+  "gatePassed": false,
+  "tasks": 18,
+  "passed": 0,
+  "schemaValid": 0,
+  "partialTaskCount": 18,
+  "checksPassed": 36,
+  "checksTotal": 162,
+  "perLanguage": {
+    "html": {
+      "tasks": 6,
+      "passed": 0
+    },
+    "css": {
+      "tasks": 6,
+      "passed": 0
+    },
+    "javascript": {
+      "tasks": 6,
+      "passed": 0
+    }
+  },
+  "failureMode": {
+    "category": "representation-transfer",
+    "evidence": "All 18 responses were present and untruncated, but none parsed as valid JSON. Each task passed only responsePresent and notTruncated.",
+    "semanticCorrectnessEstablished": false
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-34 output-boundary diagnostic"
+}
