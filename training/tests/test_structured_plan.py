@@ -22,7 +22,10 @@ from plex_training.structured_plan import (
     validate_plan_task_set,
 )
 from plex_training.structured_plan_run import _contract, generate_structured_plans
-from plex_training.structured_plan_diagnostic import diagnose_structured_plan_responses
+from plex_training.structured_plan_diagnostic import (
+    _diagnostic_contract,
+    diagnose_structured_plan_responses,
+)
 
 
 def _task_set(kind: str = "development") -> dict:
@@ -236,6 +239,22 @@ class StructuredPlanDiagnosticTests(unittest.TestCase):
 
 
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
+    def test_committed_p234_contract_pins_failed_p233_responses(self) -> None:
+        path = Path("training/pretraining/p2-34-output-boundary-contract.json")
+        value = _diagnostic_contract(path)
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["taskSet"]["sha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["responses"]["sha256"],
+            "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6",
+        )
+        self.assertTrue(value["protectedEvaluation"]["noResponseRepair"])
+        self.assertTrue(value["protectedEvaluation"]["noRescoring"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+
     def test_canonical_task_hash_is_identical_for_lf_and_crlf(self) -> None:
         path = Path(__file__).parents[1] / "phase2" / "evaluation" / "p2-31-plan-dev-v1.json"
         lf = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
