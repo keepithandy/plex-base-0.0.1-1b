@@ -415,7 +415,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     plan_bridge_diagnose = subparsers.add_parser(
         "plan-bridge-diagnose",
-        help="Decompose P2-37 bridge failures without repairing, rescoring, or training",
+        help="Decompose authorized bridge failures without repairing, rescoring, or training",
     )
     plan_bridge_diagnose.add_argument(
         "--task-set", type=Path,
