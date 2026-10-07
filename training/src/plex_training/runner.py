@@ -372,6 +372,7 @@ def run_training(
         "codec": codec,
         "tokenizerRecord": tokenizer_record,
         "datasetRecord": dataset_record,
+        "stageTransitionRecord": stage_transition_record,
         "lossVocabularySize": loss_vocabulary_size,
         "validationMaximumBatches": validation_maximum_batches,
         "trainingSettings": training_settings,
