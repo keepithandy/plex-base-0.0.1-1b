@@ -365,3 +365,16 @@ uv run --project training --no-sync python -m unittest discover -s training/test
 ```
 
 All 116 training-workspace tests passed, including complete-record CLI continuation, rejection before output creation, ordinary-pilot compatibility, padding exclusion, actual target accounting, exact variable-length resume, and GPU optimizer-state placement with an identical next update. They use temporary files and a tiny model, including exact CPU BPE resume equivalence, settings/schedule and overwrite rejection, generation controls, answer-weighted span and checkpoint checks, and verified record-start sampling, circular targets, sampler identity, and experiment bounds; they do not rerun the ten-minute smoke test or two-hour pilot. The real P1-19 one-step CUDA continuation and separate CPU completion were checked independently.
+
+
+## Plex Web pretraining program
+
+Phase 2 now separates broad web-code pretraining from task-format fine-tuning.
+
+Start with:
+
+- [P2-24 Plex Web Pretraining Specification](../docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md)
+- [pretraining workspace](pretraining/README.md)
+- [source/license policy](pretraining/source-policy.json)
+
+The current 27.6M-parameter architecture remains the controlled architecture for the first Plex Web pretraining pilot. Do not treat a public repository or dataset label as training approval by itself; each promoted record must retain source provenance and an allowed license determination.
