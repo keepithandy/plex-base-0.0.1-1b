@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-32",
+  "kind": "plex-p2-32-preparation-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "curriculum-and-tokenizer-preflight-passed",
+  "candidateSha256": "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3",
+  "records": 96,
+  "trainRecords": 72,
+  "validationRecords": 24,
+  "groups": 24,
+  "trainGroups": 18,
+  "validationGroups": 6,
+  "perLanguage": {
+    "html": {
+      "train": 24,
+      "validation": 8
+    },
+    "css": {
+      "train": 24,
+      "validation": 8
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 8
+    }
+  },
+  "solutionsSchemaValid": 96,
+  "developmentExactRequestOverlap": 0,
+  "developmentTargetRoleOverlap": 0,
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "maximumRecordTokensIncludingEos": 447,
+    "trainTokenCount": 27251,
+    "validationTokenCount": 8992
+  },
+  "baseCheckpointSha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e",
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextGate": "Pack exact P2-32 bundle, create weights-only stage, and run read-only CUDA stage preflight. Separate owner authorization remains required before any optimizer update."
+}
