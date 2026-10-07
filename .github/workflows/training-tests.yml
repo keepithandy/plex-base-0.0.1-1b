@@ -1,0 +1,27 @@
+name: training-tests
+
+on:
+  pull_request:
+    paths:
+      - "training/**"
+      - ".github/workflows/training-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: python -m pip install --disable-pip-version-check uv
+      - name: Sync locked training environment
+        run: uv sync --project training --frozen --group dev
+      - name: Run full training test suite
+        run: uv run --project training --no-sync python -m pytest training/tests -q
