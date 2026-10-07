@@ -65,17 +65,82 @@ class P238LockedTrainingTests(unittest.TestCase):
         path = Path("training/pretraining/p2-38-first-run-contract.draft.json")
         contract = json.loads(path.read_text(encoding="utf-8"))
         self.assertTrue(_draft_authorization(contract))
-        self.assertFalse(contract["approvalPacketComplete"])
+        self.assertTrue(contract["approvalPacketComplete"])
         self.assertFalse(contract["modelTrainingAuthorized"])
         self.assertIsNone(contract["approvedBy"])
-        self.assertIsNone(contract["baseStage"]["checkpointSha256"])
-        self.assertIsNone(contract["data"]["bundleManifestSha256"])
-        self.assertIsNone(contract["training"]["sampler"])
-        self.assertIsNone(contract["training"]["expectedRealTargetPositionsAt100Steps"])
-        self.assertIsNone(contract["evaluation"]["baselineLoss"])
+        self.assertEqual(
+            contract["baseStage"]["checkpointSha256"],
+            "325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8",
+        )
+        self.assertEqual(
+            contract["data"]["bundleManifestSha256"],
+            "9a69a848cdf26f427a83d30590e40e447075c6a2397629084c824f20d6b81158",
+        )
+        self.assertEqual(
+            contract["data"]["trainJsonlSha256"],
+            "ecff52a775a2f876b2a243b3254c37ac05bd75c72b372d2ecaddc06ae82b6ecf",
+        )
+        self.assertEqual(
+            contract["data"]["validationJsonlSha256"],
+            "ed643f978a099ede504515d27e8ffcbaae15c582b120f82abd87f492aee52f00",
+        )
+        self.assertEqual(
+            contract["data"]["trainIndexSha256"],
+            "a75377175f1bbc4f88fc8f0796f77df82ab2d40265131f29777249ad404b4a86",
+        )
+        self.assertEqual(
+            contract["data"]["validationIndexSha256"],
+            "310abdf314b06acfe73ec1734e2f4ee12327ab899acbfbe074b8869fb7c3e33f",
+        )
+        self.assertEqual(
+            contract["training"]["sampler"]["indexSha256"],
+            "a75377175f1bbc4f88fc8f0796f77df82ab2d40265131f29777249ad404b4a86",
+        )
+        self.assertEqual(contract["training"]["expectedRealTargetPositionsAt100Steps"], 548680)
+        self.assertEqual(contract["evaluation"]["baselineLoss"], 2.6659477899471917)
+        self.assertEqual(
+            contract["preflightEvidence"],
+            "training/pretraining/p2-38-stage-preflight-result.json",
+        )
         self.assertIsNone(contract["command"])
         with self.assertRaises(ValueError):
             _validate_authorization(contract)
+
+    def test_committed_preflight_result_matches_frozen_packet(self) -> None:
+        result = json.loads(
+            Path("training/pretraining/p2-38-stage-preflight-result.json").read_text(encoding="utf-8")
+        )
+        contract = json.loads(
+            Path("training/pretraining/p2-38-first-run-contract.draft.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(result["status"], "preflight-passed-awaiting-owner-authorization")
+        self.assertFalse(result["authorized"])
+        self.assertTrue(result["approvalPacketComplete"])
+        self.assertFalse(result["modelTrainingAuthorized"])
+        self.assertFalse(result["trainingPerformed"])
+        self.assertEqual(result["researchOptimizerUpdates"], 0)
+        self.assertFalse(result["finalHoldoutOpened"])
+        self.assertEqual(
+            result["stage"]["checkpointSha256"],
+            contract["baseStage"]["checkpointSha256"],
+        )
+        self.assertEqual(
+            result["bundle"]["manifestSha256"],
+            contract["data"]["bundleManifestSha256"],
+        )
+        self.assertEqual(
+            result["sampler"],
+            contract["training"]["sampler"],
+        )
+        self.assertEqual(
+            result["preflight"]["expectedRealTargetPositionsAt100Steps"],
+            contract["training"]["expectedRealTargetPositionsAt100Steps"],
+        )
+        self.assertEqual(
+            result["preflight"]["baselineValidationLoss"],
+            contract["evaluation"]["baselineLoss"],
+        )
+
 
     def test_cli_has_no_runtime_step_or_resume_override(self) -> None:
         parser = build_parser()

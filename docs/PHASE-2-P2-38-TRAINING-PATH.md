@@ -2,7 +2,7 @@
 
 ## Status
 
-**Candidate review complete; zero-update bundle/stage/preflight path prepared. Model training remains unauthorized.**
+**Candidate review, bundle packing, weights-only staging, and CUDA preflight complete. Approval packet frozen; model training remains unauthorized.**
 
 P2-38 uses the reviewed semantic-binding contrast candidate:
 
@@ -167,3 +167,39 @@ After local pack/stage/preflight, the exact identities must be committed and rev
 11. final holdout still closed
 
 Only a later explicit owner authorization may replace the draft contract with an executable first-run contract.
+
+
+## Frozen local preflight result
+
+The completed local zero-update sequence produced:
+
+- bundle manifest SHA-256: `9a69a848cdf26f427a83d30590e40e447075c6a2397629084c824f20d6b81158`
+- stage checkpoint SHA-256: `325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8`
+- train JSONL SHA-256: `ecff52a775a2f876b2a243b3254c37ac05bd75c72b372d2ecaddc06ae82b6ecf`
+- validation JSONL SHA-256: `ed643f978a099ede504515d27e8ffcbaae15c582b120f82abd87f492aee52f00`
+- train index SHA-256: `a75377175f1bbc4f88fc8f0796f77df82ab2d40265131f29777249ad404b4a86`
+- validation index SHA-256: `310abdf314b06acfe73ec1734e2f4ee12327ab899acbfbe074b8869fb7c3e33f`
+- baseline validation batches: **24**
+- baseline validation loss: **2.6659477899471917**
+- expected examples at 100 steps: **1,600**
+- expected real target positions at 100 steps: **548,680**
+- device: **CUDA**
+
+The stage preserved model weights exactly, reused no optimizer state, reset sampler state, and remained at P2-38 step 0 with zero P2-38 tokens processed.
+
+Machine-readable evidence:
+
+`training/pretraining/p2-38-stage-preflight-result.json`
+
+The draft first-run contract is now a complete approval packet, but it remains non-executable:
+
+- `approvalPacketComplete=true`
+- `status=draft-awaiting-owner-review`
+- `modelTrainingAuthorized=false`
+- `approvedBy=null`
+- `command=null`
+- `trainingExecuted=false`
+- `researchOptimizerUpdates=0`
+- `finalHoldoutOpened=false`
+
+A separate explicit owner authorization is required before any P2-38 optimizer update.
