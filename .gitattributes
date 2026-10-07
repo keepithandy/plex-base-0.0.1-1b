@@ -32,3 +32,9 @@ training/pretraining/p2-30-*.json text eol=lf
 # P2-31 hash-pinned development/contract files use canonical LF bytes.
 training/phase2/evaluation/p2-31-plan-dev-v1.json text eol=lf
 training/pretraining/p2-31-structured-bridge-contract.json text eol=lf
+
+# P2-32 hash-pinned structured-plan curriculum/review/contract use canonical LF bytes.
+training/phase2/drafts/p2-32-structured-plan-candidate-v1.jsonl text eol=lf
+training/phase2/drafts/p2-32-structured-plan-candidate-v1.review.json text eol=lf
+training/pretraining/p2-32-structured-plan-preparation-contract.json text eol=lf
+training/pretraining/p2-31-structured-bridge-result.json text eol=lf
