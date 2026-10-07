@@ -2,7 +2,7 @@
 
 ## Status
 
-**Preparation preflight passed; locked execution path prepared. Model training remains unauthorized.**
+**Complete owner-approval packet frozen. Model training remains unauthorized.**
 
 The owner-reported local P2-35 curriculum/tokenizer preflight reproduced:
 
@@ -160,3 +160,36 @@ After local prepare/stage/preflight, the exact values below must be reviewed and
 10. `finalHoldoutOpened: false`
 
 Only then may a separate owner-approved contract set `modelTrainingAuthorized: true`.
+
+
+## Complete local approval packet
+
+The final read-only CUDA preflight pinned every value required for a later owner-approved first run:
+
+- stage checkpoint SHA-256: `735554ac725acdcf063c2bb7ab27c71fafe187b82751c6b951c38900501a198d`
+- bundle manifest SHA-256: `17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d`
+- train JSONL SHA-256: `b921dd54657e77619835c5d9bce7a92c12c3a8f388d8ebe8ab8f6a9550ad69f3`
+- validation JSONL SHA-256: `e48d45b81e7431180990224ed50b6b097b38bac705966e7524f54d1ac5d0d0ce`
+- train index SHA-256: `e10af50b9b2f9dd3f4d67a3a772122be15d82c472db3f2e87469ba9904a79f44`
+- validation index SHA-256: `cd93cc1d4ec62f400115b225b4bf090da99ff9c5eda9b46e7e2d134570eb6703`
+- expected examples at 100 steps: **1,600**
+- expected real target positions at 100 steps: **299,958**
+- baseline validation loss: **4.335327882033128**
+- baseline validation batches: **13**
+- train/validation records: **108 / 36**
+- train/validation tokens: **20,427 / 6,727**
+- research optimizer updates: **0**
+- final holdout opened: **false**
+
+Machine-readable evidence:
+
+`training/pretraining/p2-35-stage-preflight-result.json`
+
+The draft contract now contains these exact values and sets `approvalPacketComplete=true`, but it deliberately remains:
+
+- `status: draft-awaiting-owner-review`
+- `modelTrainingAuthorized: false`
+- `approvedBy: null`
+- `command: null`
+
+This means the packet is complete, but the optimizer path remains locked until explicit owner authorization is given and committed separately.
