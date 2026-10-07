@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-34 — Output-Boundary Diagnostic** after P2-33 repeated the original representation failure. Added a read-only `plan-diagnose` command pinned to the exact P2-33 response SHA `ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6`. It classifies strict JSON, fenced JSON, extra-text JSON, wrong-schema JSON, malformed JSON candidates, and responses that never start a JSON object; it performs no repair, rescoring, or gradient update.
+- Closed **P2-33 — Structured Bridge Re-evaluation** as **gate failed**: **0/18 complete plans**, **0/18 schema-valid plans**, **36/162 checks**, and **0/6** in each language. All 18 responses were present and untruncated. Final holdout remained sealed.
 - Opened **P2-33 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-32 step-100 checkpoint SHA `707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4`; no gradient updates are authorized.
 - Completed the **first bounded P2-32 structured-plan run**: **100/100 CUDA updates**, **605,231** real target positions, **1,600** sampled records, all **72** train records selected, and validation **8.0029 → 2.9286 → 2.6066 → 2.6039 → 2.6796**. Official step-100 checkpoint SHA: `707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4`. Final holdout remained sealed and continuation is not authorized.
 - Fixed the **P2-32 first-run mask-aware sampling integration** after the first authorized attempt aborted before optimizer update 1. The P2-32 verified corpus intentionally disables unmasked `sample_batch`, while the shared runner only recognized the older P2-30 complete-record class. P2-32 now uses its own mask-aware optimizer step, and the runner safely clears only zero-update debris containing no checkpoint or training-progress event. The failed attempt consumed **0 optimizer updates** and did not open the final holdout.
@@ -63,7 +65,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run P2-33 `plan-generate` and `plan-evaluate` against the fixed P2-32 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-34 `plan-diagnose` on the exact P2-33 responses. Do not train further until the raw output-boundary failure is classified. The final project holdout remains sealed.
 
 
 ---
