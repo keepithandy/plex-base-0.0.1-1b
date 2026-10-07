@@ -255,6 +255,26 @@ The remaining Phase 2 path is now deliberately short:
 
 This also formalizes the working architecture split: **Plex Base owns semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
+### New training direction — Plex Web
+
+P2-23b showed that the small scratch model can learn useful task semantics, but the broader coding benchmark still lacks a strong underlying code prior. Phase 2 therefore moves to **domain pretraining first, task-format fine-tuning second**.
+
+```text
+permissively licensed HTML/CSS/JS
+        ↓
+Plex Web Base pretraining
+        ↓
+Phase 2 task-format fine-tuning
+        ↓
+structured edit plans
+        ↓
+Plex Code deterministic resolution
+```
+
+The current 27.6M model remains the first controlled pretraining architecture. Scaling toward the longer-term 0.5B–1.5B range is deferred until the corpus, tokenizer, and pretraining measurements justify it.
+
+See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md).
+
 **Result:** [P2-23b Target-Kind Continuation Result](docs/PHASE-2-P2-23B-RESULT.md)  
 **Continuation contract:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
 
@@ -316,8 +336,8 @@ The full plan lives in [Plex-ROADMAP.md](Plex-ROADMAP.md).
 | Phase | Goal | Status |
 |---|---|---|
 | **Phase 1** | Build repository tooling and prove scratch training works | **Complete** |
-| **Phase 2** | Develop basic coding ability and measure generalization | **Active** |
-| **Phase 3** | Connect the trained Plex model to repository editing | **Next** |
+| **Phase 2** | Pretrain on permissively licensed web code, then fine-tune task semantics | **Active — Plex Web program** |
+| **Phase 3** | Connect the tuned Plex semantic planner to repository editing | **After P2-31** |
 | **Phase 4** | Scale, optimize, quantize, and prepare a local release | **Later** |
 
 ### Long-term direction
