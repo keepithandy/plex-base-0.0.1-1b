@@ -147,7 +147,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
             "status": "owner-approved-first-run",
             "modelTrainingAuthorized": True,
             "approvedBy": "keepithandy",
-            "outputDirectory": "authorized-output",
+            "outputDirectory": "task-finetune/p2-30-first-run",
             "executionState": {
                 "trainingExecuted": False,
                 "researchOptimizerUpdates": 0,
@@ -331,7 +331,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
                 stage_checkpoint=self.stage,
                 authorization_contract_path=self.authorization_path,
                 preparation_contract_path=self.preparation_path,
-                output_dir=self.root / "authorized-output",
+                output_dir=self.root / "task-finetune/p2-30-first-run",
                 artifact_root=self.root,
                 require_cuda=False,
             )
@@ -346,12 +346,12 @@ class P230AuthorizedRunTests(unittest.TestCase):
                     stage_checkpoint=self.stage,
                     authorization_contract_path=self.authorization_path,
                     preparation_contract_path=self.preparation_path,
-                    output_dir=self.root / "authorized-output",
+                    output_dir=self.root / "task-finetune/p2-30-first-run",
                     artifact_root=self.root,
                     require_cuda=False,
                 )
 
-            existing = self.root / "authorized-output"
+            existing = self.root / "task-finetune/p2-30-first-run"
             existing.mkdir()
             with self.assertRaisesRegex(FileExistsError, "resume and overwrite"):
                 _preflight(
@@ -368,7 +368,7 @@ class P230AuthorizedRunTests(unittest.TestCase):
         self._write_stage()
         self.authorization = self._authorization()
         self._write_json(self.authorization_path, self.authorization)
-        output = self.root / "authorized-output"
+        output = self.root / "task-finetune/p2-30-first-run"
         with patch("plex_training.task_training.inspect_task_bundle", return_value=self.bundle), \
              patch("plex_training.task_training._verify_stage",
                    return_value=(PlexLanguageModel(self.config), {"step": 0})), \
