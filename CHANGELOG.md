@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Passed the **P2-35 frozen-tokenizer curriculum preflight** and prepared a separate locked execution path without authorizing training. The reviewed candidate reproduced **144/144 JSON-object solutions**, **48 strict full plans**, **108/36 train/validation records**, **346-token** maximum record, **20,427 train / 6,727 validation tokens**, frozen tokenizer identity, zero P2-31 request/role overlap, no P2-33 response reuse, and **0 optimizer updates**. Added isolated `plan-serialization-prepare`, `plan-serialization-stage`, `plan-serialization-preflight`, and contract-blocked `plan-serialization-run` commands rooted at the official P2-32 step-100 checkpoint. The first-run contract remains draft-only.
 - Opened **P2-35 — Serialization Stability Curriculum** after P2-34 localized the failure to interior JSON grammar. Added a **144-record / 24-group** preparation candidate with **108 train / 36 validation** records and six linked stages per group: flat JSON prefix, top-level plan identity, one constraint object, nested arrays, full explicit serialization, and production request-to-plan generation. The frozen tokenizer is retained and **P2-35 model training remains unauthorized**.
 - Closed **P2-34 — Output-Boundary Diagnostic** as **diagnostic complete**: all **18/18** responses start with `{`, contain `"schemaVersion"`, and end with `}`, while all **18/18** are malformed JSON candidates, **0/18** contain an embedded parseable JSON object, and **0/18** contain an embedded strict plan. The failure is classified as JSON grammar / serialization instability rather than failure to enter the JSON representation at all.
 - Opened **P2-34 — Output-Boundary Diagnostic** after P2-33 repeated the original representation failure. Added a read-only `plan-diagnose` command pinned to the exact P2-33 response SHA `ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6`. It classifies strict JSON, fenced JSON, extra-text JSON, wrong-schema JSON, malformed JSON candidates, and responses that never start a JSON object; it performs no repair, rescoring, or gradient update.
@@ -67,7 +68,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run P2-35 `plan-serialization-review`, including the frozen-tokenizer bundle preflight. Do not train yet. The final project holdout remains sealed.
+> 🔭 **Up next:** Pack the P2-35 bundle, create the weights-only P2-35 stage from the fixed P2-32 step-100 checkpoint, and run `plan-serialization-preflight`. Do not train until exact stage/bundle/sampler/baseline identities are reviewed and the separate first-run contract is explicitly approved. The final project holdout remains sealed.
 
 
 ---
