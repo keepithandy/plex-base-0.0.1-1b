@@ -92,7 +92,7 @@ class P235SerializationCurriculumTests(unittest.TestCase):
         micro = render_p235_record(by_level["A"])
         production = render_p235_record(by_level["F"])
         self.assertTrue(micro.startswith("Practice exact JSON serialization.\n"))
-        self.assertIn("Task: Serialize exactly this flat JSON object", micro)
+        self.assertIn("Serialize exactly this flat JSON object", micro)
         self.assertTrue(production.startswith(
             "Convert the repository-style request into one semantic edit plan.\n"
         ))
