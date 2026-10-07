@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-36 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-35 step-100 checkpoint SHA `1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0`; no gradient updates are authorized.
+- Completed the **first bounded P2-35 serialization-stability run**: **100/100 CUDA updates**, **299,958** real target positions, **1,600** sampled records, all **108** training records selected, and validation **4.3353 → 2.3458 → 2.5825 → 2.5264 → 2.6547**. Step 25 was the descriptive validation low, but the official fixed endpoint remains step 100 with checkpoint SHA `1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0`. Final holdout remained sealed and continuation is not authorized.
 - Approved the **first bounded P2-35 serialization-stability run** using the frozen packet unchanged: 100 CUDA updates maximum, 600 seconds maximum, no resume, no automatic continuation, and no P2-35 optimizer update executed yet.
 - Froze the **complete P2-35 first-run approval packet** after the final read-only CUDA preflight exposed every required identity: stage SHA `735554ac725acdcf063c2bb7ab27c71fafe187b82751c6b951c38900501a198d`, bundle SHA `17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d`, train JSONL `b921dd54...`, validation JSONL `e48d45b8...`, train index `e10af50b...`, validation index `cd93cc1d...`, **299,958** expected real target positions, and baseline validation loss **4.335327882033128**. The draft contract now contains the full packet but remains **unauthorized** with `modelTrainingAuthorized=false`, `approvedBy=null`, and no run command.
 - Tightened **P2-35 preflight evidence reporting** after the first successful local stage/preflight exposed all required authorization values except the validation JSONL identity. `plan-serialization-preflight` now prints train/validation JSONL SHA-256s and train/validation index SHA-256s explicitly while remaining read-only and unauthorized.
@@ -71,7 +73,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Pull the approved P2-35 contract, rerun the read-only preflight, then execute the single bounded first run only if it reports `authorized: true`. No continuation is authorized. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-36 `plan-generate` and `plan-evaluate` against the fixed P2-35 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
 
 
 ---
