@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-35",
+  "status": "candidate-review-passed",
+  "candidateSha256": "2abd94ee05da241848e06500b0df43fd0f70e19af75c199ef6d73181fa8a1bad",
+  "records": 144,
+  "trainRecords": 108,
+  "validationRecords": 36,
+  "groups": 24,
+  "trainGroups": 18,
+  "validationGroups": 6,
+  "perLanguage": {
+    "css": {
+      "train": 36,
+      "validation": 12
+    },
+    "html": {
+      "train": 36,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 36,
+      "validation": 12
+    }
+  },
+  "perLevel": {
+    "A": 24,
+    "B": 24,
+    "C": 24,
+    "D": 24,
+    "E": 24,
+    "F": 24
+  },
+  "jsonObjectSolutions": 144,
+  "strictFullPlanSolutions": 48,
+  "developmentExactRequestOverlap": 0,
+  "developmentTargetRoleOverlap": 0,
+  "p233ResponsesUsedForTraining": false,
+  "tokenizerPreflight": {
+    "checked": true,
+    "maximumRecordTokensIncludingEos": 346,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainTokenCount": 20427,
+    "validationTokenCount": 6727
+  },
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "evidenceSource": "owner-reported local frozen-tokenizer preflight"
+}
