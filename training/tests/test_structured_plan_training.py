@@ -186,6 +186,31 @@ class P232LockedTrainingTests(unittest.TestCase):
             self.assertTrue(_clear_aborted_zero_update_output(output))
             self.assertFalse(output.exists())
 
+    def test_zero_update_recovery_allows_small_windows_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "first-run"
+            (output / "checkpoints").mkdir(parents=True)
+            (output / "metrics.jsonl").write_text(
+                json.dumps({"event": "run_started"}) + "\n",
+                encoding="utf-8",
+            )
+            (output / "desktop.ini").write_text("[.ShellClassInfo]\n", encoding="utf-8")
+            self.assertTrue(_clear_aborted_zero_update_output(output))
+            self.assertFalse(output.exists())
+
+    def test_recovery_reports_unexpected_entry_name(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "first-run"
+            (output / "checkpoints").mkdir(parents=True)
+            (output / "metrics.jsonl").write_text(
+                json.dumps({"event": "run_started"}) + "\n",
+                encoding="utf-8",
+            )
+            (output / "unexpected.bin").write_bytes(b"x")
+            with self.assertRaisesRegex(FileExistsError, "unexpected\\.bin"):
+                _clear_aborted_zero_update_output(output)
+            self.assertTrue(output.exists())
+
     def test_recovery_rejects_any_training_progress(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "first-run"
