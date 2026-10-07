@@ -211,6 +211,8 @@ The P2-22c result strengthens the architecture boundary: keep Plex Nano focused 
 
 **P2-25 complete.** The seed pipeline accepted 21 HTML/CSS/JavaScript records, rejected 3 secret-pattern files, rebuilt byte-identically under the same seed/source policy, and now includes a hard `web-contamination-check` promotion gate. Historical seed artifacts remain pipeline-validation only unless they are rechecked with the new contamination report.
 
-**Current task: P2-26 — Plex Web Corpus v1.** Scale from the seed corpus toward the first meaningful web-code corpus. Use the reviewed pinned source registry, materialize sources reproducibly, preflight them, build grouped splits, require a passing contamination report, and grow toward roughly 4–6 MiB of accepted normalized web code as the pre-tokenizer proxy for Plex Web 1M.
+**Current task: P2-26 — Plex Web Corpus v1.** The first six-source candidate built **69 records** and passed contamination checking with **0 blocked origins, 0 exact matches, and 0 long substring matches** across 533 protected files / 567 protected segments. Source batch #2 is now staged with four CC0-1.0 MDN repositories plus two MIT repositories, estimated at **5,849,962 eligible HTML/CSS/JavaScript bytes** before Plex filtering. The MDN repositories share one source-family split group.
+
+Next gate: materialize and run `web-source-verify` on batch #2. If accepted bytes land near the 4–6 MiB target, build a fresh grouped corpus and require a clean contamination report before P2-27.
 
 Keep the current **27.6M** architecture unchanged. No pretraining begins in P2-26.

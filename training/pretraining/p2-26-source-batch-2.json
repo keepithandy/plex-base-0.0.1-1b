@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "kind": "plex-web-p2-26-source-batch-2-v1",
+  "status": "reviewed-candidate-pool",
+  "target": {
+    "name": "Plex Web 1M batch 2",
+    "purpose": "Cross the P2-26 4-6 MiB accepted normalized HTML/CSS/JavaScript target after Plex filtering",
+    "estimatedEligibleBytesBeforePlexFiltering": 5849962,
+    "estimatedEligibleFilesBeforePlexFiltering": 3322,
+    "exactTokenCount": "deferred until P2-27 tokenizer review"
+  },
+  "groupingPolicy": {
+    "mdn": "All MDN repositories share source-family-mdn-web-examples so related examples cannot be split across train and validation."
+  },
+  "sources": [
+    {
+      "id": "mdn-dom-examples",
+      "repo": "mdn/dom-examples",
+      "origin": "https://github.com/mdn/dom-examples",
+      "revision": "f49fdb84422425b24c716d1eeaf8d408b9d7f710",
+      "licenseId": "CC0-1.0",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/mdn-dom-examples",
+      "groupId": "source-family-mdn-web-examples",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 140243,
+      "estimatedEligibleBytes": 1335054,
+      "estimatedEligibleFiles": 458,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    },
+    {
+      "id": "mdn-css-examples",
+      "repo": "mdn/css-examples",
+      "origin": "https://github.com/mdn/css-examples",
+      "revision": "8cfcea69111e8bbacc9c92e3b04ead512693b937",
+      "licenseId": "CC0-1.0",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/mdn-css-examples",
+      "groupId": "source-family-mdn-web-examples",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 38662,
+      "estimatedEligibleBytes": 2318030,
+      "estimatedEligibleFiles": 672,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    },
+    {
+      "id": "mdn-interactive-examples",
+      "repo": "mdn/interactive-examples",
+      "origin": "https://github.com/mdn/interactive-examples",
+      "revision": "13024db581b08fae11a0ca229497198b9b0534e7",
+      "licenseId": "CC0-1.0",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/mdn-interactive-examples",
+      "groupId": "source-family-mdn-web-examples",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 26162,
+      "estimatedEligibleBytes": 962839,
+      "estimatedEligibleFiles": 1776,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    },
+    {
+      "id": "mdn-learning-area",
+      "repo": "mdn/learning-area",
+      "origin": "https://github.com/mdn/learning-area",
+      "revision": "d55e1c2e3ff401519811b64e5b2a7d3643b43d0f",
+      "licenseId": "CC0-1.0",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/mdn-learning-area",
+      "groupId": "source-family-mdn-web-examples",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 87034,
+      "estimatedEligibleBytes": 522644,
+      "estimatedEligibleFiles": 254,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    },
+    {
+      "id": "bulma-templates",
+      "repo": "BulmaTemplates/bulma-templates",
+      "origin": "https://github.com/BulmaTemplates/bulma-templates",
+      "revision": "188672e66bccc5e2e946440ebc6214d600860969",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/bulma-templates",
+      "groupId": "github-bulmatemplates-bulma-templates",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 28587,
+      "estimatedEligibleBytes": 451234,
+      "estimatedEligibleFiles": 70,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    },
+    {
+      "id": "soyaine-javascript30",
+      "repo": "soyaine/JavaScript30",
+      "origin": "https://github.com/soyaine/JavaScript30",
+      "revision": "a934c4adecbf8cc8ff2650a05a434892ad8e58d2",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "localPath": "data/raw/soyaine-javascript30",
+      "groupId": "github-soyaine-javascript30",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ],
+      "estimatedRepositoryKiB": 6726,
+      "estimatedEligibleBytes": 260161,
+      "estimatedEligibleFiles": 92,
+      "reviewStatus": "license-file-verified",
+      "rightsReviewedAtUtc": "2026-10-07T11:50:00Z"
+    }
+  ],
+  "notes": [
+    "Eligibility estimates come from the pinned commit trees after extension/path/suffix screening; Plex preflight remains authoritative.",
+    "Every source has a root license file verified at the pinned revision.",
+    "MDN sources use CC0-1.0, which is already in the committed Plex Web allowlist.",
+    "MIT sources use the existing MIT allowlist entry.",
+    "No gated dataset terms are involved.",
+    "Batch 2 is a candidate pool, not training-authorized data until source verification, deterministic build, and contamination checks pass."
+  ]
+}
