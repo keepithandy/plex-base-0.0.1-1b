@@ -2,7 +2,7 @@
 
 ## Status
 
-**Authorized for one bounded run.**
+**Completed.**
 
 The P2-28 step-zero initialization has been verified and is now the only permitted starting checkpoint for the first Plex Web domain-pretraining pilot.
 
@@ -85,3 +85,14 @@ A lower validation loss is encouraging but does not, by itself, establish coding
 
 - `training/pretraining/p2-28-initialization-result.json`
 - `training/pretraining/p2-28-training-contract.json`
+
+
+## Completion
+
+The authorized run completed all 100 steps and produced checkpoint SHA-256:
+
+`cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87`
+
+Validation loss improved from **9.80930100440979** to **5.6959015655517575**. An independent held-out evaluation reproduced **5.6959015655517575 exactly**.
+
+See [P2-28 result](PHASE-2-P2-28-RESULT.md).
