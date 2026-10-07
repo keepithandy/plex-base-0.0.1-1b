@@ -96,8 +96,12 @@ def _preparation_contract(path: Path) -> dict[str, Any]:
             or contract.get("status") != "design-preparation-only"
             or contract.get("dataPreparationAuthorized") is not True
             or contract.get("modelTrainingAuthorized") is not False
-            or contract.get("automaticTrainingExtension") is not False):
-        raise ValueError("P2-38 preparation contract is invalid or does not block training")
+            or contract.get("automaticTrainingExtension") is not False
+            or contract.get("trainingCommand") is not None
+            or contract.get("trainingPerformed") is not False
+            or contract.get("researchOptimizerUpdates") != 0
+            or contract.get("finalHoldoutOpened") is not False):
+        raise ValueError("P2-38 preparation contract is invalid or does not preserve zero-update state")
     return contract
 
 
@@ -624,6 +628,7 @@ def create_structured_plan_stage(
             or payload["initializationRecord"].get("pretrainedCheckpointLoaded") is not False
             or payload["initializationRecord"].get("pretrainedModelWeightsLoaded") is not False
             or not isinstance(payload.get("stageTransitionRecord"), dict)
+            or payload["stageTransitionRecord"].get("kind") != "plex-serialization-stability-stage-transition-v1"
             or payload["stageTransitionRecord"].get("milestone") != "P2-35"
             or not isinstance(payload.get("trainingSettings"), dict)
             or payload["trainingSettings"].get("kind") != "p2-35-authorized-serialization-stability-training-v1"):
@@ -757,6 +762,7 @@ def _verify_stage(
             or transition.get("milestone") != MILESTONE
             or transition.get("baseCheckpointSha256") != BASE_CHECKPOINT_SHA256
             or transition.get("baseCheckpointStep") != BASE_CHECKPOINT_STEP
+            or transition.get("baseMilestone") != "P2-35"
             or transition.get("candidateSha256") != EXPECTED_CANDIDATE_SHA256
             or transition.get("modelWeightsLoadedFromBase") is not True
             or transition.get("baseOptimizerStateReused") is not False
