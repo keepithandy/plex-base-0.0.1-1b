@@ -8,6 +8,10 @@ _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
 
+- Completed **P2-29 — Matched Longer Plex Web Domain Pretraining**. The matched seed-1337 trajectory completed **500/500 CUDA updates**, processed **4,096,000 token positions** in **88.24 seconds**, and improved held-out validation loss from **9.809301** to **4.824199**. Independent 100-batch evaluation reproduced **4.8241992592811584 exactly**. Output checkpoint SHA-256: `3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e`. Validation was measured only at run start/end, so no monotonic held-out curve is claimed.
+- Opened **P2-30 — Task-Format Fine-Tuning Preparation**. The first curriculum reuses the already approved **234-example P2-02 request-following v3** text split (**156 train / 78 validation**) but retokenizes it with the frozen **16,384-token P2-27 Web tokenizer**. P2-30 requires a dedicated weights-only stage transition from the verified P2-29 checkpoint with a fresh optimizer/stage state. Model training remains blocked until that bridge, the retokenized bundle, and a separate bounded training authorization are reviewed.
+
+
 - Completed **P2-28 — First Plex Web Scratch-Pretraining Pilot**. The fresh 27.6M model completed **100/100 CUDA steps**, processed **819,200 token positions** in **17.48 seconds**, and improved held-out validation loss from **9.809301 to 5.695902**. Independent evaluation of the saved checkpoint reproduced **5.6959015655517575 exactly**. Output checkpoint SHA-256: `cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87`.
 - Opened **P2-29 — Matched Longer Plex Web Domain Pretraining**. One fresh **500-step / 10-minute CUDA** run is authorized from the same verified step-zero checkpoint. Corpus, tokenizer, seed, optimizer, batch settings, sampler, and objective remain unchanged; only the training horizon increases. The P2-28 step-100 checkpoint is not used as the starting point.
 
@@ -47,7 +51,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** P2-29 replays the same verified scratch trajectory from step zero to a maximum of **500 CUDA updates**. Only training horizon changes. The final checkpoint must be independently re-evaluated before any further scaling decision.
+> 🔭 **Up next:** P2-30 prepares the first task-format fine-tuning stage from the verified P2-29 checkpoint. The approved 234-example request-following v3 split will be retokenized with the frozen 16K Web tokenizer, and a dedicated weights-only fine-tune bridge must reset optimizer/stage state before any task training is authorized.
 
 
 ---
