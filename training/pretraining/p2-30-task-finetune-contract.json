@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-30",
+  "kind": "plex-p2-30-task-format-finetuning-preparation-contract-v1",
+  "status": "active-preparation-gate",
+  "authorization": {
+    "dataPreparationAuthorized": true,
+    "bridgeImplementationAuthorized": true,
+    "modelTrainingAuthorized": false,
+    "automaticTrainingExtension": false
+  },
+  "baseModel": {
+    "checkpoint": "training/artifacts/pilot/p2-29-web-v1-500step/pilot-checkpoint.pt",
+    "checkpointSha256": "3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e",
+    "sourceStage": "P2-29",
+    "checkpointStep": 500,
+    "parameterCount": 27566080,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
+  },
+  "firstCurriculum": {
+    "name": "p2-02-request-following-v3",
+    "candidatePath": "training/phase2/drafts/p2-02-request-following-v3/candidate.jsonl",
+    "candidateJsonlSha256": "555fc619d041b3f5138207c1513ca2169b4d704d35daba2f1e1cc800360c0016",
+    "approvalPath": "training/phase2/approvals/p2-02-request-following-v3.json",
+    "approvalStatus": "approved",
+    "records": 234,
+    "trainRecords": 156,
+    "validationRecords": 78,
+    "existingTrainJsonlSha256": "05fb9b35277b979ef45473af5b2a2c98bef31ee2c1c3133f0af0c68d7cfba554",
+    "existingValidationJsonlSha256": "1e999896304a92c3d39503246f08e1736dc9cbf7c91cb9e0f85d195f34aba3ce",
+    "existingSourceDatasetManifestSha256": "bc3725297473733c69fa6c87546f22dc843eacb0879a486f3e307dc391c760ea",
+    "historicalTokenizerSha256": "a7f87c63ded6e6c1803d356a0e1a3899834426d6588ac3196f65c70510795573",
+    "historicalTokenizerMustNotBeReused": true
+  },
+  "tokenizer": {
+    "requiredTokenizer": "P2-27 frozen Plex Web tokenizer",
+    "actualVocabularySize": 16384,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "fb650f91bbc7f53e788a7f7c22af4950b079423229c1ef85bdd865025e56e880",
+    "rule": "Preserve the approved task train/validation text split, then retokenize both splits with the frozen P2-27 tokenizer. Do not fit a new tokenizer."
+  },
+  "stageTransition": {
+    "loadModelWeightsFromBaseCheckpoint": true,
+    "reusePretrainingOptimizerState": false,
+    "reusePretrainingSamplerState": false,
+    "reusePretrainingTrainingStepAsFineTuneStep": false,
+    "requiredBehavior": "Create an auditable fine-tuning stage that loads only the verified P2-29 model weights, starts a fresh optimizer/stage counter, preserves the frozen model/tokenizer identity, and records the base checkpoint provenance.",
+    "currentPilotResumePathMayNotBeUsedForDatasetSwitch": true
+  },
+  "protectedEvaluation": {
+    "p2_01bExcludedFromGradientTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true,
+    "taskValidationExcludedFromGradientTraining": true
+  },
+  "preparationExitGate": [
+    "Rebuild the exact approved 156/78 task split using the frozen 16,384-token P2-27 tokenizer.",
+    "Verify exact roundtrip, split hashes, context limits, and no train/validation leakage.",
+    "Implement a dedicated fine-tuning stage transition that loads P2-29 model weights only and initializes a fresh optimizer.",
+    "Record a matched pre-fine-tune baseline from the P2-29 checkpoint on the task validation/development surfaces.",
+    "Freeze the first fine-tuning learning rate, objective, sampling policy, update ceiling, and evaluation cadence in a separate authorization.",
+    "Keep P2-01b and the final project holdout out of gradient training."
+  ],
+  "nextAuthorization": "No P2-30 optimizer update may run until the preparation gate is closed by a reviewed training contract."
+}
