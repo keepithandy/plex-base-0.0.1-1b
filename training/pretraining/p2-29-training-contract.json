@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-29",
+  "kind": "plex-p2-29-matched-longer-domain-pretraining-contract-v1",
+  "status": "authorized",
+  "purpose": "Measure a longer scratch domain-pretraining trajectory while changing only the training horizon from P2-28.",
+  "matchedInputs": {
+    "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "initializationCheckpointSha256": "06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86",
+    "initialModelWeightsSha256": "98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193",
+    "seed": 1337,
+    "parameterCount": 27566080,
+    "modelVocabularyCapacity": 16384
+  },
+  "startingPoint": {
+    "type": "fresh-step-zero-replay",
+    "checkpoint": "training/artifacts/initializations/p2-28-web-v1-step0/initialization.pt",
+    "resumeFromP2_28Step100": false,
+    "rationale": "Starting again from the same verified step-zero checkpoint keeps P2-29 directly comparable with P2-28 and changes only training horizon."
+  },
+  "training": {
+    "command": "pilot",
+    "outputDirectory": "training/artifacts/pilot/p2-29-web-v1-500step",
+    "device": "cuda",
+    "requestedMinutes": 10,
+    "requestedSteps": 500,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "checkpointEveryMinutes": 5,
+    "samplingPolicy": "random-window-v1",
+    "answerWeight": 1,
+    "objective": "ordinary next-token pretraining loss",
+    "learningRate": 0.0003,
+    "learningRateSchedule": "constant-v1",
+    "taskInstructionFineTuning": false,
+    "validationMaximumBatches": 100
+  },
+  "controlledDifferenceFromP2_28": [
+    "training horizon increases from 100 to 500 optimizer updates"
+  ],
+  "forbiddenChanges": [
+    "do not resume the P2-28 step-100 checkpoint",
+    "do not change corpus",
+    "do not change tokenizer",
+    "do not change model size",
+    "do not change seed",
+    "do not change optimizer or learning rate",
+    "do not change sampling policy",
+    "do not add answer weighting or task-format fine-tuning"
+  ],
+  "stopConditions": [
+    "stop after 500 optimizer updates even if time remains",
+    "stop if 10 minutes is reached first",
+    "do not continue beyond this run without another reviewed authorization"
+  ],
+  "evaluation": [
+    "record validation loss before and after",
+    "independently re-evaluate the saved checkpoint after the run",
+    "compare P2-29 step-100 trajectory behavior with P2-28 where possible from metrics",
+    "inspect whether held-out validation continues improving or begins to worsen",
+    "do not infer coding ability from language-model loss alone"
+  ],
+  "finalProjectHoldout": {
+    "mustRemainClosed": true
+  }
+}
