@@ -2,7 +2,7 @@
 
 ## Status
 
-**Active — first bounded training pilot authorized.**
+**Complete and closed.**
 
 P2-28 starts by creating and verifying a brand-new step-zero Plex checkpoint from random weights. The step-zero initialization has now been verified. A separate bounded training contract authorizes one 100-step / 10-minute CUDA base-pretraining pilot and no continuation beyond it.
 
@@ -159,3 +159,12 @@ The required step-zero initialization passed all provenance checks.
 - pretrained model weights loaded: **false**
 
 Training is now authorized only under [the first-pilot authorization](PHASE-2-P2-28-FIRST-PILOT-AUTHORIZATION.md).
+
+
+## Closeout
+
+P2-28 completed successfully. The 100-step run showed a clean held-out learning signal and exact independent validation-loss reproduction.
+
+See [P2-28 result](PHASE-2-P2-28-RESULT.md).
+
+**Next:** [P2-29 matched longer domain pretraining](PHASE-2-P2-29-DOMAIN-PRETRAINING.md).
