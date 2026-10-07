@@ -2,9 +2,9 @@
 
 ## Status
 
-**Active.**
+**Complete and closed.**
 
-P2-27 reviews tokenizer behavior on the frozen P2-26 Plex Web corpus before any new model weights are initialized or trained.
+P2-27 reviewed tokenizer behavior on the frozen P2-26 Plex Web corpus before any new model weights were initialized or trained. The owner selected the 16,384-token candidate for P2-28.
 
 The frozen dataset manifest for this review is:
 
@@ -104,7 +104,7 @@ uv run --project training --no-sync python -m plex_training.cli tokenizer-review
 
 The command writes its artifacts beneath `training/artifacts/` and prints a compact candidate comparison.
 
-Do not run `initialize`, `pilot`, or any other model-training command from the P2-27 output until the tokenizer review is explicitly closed.
+P2-27 is now closed. The selected tokenizer is recorded in `training/pretraining/p2-27-tokenizer-selection.json`. P2-28 may perform its separately contracted fresh step-zero initialization; model training remains gated.
 
 ## Exit condition
 
@@ -118,3 +118,18 @@ P2-27 completes when:
 - its tokenizer hash and bundle identity are recorded
 
 **Next after completion:** P2-28 — fresh 27.6M scratch domain-pretraining pilot.
+
+
+## Final result
+
+The completed review selected the **16,384-token** candidate.
+
+- tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`
+- train bytes/token: **3.5223250861382027**
+- validation bytes/token: **3.523611632794956**
+- representative review-sample bytes/token: **3.0941176470588236**
+- review SHA-256: `3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8`
+
+See [P2-27 result](PHASE-2-P2-27-RESULT.md).
+
+**Next:** [P2-28 fresh 27.6M scratch pilot](PHASE-2-P2-28-SCRATCH-PRETRAINING-PILOT.md).
