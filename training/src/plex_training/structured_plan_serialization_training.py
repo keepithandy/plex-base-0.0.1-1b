@@ -151,7 +151,7 @@ def prepare_structured_plan_bundle(
             or source_tokenizer_record.get("bundleManifestSha256")
             != EXPECTED_TOKENIZER_BUNDLE_SHA256
             or tokenizer.vocabulary_size != 16384):
-        raise ValueError("P2-35 requires the exact frozen P2-30 tokenizer source bundle")
+        raise ValueError("P2-35 requires the exact frozen tokenizer source bundle")
 
     root = artifact_root.resolve()
     output = path_within_root(output_dir, root)
@@ -604,7 +604,7 @@ def create_structured_plan_stage(
     preparation_contract_path: Path = DEFAULT_PREPARATION_CONTRACT,
     storage_limit_bytes: int = 200 * 1024**3,
 ) -> dict[str, Any]:
-    """Create a weights-only P2-35 stage from the official P2-30 step-100 endpoint."""
+    """Create a weights-only P2-35 stage from the official P2-32 step-100 endpoint."""
     contract = _preparation_contract(preparation_contract_path)
     root = artifact_root.resolve()
     output = path_within_root(output_dir, root)
@@ -612,7 +612,7 @@ def create_structured_plan_stage(
         raise FileExistsError("P2-35 stage output already exists")
     if (base_checkpoint.is_symlink() or not base_checkpoint.is_file()
             or sha256_file(base_checkpoint) != BASE_CHECKPOINT_SHA256):
-        raise ValueError("P2-35 stage requires the exact official P2-30 step-100 checkpoint")
+        raise ValueError("P2-35 stage requires the exact official P2-32 step-100 checkpoint")
     bundle = inspect_structured_plan_bundle(bundle_dir, preparation_contract_path)
     model, payload = read_checkpoint(base_checkpoint, torch.device("cpu"))
     if (model.config != DEFAULT_CONFIG or parameter_count(model) != DEFAULT_CONFIG.parameter_count()
@@ -761,6 +761,7 @@ def _verify_stage(
             or transition.get("baseOptimizerStateReused") is not False
             or transition.get("baseSamplerStateReused") is not False
             or transition.get("baseTrainingStepReusedAsP235Step") is not False
+            or transition.get("p235StageStep") != 0
             or transition.get("modelTrainingPerformed") is not False):
         raise ValueError("P2-35 stage transition provenance is invalid")
     return model, payload
