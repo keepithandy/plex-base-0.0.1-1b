@@ -42,3 +42,4 @@ training/pretraining/p2-31-structured-bridge-result.json text eol=lf
 training/pretraining/p2-32-first-run-contract.json text eol=lf
 training/pretraining/p2-32-preparation-result.json text eol=lf
 training/pretraining/p2-32-stage-preflight-result.json text eol=lf
+training/pretraining/p2-32-zero-update-abort-result.json text eol=lf
