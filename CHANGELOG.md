@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-40 — Bridge Error Decomposition** after P2-39 failed to improve the unchanged bridge gate. The diagnostic is pinned to response SHA `e9aca13ac5fed3286ad00294dc6fc87960ea66e7f22a9abd9cce375e0c92a3e6` and performs no repair, rescoring, or training.
+- Closed **P2-39 — Structured Bridge Re-evaluation** as **gate failed with no net bridge improvement**: **0/18 complete plans**, **5/18 schema-valid plans**, **54/162 checks**. Schema-valid coverage shifted to **3/6 HTML, 1/6 CSS, 1/6 JavaScript**, but targetRole, exact constraints, and hint coverage remained **0/5** across schema-valid outputs. Final holdout remained sealed.
 - Opened **P2-39 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-38 step-100 checkpoint SHA `9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6`; no gradient updates are authorized.
 - Completed the **first bounded P2-38 semantic-binding run**: **100/100 CUDA updates**, **548,680** real target positions, **1,600** sampled examples, all **72** training records selected, and validation **2.66595 → 2.33000 → 2.55712 → 2.60249 → 2.62592**. Step 25 was the descriptive validation low, but the official fixed endpoint remains step 100 with checkpoint SHA `9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6`. Final holdout remained sealed and continuation is not authorized.
 - Authorized the **first bounded P2-38 semantic-binding run** using the frozen packet unchanged: stage SHA `325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8`, bundle SHA `9a69a848cdf26f427a83d30590e40e447075c6a2397629084c824f20d6b81158`, **548,680** expected real target positions, and baseline validation loss **2.6659477899471917**. The authorization permits exactly **100 CUDA updates / 600 seconds**, with no resume, overwrite, automatic continuation, or retrospective checkpoint selection. No P2-38 optimizer update has occurred yet.
@@ -83,7 +85,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run P2-39 `plan-generate` and `plan-evaluate` against the fixed P2-38 step-100 checkpoint. Do not train further. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-40 `plan-bridge-diagnose` on the exact P2-39 responses. Do not train further until the semantic substitutions and remaining structural failures are decomposed. The final project holdout remains sealed.
 
 
 ---
