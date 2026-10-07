@@ -136,10 +136,13 @@ def prepare_structured_plan_bundle(
     if storage_limit_bytes <= 0:
         raise ValueError("No artifact storage allocation remains")
     contract = _preparation_contract(preparation_contract_path)
-    review = review_serialization_stability_curriculum(
+    review = review_semantic_binding_curriculum(
         candidate_path=candidate_path,
         review_path=review_path,
         development_task_set_path=development_task_set_path,
+        p235_candidate_path=Path(
+            "training/phase2/drafts/p2-35-serialization-stability-candidate-v1.jsonl"
+        ),
         contract_path=preparation_contract_path,
         bundle_dir=source_bundle_dir,
     )
