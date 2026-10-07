@@ -303,6 +303,33 @@ class StructuredPlanBridgeDiagnosticTests(unittest.TestCase):
 
 
 class StructuredPlanFilesAndContractTests(unittest.TestCase):
+    def test_p238_preparation_contract_blocks_training_and_targets_contrastive_full_plans(self) -> None:
+        path = Path("training/pretraining/p2-38-semantic-binding-preparation-contract.json")
+        value = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(value["milestone"], "P2-38")
+        self.assertEqual(value["status"], "design-preparation-only")
+        self.assertTrue(value["dataPreparationAuthorized"])
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertFalse(value["automaticTrainingExtension"])
+        self.assertEqual(value["design"]["recordTarget"], 108)
+        self.assertEqual(value["design"]["contrastGroups"], 36)
+        self.assertEqual(value["design"]["recordsPerGroup"], 3)
+        self.assertEqual(value["design"]["trainRecords"], 72)
+        self.assertEqual(value["design"]["validationRecords"], 36)
+        self.assertEqual(value["design"]["renderMode"], "structured-plan-production-prompt-only")
+        self.assertEqual(value["design"]["targetFormat"], "strict-full-plan-only")
+        self.assertTrue(value["design"]["uniqueTargetRolePerRecord"])
+        self.assertTrue(value["design"]["noMicroJsonStages"])
+        self.assertFalse(value["design"]["tokenizerRefit"])
+        self.assertTrue(value["protectedEvaluation"]["p231DevelopmentExactRequestsExcluded"])
+        self.assertTrue(value["protectedEvaluation"]["p231DevelopmentTargetRolesExcluded"])
+        self.assertTrue(value["protectedEvaluation"]["p235TargetRolesExcluded"])
+        self.assertTrue(value["protectedEvaluation"]["p236ResponsesExcludedFromTraining"])
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+        self.assertIsNone(value["trainingCommand"])
+        self.assertFalse(value["trainingPerformed"])
+        self.assertEqual(value["researchOptimizerUpdates"], 0)
+
     def test_committed_p237_contract_pins_p236_responses(self) -> None:
         path = Path("training/pretraining/p2-37-bridge-error-decomposition-contract.json")
         value = json.loads(path.read_text(encoding="utf-8"))
