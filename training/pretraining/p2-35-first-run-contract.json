@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-35",
+  "kind": "plex-p2-35-first-serialization-stability-run-contract-v1",
+  "status": "owner-approved-first-run",
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
+  "approvedDate": "2026-10-07",
+  "outputDirectory": "structured-plan/p2-35-first-run",
+  "executionState": {
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "finalHoldoutOpened": false
+  },
+  "baseStage": {
+    "checkpointSha256": "735554ac725acdcf063c2bb7ab27c71fafe187b82751c6b951c38900501a198d",
+    "p235Step": 0,
+    "baseCheckpointSha256": "707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4",
+    "parameterCount": 27566080
+  },
+  "data": {
+    "bundleManifestSha256": "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+    "candidateSha256": "2abd94ee05da241848e06500b0df43fd0f70e19af75c199ef6d73181fa8a1bad",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainJsonlSha256": "b921dd54657e77619835c5d9bce7a92c12c3a8f388d8ebe8ab8f6a9550ad69f3",
+    "validationJsonlSha256": "e48d45b81e7431180990224ed50b6b097b38bac705966e7524f54d1ac5d0d0ce",
+    "trainRecords": 108,
+    "validationRecords": 36
+  },
+  "training": {
+    "sampler": {
+      "kind": "complete-record-v1",
+      "selection": "uniform-record-with-replacement",
+      "endPolicy": "stop-at-record-eos-v1",
+      "records": 108,
+      "trainJsonlSha256": "b921dd54657e77619835c5d9bce7a92c12c3a8f388d8ebe8ab8f6a9550ad69f3",
+      "indexSha256": "e10af50b9b2f9dd3f4d67a3a772122be15d82c472db3f2e87469ba9904a79f44",
+      "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+      "tokenAccounting": "nonpadding-next-token-targets-v1",
+      "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+    },
+    "objective": "ordinary-next-token-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "epsilon": 1e-8,
+    "weightDecay": 0.1,
+    "gradientClippingNorm": 1,
+    "schedule": "constant-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "contextLength": 512,
+    "dropout": 0.1,
+    "expectedRealTargetPositionsAt100Steps": 299958,
+    "resumeAllowed": false,
+    "automaticContinuation": false
+  },
+  "evaluation": {
+    "method": "sequential-packed-next-token-loss",
+    "steps": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
+    "maximumBatches": 100,
+    "checkpointSteps": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "baselineLoss": 4.335327882033128,
+    "checkpointSelection": "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+    "p231DevelopmentRunAt": "final completed step only after bounded training; never used in gradients or checkpoint selection"
+  },
+  "protectedEvaluation": {
+    "validationExcludedFromGradients": true,
+    "p231DevelopmentExcludedFromGradients": true,
+    "p233ResponsesExcludedFromGradients": true,
+    "p201bExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "continuationRule": "Stop after the bounded first run. No resume, overwrite, or automatic continuation.",
+  "command": "uv run --project training --no-sync python -m plex_training.cli plan-serialization-run --bundle-dir training/artifacts/structured-plan/p2-35-training-bundle --stage-checkpoint training/artifacts/structured-plan/p2-35-stage0/stage-checkpoint.pt",
+  "preflightEvidence": "training/pretraining/p2-35-stage-preflight-result.json",
+  "approvalPacketComplete": true
+}
