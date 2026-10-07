@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-32",
+  "kind": "plex-p2-32-first-structured-plan-run-contract-v1",
+  "status": "owner-approved-first-run",
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
+  "approvedDate": "2026-10-07",
+  "outputDirectory": "structured-plan/p2-32-first-run",
+  "executionState": {
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "finalHoldoutOpened": false
+  },
+  "baseStage": {
+    "checkpointSha256": "7028ef6341eb8124a8f3d8d4e4b0717045e45645dee2ebf6bcc22e65827736a3",
+    "p232Step": 0,
+    "baseCheckpointSha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e",
+    "parameterCount": 27566080
+  },
+  "data": {
+    "bundleManifestSha256": "a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd",
+    "candidateSha256": "608cf988b96e8578fa2c7948a12e298c4ed25c640098a2bf3710f3b3cc6802d3",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainJsonlSha256": "239eaf48f6ad5701e0abe7fcb1e98a2ea379a7377d7e8c523f267e5b9dbd4e71",
+    "validationJsonlSha256": "2eccc8136f4f7e216b0819e795b56fbbae9d69da50e9ee3cccc5746abe5b3a36",
+    "trainRecords": 72,
+    "validationRecords": 24
+  },
+  "training": {
+    "sampler": {
+      "kind": "complete-record-v1",
+      "selection": "uniform-record-with-replacement",
+      "endPolicy": "stop-at-record-eos-v1",
+      "records": 72,
+      "trainJsonlSha256": "239eaf48f6ad5701e0abe7fcb1e98a2ea379a7377d7e8c523f267e5b9dbd4e71",
+      "indexSha256": "d60e6ab00cb2d5f750ee14d75565c0791d7a5bbe2e05b5e6163d86cf88f00813",
+      "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+      "tokenAccounting": "nonpadding-next-token-targets-v1",
+      "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+    },
+    "objective": "ordinary-next-token-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "epsilon": 1e-8,
+    "weightDecay": 0.1,
+    "gradientClippingNorm": 1,
+    "schedule": "constant-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "contextLength": 512,
+    "dropout": 0.1,
+    "expectedRealTargetPositionsAt100Steps": 605231,
+    "resumeAllowed": false,
+    "automaticContinuation": false
+  },
+  "evaluation": {
+    "method": "sequential-packed-next-token-loss",
+    "steps": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
+    "maximumBatches": 100,
+    "checkpointSteps": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "baselineLoss": 8.002869129180908,
+    "checkpointSelection": "Report fixed step-100 endpoint or early-stop endpoint; do not select the lowest-validation checkpoint",
+    "p231DevelopmentRunAt": "final completed step only after bounded training; never used in gradients or checkpoint selection"
+  },
+  "protectedEvaluation": {
+    "validationExcludedFromGradients": true,
+    "p231DevelopmentExcludedFromGradients": true,
+    "p201bExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "continuationRule": "Stop after the bounded first run. No resume, overwrite, or automatic continuation.",
+  "command": "uv run --project training --no-sync python -m plex_training.cli plan-train-run --bundle-dir training/artifacts/structured-plan/p2-32-training-bundle --stage-checkpoint training/artifacts/structured-plan/p2-32-stage0/stage-checkpoint.pt",
+  "preflightEvidence": "training/pretraining/p2-32-stage-preflight-result.json"
+}
