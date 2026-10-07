@@ -255,7 +255,7 @@ The measured P2-23b result led to a larger training-strategy pivot instead of mo
 4. **P2-27 — Web Tokenizer Review:** complete; the **16,384-token** candidate is frozen for P2-28.
 5. **P2-28 — Fresh 27.6M Scratch Pilot:** complete; **100/100 steps**, validation loss **9.8093 → 5.6959**, independently reproduced.
 6. **P2-29 — Matched Longer Domain Pretraining:** complete; **500/500 steps**, validation loss **9.8093 → 4.8242**, independently reproduced.
-7. **P2-30 — Task-Format Fine-Tuning:** **active at the preparation gate**; retokenize the approved 234-example request-following v3 task corpus with the frozen 16K Web tokenizer and implement an explicit weights-only stage transition before any task optimizer update.
+7. **P2-30 — Task-Format Fine-Tuning:** **active at the preparation gate**; no-training tooling now exists to rebuild/retokenize the approved 234-example request-following v3 corpus with the frozen 16K Web tokenizer and create a weights-only step-zero task stage. Local preparation and baseline verification are next; task training remains blocked.
 
 The architecture split remains: **Plex Nano owns learned web-code priors and semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
