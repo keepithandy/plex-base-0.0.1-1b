@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-36",
+  "kind": "plex-p2-36-structured-bridge-recheck-contract-v1",
+  "status": "evaluation-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Re-run the unchanged P2-31 structured-plan development gate on the fixed P2-35 step-100 endpoint after serialization-stability training.",
+  "checkpoint": {
+    "path": "training/artifacts/structured-plan/p2-35-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0"
+  },
+  "checkpointProvenance": {
+    "stageKind": "plex-serialization-stability-stage-transition-v1",
+    "stageMilestone": "P2-35",
+    "trainingSettingsKind": "p2-35-authorized-serialization-stability-training-v1"
+  },
+  "tokenizer": {
+    "bundle": "training/artifacts/structured-plan/p2-35-training-bundle",
+    "sha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+    "vocabularySize": 16384
+  },
+  "developmentEvaluation": {
+    "taskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "setId": "p2-31-plan-dev-v1",
+    "tasks": 18,
+    "perLanguage": {
+      "html": 6,
+      "css": 6,
+      "javascript": 6
+    },
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1",
+    "temperature": 0,
+    "seed": 1337,
+    "maxNewTokens": 256,
+    "gate": {
+      "minimumPassed": 12,
+      "minimumPerLanguage": 3,
+      "minimumSchemaValid": 15
+    }
+  },
+  "comparisonBaseline": {
+    "milestone": "P2-33",
+    "checkpointSha256": "707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4",
+    "responsesSha256": "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6",
+    "passed": 0,
+    "schemaValid": 0,
+    "checksPassed": 36,
+    "checksTotal": 162
+  },
+  "protectedEvaluation": {
+    "finalProjectHoldoutMustRemainClosed": true,
+    "noGradientUpdates": true,
+    "unchangedDevelopmentSet": true,
+    "p231DevelopmentWasExcludedFromP235Gradients": true,
+    "p233ResponsesWereExcludedFromP235Gradients": true
+  },
+  "decisionRule": "Use the original predeclared P2-31 gate unchanged. Do not lower thresholds after observing P2-35 training behavior or P2-36 outputs."
+}
