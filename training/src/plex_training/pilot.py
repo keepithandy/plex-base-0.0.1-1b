@@ -130,6 +130,7 @@ def _initialization_seed(path: Path, tokenizer_record: dict[str, Any]) -> int:
             or payload.get("modelConfig") != DEFAULT_CONFIG.to_dict()
             or payload.get("step") != 0 or payload.get("codec") != CODEC
             or payload.get("tokenizerRecord") != tokenizer_record
+            or payload.get("stageTransitionRecord") is not None
             or not isinstance(payload.get("optimizerStateDict"), dict)
             or not isinstance(payload.get("initializationRecord"), dict)
             or payload["initializationRecord"].get("pretrainedCheckpointLoaded") is not False
