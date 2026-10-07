@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "shamalja-html-css-js-template",
+      "localPath": "data/raw/html-css-js-template",
+      "origin": "https://github.com/shamalja/html-css-js-template",
+      "revision": "a25d09d1829b3b38a987dc68a14e8f0c6d2fc6c9",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T00:00:00Z",
+      "groupId": "github-shamalja-html-css-js-template",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    {
+      "id": "rishabharaj-basic-projects",
+      "localPath": "data/raw/basic-projects",
+      "origin": "https://github.com/rishabharaj/basic-projects",
+      "revision": "b6305245cea37b7a9cb600b1e3b3aa618dc33c68",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-07T00:00:00Z",
+      "groupId": "github-rishabharaj-basic-projects",
+      "includeExtensions": [
+        ".html",
+        ".css",
+        ".js",
+        ".mjs",
+        ".cjs"
+      ]
+    }
+  ]
+}
