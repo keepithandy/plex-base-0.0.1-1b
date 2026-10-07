@@ -194,19 +194,20 @@ The model showed useful semantic transfer under structured and repository-style 
 
 **Full result:** [P2-21b Semantic Role Continuation Result](docs/PHASE-2-P2-21B-RESULT.md)
 
-### P2-22/P2-22b — edit intent result
+### P2-22/P2-22b/P2-22c — edit intent and state-transition result
 
-P2-22 is now **complete and closed**.
+P2-22 is **complete and closed**.
 
-| Step | Training /150 | Tier A /25 | Tier B /25 | Tier C /25 |
-|---:|---:|---:|---:|---:|
-| 100 | 64 | 6 | 2 | 7 |
-| 200 | 91 | 11 | 5 | 7 |
-| 300 | 145 | 17 | 12 | 17 |
-| 400 | 141 | 12 | 14 | 14 |
-| 500 | **150** | **16** | **16** | **18** |
+At step 500, edit-intent classification reached:
 
-Final held-out accuracy by intent:
+```text
+Tier A  16 / 25
+Tier B  16 / 25
+Tier C  18 / 25
+Total   50 / 75
+```
+
+Final held-out intent accuracy:
 
 ```text
 REPLACE  12 / 15
@@ -216,41 +217,56 @@ RENAME   15 / 15
 TOGGLE   11 / 15
 ```
 
-The edit-intent primitive generalizes strongly overall, but INSERT retains a specific presence-direction defect. At step 500, six of the fifteen held-out INSERT examples were classified as DELETE.
+P2-22c then tested explicit before/after presence transitions without training the model. It scored **12/45**, below the three-way 15/45 chance baseline. INSERT and DELETE remained poorly separated and both collapsed heavily toward RENAME.
 
-**Full result:** [P2-22b Edit Intent Continuation Result](docs/PHASE-2-P2-22B-RESULT.md)
+**P2-22b result:** [Edit Intent Continuation Result](docs/PHASE-2-P2-22B-RESULT.md)  
+**P2-22c result:** [Presence Transition Diagnostic Result](docs/PHASE-2-P2-22C-RESULT.md)
 
-### P2-22c — presence transition diagnostic
+### P2-23 — target-kind classification
 
-P2-22c is the current **evaluation-only** milestone.
+P2-23 is the current **candidate-only** milestone.
 
-It scores the unchanged step-500 P2-22b checkpoint on 45 new explicit state-transition examples:
-
-```text
-INSERT   ABSENT  -> PRESENT
-DELETE   PRESENT -> ABSENT
-REPLACE  PRESENT -> PRESENT with changed content
-```
-
-The diagnostic is balanced across:
+The model has six legal target-kind answers:
 
 ```text
-A  explicit state transitions
-B  matched minimal contrasts
-C  repository-style state transitions
+CSS_SELECTOR
+CSS_PROPERTY
+HTML_ELEMENT
+HTML_ATTRIBUTE
+JS_IDENTIFIER
+JS_PROPERTY
 ```
 
-Each tier has 5 INSERT, 5 DELETE and 5 REPLACE records.
-
-Diagnostic SHA:
+The candidate contains **144 training + 72 evaluation** records across three balanced semantic bands:
 
 ```text
-4d445110d7688e2c9e3d1ba83eb9597eb3320550b71ac9324bf970f6bc1fa479
+A  clean target-kind paraphrases
+B  six-way minimal target-kind contrasts
+C  repository-style CSS/HTML/JavaScript target language
 ```
 
-P2-22c performs **no tokenizer fitting, initialization, gradient training, optimizer updates, or model-weight changes**.
+Every target kind appears exactly **8 times in training + 4 times in evaluation per band**.
 
-**Diagnostic plan:** [P2-22c Presence Transition Diagnostic](docs/PHASE-2-P2-22C-PRESENCE-TRANSITION-DIAGNOSTIC.md)
+Candidate SHA:
+
+```text
+3625f43419c185b567ae0d6849860f3e310016fc9dcc5bf6bc53afa6363d1d08
+```
+
+Current integrity checks:
+
+- train/evaluation exact request overlap: **0**
+- B/C train/evaluation context overlap: **0**
+- same-target-kind train/evaluation near-duplicates at >=0.65 Jaccard: **0**
+- exact request overlap with prior Phase-2 tasks and development sets: **0**
+- tokenizer fitted: **no**
+- checkpoint initialized: **no**
+- training run created: **no**
+- final holdout opened: **no**
+
+**Candidate review:** [P2-23 Target-Kind Classification Candidate](training/phase2/drafts/p2-23-target-kind-classification-candidate-v1/REVIEW.md)
+
+P2-23 training is **not authorized yet**.
 
 ---
 
