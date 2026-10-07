@@ -34,7 +34,6 @@ from .runner import (
     ADAMW_LEARNING_RATE,
     ADAMW_WEIGHT_DECAY,
     SCHEDULE_KIND,
-    _training_step,
     _validation_loss,
     seed_everything,
 )
@@ -512,6 +511,76 @@ class StructuredPlanCompleteRecordCorpus(TokenCorpus):
         }
 
 
+def _structured_plan_training_step(
+    model: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    source: StructuredPlanCompleteRecordCorpus,
+    rng: random.Random,
+    device: torch.device,
+    *,
+    micro_batch: int,
+    accumulation_steps: int,
+    loss_vocabulary_size: int,
+) -> tuple[float, int, int]:
+    """One P2-32 optimizer update using the verified mask-aware complete-record sampler."""
+    optimizer.zero_grad(set_to_none=True)
+    total_loss = 0.0
+    real_positions = padding_positions = 0
+    for _ in range(accumulation_steps):
+        inputs, targets, weights = source.sample_masked_batch(
+            rng,
+            batch_size=micro_batch,
+            sequence_length=model.config.context_length,
+        )
+        positions = int((weights > 0).sum().item())
+        real_positions += positions
+        padding_positions += targets.numel() - positions
+        _, loss = model(
+            inputs.to(device),
+            targets.to(device),
+            loss_vocabulary_size=loss_vocabulary_size,
+            target_weights=weights.to(device),
+        )
+        if loss is None:
+            raise RuntimeError("P2-32 model did not produce a training loss")
+        (loss / accumulation_steps).backward()
+        total_loss += float(loss.detach().item())
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=GRADIENT_CLIP_NORM)
+    optimizer.step()
+    return total_loss / accumulation_steps, real_positions, padding_positions
+
+
+def _clear_aborted_zero_update_output(output: Path) -> bool:
+    """Remove only the exact debris shape produced by a pre-update P2-32 abort."""
+    if not output.exists():
+        return False
+    if output.is_symlink() or not output.is_dir():
+        raise FileExistsError("P2-32 first-run output exists and is not a recoverable directory")
+    allowed = {"checkpoints", "metrics.jsonl"}
+    names = {path.name for path in output.iterdir()}
+    if not names.issubset(allowed):
+        raise FileExistsError("P2-32 first-run output contains non-recoverable files")
+    checkpoints = output / "checkpoints"
+    if checkpoints.exists():
+        if checkpoints.is_symlink() or not checkpoints.is_dir() or any(checkpoints.iterdir()):
+            raise FileExistsError("P2-32 first-run output contains checkpoint state")
+    metrics = output / "metrics.jsonl"
+    if metrics.exists():
+        if metrics.is_symlink() or not metrics.is_file() or metrics.stat().st_size > 1024 * 1024:
+            raise FileExistsError("P2-32 first-run metrics are not safely recoverable")
+        for line in metrics.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise FileExistsError("P2-32 first-run metrics are malformed") from exc
+            if not isinstance(event, dict) or event.get("event") != "run_started":
+                raise FileExistsError("P2-32 first-run output shows progress beyond zero updates")
+    shutil.rmtree(output)
+    return True
+
+
 def create_structured_plan_stage(
     *,
     base_checkpoint: Path,
@@ -961,6 +1030,9 @@ def run_structured_plan_training(
     """Execute only an explicitly owner-authorized P2-32 first run."""
     auth = _json(authorization_contract_path)
     _validate_authorization(auth)
+    root = artifact_root.resolve()
+    output = path_within_root(output_dir, root)
+    recovered_zero_update_output = _clear_aborted_zero_update_output(output)
     preflight = preflight_structured_plan_training(
         bundle_dir=bundle_dir,
         stage_checkpoint=stage_checkpoint,
@@ -972,8 +1044,6 @@ def run_structured_plan_training(
     )
     if not preflight["authorized"]:
         raise ValueError("P2-32 model training is not authorized")
-    root = artifact_root.resolve()
-    output = path_within_root(output_dir, root)
     bundle = inspect_structured_plan_bundle(bundle_dir, preparation_contract_path)
     model, payload = _verify_stage(stage_checkpoint, bundle)
     device = select_device("cuda")
@@ -1043,7 +1113,7 @@ def run_structured_plan_training(
         })
         try:
             while len(losses) < MAXIMUM_STEPS and time.perf_counter() < deadline:
-                loss, real_positions, padding_positions = _training_step(
+                loss, real_positions, padding_positions = _structured_plan_training_step(
                     model,
                     optimizer,
                     train,
@@ -1052,7 +1122,6 @@ def run_structured_plan_training(
                     micro_batch=MICRO_BATCH,
                     accumulation_steps=GRADIENT_ACCUMULATION,
                     loss_vocabulary_size=bundle["tokenizer"]["actualVocabularySize"],
-                    answer_weighted=False,
                 )
                 step = len(losses) + 1
                 losses.append(loss)
@@ -1142,6 +1211,7 @@ def run_structured_plan_training(
             "finalCheckpoint": final,
             "peakGpuMemory": peak_gpu_memory(device),
             "p231DevelopmentEvaluationPending": True,
+            "recoveredZeroUpdateOutput": recovered_zero_update_output,
         }
 
     result_path = output / "run-result.json"
