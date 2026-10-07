@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-28",
+  "kind": "plex-p2-28-first-web-pretraining-result-v1",
+  "status": "complete",
+  "sourceDatasetManifestSha256": "2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "initializationCheckpointSha256": "06c27a452e2a62ed069729d2080b1d2fddb84d41bd336bbda489c066c23f8a86",
+  "initialModelWeightsSha256": "98785d70ee7f68fcfde35ad6136bb3be05ff562374f0bdede2faae93cb80a193",
+  "run": {
+    "requestedMinutes": 10,
+    "requestedSteps": 100,
+    "completedSteps": 100,
+    "interrupted": false,
+    "device": "cuda",
+    "samplingPolicy": "random-window-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "weightDecay": 0.1,
+    "tokensProcessedThisRun": 819200,
+    "tokensPerSecond": 46877.645254346455,
+    "elapsedSeconds": 17.475280500017107,
+    "meanRecentLoss": 4.492670101299882,
+    "validationLossBefore": 9.80930100440979,
+    "validationLossAfter": 5.6959015655517575,
+    "validationImproved": true,
+    "checkpointSha256": "cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87",
+    "checkpointBytes": 330898523,
+    "peakGpuAllocatedBytes": 832899584,
+    "peakGpuReservedBytes": 874512384,
+    "processPeakWorkingSetBytes": 1400102912
+  },
+  "independentEvaluation": {
+    "device": "cuda",
+    "batches": 100,
+    "tokens": 51200,
+    "checkpointStep": 100,
+    "meanLoss": 5.6959015655517575,
+    "exactMatchToPilotReportedValidationLoss": true
+  },
+  "interpretation": {
+    "pipelineStable": true,
+    "freshScratchTrajectoryConfirmed": true,
+    "validationLearningSignalConfirmed": true,
+    "codingCapabilityEstablished": false,
+    "p2_29LongerMatchedRunJustified": true
+  },
+  "finalProjectHoldout": {
+    "opened": false,
+    "status": "closed"
+  }
+}
