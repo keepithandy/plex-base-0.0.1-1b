@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "candidate": "p2-23-target-kind-classification-candidate-v1",
+  "approvalStatus": "pending-owner-review",
+  "records": 216,
+  "trainingRecords": 144,
+  "evaluationRecords": 72,
+  "trainingLevelCounts": {
+    "A": 48,
+    "B": 48,
+    "C": 48
+  },
+  "evaluationTierCounts": {
+    "A": 24,
+    "B": 24,
+    "C": 24
+  },
+  "targetKindVocabulary": [
+    "CSS_SELECTOR",
+    "CSS_PROPERTY",
+    "HTML_ELEMENT",
+    "HTML_ATTRIBUTE",
+    "JS_IDENTIFIER",
+    "JS_PROPERTY"
+  ],
+  "trainingPerTargetKind": 24,
+  "evaluationPerTargetKind": 12,
+  "perLevelTrainingPerTargetKind": 8,
+  "perTierEvaluationPerTargetKind": 4,
+  "candidateJsonlSha256": "3625f43419c185b567ae0d6849860f3e310016fc9dcc5bf6bc53afa6363d1d08",
+  "trainingRowsSha256": "f51cf7808a8b37a9fe60513401117efd81d0c28c10fe1a0ab154dc5724af45e7",
+  "tierSha256": {
+    "A": "6157b1e41f98a9e2b30a660deae8ae712a7a910fe1d991f0653c8918e00ce3d6",
+    "B": "1d194209d6813a4ff58876ee2103194985fa973eb925992ae1b45599d67678f8",
+    "C": "bf1a195e2bbbd0b0325cc1de31fdb7a1d817045abdbda07d107082500129a01a"
+  },
+  "chanceBaselinePerTier": 0.16666666666666666,
+  "trainEvaluationExactRequestOverlap": 0,
+  "trainEvaluationContextOverlap": 0,
+  "sameTargetKindTrainEvaluationNearDuplicatesAtOrAbove065": 0,
+  "levelBContrastGroups": {
+    "train": 8,
+    "evaluation": 4
+  },
+  "levelCContrastGroups": {
+    "train": 8,
+    "evaluation": 4
+  },
+  "priorPromptAudit": {
+    "P2-22c": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.264151,
+      "maxPair": [
+        "p2-23-e-b-007",
+        "p2-22c-e-c-001"
+      ]
+    },
+    "P2-22": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.375,
+      "maxPair": [
+        "p2-23-t-a-036",
+        "p2-22-t-a-048"
+      ]
+    },
+    "P2-21": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.433333,
+      "maxPair": [
+        "p2-23-t-a-007",
+        "p2-21-t-a-035"
+      ]
+    },
+    "P2-20": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.222222,
+      "maxPair": [
+        "p2-23-e-a-008",
+        "p2-20-t-a-048"
+      ]
+    },
+    "P2-19": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.156863,
+      "maxPair": [
+        "p2-23-e-c-023",
+        "p2-19-t-c-001"
+      ]
+    },
+    "P2-18": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.151515,
+      "maxPair": [
+        "p2-23-e-a-008",
+        "p2-18-copy-038"
+      ]
+    },
+    "P2-17": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.131148,
+      "maxPair": [
+        "p2-23-t-b-011",
+        "p2-17-bind-123"
+      ]
+    },
+    "P2-14": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.118644,
+      "maxPair": [
+        "p2-23-t-c-026",
+        "p2-14-css-edit-gap"
+      ]
+    },
+    "P2-01b": {
+      "exactRequestOverlap": 0,
+      "maxWordJaccard": 0.128205,
+      "maxPair": [
+        "p2-23-t-a-004",
+        "p2dev-css-08-sticky-header"
+      ]
+    }
+  },
+  "tokenizerFitted": false,
+  "checkpointInitialized": false,
+  "trainingRunCreated": false,
+  "modelTrained": false,
+  "finalHoldoutOpened": false
+}
