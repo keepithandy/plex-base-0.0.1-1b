@@ -388,6 +388,33 @@ def build_parser() -> argparse.ArgumentParser:
     task_generate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     _add_artifact_root(task_generate)
 
+    plan_evaluate = subparsers.add_parser(
+        "plan-evaluate", help="Score P2-31 semantic edit-plan responses against the development contract"
+    )
+    plan_evaluate.add_argument(
+        "--task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_evaluate.add_argument("--responses", type=Path, required=True)
+    plan_evaluate.add_argument("--report", type=Path, default=None)
+
+    plan_generate = subparsers.add_parser(
+        "plan-generate", help="Generate deterministic P2-31 semantic edit plans from the fixed checkpoint"
+    )
+    plan_generate.add_argument(
+        "--task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_generate.add_argument("--checkpoint", type=Path, required=True)
+    plan_generate.add_argument("--bundle-dir", type=Path, required=True)
+    plan_generate.add_argument("--output-dir", type=Path, required=True)
+    plan_generate.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-31-structured-bridge-contract.json"),
+    )
+    plan_generate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    _add_artifact_root(plan_generate)
+
     return parser
 
 
@@ -802,6 +829,38 @@ def _task_generate(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _plan_evaluate(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan import evaluate_plan_files
+
+    report = evaluate_plan_files(args.task_set, args.responses)
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Evaluation report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
+def _plan_generate(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_run import generate_structured_plans
+
+    root = args.artifact_root.resolve()
+    output_dir = _under_artifact_root(args.output_dir, root)
+    return generate_structured_plans(
+        task_set_path=args.task_set,
+        checkpoint_path=args.checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output_dir,
+        artifact_root=root,
+        contract_path=args.contract,
+        device_name=args.device,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -910,6 +969,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_task_evaluate(args))
         elif args.command == "task-generate":
             _json_print(_task_generate(args))
+        elif args.command == "plan-evaluate":
+            _json_print(_plan_evaluate(args))
+        elif args.command == "plan-generate":
+            _json_print(_plan_generate(args))
         return 0
     except (FileExistsError, ImportError, OSError, RuntimeError, ValueError) as exc:
         print(f"plex-train: {exc}", file=sys.stderr)

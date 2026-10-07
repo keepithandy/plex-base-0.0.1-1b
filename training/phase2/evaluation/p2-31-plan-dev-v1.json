@@ -1,0 +1,597 @@
+{
+  "schemaVersion": 1,
+  "setId": "p2-31-plan-dev-v1",
+  "kind": "development",
+  "provenance": "project-authored-development",
+  "purpose": "Measure whether Plex Nano can normalize unseen repository-style HTML/CSS/JavaScript requests into bounded semantic edit plans while deterministic Plex Code retains exact repository resolution and mutation.",
+  "planSchemaVersion": "plex-structured-edit-plan-v1",
+  "inferenceDefaults": {
+    "temperature": 0,
+    "seed": 1337,
+    "maxNewTokens": 256,
+    "promptTemplateVersion": "plex-structured-plan-v1"
+  },
+  "gate": {
+    "minimumPassed": 12,
+    "minimumPerLanguage": 3,
+    "minimumSchemaValid": 15
+  },
+  "tasks": [
+    {
+      "id": "p231-html-01-primary-nav",
+      "language": "html",
+      "difficulty": "basic",
+      "request": "In an existing site header, modify the primary navigation so it is explicitly labeled Main and contains a current-page state for the active destination. Do not choose a file or exact selector; describe the semantic edit plan only.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "html-element",
+        "targetRole": "primary-navigation",
+        "constraints": [
+          {
+            "kind": "element",
+            "key": "semantic-element",
+            "value": "nav"
+          },
+          {
+            "kind": "attribute",
+            "key": "aria-label",
+            "value": "Main"
+          },
+          {
+            "kind": "state",
+            "key": "aria-current",
+            "value": "page"
+          }
+        ],
+        "hintKeywords": [
+          "navigation",
+          "active"
+        ]
+      }
+    },
+    {
+      "id": "p231-html-02-email-field",
+      "language": "html",
+      "difficulty": "basic",
+      "request": "A signup form needs an accessible required email input with a visible label. Produce the semantic edit plan without naming a file or assuming an exact id.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "html-element",
+        "targetRole": "email-field",
+        "constraints": [
+          {
+            "kind": "element",
+            "key": "input-type",
+            "value": "email"
+          },
+          {
+            "kind": "attribute",
+            "key": "required",
+            "value": "true"
+          },
+          {
+            "kind": "behavior",
+            "key": "label-association",
+            "value": "required"
+          }
+        ],
+        "hintKeywords": [
+          "email",
+          "label"
+        ]
+      }
+    },
+    {
+      "id": "p231-html-03-status-message",
+      "language": "html",
+      "difficulty": "basic",
+      "request": "The save workflow needs a status message that assistive technology can announce and a control that refers to that message. Return only a semantic plan.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "html-element",
+        "targetRole": "save-status",
+        "constraints": [
+          {
+            "kind": "attribute",
+            "key": "role",
+            "value": "status"
+          },
+          {
+            "kind": "behavior",
+            "key": "described-by-link",
+            "value": "required"
+          }
+        ],
+        "hintKeywords": [
+          "status",
+          "save"
+        ]
+      }
+    },
+    {
+      "id": "p231-html-04-disclosure",
+      "language": "html",
+      "difficulty": "basic",
+      "request": "Add a native disclosure section for shipping information using semantic HTML and a visible Shipping label. Do not emit markup; return the plan.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "html-element",
+        "targetRole": "shipping-disclosure",
+        "constraints": [
+          {
+            "kind": "element",
+            "key": "container",
+            "value": "details"
+          },
+          {
+            "kind": "element",
+            "key": "label-element",
+            "value": "summary"
+          },
+          {
+            "kind": "text",
+            "key": "label",
+            "value": "Shipping"
+          }
+        ],
+        "hintKeywords": [
+          "shipping",
+          "disclosure"
+        ]
+      }
+    },
+    {
+      "id": "p231-html-05-data-table",
+      "language": "html",
+      "difficulty": "edge",
+      "request": "An existing data display should become an accessible table with a caption and column headers that are scoped to columns. Express the semantic intent without resolving exact DOM nodes.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "html-element",
+        "targetRole": "data-table",
+        "constraints": [
+          {
+            "kind": "element",
+            "key": "container",
+            "value": "table"
+          },
+          {
+            "kind": "element",
+            "key": "caption",
+            "value": "required"
+          },
+          {
+            "kind": "attribute",
+            "key": "header-scope",
+            "value": "col"
+          }
+        ],
+        "hintKeywords": [
+          "table",
+          "header"
+        ]
+      }
+    },
+    {
+      "id": "p231-html-06-checkbox-group",
+      "language": "html",
+      "difficulty": "edge",
+      "request": "A notification preference area needs to be grouped semantically with a legend and contain a labeled checkbox. Describe the edit plan only.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "html-element",
+        "targetRole": "notification-preferences",
+        "constraints": [
+          {
+            "kind": "element",
+            "key": "group",
+            "value": "fieldset"
+          },
+          {
+            "kind": "element",
+            "key": "group-label",
+            "value": "legend"
+          },
+          {
+            "kind": "element",
+            "key": "control-type",
+            "value": "checkbox"
+          },
+          {
+            "kind": "behavior",
+            "key": "label-association",
+            "value": "required"
+          }
+        ],
+        "hintKeywords": [
+          "notification",
+          "checkbox"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-01-card-layout",
+      "language": "css",
+      "difficulty": "basic",
+      "request": "The card component should lay out its children with flexbox, keep a 1rem gap, and add 1rem of internal padding. Do not resolve the concrete selector; return a semantic edit plan.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "card-layout",
+        "constraints": [
+          {
+            "kind": "declaration",
+            "key": "display",
+            "value": "flex"
+          },
+          {
+            "kind": "declaration",
+            "key": "gap",
+            "value": "1rem"
+          },
+          {
+            "kind": "declaration",
+            "key": "padding",
+            "value": "1rem"
+          }
+        ],
+        "hintKeywords": [
+          "card",
+          "layout"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-02-gallery-grid",
+      "language": "css",
+      "difficulty": "basic",
+      "request": "The gallery should use a responsive grid with auto-fit columns, a 16rem minimum, a 1fr maximum, and a 1rem gap. Return the normalized plan, not CSS.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "gallery-layout",
+        "constraints": [
+          {
+            "kind": "declaration",
+            "key": "display",
+            "value": "grid"
+          },
+          {
+            "kind": "declaration",
+            "key": "grid-template-columns",
+            "value": "repeat(auto-fit, minmax(16rem, 1fr))"
+          },
+          {
+            "kind": "declaration",
+            "key": "gap",
+            "value": "1rem"
+          }
+        ],
+        "hintKeywords": [
+          "gallery",
+          "grid"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-03-focus-style",
+      "language": "css",
+      "difficulty": "basic",
+      "request": "Buttons need a visible keyboard focus treatment using a 3px solid currentColor outline and a 3px offset. Leave exact selector resolution to Plex Code.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "keyboard-focus",
+        "constraints": [
+          {
+            "kind": "state",
+            "key": "interaction-state",
+            "value": "focus-visible"
+          },
+          {
+            "kind": "declaration",
+            "key": "outline",
+            "value": "3px solid currentColor"
+          },
+          {
+            "kind": "declaration",
+            "key": "outline-offset",
+            "value": "3px"
+          }
+        ],
+        "hintKeywords": [
+          "button",
+          "focus"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-04-sticky-header",
+      "language": "css",
+      "difficulty": "basic",
+      "request": "The site header should stick to the top of its scrolling container and keep a white background. Produce a plan with no file path or selector guess.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "site-header",
+        "constraints": [
+          {
+            "kind": "declaration",
+            "key": "position",
+            "value": "sticky"
+          },
+          {
+            "kind": "declaration",
+            "key": "top",
+            "value": "0"
+          },
+          {
+            "kind": "declaration",
+            "key": "background-color",
+            "value": "white"
+          }
+        ],
+        "hintKeywords": [
+          "header",
+          "sticky"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-05-expanded-panel",
+      "language": "css",
+      "difficulty": "edge",
+      "request": "When an expansion control is in its expanded state, the adjacent panel should be hidden with display none. Represent state and desired styling semantically rather than inventing a selector.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "expanded-panel-state",
+        "constraints": [
+          {
+            "kind": "state",
+            "key": "aria-expanded",
+            "value": "true"
+          },
+          {
+            "kind": "relationship",
+            "key": "target",
+            "value": "adjacent-panel"
+          },
+          {
+            "kind": "declaration",
+            "key": "display",
+            "value": "none"
+          }
+        ],
+        "hintKeywords": [
+          "expanded",
+          "panel"
+        ]
+      }
+    },
+    {
+      "id": "p231-css-06-toolbar-wrap",
+      "language": "css",
+      "difficulty": "edge",
+      "request": "A toolbar row should use flexbox, wrap onto additional lines, and keep 0.5rem between items. Return only the semantic plan.",
+      "expectedPlan": {
+        "action": "modify",
+        "targetKind": "css-rule",
+        "targetRole": "toolbar-layout",
+        "constraints": [
+          {
+            "kind": "declaration",
+            "key": "display",
+            "value": "flex"
+          },
+          {
+            "kind": "declaration",
+            "key": "flex-wrap",
+            "value": "wrap"
+          },
+          {
+            "kind": "declaration",
+            "key": "gap",
+            "value": "0.5rem"
+          }
+        ],
+        "hintKeywords": [
+          "toolbar",
+          "wrap"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-01-clamp",
+      "language": "javascript",
+      "difficulty": "basic",
+      "request": "The repository needs a helper that bounds a value inclusively between minimum and maximum. Plan the JavaScript change without choosing the exact file or existing symbol.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "numeric-clamp",
+        "constraints": [
+          {
+            "kind": "behavior",
+            "key": "lower-bound",
+            "value": "minimum"
+          },
+          {
+            "kind": "behavior",
+            "key": "upper-bound",
+            "value": "maximum"
+          },
+          {
+            "kind": "behavior",
+            "key": "inclusive",
+            "value": "true"
+          }
+        ],
+        "hintKeywords": [
+          "bound",
+          "value"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-02-unique-by-id",
+      "language": "javascript",
+      "difficulty": "basic",
+      "request": "Add behavior that keeps the first item for each id while preserving input order. Describe the function-level semantic plan, not implementation code.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "unique-by-id",
+        "constraints": [
+          {
+            "kind": "behavior",
+            "key": "dedupe-key",
+            "value": "id"
+          },
+          {
+            "kind": "behavior",
+            "key": "duplicate-policy",
+            "value": "keep-first"
+          },
+          {
+            "kind": "behavior",
+            "key": "order",
+            "value": "preserve-input"
+          }
+        ],
+        "hintKeywords": [
+          "unique",
+          "id"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-03-format-usd",
+      "language": "javascript",
+      "difficulty": "basic",
+      "request": "A formatting helper should render numeric values as USD currency for the en-US locale. Return a semantic edit plan only.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "usd-formatting",
+        "constraints": [
+          {
+            "kind": "api",
+            "key": "formatter",
+            "value": "Intl.NumberFormat"
+          },
+          {
+            "kind": "behavior",
+            "key": "locale",
+            "value": "en-US"
+          },
+          {
+            "kind": "behavior",
+            "key": "currency",
+            "value": "USD"
+          }
+        ],
+        "hintKeywords": [
+          "currency",
+          "format"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-04-toggle-item",
+      "language": "javascript",
+      "difficulty": "basic",
+      "request": "A collection helper should remove a target id when present or append it when absent, while leaving the input array unchanged. Plan the change without code.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "toggle-item",
+        "constraints": [
+          {
+            "kind": "behavior",
+            "key": "present-case",
+            "value": "remove-target"
+          },
+          {
+            "kind": "behavior",
+            "key": "absent-case",
+            "value": "append-target"
+          },
+          {
+            "kind": "nonmutation",
+            "key": "input-array",
+            "value": "preserve"
+          }
+        ],
+        "hintKeywords": [
+          "toggle",
+          "item"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-05-sum-by",
+      "language": "javascript",
+      "difficulty": "edge",
+      "request": "The codebase needs a helper that sums finite numeric values from a named item property while ignoring missing or non-numeric values. Return a normalized plan.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "sum-by-property",
+        "constraints": [
+          {
+            "kind": "behavior",
+            "key": "property-source",
+            "value": "named-key"
+          },
+          {
+            "kind": "behavior",
+            "key": "accepted-values",
+            "value": "finite-number"
+          },
+          {
+            "kind": "behavior",
+            "key": "invalid-values",
+            "value": "ignore"
+          }
+        ],
+        "hintKeywords": [
+          "sum",
+          "property"
+        ]
+      }
+    },
+    {
+      "id": "p231-js-06-sort-by-name",
+      "language": "javascript",
+      "difficulty": "edge",
+      "request": "A helper should return items sorted by each item's name using locale-aware comparison without mutating the original array. Describe the semantic edit plan only.",
+      "expectedPlan": {
+        "action": "create",
+        "targetKind": "js-function",
+        "targetRole": "sort-by-name",
+        "constraints": [
+          {
+            "kind": "behavior",
+            "key": "sort-key",
+            "value": "name"
+          },
+          {
+            "kind": "api",
+            "key": "comparison",
+            "value": "localeCompare"
+          },
+          {
+            "kind": "nonmutation",
+            "key": "input-array",
+            "value": "preserve"
+          }
+        ],
+        "hintKeywords": [
+          "sort",
+          "name"
+        ]
+      }
+    }
+  ]
+}

@@ -2,9 +2,9 @@
 
 ## Status
 
-**Preparation gate passed — October 7, 2026. The first bounded run is owner-authorized but has not been executed.**
+**First bounded run complete — October 7, 2026. No continuation is authorized.**
 
-The [preparation result](PHASE-2-P2-30-PREPARATION-RESULT.md) records exact identities, unchanged P2-29 weights, a reproducible **6.821033537387848** task-text baseline and **0/30** development tasks. The separate [first-run authorization](../training/pretraining/p2-30-first-finetune-contract.json) pins the only permitted first run: **100 maximum optimizer updates / 600 seconds**, CUDA, seed 1337, complete-record-v1, ordinary next-token loss, and fixed validation/checkpoint steps. Authorization and tooling themselves perform **zero** research optimizer updates.
+The [preparation result](PHASE-2-P2-30-PREPARATION-RESULT.md) records exact stage-zero evidence. The immutable [first-run authorization](../training/pretraining/p2-30-first-finetune-contract.json) was executed exactly once for **100/100 CUDA updates**. The [first-run result](PHASE-2-P2-30-FIRST-RUN-RESULT.md) records validation **6.8210 → 3.0633 best descriptive value → 3.4313 fixed endpoint**, final checkpoint SHA-256 `28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e`, and P2-01b **0/30 complete tasks with 0 truncations and 41/151 static assertions passed**.
 
 P2-30 transitions Plex from Web-domain pretraining into task-format fine-tuning.
 
@@ -185,3 +185,10 @@ The machine authorization is:
 
 `training/pretraining/p2-30-first-finetune-contract.json`
 
+
+
+## Closeout
+
+P2-30 is closed after its first bounded run. The task-format learning signal is real, but the capability gate did not pass and validation worsened after step 50. The project therefore does not authorize more P2-30 updates on the same curriculum.
+
+Next: [P2-31 Structured Coding Bridge](PHASE-2-P2-31-STRUCTURED-BRIDGE.md).
