@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "example-project-a",
+      "localPath": "data/raw/example-project-a",
+      "origin": "https://github.com/OWNER/REPOSITORY",
+      "revision": "FULL_40_CHARACTER_COMMIT_SHA",
+      "licenseId": "MIT",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:00:00Z",
+      "groupId": "github-OWNER-REPOSITORY",
+      "includeExtensions": [".html", ".css", ".js", ".mjs", ".cjs"]
+    },
+    {
+      "id": "example-project-b",
+      "localPath": "data/raw/example-project-b",
+      "origin": "https://github.com/OWNER/ANOTHER_REPOSITORY",
+      "revision": "FULL_40_CHARACTER_COMMIT_SHA",
+      "licenseId": "Apache-2.0",
+      "licenseEvidence": "LICENSE",
+      "rightsReviewStatus": "approved",
+      "rightsReviewedAtUtc": "2026-10-06T00:00:00Z",
+      "groupId": "github-OWNER-ANOTHER-REPOSITORY",
+      "includeExtensions": [".html", ".css", ".js"]
+    }
+  ]
+}
