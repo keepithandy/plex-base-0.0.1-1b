@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-38",
+  "kind": "p2-38-first-semantic-binding-run-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "first-bounded-run-complete",
+  "authorizationContractSha256": "3660520d12874939d76a875507df205a8c194f9d191b77b887f946d0df83a353",
+  "authorizedMaximumSteps": 100,
+  "authorizedMaximumWallTimeSeconds": 600,
+  "automaticContinuation": false,
+  "continuationAuthorized": false,
+  "resumeAllowed": false,
+  "interrupted": false,
+  "elapsedSeconds": 21.426470599952154,
+  "stageCheckpointSha256": "325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8",
+  "bundleManifestSha256": "9a69a848cdf26f427a83d30590e40e447075c6a2397629084c824f20d6b81158",
+  "candidateSha256": "137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "completedSteps": 100,
+  "researchOptimizerUpdates": 100,
+  "tokensProcessed": 548680,
+  "paddingTargetPositions": 0,
+  "trainingPerformed": true,
+  "finalHoldoutOpened": false,
+  "samplingAudit": {
+    "examples": 1600,
+    "recordsSelected": 72,
+    "minimumRecordSelections": 12,
+    "maximumRecordSelections": 33,
+    "realTargetPositions": 548680,
+    "paddingTargetPositions": 0
+  },
+  "meanRecentLoss": 0.09404514555353671,
+  "peakGpuMemory": {
+    "allocatedBytes": 661761536,
+    "reservedBytes": 813694976
+  },
+  "validation": [
+    {
+      "step": 0,
+      "meanLoss": 2.6659477899471917
+    },
+    {
+      "step": 25,
+      "meanLoss": 2.3299999833106995
+    },
+    {
+      "step": 50,
+      "meanLoss": 2.557119940718015
+    },
+    {
+      "step": 75,
+      "meanLoss": 2.6024878919124603
+    },
+    {
+      "step": 100,
+      "meanLoss": 2.625917633374532
+    }
+  ],
+  "descriptiveMinimumValidation": {
+    "step": 25,
+    "meanLoss": 2.3299999833106995
+  },
+  "checkpointSelectionRule": "The fixed official endpoint remains step 100; do not retrospectively select the lowest-validation checkpoint.",
+  "checkpoints": [
+    {
+      "step": 25,
+      "sha256": "b8f638a69556b14e587ed9b887e76fdefdbb245096c1a22b575794acd320578e",
+      "bytes": 330900187
+    },
+    {
+      "step": 50,
+      "sha256": "7158850ec06ac5e13b012675331199f418429c4d043ad1ca825c24bc86a6aa6f",
+      "bytes": 330900187
+    },
+    {
+      "step": 75,
+      "sha256": "b4669502d2a5c33d5abfc20b8c1867d39d03819cdd66288e26c72f9dca616bba",
+      "bytes": 330900251
+    },
+    {
+      "step": 100,
+      "sha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+      "bytes": 330900187
+    }
+  ],
+  "officialEndpoint": {
+    "step": 100,
+    "path": "training/artifacts/structured-plan/p2-38-first-run/checkpoints/step-0100.pt",
+    "sha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+    "bytes": 330900187
+  },
+  "p231DevelopmentEvaluationPending": true,
+  "nextMilestone": "P2-39 structured bridge re-evaluation"
+}
