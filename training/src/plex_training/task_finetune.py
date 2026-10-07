@@ -301,7 +301,8 @@ def create_task_stage(
     }
 
     estimated = DEFAULT_CONFIG.parameter_count() * 4 + 2 * 1024 * 1024
-    enforce_storage_limit(root, additional_bytes=estimated, limit_bytes=storage_limit_bytes)
+    if estimated > storage_limit_bytes:
+        raise ValueError("P2-30 task-stage checkpoint exceeds remaining storage allocation")
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(exist_ok=False)
     checkpoint_path = output_dir / "stage-checkpoint.pt"
@@ -343,5 +344,4 @@ def create_task_stage(
         encoding="utf-8",
         newline="\n",
     )
-    enforce_storage_limit(root, limit_bytes=storage_limit_bytes)
     return report
