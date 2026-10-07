@@ -102,19 +102,39 @@ The accepted source decisions, family-stratified split, corpus/tokenizer hashes,
 
 **P2-03 three-example probe:** the [bounded result](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) reproduced one approved training answer per language exactly by step 25 using complete-record training, with 3/3 retained at step 200. The scratch checkpoint was reloaded and checked. This supports prompt-to-answer learnability for three seen examples only; it does not justify a two-hour run.
 
-### Phase 2 closeout path
+### Phase 2 web-pretraining program
+
+P2-23b closed the small-data semantic-probe era. Phase 2 now pivots to a two-stage training strategy:
+
+```text
+large permissively licensed HTML/CSS/JS pretraining
+                    ↓
+             Plex Web Base
+                    ↓
+      task-format fine-tuning
+                    ↓
+       structured coding bridge
+```
 
 | Milestone | Purpose | Exit condition |
 |---|---|---|
-| **P2-24 — Semantic confusion closure** | Diagnose the remaining target-kind errors, especially **CSS_PROPERTY** and **HTML_ATTRIBUTE**, without simply extending P2-23b optimization. | Explain the dominant confusion pattern and test one bounded correction or representation change. Do not reopen exact-state logic that evidence says belongs in Plex Code. |
-| **P2-25 — Structured coding bridge** | Combine learned intent/target semantics into a compact structured edit plan on unseen repository-style development requests. | Held-out development requests produce useful structured plans often enough to justify repository integration; exact file/symbol/state resolution remains deterministic. |
+| **P2-24 — Plex Web pretraining specification** | Freeze the source-license policy, supported file types, provenance requirements, quality filters, repository-level split rules, contamination controls, corpus ladder, and owner review gates. | Specification is committed; no large-scale source is ingested without matching provenance and license metadata. |
+| **P2-25 — Corpus ingestion pipeline** | Implement reproducible ingestion for approved sources with license gating, path/file filters, secret checks, generated/minified detection, hashing, provenance, and repository grouping. | A deterministic small-source build reproduces byte-identically and rejects disallowed/ambiguous sources. |
+| **P2-26 — Plex Web Corpus v1** | Build progressively larger repository-grouped HTML/CSS/JS corpora: pipeline scale, pilot scale, then serious pretraining scale. | Corpus manifests record source identity, license, repository split, deduplication, exclusions, token/byte counts, and contamination checks. |
+| **P2-27 — Web tokenizer review** | Fit a tokenizer on the pretraining **training split only** and compare it with the current experimental tokenizer on HTML, CSS, JavaScript, ordinary instructions, and Plex task formats. | Tokenizer choice is measured and frozen before the serious pretraining run. |
+| **P2-28 — Small domain-pretraining pilot** | Train the unchanged 27,566,080-parameter architecture from random initialization on a small Plex Web slice. | Held-out web-code next-token loss improves; checkpoint/provenance/resume checks pass; throughput and resource use are measured. |
+| **P2-29 — Plex Web Base pretraining** | Run the serious domain-pretraining trajectory on the approved larger corpus using the frozen tokenizer/configuration. | A reproducible pretrained checkpoint demonstrates materially stronger HTML/CSS/JS continuation and syntax behavior than step zero and the small-data baselines. |
+| **P2-30 — Plex task fine-tuning** | Fine-tune Plex Web Base on the existing Phase 2 task curricula mixed together: semantic roles, edit intent, target kind, no-change/insufficient-context, and structured edit planning. | The tuned checkpoint retains web-code competence while improving measured task-format transfer. |
+| **P2-31 — Structured coding bridge** | Evaluate unseen repository-style requests → bounded semantic edit plans. Exact file/symbol/state resolution remains deterministic Plex Code work. | Useful held-out edit plans justify repository integration and Phase 3 entry. |
 
-P2-24 and P2-25 are the **final planned Phase 2 milestones**. Do not expand Phase 2 into an open-ended sequence of semantic probes unless P2-25 exposes a specific missing prerequisite.
+The earlier P2 datasets remain valuable. They move from being tiny stand-ins for pretraining to the **fine-tuning and evaluation layer**.
 
-The architecture boundary established by P2-16 through P2-23b is:
+The architecture boundary remains:
 
-- **Plex Base:** semantic normalization, edit intent, target kind, target role, language, bounded search hints, and structured planning.
+- **Plex Base:** HTML/CSS/JS priors, semantic normalization, edit intent, target kind, target role, language, bounded search hints, and structured planning.
 - **Plex Code:** repository search, exact symbol/selector/property lookup, current-state inspection, presence transitions, exact byte resolution, file mutation, validation, and diff generation.
+
+**Phase 2 entry to P3:** do not enter Phase 3 merely because pretraining loss improves. P2-31 must show useful unseen structured edit-plan transfer.
 
 ## Phase 3 — Repository editing
 
@@ -187,6 +207,8 @@ The P2-22c result strengthens the architecture boundary: keep Plex Base focused 
 
 **P2-23/P2-23b complete and closed.** The step-100 run began at **46/144** supplied fit with held-out Tier A/B/C at **4/24, 3/24 and 6/24**. The approved four-stage continuation reached cumulative step 500 without extending beyond the authorized ceiling. Supplied fit reached **143/144** (A **48/48**, B **47/48**, C **48/48**) and held-out Tier A/B/C reached **19/24, 12/24 and 11/24**, or **42/72 total**. The step-500 per-kind held-out totals were CSS_SELECTOR **8/12**, CSS_PROPERTY **5/12**, HTML_ELEMENT **8/12**, HTML_ATTRIBUTE **4/12**, JS_IDENTIFIER **9/12**, and JS_PROPERTY **8/12**. P2-14 remained **0/12**, P2-01b remained **0/30**, automatic continuation beyond step 500 remained disabled, and the final project holdout remained closed. Validation loss rose to **4.34508** while recent training loss fell to **0.06088**, so more optimization of the unchanged representation is not justified. See the [P2-23b result](docs/PHASE-2-P2-23B-RESULT.md).
 
-**Next task: P2-24 — Semantic Confusion Closure.** Build a bounded diagnostic around the two residual weak classes, **CSS_PROPERTY** and **HTML_ATTRIBUTE**, and the relevant contrast pairs. The objective is to explain and, if warranted, correct the remaining semantic confusion—not to run step 600 or reopen exact repository-state logic.
+**Next task: P2-24 — Plex Web Pretraining Specification.** Freeze the licensing/source policy, supported HTML/CSS/JavaScript-family files, provenance schema, quality filters, repository-level split rules, contamination protection, and corpus-size ladder before any large-scale ingestion.
 
-After P2-24, run **P2-25 — Structured Coding Bridge**. If Plex can transfer intent/target semantics into useful structured edit plans on unseen development requests, close Phase 2 and begin P3-01. If it cannot, document the specific missing prerequisite rather than extending Phase 2 indefinitely.
+The owner is an explicit participant in the pretraining program: source families or license-policy expansions that are not already covered by the committed allowlist require owner review before promotion. Large-corpus access terms that require a user agreement must be accepted by the owner directly; Plex tooling must not silently accept third-party terms.
+
+After P2-24, implement P2-25's ingestion pipeline and build the P2-26 corpus ladder. Keep the current **27.6M** architecture through the first domain-pretraining pilot so corpus/tokenizer effects are measurable before any model-size increase.
