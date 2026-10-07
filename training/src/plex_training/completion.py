@@ -21,7 +21,8 @@ def _completion_tokenizer(bundle_dir: Path) -> tuple[PlexTokenizer, dict[str, An
     root = bundle_dir.resolve(strict=True)
     for name in ("tokenizer.json", "tokenizer-config.json", "model-config.json", "manifest.json"):
         path = root / name
-        if path.is_symlink() or not path.is_file() or path.stat().st_size > 1024 * 1024:
+        maximum_bytes = (16 if name == "tokenizer.json" else 1) * 1024 * 1024
+        if path.is_symlink() or not path.is_file() or path.stat().st_size > maximum_bytes:
             raise ValueError(f"Completion tokenizer file is missing, linked, or too large: {name}")
     _, record = _tokenizer_metadata(root)
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
