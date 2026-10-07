@@ -19,7 +19,7 @@ from plex_training.pilot import inspect_pilot_bundle
 from plex_training.record_sampling import CompleteRecordTokenCorpus
 from plex_training.tokenizer import PlexTokenizer, sha256_file, train_tokenizer
 
-from verify_p2_23_edit_intent_candidate import (
+from verify_p2_23_target_kind_candidate import (
     CANDIDATE,
     CANDIDATE_SHA256,
     P2_01B,
