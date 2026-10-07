@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-38",
+  "kind": "plex-p2-38-stage-preflight-result-v1",
+  "status": "preflight-passed-awaiting-owner-authorization",
+  "authorizationStatus": "draft-awaiting-owner-review",
+  "authorized": false,
+  "candidateSha256": "137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "bundle": {
+    "manifestSha256": "9a69a848cdf26f427a83d30590e40e447075c6a2397629084c824f20d6b81158",
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "trainTokenCount": 24793,
+    "validationTokenCount": 12409,
+    "trainJsonlSha256": "ecff52a775a2f876b2a243b3254c37ac05bd75c72b372d2ecaddc06ae82b6ecf",
+    "validationJsonlSha256": "ed643f978a099ede504515d27e8ffcbaae15c582b120f82abd87f492aee52f00",
+    "trainIndexSha256": "a75377175f1bbc4f88fc8f0796f77df82ab2d40265131f29777249ad404b4a86",
+    "validationIndexSha256": "310abdf314b06acfe73ec1734e2f4ee12327ab899acbfbe074b8869fb7c3e33f"
+  },
+  "stage": {
+    "baseCheckpointSha256": "1fafce16260ab8910465517c7f571b34dccf7f21ec1ad9d281dad53ab87fbcd0",
+    "checkpointSha256": "325d37ad124c8481ebb172afd27204e0f532faacc3adee390f189e19590bffd8",
+    "baseMilestone": "P2-35",
+    "baseCheckpointStep": 100,
+    "p238StageStep": 0,
+    "p238TokensProcessed": 0,
+    "parameterCount": 27566080,
+    "modelWeightsPreserved": true,
+    "modelWeightEqualityMethod": "torch.equal for every model-state tensor after reload",
+    "optimizerStateReused": false,
+    "samplerStateReset": true,
+    "stageKind": "plex-semantic-binding-stage-transition-v1"
+  },
+  "sampler": {
+    "kind": "complete-record-v1",
+    "selection": "uniform-record-with-replacement",
+    "endPolicy": "stop-at-record-eos-v1",
+    "records": 72,
+    "trainJsonlSha256": "ecff52a775a2f876b2a243b3254c37ac05bd75c72b372d2ecaddc06ae82b6ecf",
+    "indexSha256": "a75377175f1bbc4f88fc8f0796f77df82ab2d40265131f29777249ad404b4a86",
+    "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+    "tokenAccounting": "nonpadding-next-token-targets-v1",
+    "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+  },
+  "preflight": {
+    "device": "cuda",
+    "baselineValidationBatches": 24,
+    "baselineValidationLoss": 2.6659477899471917,
+    "expectedExamplesAt100Steps": 1600,
+    "expectedRealTargetPositionsAt100Steps": 548680,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "outputWouldBe": "structured-plan/p2-38-first-run"
+  },
+  "modelTrainingAuthorized": false,
+  "approvalPacketComplete": true,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false
+}
