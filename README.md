@@ -247,13 +247,14 @@ JS_PROPERTY      8 / 12
 
 P2-14 remained **0/12** and P2-01b remained **0/30**. Validation loss rose to **4.34508** while recent training loss fell to **0.06088**, so further optimization of the unchanged P2-23 representation is not planned. The final project holdout remained closed and no continuation beyond step 500 ran.
 
-The remaining Phase 2 path is now deliberately short:
+The measured P2-23b result led to a larger training-strategy pivot instead of more small-data optimization:
 
-1. **P2-24 — Semantic Confusion Closure:** diagnose the residual CSS_PROPERTY / HTML_ATTRIBUTE confusion.
-2. **P2-25 — Structured Coding Bridge:** test whether Plex can turn unseen repository-style requests into a bounded semantic edit plan.
-3. If P2-25 succeeds, **close Phase 2 and begin P3-01** rather than extending Phase 2 with open-ended probes.
+1. **P2-24 — Plex Web Pretraining Specification:** complete.
+2. **P2-25 — Corpus Ingestion Pipeline:** complete.
+3. **P2-26 — Plex Web Corpus v1:** **active now**, scaling the reviewed HTML/CSS/JavaScript corpus toward the first meaningful pretraining dataset.
+4. P2-27 then freezes/reviews the web tokenizer before the first controlled 27.6M pretraining pilot.
 
-This also formalizes the working architecture split: **Plex Nano owns semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
+The architecture split remains: **Plex Nano owns learned web-code priors and semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
 ### New training direction — Plex Web
 
@@ -273,7 +274,7 @@ Plex Code deterministic resolution
 
 The current 27.6M model remains the first controlled pretraining architecture. Scaling toward the longer-term 0.5B–1.5B range is deferred until the corpus, tokenizer, and pretraining measurements justify it.
 
-See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md).
+See [P2-24 Plex Web Pretraining Specification](docs/PHASE-2-P2-24-WEB-PRETRAINING-SPEC.md), [P2-25 closeout](docs/PHASE-2-P2-25-CLOSEOUT.md), and [P2-26 Plex Web Corpus v1](docs/PHASE-2-P2-26-WEB-CORPUS-V1.md).
 
 **Result:** [P2-23b Target-Kind Continuation Result](docs/PHASE-2-P2-23B-RESULT.md)  
 **Continuation contract:** [P2-23b Target-Kind Continuation](docs/PHASE-2-P2-23B-CONTINUATION.md)
@@ -398,7 +399,7 @@ Start with [training/README.md](training/README.md) for preparation, training, e
 ## Repository map
 
 ```text
-plex-base-0.0.1-1b/
+plex-nano-27m-v0.0.1-p2-24/
 │
 ├── src/                 Plex Code repository tooling
 ├── training/            Scratch model training + evaluation
