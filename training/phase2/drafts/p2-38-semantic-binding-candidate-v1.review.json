@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "milestone": "P2-38",
   "candidateId": "p2-38-semantic-binding-candidate-v1",
-  "status": "pending-owner-review",
+  "status": "candidate-review-passed",
   "candidateSha256": "137e2ccf8e015ba74a109ce53f3c7adf502262a4d2a79382e21bfc69a1ea7ab8",
   "byteCount": 86973,
   "records": 108,
@@ -10,9 +10,18 @@
   "trainRecords": 72,
   "validationRecords": 36,
   "perLanguage": {
-    "html": {"train": 24, "validation": 12},
-    "css": {"train": 24, "validation": 12},
-    "javascript": {"train": 24, "validation": 12}
+    "html": {
+      "train": 24,
+      "validation": 12
+    },
+    "css": {
+      "train": 24,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 12
+    }
   },
   "uniqueRequests": 108,
   "uniqueTargetRoles": 108,
