@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-30",
+  "kind": "p2-30-first-task-finetune-result-v1",
+  "evidenceSource": "owner-reported local CUDA run and reviewed evaluator output",
+  "authorizationContractSha256": "d67ab6fc230013a13dfdc235f7106a15e9e1cd4346d3fb5021d47de33dcd2011",
+  "stageCheckpointSha256": "d987606e97fd99e7dfcab0f52d29da82b9771d01809abf363ffe0188f8ec02a4",
+  "taskBundleManifestSha256": "7753b1518b737e7f6b8e0b64f4f829b027ed3aad5b33a7613b3715481448eec5",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "completedSteps": 100,
+  "researchOptimizerUpdates": 100,
+  "elapsedSeconds": 21.60604109999258,
+  "tokensProcessed": 181849,
+  "interrupted": false,
+  "automaticContinuation": false,
+  "resumeAllowed": false,
+  "finalHoldoutOpened": false,
+  "samplingAudit": {
+    "examples": 1600,
+    "recordsSelected": 156,
+    "minimumRecordSelections": 3,
+    "maximumRecordSelections": 18,
+    "realTargetPositions": 181849,
+    "paddingTargetPositions": 0
+  },
+  "validation": [
+    {
+      "step": 0,
+      "batches": 16,
+      "tokens": 8192,
+      "meanLoss": 6.821033537387848
+    },
+    {
+      "step": 25,
+      "batches": 16,
+      "tokens": 8192,
+      "meanLoss": 3.1708500385284424
+    },
+    {
+      "step": 50,
+      "batches": 16,
+      "tokens": 8192,
+      "meanLoss": 3.0633289515972137
+    },
+    {
+      "step": 75,
+      "batches": 16,
+      "tokens": 8192,
+      "meanLoss": 3.1765616685152054
+    },
+    {
+      "step": 100,
+      "batches": 16,
+      "tokens": 8192,
+      "meanLoss": 3.431293249130249
+    }
+  ],
+  "bestDescriptiveValidation": {
+    "step": 50,
+    "meanLoss": 3.0633289515972137,
+    "checkpointSelectionAuthorized": false
+  },
+  "finalCheckpoint": {
+    "step": 100,
+    "sha256": "28064a22f322d6b9cde04c2424f3c257de8c0803245c1db83072ab29c67f6d6e"
+  },
+  "developmentEvaluation": {
+    "taskSetId": "p2-01b-dev-v1",
+    "taskSetSha256": "e229dce9c55de36246b93fc9a7b3f2261bb21e2de2851d186906c68a28950ff4",
+    "checkpointStep": 100,
+    "responsesSha256": "7389e7b69774297f80d1004970b13e0423578aa0d2827781b7eaa91a93130e3d",
+    "tasks": 30,
+    "evaluable": 30,
+    "passed": 0,
+    "assertionsPassed": 41,
+    "assertionsTotal": 151,
+    "truncatedOutputs": 0,
+    "emptyOutputs": 0,
+    "missingOutputs": 0
+  },
+  "conclusion": "learning-signal-confirmed-capability-gate-not-passed",
+  "continuationAuthorized": false,
+  "nextMilestone": "P2-31 structured coding bridge"
+}
