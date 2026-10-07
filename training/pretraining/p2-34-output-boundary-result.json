@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-34",
+  "kind": "plex-p2-34-output-boundary-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "diagnostic-complete",
+  "contractSha256": "aec7a0cc28663346e17410ef0108e941f8405334f830cbcfd24b9c76c4db7b8f",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6",
+  "tasksExpected": 18,
+  "responsesPresent": 18,
+  "missingResponses": [],
+  "truncatedResponses": 0,
+  "uniqueResponseTexts": 17,
+  "duplicateResponseTexts": 1,
+  "strictValidPlans": 0,
+  "classifications": {
+    "malformed-json-candidate": 18
+  },
+  "firstNonWhitespaceCharacters": {
+    "{": 18
+  },
+  "mostCommonPrefixes": [
+    {
+      "prefix": "{\"schemaVersion\":1,\"lang",
+      "count": 18
+    }
+  ],
+  "signals": {
+    "startsWithOpeningBrace": 18,
+    "endsWithClosingBrace": 18,
+    "containsOpeningBrace": 18,
+    "containsClosingBrace": 18,
+    "containsSchemaVersionKey": 18,
+    "containsMarkdownFence": 0,
+    "embeddedJsonObjectParseable": 0,
+    "embeddedStrictPlanValid": 0
+  },
+  "diagnosis": {
+    "category": "json-grammar-serialization-instability",
+    "outerBoundaryLearned": true,
+    "schemaPrefixLearned": true,
+    "interiorGrammarStable": false,
+    "evidence": "All responses begin with an opening brace, include schemaVersion, and end with a closing brace, but all 18 contain malformed interior JSON key/value syntax and no embedded parseable object.",
+    "nextTrainingFocus": [
+      "key-colon-value transitions",
+      "comma-next-key transitions",
+      "constraint object kind/key/value grammar",
+      "nested constraints/searchHints array grammar",
+      "full strict-plan serialization after local grammar stability"
+    ]
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-35 serialization-stability curriculum"
+}

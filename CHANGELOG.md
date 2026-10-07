@@ -7,6 +7,8 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Opened **P2-35 — Serialization Stability Curriculum** after P2-34 localized the failure to interior JSON grammar. Added a **144-record / 24-group** preparation candidate with **108 train / 36 validation** records and six linked stages per group: flat JSON prefix, top-level plan identity, one constraint object, nested arrays, full explicit serialization, and production request-to-plan generation. The frozen tokenizer is retained and **P2-35 model training remains unauthorized**.
+- Closed **P2-34 — Output-Boundary Diagnostic** as **diagnostic complete**: all **18/18** responses start with `{`, contain `"schemaVersion"`, and end with `}`, while all **18/18** are malformed JSON candidates, **0/18** contain an embedded parseable JSON object, and **0/18** contain an embedded strict plan. The failure is classified as JSON grammar / serialization instability rather than failure to enter the JSON representation at all.
 - Opened **P2-34 — Output-Boundary Diagnostic** after P2-33 repeated the original representation failure. Added a read-only `plan-diagnose` command pinned to the exact P2-33 response SHA `ff7d199607030935b39b6b21a924958e43ac1583b9a02de170bab6ebcccf32d6`. It classifies strict JSON, fenced JSON, extra-text JSON, wrong-schema JSON, malformed JSON candidates, and responses that never start a JSON object; it performs no repair, rescoring, or gradient update.
 - Closed **P2-33 — Structured Bridge Re-evaluation** as **gate failed**: **0/18 complete plans**, **0/18 schema-valid plans**, **36/162 checks**, and **0/6** in each language. All 18 responses were present and untruncated. Final holdout remained sealed.
 - Opened **P2-33 — Structured Bridge Re-evaluation** using the unchanged 18-task P2-31 development set and original **12/18 + 3/6 per language + 15/18 schema-valid** gate. The evaluator is pinned to the fixed P2-32 step-100 checkpoint SHA `707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4`; no gradient updates are authorized.
@@ -65,7 +67,7 @@ _🗓️ Updated October 7, 2026_
 
 > ⚠️ **Reality check:** P2-23b demonstrates real semantic transfer, but the broader P2-01b development benchmark remains **0/30 complete tasks**. Plex has not yet earned the repository-editing phase, the final project holdout remains closed, and higher training fit is not being treated as coding success.
 
-> 🔭 **Up next:** Run P2-34 `plan-diagnose` on the exact P2-33 responses. Do not train further until the raw output-boundary failure is classified. The final project holdout remains sealed.
+> 🔭 **Up next:** Run P2-35 `plan-serialization-review`, including the frozen-tokenizer bundle preflight. Do not train yet. The final project holdout remains sealed.
 
 
 ---

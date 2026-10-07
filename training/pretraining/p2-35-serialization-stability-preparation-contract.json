@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-35",
+  "kind": "plex-p2-35-serialization-stability-preparation-contract-v1",
+  "status": "preparation-only-awaiting-owner-review",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "purpose": "Prepare a local-JSON-grammar curriculum after P2-34 proved that all P2-33 responses learned the outer JSON boundary but corrupted interior serialization.",
+  "baseCheckpoint": {
+    "path": "training/artifacts/structured-plan/p2-32-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "707e46f9e3e87cdd9beec705e2bd55701b37a40e79aad7ab93858fa63f8ebcf4"
+  },
+  "tokenizer": {
+    "sourceBundle": "training/artifacts/structured-plan/p2-32-training-bundle",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "a0d3663bf3ba9a9653ceb52e35594bf3271e4e56cc483dd66f9d149ca38bc6fd",
+    "vocabularySize": 16384,
+    "refitAllowed": false
+  },
+  "curriculum": {
+    "candidate": "training/phase2/drafts/p2-35-serialization-stability-candidate-v1.jsonl",
+    "candidateSha256": "2abd94ee05da241848e06500b0df43fd0f70e19af75c199ef6d73181fa8a1bad",
+    "review": "training/phase2/drafts/p2-35-serialization-stability-candidate-v1.review.json",
+    "records": 144,
+    "trainRecords": 108,
+    "validationRecords": 36,
+    "groups": 24,
+    "trainGroups": 18,
+    "validationGroups": 6,
+    "levels": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "productionPromptLevel": "F",
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1"
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExcludedFromTraining": true,
+    "p233ResponsesExcludedFromTraining": true,
+    "p201bExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "preparationExitGate": [
+    "candidate/review hashes and split counts verified",
+    "all 144 solutions parse as JSON objects with the exact per-level shape",
+    "all level E/F solutions pass the strict structured-plan schema",
+    "no concept group crosses train/validation",
+    "no targetRole overlaps P2-31 development target roles",
+    "no exact level-F request overlaps P2-31 development requests",
+    "frozen tokenizer roundtrip/context budgets verified locally before any training authorization",
+    "separate P2-35 weights-only stage/training tooling reviewed before any optimizer update",
+    "separate bounded P2-35 training authorization explicitly reviewed and committed"
+  ],
+  "proposedFirstRun": {
+    "status": "draft-only-not-authorized",
+    "objective": "ordinary-next-token-v1",
+    "sampler": "complete-record-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "validationCadence": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
+    "checkpointCadence": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "automaticContinuation": false,
+    "resumeAllowed": false
+  },
+  "trainingCommand": null
+}

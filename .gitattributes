@@ -47,3 +47,7 @@ training/pretraining/p2-32-first-run-result.json text eol=lf
 training/pretraining/p2-33-structured-bridge-contract.json text eol=lf
 training/pretraining/p2-33-structured-bridge-result.json text eol=lf
 training/pretraining/p2-34-output-boundary-contract.json text eol=lf
+training/pretraining/p2-34-output-boundary-result.json text eol=lf
+training/phase2/drafts/p2-35-serialization-stability-candidate-v1.jsonl text eol=lf
+training/phase2/drafts/p2-35-serialization-stability-candidate-v1.review.json text eol=lf
+training/pretraining/p2-35-serialization-stability-preparation-contract.json text eol=lf
