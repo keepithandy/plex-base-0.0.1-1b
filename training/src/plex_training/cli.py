@@ -517,6 +517,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_evidence_composition_training_preflight = subparsers.add_parser(
+        "plan-evidence-composition-training-preflight",
+        help="Measure the frozen P2-44 stage/bundle on CUDA without training",
+    )
+    plan_evidence_composition_training_preflight.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-training-bundle"),
+    )
+    plan_evidence_composition_training_preflight.add_argument(
+        "--stage-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-stage0/stage-checkpoint.pt"),
+    )
+    plan_evidence_composition_training_preflight.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-44-training-preflight-contract.json"),
+    )
+    plan_evidence_composition_training_preflight.add_argument(
+        "--output-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-first-run"),
+    )
+    plan_evidence_composition_training_preflight.add_argument(
+        "--artifact-root", type=Path,
+        default=Path("training/artifacts"),
+    )
+    plan_evidence_composition_training_preflight.add_argument("--report", type=Path, default=None)
+
     plan_evidence_composition_stage = subparsers.add_parser(
         "plan-evidence-composition-stage",
         help="Create the authorized P2-44 step-zero stage without training",
@@ -1605,6 +1631,33 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_evidence_composition_training_preflight(
+    args: argparse.Namespace,
+) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_training import (
+        preflight_evidence_composition_training,
+    )
+
+    report = preflight_evidence_composition_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        contract_path=args.contract,
+        output_dir=args.output_dir,
+        artifact_root=args.artifact_root,
+        require_cuda=True,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"P2-44 training preflight report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def _plan_evidence_composition_stage(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_evidence_composition_stage import (
         create_evidence_composition_stage,
@@ -2178,6 +2231,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-evidence-composition-training-preflight":
+            _json_print(_plan_evidence_composition_training_preflight(args))
         elif args.command == "plan-evidence-composition-stage":
             _json_print(_plan_evidence_composition_stage(args))
         elif args.command == "plan-evidence-composition-stage-preflight":
