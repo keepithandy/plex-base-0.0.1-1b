@@ -391,10 +391,13 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 P2-47 is complete and frozen.
 
-The next action is **zero-update P2-48 preparation**:
+The real P2-48 bundle and sampler preflight are complete and frozen:
 
-1. pack the reviewed 72/36 request-grounded train/validation bundle,
-2. replay the proposed 1,600-example complete-record sampler,
-3. freeze the resulting bundle, JSONL, token, index, and sampler identities.
+- all **72 / 72** train records selected
+- selection range **12–33**
+- **429,375** expected real target positions across **1,600** examples
+- exact bundle/data/token/index identities recorded
 
-Checkpoint staging and model training are still unauthorized until those real local preflight results are reviewed.
+The next action is the **non-training step-zero stage** from the exact P2-44 step-100 endpoint. The stage must preserve weights bit-for-bit and reset P2-48 step/tokens/sampler state.
+
+Model training remains unauthorized after stage creation.

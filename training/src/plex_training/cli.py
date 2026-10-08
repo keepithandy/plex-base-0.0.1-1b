@@ -840,6 +840,52 @@ def build_parser() -> argparse.ArgumentParser:
     )
     request_grounded_bundle_preflight.add_argument("--report", type=Path, default=None)
 
+    request_grounded_stage_source_preflight = subparsers.add_parser(
+        "request-grounded-stage-source-preflight",
+        help="Verify the exact P2-44 endpoint and frozen P2-48 bundle without staging",
+    )
+    request_grounded_stage_source_preflight.add_argument(
+        "--base-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-first-run/checkpoints/step-0100.pt"),
+    )
+    request_grounded_stage_source_preflight.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/request-grounded/p2-48-training-bundle"),
+    )
+    request_grounded_stage_source_preflight.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-48-stage-source-preparation-contract.json"),
+    )
+
+    request_grounded_stage = subparsers.add_parser(
+        "request-grounded-stage",
+        help="Create the authorized zero-update P2-48 stage from exact P2-44 weights",
+    )
+    request_grounded_stage.add_argument(
+        "--base-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-first-run/checkpoints/step-0100.pt"),
+    )
+    request_grounded_stage.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/request-grounded/p2-48-training-bundle"),
+    )
+    request_grounded_stage.add_argument(
+        "--source-contract", type=Path,
+        default=Path("training/pretraining/p2-48-stage-source-preparation-contract.json"),
+    )
+    request_grounded_stage.add_argument(
+        "--stage-contract", type=Path,
+        default=Path("training/pretraining/p2-48-step-zero-stage-contract.json"),
+    )
+    request_grounded_stage.add_argument(
+        "--output-dir", type=Path,
+        default=Path("request-grounded/p2-48-stage0"),
+    )
+    request_grounded_stage.add_argument(
+        "--storage-limit-gib", type=float, default=200.0
+    )
+    _add_artifact_root(request_grounded_stage)
+
     plan_request_binding_generate = subparsers.add_parser(
         "plan-request-binding-generate",
         help="Generate the deterministic P2-41 request-conditioned contrast candidate without training",
@@ -2057,6 +2103,41 @@ def _request_grounded_bundle_preflight(args: argparse.Namespace) -> dict[str, An
     return report
 
 
+def _request_grounded_stage_source_preflight(
+    args: argparse.Namespace,
+) -> dict[str, Any]:
+    from .request_grounded_coding_stage import (
+        preflight_request_grounded_stage_source,
+    )
+
+    return preflight_request_grounded_stage_source(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        contract_path=args.contract,
+    )
+
+
+def _request_grounded_stage(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .request_grounded_coding_stage import create_request_grounded_stage
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    report = create_request_grounded_stage(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        source_contract_path=args.source_contract,
+        stage_contract_path=args.stage_contract,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+    return {**report, "outputDirectory": str(output.relative_to(root))}
+
+
 def _plan_request_binding_generate(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_request_binding_curriculum import generate_request_binding_candidate
 
@@ -2546,6 +2627,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_request_grounded_bundle_prepare(args))
         elif args.command == "request-grounded-bundle-preflight":
             _json_print(_request_grounded_bundle_preflight(args))
+        elif args.command == "request-grounded-stage-source-preflight":
+            _json_print(_request_grounded_stage_source_preflight(args))
+        elif args.command == "request-grounded-stage":
+            _json_print(_request_grounded_stage(args))
         elif args.command == "plan-request-binding-generate":
             _json_print(_plan_request_binding_generate(args))
         elif args.command == "plan-request-binding-review":
