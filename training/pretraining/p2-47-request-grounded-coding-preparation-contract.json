@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-47",
+  "kind": "plex-p2-47-request-grounded-coding-preparation-contract-v1",
+  "status": "candidate-preparation-authorized",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "trainingCommand": null,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "purpose": "Teach Plex to bind exact evidence in a natural-language coding request to concrete coding intent before any file-conditioned editing work begins.",
+  "motivation": {
+    "sourceMilestone": "P2-46",
+    "result": "request-binding-failure-confirmed",
+    "targetRoleGroundedInRequest": 0,
+    "allSearchHintsGroundedInRequest": 0,
+    "targetRoleAtomsKnownInP244Train": 18,
+    "allConstraintTriplesSeenInP244Train": 17,
+    "p244TrainingTargetRoleReuse": 17,
+    "p244TrainingSearchHintReuse": 16,
+    "p244ExactSemanticBundleReuse": 3,
+    "p244ComponentRecombination": 8,
+    "tasksImproved": 2,
+    "tasksRegressed": 9,
+    "tasksUnchanged": 7
+  },
+  "representation": {
+    "schemaVersion": "plex-request-grounded-change-v1",
+    "fields": [
+      "schemaVersion",
+      "language",
+      "action",
+      "targetEvidence",
+      "bindings"
+    ],
+    "bindingFields": [
+      "evidence",
+      "kind",
+      "key",
+      "value"
+    ],
+    "targetRoleRemoved": true,
+    "searchHintsRemoved": true,
+    "opaqueSyntheticLabelsProhibited": true,
+    "exactRequestEvidenceRequired": true,
+    "concreteCodingIntentRequired": true,
+    "naturalRequestWordingRequired": true,
+    "fileContextRequired": false,
+    "reasonFileContextIsDeferred": "Phase 2 is finishing request-to-coding-intent understanding. Supplied-file conditioning begins in Phase 3."
+  },
+  "design": {
+    "generatorVersion": "p2-47-request-grounded-coding-generator-v1",
+    "languages": [
+      "html",
+      "css",
+      "javascript"
+    ],
+    "contrastFamilies": [
+      "target-binding",
+      "requirement-binding",
+      "action-binding",
+      "near-neighbor"
+    ],
+    "records": 108,
+    "groups": 36,
+    "recordsPerGroup": 3,
+    "trainGroups": 24,
+    "validationGroups": 12,
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "recordsPerLanguage": 36,
+    "trainRecordsPerLanguage": 24,
+    "validationRecordsPerLanguage": 12,
+    "tokenizerRefit": false
+  },
+  "groundingRules": {
+    "targetEvidence": "targetEvidence must be an exact case-insensitive substring of the coding request and must name the thing the user asked to change.",
+    "bindings": "Every binding.evidence value must be an exact case-insensitive substring of the request. The associated kind/key/value triple must express the concrete coding meaning of that evidence.",
+    "action": "Action is learned directly from natural create/modify/remove wording. Remove examples carry no behavior bindings because removal is fully specified by action plus target evidence.",
+    "prohibited": "Do not use targetRole, searchHints, milestone-prefixed labels, generic filler semantics, repository lookup concepts, or invented evidence that does not appear in the request."
+  },
+  "splitPolicy": {
+    "principle": "Validation uses familiar targets, actions, and individual coding intents in novel request-to-intent combinations and different natural surface forms.",
+    "validationTargetsMustBeSeenInTrain": true,
+    "validationBindingIntentsMustBeSeenInTrain": true,
+    "validationActionsMustBeSeenInTrain": true,
+    "validationNonemptyBindingSetsMayNotAppearInTrain": true,
+    "validationMayNotReuseExactRequests": true,
+    "validationMayNotReuseExactSolutions": true,
+    "p231DevelopmentExactRequestsExcluded": true
+  },
+  "candidateIdentity": {
+    "candidateId": "p2-47-request-grounded-coding-v1",
+    "sha256": "6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a",
+    "bytes": 81032
+  },
+  "frozenEvaluationPlan": {
+    "candidateValidation": {
+      "records": 36,
+      "requirements": [
+        "strict representation validity",
+        "exact action",
+        "exact targetEvidence",
+        "exact binding evidence",
+        "exact coding-intent kind/key/value",
+        "zero train-validation exact request overlap",
+        "zero train-validation exact solution overlap",
+        "zero train-validation nonempty binding-set overlap"
+      ]
+    },
+    "postTrainingDevelopmentGate": {
+      "milestone": "P2-49",
+      "taskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+      "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+      "unchanged": true,
+      "purpose": "Regression/transfer comparison only. The P2-31 structured-plan representation is not the product target."
+    }
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExactRequestsExcludedFromCandidate": true,
+    "p242ResponsesExcludedFromTraining": true,
+    "p243DiagnosticExcludedFromTraining": true,
+    "p245ResponsesExcludedFromTraining": true,
+    "p246DiagnosticExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "decisionBoundary": "P2-47 authorizes deterministic candidate generation and review only. It does not authorize packing a training bundle, staging a checkpoint, creating an optimizer, running gradient updates, or starting P2-48."
+}
