@@ -373,3 +373,83 @@ bundle-preflight-passed-awaiting-separate-stage-decision
 ```
 
 Checkpoint staging remains a separate future decision.
+
+
+## Frozen bundle and sampler result
+
+The real local P2-44 bundle and sampler replay passed and are now frozen.
+
+Bundle identity:
+
+- bundle manifest SHA-256: `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`
+- source dataset manifest SHA-256: `18d827d2e6bef3aaee41afacee163f16367dc6fc5198334f321c88f7623515b8`
+- train JSONL SHA-256: `0141dbd0209d10e2138a0a90ff688e97b4b1de39f91c28ca367ed7267b309789`
+- validation JSONL SHA-256: `8b690e91335aab703a331de41ea0d6d801d68058f0dc1a3eada716d952fede2c`
+- train index SHA-256: `5364aef18ff9ce5c702989953bf19268c7f4a8af079e84fc2f90672e8a63fc09`
+- validation index SHA-256: `5c409f624474173648d5068fd1961ea3659ceb304dc65fe66382343cff29ea59`
+
+Accounting remains:
+
+- train records: **108**
+- validation records: **54**
+- train tokens: **38,280**
+- validation tokens: **19,186**
+- maximum record length: **375 / 512**
+
+The proposal-only complete-record sampler replay used:
+
+- seed: **1337**
+- proposed steps: **100**
+- micro-batch: **1**
+- gradient accumulation: **16**
+- examples: **1,600**
+- expected real target positions: **565,641**
+- records selected: **108 / 108**
+- minimum selections per record: **5**
+- maximum selections per record: **24**
+
+No optimizer, checkpoint stage, or gradient update was created by this replay.
+
+## Stage-source compatibility gate
+
+P2-44 now has a separate read-only gate for verifying the intended weight source.
+
+The intended source is the fixed P2-41 endpoint:
+
+```text
+training/artifacts/structured-plan/p2-41-first-run/checkpoints/step-0100.pt
+```
+
+Expected SHA-256:
+
+```text
+adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc
+```
+
+The verifier checks:
+
+- exact checkpoint SHA
+- P2-41 step **100**
+- P2-41 total processed targets **567,311**
+- model parameter count/config
+- scratch-model initialization provenance
+- P2-41 stage-transition provenance
+- P2-41 authorized-training provenance
+- frozen tokenizer identity
+- frozen P2-44 bundle compatibility
+
+Run it with:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-stage-preflight
+```
+
+A successful result ends at:
+
+```text
+stage-source-preflight-passed-awaiting-stage-authorization
+```
+
+The command is read-only. It does not create an optimizer or stage checkpoint.
+
+Actual P2-44 stage creation remains a separate future authorization decision.
