@@ -517,6 +517,53 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_evidence_composition_generate = subparsers.add_parser(
+        "plan-evidence-composition-generate",
+        help="Generate the deterministic P2-44 evidence-first composition candidate without training",
+    )
+    plan_evidence_composition_generate.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.jsonl"),
+    )
+    plan_evidence_composition_generate.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.review.json"),
+    )
+    plan_evidence_composition_generate.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_evidence_composition_generate.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-44-evidence-first-semantic-composition-preparation-contract.json"),
+    )
+
+    plan_evidence_composition_review = subparsers.add_parser(
+        "plan-evidence-composition-review",
+        help="Review P2-44 grounding, compositional holdout, leakage, and tokenizer fit without training",
+    )
+    plan_evidence_composition_review.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.jsonl"),
+    )
+    plan_evidence_composition_review.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.review.json"),
+    )
+    plan_evidence_composition_review.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_evidence_composition_review.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-44-evidence-first-semantic-composition-preparation-contract.json"),
+    )
+    plan_evidence_composition_review.add_argument(
+        "--bundle-dir", type=Path, default=None,
+        help="Optional frozen P2-41 tokenizer bundle for roundtrip/context preflight",
+    )
+    plan_evidence_composition_review.add_argument("--report", type=Path, default=None)
+
     plan_request_binding_generate = subparsers.add_parser(
         "plan-request-binding-generate",
         help="Generate the deterministic P2-41 request-conditioned contrast candidate without training",
@@ -1465,6 +1512,42 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_evidence_composition_generate(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_curriculum import (
+        generate_evidence_composition_candidate,
+    )
+
+    return generate_evidence_composition_candidate(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        contract_path=args.contract,
+    )
+
+
+def _plan_evidence_composition_review(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_curriculum import (
+        review_evidence_composition_curriculum,
+    )
+
+    report = review_evidence_composition_curriculum(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        contract_path=args.contract,
+        bundle_dir=args.bundle_dir,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"P2-44 review report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8", newline="\n",
+        )
+    return report
+
+
 def _plan_request_binding_generate(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_request_binding_curriculum import generate_request_binding_candidate
 
@@ -1928,6 +2011,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-evidence-composition-generate":
+            _json_print(_plan_evidence_composition_generate(args))
+        elif args.command == "plan-evidence-composition-review":
+            _json_print(_plan_evidence_composition_review(args))
         elif args.command == "plan-request-binding-generate":
             _json_print(_plan_request_binding_generate(args))
         elif args.command == "plan-request-binding-review":
