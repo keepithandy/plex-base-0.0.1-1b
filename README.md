@@ -121,9 +121,15 @@ However, the unchanged P2-31 bridge re-evaluation in **P2-45** still failed:
 | exact constraints | **0 / 18** |
 | required hint coverage | **0 / 18** |
 
-That result matters: Plex improved strongly on the P2-44 training/validation distribution, but the learned representation did not transfer well enough to the independently worded bridge tasks.
+P2-46 explained the failure more precisely: Plex shifted from replaying whole semantic templates toward recombining familiar coding components, but **the current request still did not reliably control which components were selected**.
 
-The next Phase 2 work focuses on **semantic transfer**, not longer optimization of the unchanged P2-44 curriculum.
+The current milestone, **P2-47**, therefore removes `targetRole` and `searchHints` from the primary learning target and trains a simpler relationship:
+
+```text
+exact request evidence → concrete coding intent
+```
+
+This keeps Phase 2 focused on the model's coding understanding before Phase 3 introduces supplied-file conditioning.
 
 ## Roadmap
 
@@ -235,6 +241,8 @@ For detailed experiment commands and retained results, see [training/README.md](
 - [P2-43 — Semantic bundle reuse diagnostic](docs/PHASE-2-P2-43-SEMANTIC-BUNDLE-REUSE-DIAGNOSTIC.md)
 - [P2-44 — Evidence-first semantic composition](docs/PHASE-2-P2-44-EVIDENCE-FIRST-SEMANTIC-COMPOSITION.md)
 - [P2-45 — Structured bridge re-evaluation](docs/PHASE-2-P2-45-STRUCTURED-BRIDGE-REEVALUATION.md)
+- [P2-46 — Semantic transfer failure diagnostic](docs/PHASE-2-P2-46-SEMANTIC-TRANSFER-DIAGNOSTIC.md)
+- [P2-47 — Request-grounded coding representation](docs/PHASE-2-P2-47-REQUEST-GROUNDED-CODING.md)
 
 ---
 

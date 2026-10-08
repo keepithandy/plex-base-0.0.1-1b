@@ -118,21 +118,21 @@ This is a **semantic transfer failure**, not a reason to keep optimizing the unc
 
 ### P2-46 — Semantic Transfer Failure Diagnostic
 
-**Goal:** identify why P2-44 improves internal validation while P2-45 transfer remains weak.
+**Status: COMPLETE**
 
-Measure:
+P2-46 confirmed that P2-44 changed Plex from frequent whole-template replay toward recombining familiar semantic components, but the current request still did not reliably control which components were selected.
 
-- P2-45 target-role outputs
-- constraint composition errors
-- hint grounding failures
-- structural invalidity causes
-- language-specific action collapse
-- similarity between P2-45 outputs and P2-44 training examples
-- response-by-response P2-43 → P2-45 improvements/regressions
+Key evidence:
 
-**Training:** none.
+- targetRole grounded in request: **0 / 18**
+- all search hints grounded in request: **0 / 18**
+- P2-44 training targetRole reuse: **17 / 18**
+- P2-44 training search-hint reuse: **16 / 18**
+- exact semantic-bundle reuse fell **8 → 3**
+- component recombination rose **2 → 8**
+- **9** tasks regressed, **2** improved
 
-**Completion:** a concrete failure taxonomy exists and points to the smallest next representation change.
+**Conclusion:** composition improved; request-conditioned composition did not.
 
 ### P2-47 — Request-Grounded Coding Representation
 
@@ -140,12 +140,14 @@ Measure:
 
 Requirements:
 
-- grounded in the user's wording
-- grounded in supplied code concepts
-- no opaque synthetic labels as the main target
-- separate syntax correctness from semantic correctness
+- grounded directly in the user's wording
+- map exact request evidence to concrete coding intent
+- no targetRole/searchHints as primary learning targets
+- no opaque synthetic labels
 - explicit train/validation combination holdouts
+- validation must reuse familiar coding intents in unseen combinations
 - no P2-31 development leakage
+- file context remains deferred to Phase 3
 
 **Completion:** reviewed candidate and frozen evaluation plan.
 
@@ -383,17 +385,22 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P2-46 — Semantic Transfer Failure Diagnostic
+## P2-47 — Request-Grounded Coding Representation
 
-P2-45 is complete and failed the unchanged bridge:
+P2-46 is complete and confirmed the core failure:
 
-- **0 / 18** complete semantic passes
-- **12 / 18** schema-valid
-- **78 / 162** checks passed
-- **0 / 18** targetRole
-- **0 / 18** exact constraints
-- **0 / 18** required hint coverage
+> Plex learned to recombine familiar coding components, but the current request did not reliably control which components were selected.
 
-P2-46 diagnostic tooling is now prepared. The next action is to run the frozen P2-42 → P2-45 comparison locally and review its failure taxonomy before designing P2-47.
+P2-47 now teaches a simpler relationship:
 
-No P2-44 continuation, P2-47 curriculum preparation, or new training is authorized yet.
+```text
+natural coding request
+        ↓
+exact request evidence
+        ↓
+concrete coding intent
+```
+
+The deterministic P2-47 candidate generator/reviewer is implemented for **108 records**: 72 train / 36 validation across HTML, CSS, and JavaScript. Validation reuses familiar targets/actions/coding intents in unseen combinations and different natural wording.
+
+The next action is to generate and review the exact frozen candidate. **No P2-48 training is authorized yet.**

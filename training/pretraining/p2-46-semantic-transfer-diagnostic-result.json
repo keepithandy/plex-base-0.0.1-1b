@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-46",
+  "kind": "plex-p2-46-semantic-transfer-failure-diagnostic-result-record-v1",
+  "recordedDate": "2026-10-08",
+  "status": "diagnostic-complete-request-binding-failure-confirmed",
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "optimizerCreated": false,
+  "finalHoldoutOpened": false,
+  "p242ResponsesSha256": "3a935e10fb8d7deab057c3776446f1151ec3f0945b195c5350f93b6a54af30ee",
+  "p245ResponsesSha256": "ca1e8c8abb8dc419ef2fd2d2c3834964e5baad448b3dd439678decadbf1919a9",
+  "p244CandidateSha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+  "strictComparison": {
+    "beforeP242": {
+      "schemaValid": 17,
+      "fieldCorrect": {
+        "language": 17,
+        "action": 12,
+        "targetKind": 17,
+        "targetRole": 0,
+        "constraintsExact": 0,
+        "hintCoverage": 0
+      }
+    },
+    "afterP245": {
+      "schemaValid": 12,
+      "fieldCorrect": {
+        "language": 12,
+        "action": 6,
+        "targetKind": 12,
+        "targetRole": 0,
+        "constraintsExact": 0,
+        "hintCoverage": 0
+      }
+    },
+    "delta": {
+      "schemaValid": -5,
+      "language": -5,
+      "action": -6,
+      "targetKind": -5,
+      "targetRole": 0,
+      "constraintsExact": 0,
+      "hintCoverage": 0
+    }
+  },
+  "taskDelta": {
+    "improved": 2,
+    "regressed": 9,
+    "unchanged": 7
+  },
+  "p243TrainingReuseBaseline": {
+    "targetRole": 14,
+    "constraintSet": 11,
+    "searchHints": 13,
+    "semanticBundle": 8,
+    "fullPlan": 7,
+    "componentRecombination": 2
+  },
+  "p244TrainingReuse": {
+    "targetRole": 17,
+    "constraintSet": 13,
+    "searchHints": 16,
+    "semanticBundle": 3,
+    "fullPlan": 2,
+    "componentRecombination": 8
+  },
+  "requestGrounding": {
+    "targetRoleGroundedInRequest": 0,
+    "allSearchHintsGroundedInRequest": 0,
+    "targetRoleAtomsKnownInP244Train": 18,
+    "allConstraintTriplesSeenInP244Train": 17
+  },
+  "schemaFailureReasons": {
+    "Structured plan constraints must be unique": 4,
+    "Each plan constraint must contain exactly kind, key, and value": 1,
+    "Structured plan targetKind does not match its language": 1
+  },
+  "actionByLanguage": {
+    "html": {
+      "tasks": 6,
+      "strictSchemaValid": 5,
+      "strictCorrect": 3,
+      "looseCorrect": 4
+    },
+    "css": {
+      "tasks": 6,
+      "strictSchemaValid": 3,
+      "strictCorrect": 3,
+      "looseCorrect": 6
+    },
+    "javascript": {
+      "tasks": 6,
+      "strictSchemaValid": 4,
+      "strictCorrect": 0,
+      "looseCorrect": 0
+    }
+  },
+  "nearestP244TrainRequestSimilarity": {
+    "tasksMeasured": 18,
+    "minimum": 0.0,
+    "mean": 0.12465807191977668,
+    "maximum": 0.2692307692307692
+  },
+  "interpretation": {
+    "primaryFailure": "request-conditioned semantic binding",
+    "compositionLearned": true,
+    "requestConditioningLearnedReliably": false,
+    "exactWholeTemplateReuseReduced": true,
+    "componentRecombinationIncreased": true,
+    "summary": "P2-44 shifted Plex away from frequent exact full-plan or bundle replay toward recombining familiar semantic components, but the current request still did not reliably control which components were selected.",
+    "evidence": [
+      "0 of 18 P2-45 target roles were grounded in the current request.",
+      "0 of 18 P2-45 search-hint sets were fully grounded in the current request.",
+      "17 of 18 outputs reused a P2-44 training target role.",
+      "16 of 18 outputs reused P2-44 training search hints.",
+      "Exact P2-44 training semantic-bundle reuse fell to 3 while component recombination rose to 8.",
+      "Nine tasks regressed and only two improved from P2-42 to P2-45."
+    ],
+    "decision": "Do not extend P2-44. P2-47 must directly train request evidence to concrete coding intent and remove targetRole/searchHints as primary learning targets."
+  },
+  "nextMilestone": "P2-47 — Request-Grounded Coding Representation"
+}
