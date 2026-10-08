@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-50",
+  "kind": "plex-phase2-closeout-result-v1",
+  "recordedDate": "2026-10-08",
+  "status": "phase2-complete",
+  "model": {
+    "parameters": 27566080,
+    "contextLength": 512,
+    "vocabularySize": 16384,
+    "languages": ["html", "css", "javascript"],
+    "initialization": "scratch-random"
+  },
+  "p248": {
+    "completedSteps": 100,
+    "realTargetPositions": 429375,
+    "baselineValidationLoss": 6.505710401033101,
+    "bestMeasuredValidationStep": 25,
+    "bestMeasuredValidationLoss": 2.7775440717998303,
+    "finalValidationLoss": 3.233508963333933,
+    "finalCheckpointSha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7",
+    "overfitSignalAfterStep25": true
+  },
+  "p249": {
+    "responsesSha256": "b9ba75d9c058d26299c22950b0cfd0e9248011f5663886b96d96006ccda1cb06",
+    "passed": 0,
+    "tasks": 18,
+    "schemaValid": 0,
+    "checksPassed": 36,
+    "checksTotal": 162,
+    "gatePassed": false,
+    "structuredPlanFieldSetMismatch": 15,
+    "invalidJson": 3
+  },
+  "capabilityBoundary": {
+    "demonstrated": [
+      "reproducible scratch training",
+      "narrow request-grounded representation learning",
+      "held-out improvement within the trained representation distribution",
+      "familiar coding-intent and target-concept learning",
+      "component recombination beyond whole-template replay"
+    ],
+    "notDemonstrated": [
+      "reliable transfer across substantially different output representations",
+      "reliable unseen semantic transfer on the P2-31 gate",
+      "reliable supplied-file editing",
+      "preservation of unrelated code",
+      "multi-edit correctness",
+      "repair from concrete syntax or test feedback"
+    ]
+  },
+  "phase3Decision": {
+    "nextMilestone": "P3-01 — File + Request Contract",
+    "retainParameterCount": 27566080,
+    "reason": "P2-49 proves transfer failure but does not isolate parameter count as the cause; Phase 3 directly tests the product task using supplied code/file context.",
+    "primaryTask": "natural-language coding request + supplied code/file -> correct edited result"
+  },
+  "permanentRegressions": [
+    "P2-31 unchanged structured-plan development gate as a legacy transfer regression",
+    "P2-47 request-grounded held-out split as a representation-level regression",
+    "P2-48 frozen step-100 endpoint as the Phase 3 starting baseline"
+  ],
+  "phase2ContinuationAuthorized": false,
+  "phase2AdditionalTrainingAuthorized": false,
+  "finalProjectHoldoutOpened": false
+}
