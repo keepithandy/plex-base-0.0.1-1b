@@ -502,3 +502,81 @@ stage-created-training-not-authorized
 ```
 
 A successful stage does **not** authorize a training run. Its checkpoint SHA must be frozen first, followed by a separate training preflight/authorization packet.
+
+
+## Frozen step-zero stage result
+
+The real P2-44 step-zero stage was created successfully and is now frozen.
+
+Stage identity:
+
+- checkpoint: `training/artifacts/structured-plan/p2-44-stage0/stage-checkpoint.pt`
+- checkpoint SHA-256: `e454bf4851690d599c88c898a77b7b741b95fe7fbc291f43e98d34bf35807ef4`
+- base checkpoint SHA-256: `adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc`
+- parameter count: **27,566,080**
+- P2-44 stage step: **0**
+- P2-44 processed targets: **0**
+
+Verified stage properties:
+
+- model weights preserved bit-for-bit using `torch.equal`
+- fresh AdamW object created only for serialization
+- optimizer state empty
+- prior optimizer state not reused
+- sampler RNG reset
+- prior sampler state not reused
+- training settings null
+- schedule state null
+- gradient updates: **0**
+- final holdout: **closed**
+
+## Training preflight
+
+P2-44 now has a separate read-only training preflight around the exact frozen stage SHA.
+
+The preflight will:
+
+1. re-verify the exact stage checkpoint SHA and zero-update stage semantics
+2. re-verify every frozen P2-44 bundle/data/tokenizer hash
+3. replay the deterministic **1,600-example** complete-record sampling schedule
+4. require the expected **565,641** real target positions
+5. require CUDA for the real local run
+6. measure the untouched stage's step-zero validation loss
+7. report the proposed bounded training/evaluation schedule
+8. stop without taking an optimizer step or writing a checkpoint
+
+Run:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-training-preflight
+```
+
+The proposed run remains:
+
+- seed: **1337**
+- device: **CUDA**
+- maximum steps: **100**
+- maximum wall time: **600 seconds**
+- micro-batch: **1**
+- gradient accumulation: **16**
+- validation steps: **0, 25, 50, 75, 100**
+- checkpoint steps: **25, 50, 75, 100**
+- resume: **disabled**
+- automatic continuation: **disabled**
+
+A successful preflight ends at:
+
+```text
+training-preflight-passed-awaiting-owner-authorization
+```
+
+That status still means:
+
+```text
+modelTrainingAuthorized  = false
+optimizerStepAuthorized  = false
+checkpointWriteAuthorized = false
+researchOptimizerUpdates = 0
+```
+
+The baseline validation loss returned by the real CUDA preflight must be frozen before any P2-44 training authorization packet can exist.
