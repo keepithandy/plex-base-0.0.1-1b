@@ -30,7 +30,8 @@
     "p241CheckpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
     "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
     "developmentTaskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
-    "developmentTaskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
+    "developmentTaskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "tokenizerBundleManifestSha256": "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a"
   },
   "design": {
     "productionPromptOnly": true,
@@ -53,7 +54,17 @@
     "fieldSpecificContrastsRequired": true,
     "crossFieldCoherenceRequired": true,
     "tokenizerRefit": false,
-    "continuationFromP241NotAuthorized": true
+    "continuationFromP241NotAuthorized": true,
+    "generatorVersion": "p2-44-evidence-first-composition-generator-v1",
+    "records": 162,
+    "groups": 54,
+    "recordsPerGroup": 3,
+    "trainGroups": 36,
+    "validationGroups": 18,
+    "trainRecords": 108,
+    "validationRecords": 54,
+    "groupsPerLanguage": 18,
+    "groupsPerContrastFamily": 9
   },
   "groundingRules": {
     "targetRole": "Every content atom in targetRole must be supported by request wording or a deterministic documented normalization of request wording. Arbitrary milestone-specific labels such as p241-* are forbidden.",
@@ -72,7 +83,8 @@
     "developmentExactRequestsExcluded": true,
     "developmentExactTargetRolesExcluded": true,
     "developmentExpectedPlansExcluded": true,
-    "developmentResponsesExcluded": true
+    "developmentResponsesExcluded": true,
+    "validationMayNotReuseExactTargetRoles": true
   },
   "requiredDiagnosticsBeforeTraining": [
     "candidate record count and language balance",
