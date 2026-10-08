@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-46",
+  "kind": "plex-p2-46-semantic-transfer-failure-diagnostic-contract-v1",
+  "status": "diagnostic-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Explain why P2-44 evidence-first training improved its own validation distribution while the fixed P2-45 bridge still failed to transfer request semantics.",
+  "taskSet": {
+    "path": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "sha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "tasks": 18
+  },
+  "p244Candidate": {
+    "path": "training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.jsonl",
+    "sha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+    "records": 162,
+    "trainRecords": 108,
+    "validationRecords": 54
+  },
+  "before": {
+    "milestone": "P2-42",
+    "responsesSha256": "3a935e10fb8d7deab057c3776446f1151ec3f0945b195c5350f93b6a54af30ee",
+    "checkpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+    "checkpointStep": 100,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "tokenizerBundleManifestSha256": "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a"
+  },
+  "after": {
+    "milestone": "P2-45",
+    "responsesSha256": "ca1e8c8abb8dc419ef2fd2d2c3834964e5baad448b3dd439678decadbf1919a9",
+    "checkpointSha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+    "checkpointStep": 100,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "tokenizerBundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6"
+  },
+  "p243Baseline": {
+    "path": "training/pretraining/p2-43-semantic-bundle-reuse-result.json",
+    "schemaValid": 17,
+    "semanticPass": 0,
+    "fieldCorrect": {
+      "language": 17,
+      "action": 12,
+      "targetKind": 17,
+      "targetRole": 0,
+      "constraintsExact": 0,
+      "hintCoverage": 0
+    },
+    "trainingReuse": {
+      "targetRole": 14,
+      "constraintSet": 11,
+      "searchHints": 13,
+      "semanticBundle": 8,
+      "fullPlan": 7,
+      "componentRecombination": 2
+    }
+  },
+  "analysisDimensions": [
+    "strict schema validity before versus after P2-44",
+    "field correctness before versus after P2-44",
+    "response-by-response field transitions",
+    "P2-44 training targetRole reuse",
+    "P2-44 training constraint-set reuse",
+    "P2-44 training search-hint reuse",
+    "P2-44 training semantic-bundle reuse",
+    "P2-44 training full-plan reuse",
+    "P2-44 validation-only role and bundle reuse",
+    "request-grounded targetRole atoms",
+    "request-grounded search hints",
+    "known versus novel P2-44 semantic atoms",
+    "nearest P2-44 training-request lexical similarity",
+    "schema failure reason counts",
+    "action correctness by language"
+  ],
+  "protectedEvaluation": {
+    "developmentOnly": true,
+    "noGradientUpdates": true,
+    "noOptimizerCreation": true,
+    "noResponseRepair": true,
+    "noCheckpointSelection": true,
+    "noNewCurriculum": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "decisionBoundary": "P2-46 is diagnostic only. Do not train, repair responses, change the P2-31 tasks or gate, select a different checkpoint, open the final holdout, or design P2-47 until the transfer-failure report is recorded."
+}
