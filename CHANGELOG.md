@@ -4,9 +4,10 @@
 
 ## 🚧 Unreleased
 
-_🗓️ Updated October 7, 2026_
+_🗓️ Updated October 8, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Closed **Phase 2 at P2-50** after the unchanged **P2-49** bridge failed at **0/18 complete, 0/18 schema-valid, 36/162 checks**. All 18 responses were present/non-truncated; 15 used a field set incompatible with the old P2-31 schema and 3 were invalid JSON. The 27,566,080-parameter model remains the controlled baseline for **Phase 3 — File-Conditioned Coding**, which now tests the actual request + supplied file → edited result task. No P2-51+ continuation is planned and the final project holdout remains closed.
 - Completed the bounded **P2-48 request-grounded run**: 100/100 updates, exactly 429,375 real target positions, all 72 train records sampled, and no padding targets. Validation fell from 6.50571 to **2.77754 at step 25** before rising to **3.23351 at step 100**, an overfitting signal. The frozen endpoint remains step 100 (`fd86d113...89b7`) under the predeclared policy. Opened **P2-49** as the unchanged P2-31 transfer re-evaluation; no further training is authorized.
 - Froze the **P2-48 CUDA training preflight** at baseline validation loss **6.505710401033101** over 19 batches. Added the guarded final 100-update request-grounded training runner and a complete authorization packet that remains `owner-approval-required`; the runner fails closed until explicit owner approval and cannot resume or auto-continue.
 - Froze the real **P2-48 step-zero stage** at SHA `52aabd0c...dd60`: P2-44 weights preserved exactly, empty fresh optimizer state, reset sampler, step/tokens 0/0, and no training. Added the final read-only CUDA training preflight to replay 429,375 target positions and measure the request-grounded step-zero validation baseline before any training authorization.

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Evaluation prepared. No training is authorized.**
+**Complete. Gate failed. No training or checkpoint reselection is authorized.**
 
 ## Purpose
 
@@ -103,3 +103,67 @@ Do not:
 - open the final holdout.
 
 P2-50 closes Phase 2 after this evaluation whether the gate passes or fails.
+
+
+## Result
+
+P2-49 evaluated the fixed P2-48 step-100 endpoint against the unchanged P2-31 development gate.
+
+Response SHA-256:
+
+`b9ba75d9c058d26299c22950b0cfd0e9248011f5663886b96d96006ccda1cb06`
+
+Evaluation:
+
+| Metric | Result |
+|---|---:|
+| Complete semantic passes | **0 / 18** |
+| Schema-valid | **0 / 18** |
+| Checks passed | **36 / 162** |
+| HTML complete passes | **0 / 6** |
+| CSS complete passes | **0 / 6** |
+| JavaScript complete passes | **0 / 6** |
+| Gate passed | **No** |
+
+Field-level result:
+
+| Field | Correct |
+|---|---:|
+| response present | **18 / 18** |
+| not truncated | **18 / 18** |
+| schema valid | **0 / 18** |
+| language | **0 / 18** |
+| action | **0 / 18** |
+| target kind | **0 / 18** |
+| target role | **0 / 18** |
+| exact constraints | **0 / 18** |
+| required hint coverage | **0 / 18** |
+
+Observed schema failure shape:
+
+- **15 / 18** responses reached the structured-plan parser but used a field set that did not match the P2-31 schema.
+- **3 / 18** responses were not valid JSON.
+
+Compared with P2-45:
+
+| Metric | P2-45 | P2-49 | Delta |
+|---|---:|---:|---:|
+| complete passes | 0 | 0 | 0 |
+| schema-valid | 12 | 0 | **-12** |
+| checks passed | 78 | 36 | **-42** |
+| language | 12 | 0 | **-12** |
+| action | 6 | 0 | **-6** |
+| target kind | 12 | 0 | **-12** |
+| target role | 0 | 0 | 0 |
+| exact constraints | 0 | 0 | 0 |
+| hint coverage | 0 | 0 | 0 |
+
+### Interpretation
+
+P2-48 strongly learned the new request-grounded representation on its own held-out distribution, but that learning did not transfer back into the legacy P2-31 structured-plan output contract.
+
+This result does **not** justify selecting the better-looking P2-48 step-25 checkpoint after the fact. Step 100 remains the predeclared endpoint.
+
+P2-49 therefore fails the unchanged legacy transfer gate.
+
+No additional Phase 2 training is authorized. P2-50 closes Phase 2 and carries the unresolved transfer limitation into Phase 3.
