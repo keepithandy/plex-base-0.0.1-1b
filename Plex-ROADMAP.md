@@ -387,26 +387,16 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P2-48 — Final Bounded Phase 2 Transfer Run
+## P2-49 — Unchanged Bridge Re-evaluation
 
-P2-47 is complete and frozen.
+P2-48 completed **100 / 100** authorized updates and processed exactly **429,375** real target positions.
 
-The real P2-48 bundle and sampler preflight are complete and frozen:
+Internal validation improved sharply from **6.505710401033101** to **2.7775440717998303** at step 25, then rose to **3.233508963333933** at step 100. That is recorded as an overfitting signal, but the predeclared endpoint policy requires evaluation of the fixed step-100 checkpoint.
 
-- all **72 / 72** train records selected
-- selection range **12–33**
-- **429,375** expected real target positions across **1,600** examples
-- exact bundle/data/token/index identities recorded
+P2-49 now re-runs the original 18-task P2-31 development bridge on checkpoint:
 
-The zero-update P2-48 stage is complete and frozen at checkpoint SHA `52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60`.
+`fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7`
 
-The final CUDA preflight is complete and frozen:
+No training, continuation, checkpoint reselection, threshold changes, or final-holdout access are authorized.
 
-- baseline validation loss: **6.505710401033101**
-- baseline batches: **19**
-- **429,375** expected real target positions
-- exact stage/bundle/data/sampler identities verified
-
-The bounded P2-48 training runner and complete authorization packet are now prepared. The checked-in contract remains **owner-approval-required**, so training fails closed until the owner explicitly authorizes the single bounded run.
-
-No gradient update is authorized yet.
+After P2-49, **P2-50 closes Phase 2**.

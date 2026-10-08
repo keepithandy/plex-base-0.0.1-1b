@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-49",
+  "kind": "plex-p2-49-structured-bridge-recheck-contract-v1",
+  "status": "evaluation-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Re-run the unchanged P2-31 structured-plan development gate on the fixed P2-48 step-100 request-grounded endpoint.",
+  "checkpoint": {
+    "path": "training/artifacts/request-grounded/p2-48-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7"
+  },
+  "checkpointProvenance": {
+    "stageKind": "plex-request-grounded-coding-stage-transition-v1",
+    "stageMilestone": "P2-48",
+    "trainingSettingsKind": "p2-48-authorized-request-grounded-training-v1"
+  },
+  "tokenizer": {
+    "bundle": "training/artifacts/request-grounded/p2-48-training-bundle",
+    "sha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7",
+    "vocabularySize": 16384
+  },
+  "developmentEvaluation": {
+    "taskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "setId": "p2-31-plan-dev-v1",
+    "tasks": 18,
+    "perLanguage": {
+      "html": 6,
+      "css": 6,
+      "javascript": 6
+    },
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1",
+    "temperature": 0,
+    "seed": 1337,
+    "maxNewTokens": 256,
+    "gate": {
+      "minimumPassed": 12,
+      "minimumPerLanguage": 3,
+      "minimumSchemaValid": 15
+    }
+  },
+  "comparisonBaseline": {
+    "milestone": "P2-45",
+    "checkpointSha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+    "responsesSha256": "ca1e8c8abb8dc419ef2fd2d2c3834964e5baad448b3dd439678decadbf1919a9",
+    "semanticPass": 0,
+    "schemaValid": 12,
+    "checksPassed": 78,
+    "fieldCorrect": {
+      "language": 12,
+      "action": 6,
+      "targetKind": 12,
+      "targetRole": 0,
+      "constraintsExact": 0,
+      "hintCoverage": 0
+    }
+  },
+  "p248InternalTrainingResult": {
+    "baselineValidationLoss": 6.505710401033101,
+    "bestMeasuredValidationStep": 25,
+    "bestMeasuredValidationLoss": 2.7775440717998303,
+    "finalStep": 100,
+    "finalValidationLoss": 3.233508963333933,
+    "finalCheckpointSha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7",
+    "endpointPolicy": "Use the fixed step-100 endpoint; do not retrospectively choose the lowest validation checkpoint."
+  },
+  "protectedEvaluation": {
+    "finalProjectHoldoutMustRemainClosed": true,
+    "noGradientUpdates": true,
+    "unchangedDevelopmentSet": true,
+    "p231DevelopmentWasExcludedFromP248Gradients": true,
+    "p242ResponsesWereExcludedFromP248Gradients": true,
+    "p243DiagnosticWasExcludedFromP248Gradients": true,
+    "p245ResponsesWereExcludedFromP248Gradients": true,
+    "p246DiagnosticWasExcludedFromP248Gradients": true
+  },
+  "decisionRule": "Use the original predeclared P2-31 gate unchanged. Evaluate only the fixed P2-48 step-100 endpoint. Do not lower thresholds, retrospectively select step 25, continue P2-48 training, or open the final holdout from P2-49 results. P2-50 closes Phase 2 after this development evaluation."
+}

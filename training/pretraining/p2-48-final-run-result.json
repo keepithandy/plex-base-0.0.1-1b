@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-48",
+  "kind": "p2-48-final-request-grounded-run-result-v1",
+  "recordedDate": "2026-10-08",
+  "trainingPerformed": true,
+  "researchOptimizerUpdates": 100,
+  "authorizedMaximumSteps": 100,
+  "authorizedMaximumWallTimeSeconds": 600,
+  "automaticContinuation": false,
+  "resumeAllowed": false,
+  "continuationAuthorized": false,
+  "finalHoldoutOpened": false,
+  "interrupted": false,
+  "elapsedSeconds": 20.24214850005228,
+  "authorizationContractSha256": "b42a3e024525cd40942231141d14c7643cd8c94142d6770ce04c0bdadaf79681",
+  "stageCheckpointSha256": "52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60",
+  "bundleManifestSha256": "71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7",
+  "candidateSha256": "6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "completedSteps": 100,
+  "tokensProcessed": 429375,
+  "paddingTargetPositions": 0,
+  "meanRecentLoss": 0.04490693825646304,
+  "samplingAudit": {
+    "examples": 1600,
+    "recordsSelected": 72,
+    "minimumRecordSelections": 12,
+    "maximumRecordSelections": 33,
+    "realTargetPositions": 429375,
+    "paddingTargetPositions": 0
+  },
+  "peakGpuMemory": {
+    "allocatedBytes": 609212928,
+    "reservedBytes": 721420288
+  },
+  "validation": [
+    {"step": 0, "meanLoss": 6.505710401033101},
+    {"step": 25, "meanLoss": 2.7775440717998303},
+    {"step": 50, "meanLoss": 2.913108511974937},
+    {"step": 75, "meanLoss": 3.1200873851776123},
+    {"step": 100, "meanLoss": 3.233508963333933}
+  ],
+  "checkpoints": [
+    {
+      "step": 25,
+      "path": "step-0025.pt",
+      "sha256": "2e470c57c8b89832446f7beaab7e5e6302c42dd3f2c973ca91b543e5b7ad57d0",
+      "bytes": 330900315
+    },
+    {
+      "step": 50,
+      "path": "step-0050.pt",
+      "sha256": "2cabaa90466a42a94892ed44d002094ef3433008393d7c77fe8721b39c6db0c1",
+      "bytes": 330900315
+    },
+    {
+      "step": 75,
+      "path": "step-0075.pt",
+      "sha256": "909244af6dd07adb611f57d9cc03877715a2f8dc6dbc4852b03e5fae9b60d65a",
+      "bytes": 330900379
+    },
+    {
+      "step": 100,
+      "path": "step-0100.pt",
+      "sha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7",
+      "bytes": 330900379
+    }
+  ],
+  "finalCheckpoint": {
+    "step": 100,
+    "path": "step-0100.pt",
+    "sha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7",
+    "bytes": 330900379
+  },
+  "p231DevelopmentEvaluationPending": true,
+  "interpretation": {
+    "internalLearningOccurred": true,
+    "bestMeasuredValidationStep": 25,
+    "bestMeasuredValidationLoss": 2.7775440717998303,
+    "finalValidationLoss": 3.233508963333933,
+    "overfitSignalAfterStep25": true,
+    "endpointPolicy": "Use fixed step-100 endpoint; do not retrospectively choose the lowest validation checkpoint.",
+    "nextMilestone": "P2-49 — Unchanged Bridge Re-evaluation"
+  }
+}

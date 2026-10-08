@@ -300,3 +300,44 @@ The approved run remains bounded to:
 - final project holdout closed
 
 No P2-48 gradient update is authorized by the current repository state.
+
+
+## Actual bounded training result
+
+P2-48 completed the full authorized run.
+
+- completed optimizer updates: **100 / 100**
+- elapsed time: **20.2421 seconds**
+- examples: **1,600**
+- real target positions: **429,375**
+- padding target positions: **0**
+- all training records selected: **72 / 72**
+- selection range: **12–33**
+- final checkpoint SHA-256: `fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7`
+- final holdout opened: **false**
+- continuation authorized: **false**
+
+Validation curve:
+
+| Step | Mean loss |
+|---:|---:|
+| 0 | **6.505710401033101** |
+| 25 | **2.7775440717998303** |
+| 50 | **2.913108511974937** |
+| 75 | **3.1200873851776123** |
+| 100 | **3.233508963333933** |
+
+### Interpretation
+
+P2-48 clearly learned the P2-47 request-grounded representation: validation loss fell sharply by step 25.
+
+The validation curve then worsened from step 25 through step 100, which is an overfitting signal.
+
+The frozen evaluation policy does **not** permit retrospective checkpoint selection. Therefore:
+
+- step 25 is recorded as the best measured internal validation point,
+- step 100 remains the fixed P2-48 endpoint,
+- P2-49 evaluates **only** step 100,
+- no P2-48 continuation is authorized.
+
+Internal validation alone does not establish coding-request transfer. P2-49 is the unchanged external development gate.
