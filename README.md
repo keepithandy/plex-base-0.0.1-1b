@@ -13,7 +13,7 @@
 Request + provided code context → correct code change.
 
 ![Status](https://img.shields.io/badge/status-active%20research-3567a5?style=for-the-badge&labelColor=151933)
-![Phase](https://img.shields.io/badge/phase-2%20%7C%20coding%20understanding-7257a5?style=for-the-badge&labelColor=151933)
+![Phase](https://img.shields.io/badge/phase-3%20%7C%20file--conditioned%20coding-7257a5?style=for-the-badge&labelColor=151933)
 ![Model](https://img.shields.io/badge/model-27.6M%20parameters-18786c?style=for-the-badge&labelColor=151933)
 ![Training](https://img.shields.io/badge/training-from%20scratch-52617c?style=for-the-badge&labelColor=151933)
 
@@ -55,7 +55,7 @@ The current model focuses on **HTML, CSS, and JavaScript**.
 | Initialization | **Random / scratch** |
 | Primary languages | **HTML / CSS / JavaScript** |
 | Local acceleration | **CUDA supported** |
-| Current phase | **Phase 2 — Coding Understanding** |
+| Current phase | **Phase 3 — File-Conditioned Coding** |
 
 No pretrained model weights are used for the current Plex Nano research line.
 
@@ -100,36 +100,49 @@ Plex has a working scratch-training stack with:
 
 ### Phase 2 — Coding understanding
 
-Active.
+Complete.
 
-Phase 2 has tested request following, literal binding, semantic roles, edit intent, target kinds, structured plans, web-code pretraining, task fine-tuning, serialization, semantic binding, and evidence-first composition.
+Phase 2 established an honest capability boundary for the 27.6M scratch model.
 
-The most recent bounded training run, **P2-44**, completed all 100 authorized optimizer updates and improved its own validation loss from:
+The final request-grounded experiment, **P2-48**, completed 100 bounded optimizer updates. Its held-out loss improved sharply from:
 
 ```text
-3.3981438779 → 2.1723806181
+6.5057104010 → 2.7775440718 at step 25
 ```
 
-However, the unchanged P2-31 bridge re-evaluation in **P2-45** still failed:
+before rising to **3.2335089633** by the fixed step-100 endpoint, showing an overfitting signal.
 
-| P2-45 metric | Result |
+The final unchanged transfer gate, **P2-49**, then evaluated that step-100 endpoint on the original 18-task P2-31 structured-plan development set:
+
+| P2-49 metric | Result |
 |---|---:|
 | Complete semantic passes | **0 / 18** |
-| Schema-valid | **12 / 18** |
-| Checks passed | **78 / 162** |
-| targetRole correct | **0 / 18** |
-| exact constraints | **0 / 18** |
-| required hint coverage | **0 / 18** |
+| Schema-valid | **0 / 18** |
+| Checks passed | **36 / 162** |
+| HTML / CSS / JavaScript passes | **0 / 6 each** |
 
-P2-46 explained the failure more precisely: Plex shifted from replaying whole semantic templates toward recombining familiar coding components, but **the current request still did not reliably control which components were selected**.
+All 18 responses were present and non-truncated, but none matched the legacy structured-plan schema. Phase 2 therefore closes **without claiming solved semantic transfer**.
 
-The current milestone, **P2-47**, therefore removes `targetRole` and `searchHints` from the primary learning target and trains a simpler relationship:
+What Phase 2 did show is that Plex can learn narrow request-grounded coding representations and familiar coding intents. What it did **not** prove is reliable editing of unseen supplied files.
+
+### Phase 3 — File-conditioned coding
+
+Active.
+
+Phase 3 now tests the actual product interaction:
 
 ```text
-exact request evidence → concrete coding intent
+natural-language request
++ supplied HTML/CSS/JavaScript file
+                ↓
+             Plex Nano
+                ↓
+        correct edited result
 ```
 
-This keeps Phase 2 focused on the model's coding understanding before Phase 3 introduces supplied-file conditioning.
+The current model remains **27,566,080 parameters** so Phase 3 can measure the direct file-editing task without changing model size at the same time.
+
+The first milestone is **P3-01 — File + Request Contract**: define the simplest stable single-file input/output contract and measure correctness, syntax, unrelated-code preservation, and unnecessary edits.
 
 ## Roadmap
 
@@ -138,8 +151,8 @@ The project now follows a model-first roadmap.
 | Phase | Goal | Status |
 |---|---|---|
 | **Phase 1 — Model Foundation** | Build and verify the scratch model/training stack | **Complete** |
-| **Phase 2 — Coding Understanding** | Improve request understanding, code semantics, binding, and transfer | **Active** |
-| **Phase 3 — File-Conditioned Coding** | Request + supplied file/code → correct edit | Planned |
+| **Phase 2 — Coding Understanding** | Improve request understanding, code semantics, binding, and transfer | **Complete** |
+| **Phase 3 — File-Conditioned Coding** | Request + supplied file/code → correct edit | **Active** |
 | **Phase 4 — Stronger Coding Ability** | Harder functions, styles, logic, bug fixes, and refactors | Planned |
 | **Phase 5 — Conversational Code Editing** | Iterate on supplied code across multiple user turns | Planned |
 | **Phase 6 — Local Plex App** | Drop in a file, chat, preview/accept edits, save | Planned |
@@ -245,6 +258,7 @@ For detailed experiment commands and retained results, see [training/README.md](
 - [P2-47 — Request-grounded coding representation](docs/PHASE-2-P2-47-REQUEST-GROUNDED-CODING.md)
 - [P2-48 — Final bounded Phase 2 transfer run](docs/PHASE-2-P2-48-FINAL-TRANSFER-RUN.md)
 - [P2-49 — Unchanged bridge re-evaluation](docs/PHASE-2-P2-49-UNCHANGED-BRIDGE-REEVALUATION.md)
+- [P2-50 — Phase 2 closeout](docs/PHASE-2-P2-50-CLOSEOUT.md)
 
 ---
 
