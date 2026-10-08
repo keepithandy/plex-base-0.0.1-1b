@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-43",
+  "kind": "plex-p2-43-semantic-bundle-reuse-result-v1",
+  "recordedDate": "2026-10-08",
+  "status": "diagnostic-complete-training-template-retrieval-confirmed",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "3a935e10fb8d7deab057c3776446f1151ec3f0945b195c5350f93b6a54af30ee",
+  "p241CandidateSha256": "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+  "p242CheckpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+  "tasks": 18,
+  "schemaValid": 17,
+  "schemaInvalid": 1,
+  "schemaValidDeltaFromP239": 12,
+  "semanticPass": 0,
+  "fieldCorrect": {
+    "language": 17,
+    "action": 12,
+    "targetKind": 17,
+    "targetRole": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "classifications": {
+    "wrongPlanExactTrainBundle": 8,
+    "wrongPlanTrainRoleReuse": 6,
+    "wrongPlanNovelRoleOrBundle": 3
+  },
+  "trainingReuse": {
+    "targetRole": 14,
+    "constraintSet": 11,
+    "searchHints": 13,
+    "semanticBundle": 8,
+    "fullPlan": 7,
+    "componentRecombination": 2,
+    "wrongTargetRoleButSeenInTrain": 14,
+    "wrongPlanButExactTrainSemanticBundle": 8,
+    "wrongPlanWithTrainComponentRecombination": 2
+  },
+  "validationReuse": {
+    "targetRole": 0,
+    "semanticBundle": 0,
+    "validationOnlyTargetRole": 0,
+    "validationOnlySemanticBundle": 0
+  },
+  "repeatedTargetRoles": {
+    "p241-pricing-table-target": 3,
+    "p241-score-average-target": 2
+  },
+  "interpretation": {
+    "serializationPrimaryBottleneck": false,
+    "semanticBindingPrimaryBottleneck": true,
+    "trainingTemplateRetrievalDominates": true,
+    "evidence": [
+      "14 of 17 schema-valid outputs reused a targetRole exposed in the P2-41 training split.",
+      "8 of 17 schema-valid outputs reused an exact P2-41 training semantic bundle.",
+      "7 of 17 schema-valid outputs reproduced an exact P2-41 training full plan.",
+      "2 additional schema-valid outputs recombined training-seen semantic components.",
+      "No validation-only targetRole or semantic-bundle reuse was observed.",
+      "targetRole, exact constraints, and hint coverage remained 0 despite 17 of 18 strict schema-valid outputs."
+    ],
+    "decision": "Do not continue optimization on the unchanged P2-41 108-record curriculum. Replace opaque synthetic semantic labels with request-grounded evidence-first composition before any new training authorization."
+  },
+  "comparisonBaseline": {
+    "milestone": "P2-39",
+    "passed": 0,
+    "schemaValid": 5,
+    "checksPassed": 54,
+    "checksTotal": 162,
+    "fieldCorrect": {
+      "language": 5,
+      "action": 3,
+      "targetKind": 5,
+      "targetRole": 0,
+      "constraintsExact": 0,
+      "hintCoverage": 0
+    }
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextMilestone": "P2-44 — Evidence-First Semantic Composition"
+}
