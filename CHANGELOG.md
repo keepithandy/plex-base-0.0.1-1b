@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Closed **P2-43** with confirmed training-template retrieval: 17/18 strict plans, but 14 training-seen target roles, 8 exact training semantic bundles, 7 exact training full plans, and zero correct targetRole/constraints/hints. Started **P2-44 Evidence-First Semantic Composition** as design/preparation only: keep the production schema, remove opaque milestone-specific semantic labels, ground fields in request evidence, and hold out novel combinations of familiar semantic atoms. No training is authorized.
 - Added **P2-43 Semantic Bundle Reuse Diagnostic** to determine whether P2-42 failures come from exact P2-41 training-template reuse or broader semantic generalization failure. The diagnostic compares target roles, constraint sets, hints, semantic bundles, full plans, repeated-role collapse, and request-to-training-owner overlap without training, response repair, checkpoint selection, or final-holdout access.
 - Prepared **P2-42 structured bridge re-evaluation** for the fixed P2-41 step-100 checkpoint `adec7fa3...`. The unchanged 18-task P2-31 development gate remains evaluation-only and the final project holdout stays closed.
 - Authorized the **first bounded P2-41 request-binding run** from the measured packet and added `plan-request-binding-run`. The run is capped at **100 CUDA updates / 600 seconds**, uses the frozen P2-41 stage and bundle, validates at steps **0/25/50/75/100**, saves checkpoints at **25/50/75/100**, and does not auto-continue or resume.
