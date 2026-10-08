@@ -1,8 +1,8 @@
 {
-  "name": "plex-code-cli",
+  "name": "plex-nano-27m",
   "version": "0.1.0",
   "private": true,
-  "description": "Plex: a lightweight local repository implementation CLI",
+  "description": "Plex Nano: a small 27.6M-parameter coding model research package",
   "type": "module",
   "engines": {
     "node": ">=24 <25"
@@ -14,7 +14,8 @@
     "dist",
     "prompts",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "AGENTS.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
