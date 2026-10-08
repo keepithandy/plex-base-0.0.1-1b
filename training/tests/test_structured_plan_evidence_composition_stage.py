@@ -249,7 +249,8 @@ class EvidenceCompositionStageSourceTests(unittest.TestCase):
                 self.assertEqual(kwargs["stage_transition_record"], transition)
                 self.assertIsNone(kwargs["training_settings"])
                 self.assertIsNone(kwargs["schedule_state"])
-                self.assertEqual(kwargs["optimizer"].state, {})
+                self.assertGreaterEqual(len(args), 2)
+                self.assertEqual(args[1].state, {})
                 kwargs["destination"].write_bytes(b"stage")
                 return {"path": "stage-checkpoint.pt", "bytes": 5}
 
