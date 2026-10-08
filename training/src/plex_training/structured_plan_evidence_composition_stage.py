@@ -166,6 +166,40 @@ def _stage_contract(path: Path) -> dict[str, Any]:
     }:
         raise ValueError("P2-44 stage base checkpoint identity changed")
 
+    bundle = value.get("p244Bundle")
+    if bundle != {
+        "path": "training/artifacts/structured-plan/p2-44-training-bundle",
+        "candidateSha256": EXPECTED_CANDIDATE_SHA256,
+        "bundleManifestSha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
+        "sourceDatasetManifestSha256": EXPECTED_SOURCE_DATASET_MANIFEST_SHA256,
+        "tokenizerSha256": EXPECTED_TOKENIZER_SHA256,
+        "trainJsonlSha256": EXPECTED_TRAIN_JSONL_SHA256,
+        "validationJsonlSha256": EXPECTED_VALIDATION_JSONL_SHA256,
+        "trainIndexSha256": EXPECTED_TRAIN_INDEX_SHA256,
+        "validationIndexSha256": EXPECTED_VALIDATION_INDEX_SHA256,
+        "trainRecords": 108,
+        "validationRecords": 54,
+        "trainTokenCount": 38280,
+        "validationTokenCount": 19186,
+    }:
+        raise ValueError("P2-44 stage bundle identity changed")
+
+    source = value.get("stageSourcePreflight")
+    if source != {
+        "status": "stage-source-preflight-passed-awaiting-stage-authorization",
+        "weightsSourceVerified": True,
+        "bundleCompatibilityVerified": True,
+        "stageCheckpointCreated": False,
+        "optimizerCreated": False,
+        "baseCheckpointSha256": EXPECTED_BASE_CHECKPOINT_SHA256,
+        "baseCheckpointStep": 100,
+        "baseTokensProcessedTotal": 567311,
+        "baseParameterCount": 27566080,
+        "baseStageKind": EXPECTED_BASE_STAGE_KIND,
+        "baseTrainingSettingsKind": EXPECTED_BASE_TRAINING_KIND,
+    }:
+        raise ValueError("P2-44 stage-source preflight identity changed")
+
     stage = value.get("stage")
     if stage != {
         "outputDirectory": "structured-plan/p2-44-stage0",
