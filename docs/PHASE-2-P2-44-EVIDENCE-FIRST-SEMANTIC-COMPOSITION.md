@@ -316,3 +316,60 @@ reviewed candidate
 ```
 
 This does not authorize checkpoint staging or model training.
+
+
+## Training-bundle packing and zero-update preflight
+
+P2-44 now has a deterministic bundle packer and sampler preflight. These commands do not create a checkpoint, optimizer, or training runner.
+
+Pack the frozen candidate with the exact frozen tokenizer:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-prepare
+```
+
+The default output is:
+
+```text
+training/artifacts/structured-plan/p2-44-training-bundle
+```
+
+The bundle contains:
+
+- `train.jsonl`
+- `validation.jsonl`
+- `train.tokens.u16le`
+- `validation.tokens.u16le`
+- `train.index.json`
+- `validation.index.json`
+- `source-dataset-manifest.json`
+- `manifest.json`
+- copied frozen tokenizer/model-config files
+
+The packer re-verifies the frozen candidate SHA, tokenizer identity, split counts, token totals, maximum record length, rendered prompt shape, token roundtrips, indices, and all file hashes.
+
+Run the zero-update sampler preflight:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-preflight
+```
+
+The preflight:
+
+- re-inspects the entire packed bundle
+- loads the complete-record sampler
+- replays a **proposal-only** 100-step / micro-batch-1 / accumulation-16 schedule
+- reports the 1,600 selected examples
+- reports deterministic expected real target positions
+- reports record-selection coverage and min/max selection counts
+- performs **0** optimizer updates
+- creates **0** checkpoints
+- does **not** authorize model training
+
+A successful preflight ends at:
+
+```text
+bundle-preflight-passed-awaiting-separate-stage-decision
+```
+
+Checkpoint staging remains a separate future decision.
