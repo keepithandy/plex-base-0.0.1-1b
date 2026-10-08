@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-41",
+  "kind": "plex-p2-41-stage-preflight-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "preflight-passed-awaiting-owner-authorization",
+  "authorized": false,
+  "modelTrainingAuthorized": false,
+  "baseCheckpointSha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+  "candidateSha256": "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "bundle": {
+    "manifestSha256": "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a",
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "trainTokenCount": 25599,
+    "validationTokenCount": 12798,
+    "trainJsonlSha256": "458de009e4ef227361e2813c7380bfa2d42739f36335ed333ea3b6a250800db3",
+    "validationJsonlSha256": "020324cb8d4b5d4fc0737fd741e498640d3636c326a58d25428db88279a3bd16",
+    "trainIndexSha256": "0ab27caccc5ba11d9d321660197794cff8d2c074fdb843f0149204234a328104",
+    "validationIndexSha256": "70f546c7d3b9c3a99c0e2efc4d16335ea7d1e9fdab90ee7e4f7d1017a8d29c5"
+  },
+  "stage": {
+    "checkpointSha256": "763920474516488e5bc68d00e77320916c95d9c67253752c03f48f9da36b67fd",
+    "baseCheckpointSha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+    "baseMilestone": "P2-38",
+    "baseCheckpointStep": 100,
+    "p241StageStep": 0,
+    "p241TokensProcessed": 0,
+    "parameterCount": 27566080,
+    "modelWeightsPreserved": true,
+    "optimizerStateReused": false,
+    "samplerStateReset": true,
+    "stageKind": "plex-request-conditioned-plan-binding-stage-transition-v1"
+  },
+  "sampler": {
+    "kind": "complete-record-v1",
+    "selection": "uniform-record-with-replacement",
+    "endPolicy": "stop-at-record-eos-v1",
+    "records": 72,
+    "trainJsonlSha256": "458de009e4ef227361e2813c7380bfa2d42739f36335ed333ea3b6a250800db3",
+    "indexSha256": "0ab27caccc5ba11d9d321660197794cff8d2c074fdb843f0149204234a328104",
+    "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+    "tokenAccounting": "nonpadding-next-token-targets-v1",
+    "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1"
+  },
+  "preflight": {
+    "device": "cuda",
+    "baselineValidationBatches": 24,
+    "baselineValidationLoss": 3.0144005020459494,
+    "expectedExamplesAt100Steps": 1600,
+    "expectedRealTargetPositionsAt100Steps": 567311,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "validationSteps": [0,25,50,75,100],
+    "checkpointSteps": [25,50,75,100],
+    "outputWouldBe": "structured-plan/p2-41-first-run"
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false
+}
