@@ -543,6 +543,42 @@ class StructuredPlanFilesAndContractTests(unittest.TestCase):
         self.assertTrue(value["protectedEvaluation"]["p231DevelopmentWasExcludedFromP241Gradients"])
         self.assertTrue(value["protectedEvaluation"]["p239ResponsesWereExcludedFromP241Gradients"])
 
+    def test_p245_contract_reuses_original_gate_and_pins_p244_endpoint(self) -> None:
+        path = Path("training/pretraining/p2-45-structured-bridge-contract.json")
+        value = _contract(path)
+        self.assertEqual(value["milestone"], "P2-45")
+        self.assertFalse(value["modelTrainingAuthorized"])
+        self.assertEqual(
+            value["checkpoint"]["sha256"],
+            "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["taskSetSha256"],
+            "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+        )
+        self.assertEqual(
+            value["developmentEvaluation"]["gate"],
+            {"minimumPassed": 12, "minimumPerLanguage": 3, "minimumSchemaValid": 15},
+        )
+        self.assertEqual(
+            value["checkpointProvenance"],
+            {
+                "stageKind": "plex-evidence-first-semantic-composition-stage-transition-v1",
+                "stageMilestone": "P2-44",
+                "trainingSettingsKind":
+                    "p2-44-authorized-evidence-composition-training-v1",
+            },
+        )
+        self.assertEqual(value["comparisonBaseline"]["milestone"], "P2-43")
+        self.assertEqual(value["comparisonBaseline"]["schemaValid"], 17)
+        self.assertEqual(value["comparisonBaseline"]["semanticPass"], 0)
+        self.assertEqual(value["comparisonBaseline"]["trainingReuse"]["targetRole"], 14)
+        self.assertTrue(value["protectedEvaluation"]["finalProjectHoldoutMustRemainClosed"])
+        self.assertTrue(value["protectedEvaluation"]["noGradientUpdates"])
+        self.assertTrue(value["protectedEvaluation"]["p231DevelopmentWasExcludedFromP244Gradients"])
+        self.assertTrue(value["protectedEvaluation"]["p242ResponsesWereExcludedFromP244Gradients"])
+        self.assertTrue(value["protectedEvaluation"]["p243DiagnosticWasExcludedFromP244Gradients"])
+
     def test_contract_rejects_unknown_structured_bridge_milestone(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "contract.json"

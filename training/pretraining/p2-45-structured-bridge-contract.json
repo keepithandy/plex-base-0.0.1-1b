@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-45",
+  "kind": "plex-p2-45-structured-bridge-recheck-contract-v1",
+  "status": "evaluation-authorized",
+  "modelTrainingAuthorized": false,
+  "purpose": "Re-run the unchanged P2-31 structured-plan development gate on the fixed P2-44 step-100 evidence-first semantic-composition endpoint.",
+  "checkpoint": {
+    "path": "training/artifacts/structured-plan/p2-44-first-run/checkpoints/step-0100.pt",
+    "step": 100,
+    "sha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e"
+  },
+  "checkpointProvenance": {
+    "stageKind": "plex-evidence-first-semantic-composition-stage-transition-v1",
+    "stageMilestone": "P2-44",
+    "trainingSettingsKind": "p2-44-authorized-evidence-composition-training-v1"
+  },
+  "tokenizer": {
+    "bundle": "training/artifacts/structured-plan/p2-44-training-bundle",
+    "sha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+    "vocabularySize": 16384
+  },
+  "developmentEvaluation": {
+    "taskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+    "setId": "p2-31-plan-dev-v1",
+    "tasks": 18,
+    "perLanguage": {
+      "html": 6,
+      "css": 6,
+      "javascript": 6
+    },
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "promptTemplateVersion": "plex-structured-plan-v1",
+    "temperature": 0,
+    "seed": 1337,
+    "maxNewTokens": 256,
+    "gate": {
+      "minimumPassed": 12,
+      "minimumPerLanguage": 3,
+      "minimumSchemaValid": 15
+    }
+  },
+  "comparisonBaseline": {
+    "milestone": "P2-43",
+    "checkpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+    "responsesSha256": "3a935e10fb8d7deab057c3776446f1151ec3f0945b195c5350f93b6a54af30ee",
+    "tasks": 18,
+    "semanticPass": 0,
+    "schemaValid": 17,
+    "fieldCorrect": {
+      "language": 17,
+      "action": 12,
+      "targetKind": 17,
+      "targetRole": 0,
+      "constraintsExact": 0,
+      "hintCoverage": 0
+    },
+    "trainingReuse": {
+      "targetRole": 14,
+      "constraintSet": 11,
+      "searchHints": 13,
+      "semanticBundle": 8,
+      "fullPlan": 7,
+      "componentRecombination": 2
+    }
+  },
+  "protectedEvaluation": {
+    "finalProjectHoldoutMustRemainClosed": true,
+    "noGradientUpdates": true,
+    "unchangedDevelopmentSet": true,
+    "p231DevelopmentWasExcludedFromP244Gradients": true,
+    "p242ResponsesWereExcludedFromP244Gradients": true,
+    "p243DiagnosticWasExcludedFromP244Gradients": true
+  },
+  "decisionRule": "Use the original predeclared P2-31 gate unchanged. Evaluate only the fixed P2-44 step-100 endpoint. Do not lower thresholds, retrospectively select an earlier checkpoint, continue P2-44 training, or open the final holdout from P2-45 results without a separate reviewed decision."
+}
