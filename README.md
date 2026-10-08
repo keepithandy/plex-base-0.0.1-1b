@@ -1,25 +1,39 @@
+<a id="top"></a>
+
+<p align="center">
+  <img src="./docs/assets/plex-nano-banner.svg" alt="Plex Nano — Small model. Focused mission." width="1200">
+</p>
+
 <div align="center">
 
 # Plex Nano
 
-### Repository-native coding intelligence, trained from scratch.
+**Repository-focused coding research, trained from scratch.**
 
-**Small. Local-first. Focused on making the smallest correct change.**
+Small. Local-first. Built around the smallest correct change.
 
-![Status](https://img.shields.io/badge/status-active%20research-2563eb?style=for-the-badge)
-![Phase](https://img.shields.io/badge/phase-2%20%7C%20coding%20ability-7c3aed?style=for-the-badge)
-![Model](https://img.shields.io/badge/model-27.6M%20parameters-0f766e?style=for-the-badge)
-![Training](https://img.shields.io/badge/training-from%20scratch-111827?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-active%20research-3567a5?style=for-the-badge&labelColor=151933)
+![Phase](https://img.shields.io/badge/phase-2%20%7C%20coding%20ability-7257a5?style=for-the-badge&labelColor=151933)
+![Model](https://img.shields.io/badge/model-27.6M%20parameters-18786c?style=for-the-badge&labelColor=151933)
+![Training](https://img.shields.io/badge/training-from%20scratch-52617c?style=for-the-badge&labelColor=151933)
+
+![Scope](https://img.shields.io/badge/scope-HTML%20%2F%20CSS%20%2F%20JavaScript-3567a5?style=flat-square&labelColor=151933)
+![Context](https://img.shields.io/badge/context-512%20tokens-7257a5?style=flat-square&labelColor=151933)
+[![License](https://img.shields.io/badge/license-MIT-18786c?style=flat-square&labelColor=151933)](LICENSE)
 
 <p>
+  <a href="#what-is-plex"><strong>Overview</strong></a>
+  ·
+  <a href="#current-research-milestone"><strong>Research</strong></a>
+  ·
+  <a href="#development"><strong>Get Started</strong></a>
+  ·
   <a href="./Plex-ROADMAP.md"><strong>Roadmap</strong></a>
-  ·
-  <a href="./training/README.md"><strong>Training</strong></a>
-  ·
-  <a href="./docs/PHASE-2-P2-29-RESULT.md"><strong>Latest Result</strong></a>
   ·
   <a href="./CHANGELOG.md"><strong>Changelog</strong></a>
 </p>
+
+<sub>Learned semantic planning + deterministic repository tooling.</sub>
 
 </div>
 
@@ -36,21 +50,9 @@ It is not intended to become a general chatbot. The goal is a focused coding eng
 
 ### The core idea
 
-```text
-TASK
-  ↓
-INSPECT REPOSITORY
-  ↓
-FIND RELEVANT FILES
-  ↓
-BUILD FOCUSED CONTEXT
-  ↓
-GENERATE THE SMALLEST CORRECT EDIT
-  ↓
-VALIDATE
-  ↓
-RETURN A CLEAN DIFF
-```
+| 01 · Inspect | 02 · Understand | 03 · Propose | 04 · Validate |
+|:---|:---|:---|:---|
+| Scan the repository and find relevant files | Build focused context for the task | Generate the smallest correct edit | Check the proposal and return a clean diff |
 
 Plex is being built as two connected layers:
 
@@ -84,14 +86,11 @@ Plex is being built as two connected layers:
 ## How Plex fits together
 
 ```mermaid
-flowchart LR
-    A[Task] --> B[Scan Repository]
-    B --> C[Rank Candidate Files]
-    C --> D[Build Focused Context]
-    D --> E[Plex Nano]
-    E --> F[Validate Proposed Edits]
-    F --> G[Build Proposal]
-    G --> H[Unified Diff]
+flowchart TD
+    A["Task and focused repository context"] --> B["Plex Nano: propose a plan"]
+    B --> C{"Plex Code: validate proposal"}
+    C -->|Checks pass| D["Build proposal and unified diff"]
+    C -->|Checks fail| E["Reject invalid proposal"]
 ```
 
 The repository side is intentionally deterministic. Model output is treated as a **proposal**, not permission to modify files.
@@ -99,6 +98,20 @@ The repository side is intentionally deterministic. Model output is treated as a
 ---
 
 ## Current research milestone
+
+| Research checkpoint | Recorded state |
+|:---|:---|
+| **Current focus · P2-41** | Request-conditioned plan binding; candidate and tokenizer preflight passed, with the zero-update stage path prepared |
+| **Latest diagnostic · P2-40** | Broad categories are emerging; request-specific role, constraint, and hint binding remains unresolved |
+| **Latest bridge · P2-39** | **5/18** schema-valid plans · **0/18** complete plans |
+| **Next development gate** | Phase 3 remains blocked until the structured-plan bridge succeeds |
+
+[**Current preparation →**](docs/PHASE-2-P2-41-REQUEST-CONDITIONED-PLAN-BINDING.md) · [**Latest diagnostic →**](docs/PHASE-2-P2-40-RESULT.md) · [**Latest bridge result →**](docs/PHASE-2-P2-39-RESULT.md)
+
+### Experiment history
+
+<details>
+<summary><strong>P2-17–P2-23 · Early learning and semantic experiments</strong></summary>
 
 ### P2-17/P2-17b — semantic binding result
 
@@ -247,6 +260,11 @@ JS_PROPERTY      8 / 12
 
 P2-14 remained **0/12** and P2-01b remained **0/30**. Validation loss rose to **4.34508** while recent training loss fell to **0.06088**, so further optimization of the unchanged P2-23 representation is not planned. The final project holdout remained closed and no continuation beyond step 500 ran.
 
+</details>
+
+<details>
+<summary><strong>P2-24–P2-41 · Plex Web and structured-plan research</strong></summary>
+
 The measured P2-23b result led to a larger training-strategy pivot instead of more small-data optimization:
 
 1. **P2-24 — Plex Web Pretraining Specification:** complete.
@@ -270,23 +288,20 @@ The measured P2-23b result led to a larger training-strategy pivot instead of mo
 17. **P2-40 — Bridge Error Decomposition:** **diagnostic complete**. The exact P2-39 responses split into **9 invalid JSON, 4 parseable-but-invalid strict plans, and 5 schema-valid semantic mismatches**. Among schema-valid outputs, language and targetKind were **5/5**, action **3/5**, while targetRole, exact constraints, and hint coverage remained **0/5**. The result confirms emerging broad-category recognition but persistent request-conditioned semantic-template substitution plus residual serialization instability. No training occurred and the final holdout remained closed. See the [P2-40 result](docs/PHASE-2-P2-40-RESULT.md).
 18. **P2-41 — Request-Conditioned Plan Binding:** **candidate + tokenizer preflight passed; zero-update stage path prepared**. The frozen **108-record / 36-group / 72-train / 36-validation** candidate has SHA `20f30918...`, zero P2-31 request/role/expected-plan overlap, and four isolated contrast families. Frozen-tokenizer preflight passed at **374 tokens maximum**, **25,599 train tokens**, and **12,798 validation tokens**. Pack/stage/preflight commands now exist and stage from the fixed P2-38 step-100 checkpoint `9117e344...`; there is deliberately **no P2-41 training command yet**. The previously reported **281-test** full-suite pass predates the latest execution-path regressions, so current `master` still needs one fresh local test run before the zero-update packet is measured. See [P2-41](docs/PHASE-2-P2-41-REQUEST-CONDITIONED-PLAN-BINDING.md).
 
+</details>
+
 The architecture split remains: **Plex Nano owns learned web-code priors and semantic planning; Plex Code owns exact repository lookup, state resolution, mutation, validation, and diff generation.**
 
 ### New training direction — Plex Web
 
 P2-23b showed that the small scratch model can learn useful task semantics, but the broader coding benchmark still lacks a strong underlying code prior. Phase 2 therefore moves to **domain pretraining first, task-format fine-tuning second**.
 
-```text
-permissively licensed HTML/CSS/JS
-        ↓
-Plex Web Base pretraining
-        ↓
-Phase 2 task-format fine-tuning
-        ↓
-structured edit plans
-        ↓
-Plex Code deterministic resolution
-```
+| Stage | Purpose |
+|:---|:---|
+| **01 · Web corpus** | Permissively licensed HTML, CSS, and JavaScript |
+| **02 · Domain pretraining** | Build code knowledge through Plex Web Base pretraining |
+| **03 · Task-format fine-tuning** | Train the model to express structured edit plans |
+| **04 · Repository resolution** | Use Plex Code for deterministic source lookup and validation |
 
 The current 27.6M model remains the first controlled pretraining architecture. Scaling toward the longer-term 0.5B–1.5B range is deferred until the corpus, tokenizer, and pretraining measurements justify it.
 
@@ -414,20 +429,17 @@ Start with [training/README.md](training/README.md) for preparation, training, e
 
 ## Repository map
 
-```text
-plex-nano-27m-v0.0.1-p2-24/
-│
-├── src/                 Plex Code repository tooling
-├── training/            Scratch model training + evaluation
-├── docs/                Experiment reports + technical notes
-├── fixtures/            Small repositories used by tests
-├── prompts/             Packaged model instructions
-├── tests/               Tooling tests
-│
-├── Plex-ROADMAP.md       Full development roadmap
-├── CHANGELOG.md          Historical implementation changes
-└── README.md             You are here
-```
+| Location | What you will find |
+|:---|:---|
+| [`src/`](src/) | Plex Code repository tooling |
+| [`training/`](training/) | Scratch model training and evaluation |
+| [`docs/`](docs/) | Experiment reports and technical notes |
+| [`fixtures/`](fixtures/) | Small repositories used by tests |
+| [`prompts/`](prompts/) | Packaged model instructions |
+| [`tests/`](tests/) | Tooling tests |
+| [`Plex-ROADMAP.md`](Plex-ROADMAP.md) | Full development roadmap |
+| [`CHANGELOG.md`](CHANGELOG.md) | Historical implementation changes |
+| [`README.md`](README.md) | Project overview |
 
 ---
 
@@ -474,5 +486,12 @@ For the technical details and experiment history:
 ## License
 
 The code is licensed under the [MIT License](LICENSE). The training corpus has
-its own source and license records in [source-policy.json](source-policy.json);
+its own source and license records in [source-policy.json](training/pretraining/source-policy.json);
 review those records before reusing corpus material.
+
+---
+
+<p align="center">
+  <strong>Plex Nano</strong> · Built small on purpose.<br>
+  <a href="#top">Back to top</a> · <a href="./Plex-ROADMAP.md">Follow the roadmap</a> · <a href="./training/README.md">Explore training</a>
+</p>

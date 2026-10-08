@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-labelledby="title desc">
+  <title id="title">Plex Nano</title>
+  <desc id="desc">Small model. Focused mission. A navy Plex Nano banner with teal and violet geometric connections.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1224"/>
+      <stop offset="1" stop-color="#151933"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#61ead6"/>
+      <stop offset="0.52" stop-color="#69a9ff"/>
+      <stop offset="1" stop-color="#aa8eff"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#61ead6"/>
+      <stop offset="1" stop-color="#a693ff"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 H 0 V 32" fill="none" stroke="#8b9bb9" stroke-opacity=".08"/>
+    </pattern>
+    <clipPath id="bounds"><rect x="1" y="1" width="1198" height="338" rx="22"/></clipPath>
+  </defs>
+  <g clip-path="url(#bounds)">
+    <rect width="1200" height="340" fill="url(#background)"/>
+    <rect x="700" width="500" height="340" fill="url(#grid)"/>
+    <circle cx="1022" cy="162" r="214" fill="#637bff" opacity=".04"/>
+    <circle cx="1022" cy="162" r="146" fill="#637bff" opacity=".05"/>
+    <path d="M680 340 928 92h272M795 340l169-169h236M814 0l170 170h216" fill="none" stroke="#a79aff" stroke-opacity=".12"/>
+    <rect width="1200" height="4" fill="url(#accent)"/>
+    <g font-family="DejaVu Sans, Arial, sans-serif">
+      <text x="62" y="78" fill="#8b9dbb" font-size="15" font-weight="600" letter-spacing="4">CODING MODEL RESEARCH</text>
+      <text x="58" y="206" fill="#f2f5ff" font-size="108" font-weight="700" letter-spacing="5">PLEX</text>
+      <rect x="396" y="159" width="142" height="48" rx="10" fill="#61ead6" fill-opacity=".09" stroke="#61ead6" stroke-opacity=".4"/>
+      <text x="467" y="191" text-anchor="middle" fill="#83efdf" font-size="25" font-weight="600" letter-spacing="4">NANO</text>
+      <text x="64" y="265" fill="#becbe3" font-size="23" letter-spacing=".5">Small model. Focused mission.</text>
+    </g>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M844 260V106l66-38 120 69v77l-66 38-54-31" stroke="#788fb7" stroke-width="2" opacity=".35"/>
+      <path d="M877 279V125l66-38 120 69v77l-66 38-54-31" stroke="#788fb7" stroke-width="2" opacity=".25"/>
+      <path d="M910 272V119l66-38 87 50v77l-66 38-87-50" stroke="url(#mark)" stroke-width="8"/>
+      <path d="m910 119 87 50 66-38M997 169v77M943 100l87 50v77" stroke="url(#mark)" stroke-width="2" opacity=".55"/>
+      <path d="M782 195h66l62-36M1063 170h73l29-29" stroke="#85a0c7" stroke-width="2" opacity=".35"/>
+    </g>
+    <g fill="#77e8d9">
+      <circle cx="910" cy="119" r="6"/>
+      <circle cx="910" cy="272" r="6"/>
+      <circle cx="997" cy="246" r="6"/>
+      <circle cx="782" cy="195" r="4" opacity=".7"/>
+    </g>
+    <g fill="#b29eff">
+      <circle cx="1063" cy="131" r="6"/>
+      <circle cx="1063" cy="208" r="6"/>
+      <circle cx="1165" cy="141" r="4" opacity=".7"/>
+    </g>
+  </g>
+  <rect x="1" y="1" width="1198" height="338" rx="22" fill="none" stroke="#2b3653"/>
+</svg>
