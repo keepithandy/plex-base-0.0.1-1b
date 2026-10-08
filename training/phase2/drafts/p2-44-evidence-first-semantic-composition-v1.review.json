@@ -1,0 +1,83 @@
+{
+  "byteCount": 182492,
+  "candidateId": "p2-44-evidence-first-semantic-composition-v1",
+  "candidateSha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+  "contrastFamilies": {
+    "action-discrimination": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    },
+    "constraint-binding": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    },
+    "cross-field-coherence": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    },
+    "hint-grounding": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    },
+    "near-neighbor": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    },
+    "role-composition": {
+      "records": 27,
+      "trainGroups": 6,
+      "validationGroups": 3
+    }
+  },
+  "finalHoldoutOpened": false,
+  "generatorVersion": "p2-44-evidence-first-composition-generator-v1",
+  "groups": 54,
+  "milestone": "P2-44",
+  "modelTrainingAuthorized": false,
+  "p231ExactRequestOverlap": 0,
+  "p231ExpectedPlanOverlap": 0,
+  "p231TargetRoleOverlap": 0,
+  "perLanguage": {
+    "css": {
+      "train": 36,
+      "validation": 18
+    },
+    "html": {
+      "train": 36,
+      "validation": 18
+    },
+    "javascript": {
+      "train": 36,
+      "validation": 18
+    }
+  },
+  "records": 162,
+  "researchOptimizerUpdates": 0,
+  "schemaVersion": 1,
+  "status": "candidate-generated-pending-review",
+  "trainGroups": 36,
+  "trainRecords": 108,
+  "trainUniqueTargetRoles": 72,
+  "trainValidationExactConstraintSetOverlap": 27,
+  "trainValidationExactFullPlanOverlap": 0,
+  "trainValidationExactSearchHintOverlap": 0,
+  "trainValidationExactSemanticBundleOverlap": 0,
+  "trainValidationExactTargetRoleOverlap": 0,
+  "trainingPerformed": false,
+  "uniqueRequests": 162,
+  "uniqueTargetRoles": 108,
+  "validationConstraintAtomCount": 18,
+  "validationConstraintAtomsSeenInTrain": 18,
+  "validationGroups": 18,
+  "validationHintAtomCount": 22,
+  "validationHintAtomsSeenInTrain": 22,
+  "validationRecords": 54,
+  "validationRoleAtomCount": 19,
+  "validationRoleAtomsSeenInTrain": 19,
+  "validationUniqueTargetRoles": 36
+}
