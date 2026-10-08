@@ -44,6 +44,27 @@ class EvidenceCompositionCurriculumTests(unittest.TestCase):
         self.assertTrue(value["splitPolicy"]["validationMayNotReuseExactTargetRoles"])
         self.assertTrue(value["splitPolicy"]["validationMayNotReuseExactSemanticBundles"])
         self.assertTrue(value["splitPolicy"]["validationMayNotReuseExactFullPlans"])
+        self.assertEqual(
+            value["candidateIdentity"],
+            {
+                "candidateId": "p2-44-evidence-first-semantic-composition-v1",
+                "sha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+                "bytes": 182492,
+            },
+        )
+        self.assertEqual(
+            value["tokenizerPreflight"],
+            {
+                "checked": True,
+                "tokenizerSha256":
+                    "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+                "bundleManifestSha256":
+                    "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a",
+                "maximumRecordTokensIncludingEos": 375,
+                "trainTokenCount": 38280,
+                "validationTokenCount": 19186,
+            },
+        )
 
     def test_candidate_has_novel_combinations_of_familiar_atoms(self) -> None:
         rows = build_candidate_rows()
