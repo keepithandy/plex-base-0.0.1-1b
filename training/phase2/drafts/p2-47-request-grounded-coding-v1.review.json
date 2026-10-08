@@ -1,0 +1,61 @@
+{
+  "byteCount": 81032,
+  "candidateId": "p2-47-request-grounded-coding-v1",
+  "candidateSha256": "6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a",
+  "contrastFamilies": {
+    "action-binding": {
+      "train": 18,
+      "validation": 9
+    },
+    "near-neighbor": {
+      "train": 18,
+      "validation": 9
+    },
+    "requirement-binding": {
+      "train": 18,
+      "validation": 9
+    },
+    "target-binding": {
+      "train": 18,
+      "validation": 9
+    }
+  },
+  "finalHoldoutOpened": false,
+  "generatorVersion": "p2-47-request-grounded-coding-generator-v1",
+  "groups": 36,
+  "milestone": "P2-47",
+  "modelTrainingAuthorized": false,
+  "p231ExactRequestOverlap": 0,
+  "perLanguage": {
+    "css": {
+      "train": 24,
+      "validation": 12
+    },
+    "html": {
+      "train": 24,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 12
+    }
+  },
+  "records": 108,
+  "representation": "plex-request-grounded-change-v1",
+  "researchOptimizerUpdates": 0,
+  "schemaVersion": 1,
+  "status": "candidate-generated-pending-review",
+  "trainRecords": 72,
+  "trainValidationExactRequestOverlap": 0,
+  "trainValidationExactSolutionOverlap": 0,
+  "trainValidationNonemptyBindingSetOverlap": 0,
+  "trainingPerformed": false,
+  "uniqueRequests": 108,
+  "validationActionCount": 3,
+  "validationActionsSeenInTrain": 3,
+  "validationBindingIntentCount": 18,
+  "validationBindingIntentsSeenInTrain": 18,
+  "validationRecords": 36,
+  "validationTargetCount": 18,
+  "validationTargetsSeenInTrain": 18
+}
