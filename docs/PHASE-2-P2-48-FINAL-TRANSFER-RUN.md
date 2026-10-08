@@ -251,3 +251,52 @@ training-preflight-passed-awaiting-owner-authorization
 ```
 
 After the preflight result is frozen, P2-48 can be presented as one final bounded 100-update training decision.
+
+
+## Frozen training authorization packet
+
+The final CUDA preflight passed with:
+
+- baseline validation loss: **6.505710401033101**
+- baseline validation batches: **19**
+- expected examples: **1,600**
+- expected real target positions: **429,375**
+- stage checkpoint SHA-256: `52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60`
+- bundle manifest SHA-256: `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`
+
+The bounded runner is implemented and guarded by:
+
+```text
+training/pretraining/p2-48-first-run-contract.json
+```
+
+The checked-in authorization state is intentionally:
+
+```text
+status: owner-approval-required
+modelTrainingAuthorized: false
+approvedBy: null
+approvedDate: null
+```
+
+Running the command below before explicit owner approval must fail before the training preflight or optimizer can run:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli request-grounded-run
+```
+
+After explicit owner authorization, only the authorization fields may change. The frozen stage, data, sampler, baseline, schedule, limits, evaluation policy, and continuation rule must remain identical.
+
+The approved run remains bounded to:
+
+- **100** optimizer updates maximum
+- **600** seconds maximum
+- validation at **0 / 25 / 50 / 75 / 100**
+- checkpoints at **25 / 50 / 75 / 100**
+- no resume
+- no automatic continuation
+- fixed step-100 endpoint policy unless the run stops early
+- P2-31 development evaluation only after the final completed step
+- final project holdout closed
+
+No P2-48 gradient update is authorized by the current repository state.
