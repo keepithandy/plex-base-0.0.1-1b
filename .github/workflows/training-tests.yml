@@ -38,6 +38,7 @@ jobs:
           training/tests/test_request_grounded_coding_curriculum.py
           training/tests/test_request_grounded_coding_bundle.py
           training/tests/test_request_grounded_coding_stage.py
+          training/tests/test_request_grounded_coding_training.py
           training/tests/test_structured_plan_evidence_composition_curriculum.py
           training/tests/test_structured_plan_evidence_composition_bundle.py
           training/tests/test_structured_plan_evidence_composition_stage.py
