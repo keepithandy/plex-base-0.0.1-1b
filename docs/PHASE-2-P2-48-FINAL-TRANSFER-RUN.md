@@ -209,3 +209,45 @@ uv run --project training --no-sync python -m plex_training.cli request-grounded
 The stage must preserve the model weights exactly, reset P2-48 step/tokens to zero, reset sampler state, serialize a fresh empty optimizer state, and keep training settings/schedule null.
 
 P2-48 model training remains unauthorized after stage creation.
+
+
+## Final CUDA training preflight
+
+The zero-update stage passed locally and is frozen:
+
+- stage checkpoint SHA-256: `52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60`
+- model weights preserved: **true**
+- optimizer state empty: **true**
+- sampler reset: **true**
+- P2-48 stage step: **0**
+- P2-48 stage tokens: **0**
+- training performed: **false**
+
+The next step is the final read-only CUDA preflight:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli request-grounded-training-preflight `
+  --report training/artifacts/request-grounded/p2-48-training-preflight.json
+```
+
+It verifies:
+
+- exact stage SHA
+- exact bundle/data/token/index identities
+- exact request-grounded prompt prefix
+- deterministic 1,600-example sampler replay
+- **429,375** expected real target positions
+- CUDA availability
+- step-zero validation loss
+- no optimizer step
+- no checkpoint write
+- no training authorization
+- final holdout closed
+
+Expected status:
+
+```text
+training-preflight-passed-awaiting-owner-authorization
+```
+
+After the preflight result is frozen, P2-48 can be presented as one final bounded 100-update training decision.
