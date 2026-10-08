@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from plex_training.cli import main
+from plex_training.cli import build_parser, main
 from plex_training.structured_plan import parse_plan_response
 from plex_training import structured_plan_request_binding_curriculum as curriculum
+from plex_training import structured_plan_request_binding_training as training_path
 
 DEV = Path("training/phase2/evaluation/p2-31-plan-dev-v1.json")
 CONTRACT = Path("training/pretraining/p2-41-request-conditioned-plan-binding-preparation-contract.json")
@@ -104,6 +106,34 @@ class RequestBindingCurriculumTests(unittest.TestCase):
                 "--candidate", str(candidate),
                 "--review", str(metadata),
             ]), 2)
+
+
+    def test_zero_update_execution_commands_exist_but_run_command_does_not(self):
+        parser = build_parser()
+        subparsers = next(
+            action for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+        )
+        for command in (
+            "plan-request-binding-prepare",
+            "plan-request-binding-stage",
+            "plan-request-binding-preflight",
+        ):
+            self.assertIn(command, subparsers.choices)
+        self.assertNotIn("plan-request-binding-run", subparsers.choices)
+
+    def test_training_path_is_pinned_to_p238_endpoint(self):
+        self.assertEqual(
+            training_path.BASE_CHECKPOINT_SHA256,
+            "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+        )
+        self.assertEqual(training_path.BASE_CHECKPOINT_STEP, 100)
+        self.assertEqual(
+            curriculum.EXPECTED_CANDIDATE_SHA256,
+            "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+        )
+        self.assertEqual(training_path.MAXIMUM_STEPS, 100)
+        self.assertEqual(training_path.MAXIMUM_WALL_SECONDS, 600)
 
     def test_review_rejects_candidate_tampering(self):
         with tempfile.TemporaryDirectory() as temporary:
