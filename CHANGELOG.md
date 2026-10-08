@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Froze the **P2-48 CUDA training preflight** at baseline validation loss **6.505710401033101** over 19 batches. Added the guarded final 100-update request-grounded training runner and a complete authorization packet that remains `owner-approval-required`; the runner fails closed until explicit owner approval and cannot resume or auto-continue.
 - Froze the real **P2-48 step-zero stage** at SHA `52aabd0c...dd60`: P2-44 weights preserved exactly, empty fresh optimizer state, reset sampler, step/tokens 0/0, and no training. Added the final read-only CUDA training preflight to replay 429,375 target positions and measure the request-grounded step-zero validation baseline before any training authorization.
 - Froze the real **P2-48 bundle/sampler preflight**: 72/72 train records selected across 1,600 examples, selection range 12–33, and 429,375 expected real target positions. Added read-only P2-44 endpoint verification plus an authorized zero-update P2-48 stage that preserves weights exactly, resets step/tokens/sampler state, and keeps model training disabled.
 - Completed the real **P2-47 request-grounded coding review**: frozen candidate SHA `6e39259c...`, 108 records (72/36), 286/512 max tokens, 19,377/9,763 train-validation tokens, and zero exact request/solution/non-empty binding-set overlap. Added **P2-48** zero-update bundle packing and deterministic 1,600-example sampler preflight; checkpoint staging and training remain unauthorized.
