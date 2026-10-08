@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Prepared **P2-42 structured bridge re-evaluation** for the fixed P2-41 step-100 checkpoint `adec7fa3...`. The unchanged 18-task P2-31 development gate remains evaluation-only and the final project holdout stays closed.
 - Authorized the **first bounded P2-41 request-binding run** from the measured packet and added `plan-request-binding-run`. The run is capped at **100 CUDA updates / 600 seconds**, uses the frozen P2-41 stage and bundle, validates at steps **0/25/50/75/100**, saves checkpoints at **25/50/75/100**, and does not auto-continue or resume.
 - Froze the **P2-41 zero-update experiment packet** after successful bundle packing, weights-only staging, and CUDA preflight. Exact packet: bundle `a05e0949...`, stage `76392047...`, **567,311** expected real target positions at 100 steps, and baseline validation loss **3.0144005020459494**. A draft 100-step first-run contract now records those measured identities but remains unauthorized; no P2-41 training has run.
 - Passed the **P2-41 candidate and frozen-tokenizer preflight**: candidate SHA `20f30918...`, **108 records / 36 groups / 72 train / 36 validation**, zero P2-31 request/role/expected-plan overlap, tokenizer SHA `2d510262...`, **374** maximum tokens including EOS, and **25,599 / 12,798** train/validation tokens. Added zero-update pack, weights-only stage, and CUDA preflight commands pinned to the P2-38 step-100 endpoint `9117e344...`; no P2-41 training command exists.
