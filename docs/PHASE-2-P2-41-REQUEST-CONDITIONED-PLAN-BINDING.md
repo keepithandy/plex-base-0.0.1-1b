@@ -306,3 +306,53 @@ It still reports:
 - `finalHoldoutOpened=false`
 
 Only after those identities are measured may a separate P2-41 first-run authorization contract be prepared.
+
+
+## Measured zero-update preflight
+
+The P2-41 zero-update CUDA preflight passed with the fully measured packet:
+
+- base P2-38 checkpoint SHA-256: `9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6`
+- P2-41 bundle manifest SHA-256: `a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a`
+- P2-41 stage checkpoint SHA-256: `763920474516488e5bc68d00e77320916c95d9c67253752c03f48f9da36b67fd`
+- train JSONL SHA-256: `458de009e4ef227361e2813c7380bfa2d42739f36335ed333ea3b6a250800db3`
+- validation JSONL SHA-256: `020324cb8d4b5d4fc0737fd741e498640d3636c326a58d25428db88279a3bd16`
+- train index SHA-256: `0ab27caccc5ba11d9d321660197794cff8d2c074fdb843f0149204234a328104`
+- validation index SHA-256: `70f546c7d3b9c3a99c0e2efc4d16335ea7d1e9fdab90ee7e4f7d1017a8d29c5a`
+- baseline validation loss: **3.0144005020459494**
+- baseline validation batches: **24**
+- expected examples at 100 steps: **1,600**
+- expected real target positions at 100 steps: **567,311**
+- device: **CUDA**
+- training performed: **false**
+- research optimizer updates: **0**
+- final holdout opened: **false**
+
+Machine-readable evidence:
+
+`training/pretraining/p2-41-stage-preflight-result.json`
+
+A draft first-run contract now exists at:
+
+`training/pretraining/p2-41-first-run-contract.json`
+
+The draft uses the measured packet above and proposes:
+
+- maximum optimizer updates: **100**
+- maximum wall time: **600 seconds**
+- micro-batch: **1**
+- gradient accumulation: **16**
+- seed: **1337**
+- validation: **0 / 25 / 50 / 75 / 100**
+- checkpoints: **25 / 50 / 75 / 100**
+- no resume
+- no automatic continuation
+
+The draft is intentionally still unauthorized:
+
+- `modelTrainingAuthorized=false`
+- `approvedBy=null`
+- `approvedDate=null`
+- `command=null`
+
+No P2-41 training runner should be used until the current test suite passes against this packet and the owner explicitly authorizes the bounded first run.
