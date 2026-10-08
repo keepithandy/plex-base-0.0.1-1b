@@ -1,232 +1,399 @@
-# Plex — Updated Development Roadmap
-
-Updated October 6, 2026.
+# Plex Nano — Development Roadmap
 
 ## Core goal
 
-Build Plex’s own small coding model from randomly initialized weights, then connect it to the repository tools already built.
-
-Plex will have its own training history and checkpoints. Established transformer designs and training tools may be reused. Pretrained Qwen weights are not the starting point for Plex. Qwen and other models may serve as evaluation baselines; any teacher-generated training data must be documented.
-
-The eventual target is roughly 0.5B–1.5B parameters, with quantized local Windows inference, CPU support, and optional GPU acceleration. Paid services budget is $0; model size, local compute capacity, and actual training duration will be validated through experiments. Normal operation should work offline after setup.
-
-## Starting point: P1-10 completed
-
-| Task | Status |
-|---|---|
-| P1-01–09: CLI, repository discovery, file ranking, context construction, response parsing, and edit checks | Completed |
-| **P1-10: Proposed file buffers and unified diffs** | **Completed** |
-
-At the completed P1-10 starting point, the repository had groundwork for inspecting projects and checking proposed edits, with no trained Plex model. The owner has since completed the P1-13 synthetic CUDA smoke test and saved a scratch-initialized checkpoint; useful coding inference remains to be demonstrated.
-
-The tasks below replace the previous roadmap from P1-11 onward. Existing repository tooling remains the eventual client and evaluation support for the trained model.
-
-## Phase 1 — First Plex training pipeline
-
-The first milestone is a small model that learns from data, saves a checkpoint, and generates output. Initial coding ability will be limited. Passing a training smoke test does not establish useful coding performance.
-
-| Task | Work | Completion check |
-|---|---|---|
-| **P1-11 — Record hardware and training limits** | Provide a read-only Windows hardware collector and profile; record GPU, VRAM, RAM, available storage, training budget, and acceptable duration. Separate local inference requirements from training requirements. | Owner hardware and training limits are recorded; first-experiment resource fit is checked as part of P1-12 before longer training. |
-| **P1-12 — Define the first model experiment** | Choose a small transformer configuration, context length, and training settings. Start substantially below the eventual 0.5B–1.5B target. | Configuration records parameter count; fit against hardware and the 200 GiB allocation is checked in the 10-minute smoke test and two-hour pilot before longer training. |
-| **P1-13 — Add model training tools** | Introduce a Python training workspace alongside the CLI, with commands for preparing data, training, evaluating, and generating output. | Commands run with a tiny test dataset; environment and dependency versions are recorded. |
-| **P1-14 — Build the dataset pipeline** | Collect suitable code and programming explanations. Record sources and permissions; remove duplicates, secrets, and broken examples. | Reproducible dataset manifest and training/validation splits exist. Split related repositories or examples together to reduce leakage. |
-| **P1-15 — Train the Plex tokenizer** | Create a tokenizer suited to programming text and package its files with the model configuration. Fit it using training data only. | Encode/decode checks preserve representative HTML, CSS, JavaScript, and ordinary text. Vocabulary and special-token settings are recorded. |
-| **P1-16 — Initialize Plex weights** | Construct the model with random weights. Record initialization settings and seed. | Initialization loads no pretrained checkpoint. |
-| **P1-17 — Prove the model can learn** | Train on a deliberately tiny sample to check that the training machinery works. | Training loss falls and the model can reproduce the small sample. This proves learning machinery, not general coding ability. |
-| **P1-18 — Run the first real experiment** | Run the two-hour-capped pilot on the prepared dataset and measure performance on withheld data. | Training remains stable within the two-hour limit and allocated resources; validation improves over the untrained model; tokens processed and throughput are recorded. |
-| **P1-19 — Save, resume, and generate** | Save weights, tokenizer, optimizer state, schedule, random-generator state, settings, and training progress. Add a basic completion command. | Training resumes correctly; a saved checkpoint generates output independently. This gate must pass before any uncapped longer training run. |
-| **P1-20 — Write the experiment report** | Record data, tokens processed, hardware, elapsed time, validation results, and sample outputs. | Results explain what Plex learned and where it fails. |
-
-P1-20 status: **complete**. The [first experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md) records the two-hour scratch-trained run, checkpoint resume, held-out results, resource measurements, and incorrect generated code. Training loss and held-out next-token loss improved, but the 34-record training corpus, distinct-source split, and failed completion do not demonstrate coding ability. Keep the CLI duration cap while preparing a broader corpus and functional evaluation plan.
-
-P1-11 status: **complete**. The owner-provided hardware inventory and training limits are recorded in [`docs/HARDWARE-AND-TRAINING-PROFILE.md`](docs/HARDWARE-AND-TRAINING-PROFILE.md): 200 GiB allocated storage, $0 paid-services budget, a 10-minute smoke test, and a two-hour pilot.
-
-P1-12 status: **configuration defined; ten-minute resource fit and two-hour real-data pilot passed**. The instantiated 27,566,080-parameter configuration, training settings, and analytic state-memory estimate are documented in [`docs/FIRST-EXPERIMENT.md`](docs/FIRST-EXPERIMENT.md). The [owner's smoke result](docs/SMOKE-TEST-2026-10-03.md) records 734 MiB peak GPU reservation, about 1.30 GiB process peak RAM, and 57,327.61 synthetic token positions/second. The [P1-18 pilot](docs/PLEX-PILOT.md) records 878,706,688 bytes peak GPU reservation, 1,397,129,216 bytes peak process working set, and improved held-out loss. The [P1-19 resume check](docs/PLEX-RESUME-AND-COMPLETION.md) passed; uncapped longer training remains disabled pending a reviewed experiment plan.
-
-P1-13 status: **implementation complete and owner-verified, including the ten-minute smoke test**. The local workspace, randomly initialized GPT model, bounded smoke/train commands, byte-v1 corpus packing, evaluation, generation, checkpoint writing, and environment telemetry are in [`training/`](training/README.md). On the owner's Windows machine, Python 3.12.10, PyTorch 2.14.0+cu126, and CUDA 12.6 detected the RTX 4080 SUPER; the original 13 training tests pass. The [smoke run](docs/SMOKE-TEST-2026-10-03.md) completed 600.03 seconds and 4,199 steps without interruption and saved a 330,894,811-byte checkpoint. Later milestones completed the corpus, tokenizer, initialization, learning check, and two-hour pilot.
-
-P1-14 status: **complete for the approved starter corpus**. The owner approved the pinned MIT subsets of Microsoft Web Dev for Beginners and Traversy's 50 Projects in 50 Days. The corpus contains 34 training and 54 validation records, a provenance manifest, and both original license notices; its total size is 746,848 bytes. Checks verified separate groups/content hashes and an identical second build; all 25 training-workspace tests passed at that milestone. Sources, approval, scopes, hashes, limitations, and reproduction instructions are recorded in the [source/build review](docs/DATASET-SOURCE-REVIEW.md). See [`docs/DATASET-PIPELINE.md`](docs/DATASET-PIPELINE.md).
-
-P1-15 status: **complete for the approved starter corpus**. Plex's byte-level BPE tokenizer fitted only training records' text and learned 9,976 entries within the unchanged 16,384 model capacity. The package retains model/settings/provenance/license files and encodes 147,948 training and 18,394 validation tokens including record EOS boundaries. All 88 records and representative code/ordinary-text samples round-trip exactly; a separate rebuild matched all 11 bundle files. The package occupies 1,039,201 bytes. See the [tokenizer report](docs/PLEX-TOKENIZER.md).
-
-P1-16 status: **complete**. Created a 27,566,080-parameter, step-zero Plex checkpoint from random weights, tied to the P1-15 tokenizer (9,976 learned IDs in the 16,384 model capacity). Seed 1337, initialization recipe/version, CPU initialization device, PyTorch/Python versions, full model settings, initial weights SHA-256, tokenizer/config hashes, and `pretrainedCheckpointLoaded: false` are recorded with the 110,303,036-byte checkpoint. The weights live at `training/artifacts/initializations/p1-16-starter-v1/initialization.pt`; the ignored artifact can be recreated with the command in [`docs/PLEX-INITIALIZATION.md`](docs/PLEX-INITIALIZATION.md). This step performed no training. The regular runner remains byte-v1; P1-17 must add tokenizer-aware training to prove learning on a tiny real-text sample.
-
-P1-17 status: **complete for the tiny learning check**. Starting from the P1-16 checkpoint, the new `learn-check` command trained on the first 16 ordinary BPE tokens of one approved training record. Over 250 updates, loss fell from 9.437925 to 0.0000224 and token accuracy rose from 0% to 100%. Greedy decoding reproduced all 16 tokens from a two-token prompt. The run took 5.66 seconds on the selected CUDA device and saved a 330,897,243-byte checkpoint with optimizer state and tokenizer identity. The [learning report](docs/PLEX-LEARNING-CHECK.md) records hashes and details. This verifies one-sample overfitting only.
-
-P1-18 status: **complete for the bounded real-data pilot**. The `pilot` command verified the approved tokenizer, both data splits, starting P1-16 scratch checkpoint, token IDs, and storage/time bounds. The owner's 120-minute CUDA run completed uninterrupted at 43,632 steps and 357,433,344 sampled token positions. Held-out loss improved from 9.33937 to 6.53100; `pilot-evaluate` independently reproduced the final value over 17,920 targets, and the checkpoint hash matched the report. Peak GPU reservation was 878,706,688 bytes and peak process working set was 1,397,129,216 bytes. The small corpus and large train/validation loss gap limit quality claims. See the [P1-18 pilot report](docs/PLEX-PILOT.md). P1-19 later verified one-step resumption from this saved checkpoint.
-
-P1-19 status: **technical gate complete**. A bounded CUDA `pilot-resume` advanced the completed pilot from step 43,632 to 43,633 without modifying its source checkpoint; the original SHA-256 remained unchanged. The new 330,899,291-byte checkpoint records weights, AdamW state, RNG, fixed learning-rate schedule, training settings, total 357,441,536 sampled positions, tokenizer/dataset identity, and scratch provenance; a copy of the tokenizer bundle accompanies it. Held-out loss changed from 6.530996513366699 to 6.530651337759835, independently reproduced. A separate CPU `complete` command generated text from the saved checkpoint and tokenizer. All 46 training tests passed. The generated code was incomplete; this checks plumbing, not coding ability. See the [P1-19 report](docs/PLEX-RESUME-AND-COMPLETION.md). No uncapped longer-training command is enabled.
-
-**Phase 1 gate:** A reproducible Plex checkpoint trained from random initialization, with evidence that it learned.
-
-## Phase 2 — Basic coding ability
-
-| Task | Work | Completion check |
-|---|---|---|
-| **P2-01 — Build coding evaluations** | Add withheld completion tasks for HTML, CSS, and JavaScript, including syntax and behavior checks. The owner approved a 30-task development set, a 60-task final set, at least 11/20 final tasks passed per language, and at least +10 percentage points overall over the matching step-zero checkpoint. | P2-01a and the static development-only P2-01b harness/set are complete. The final set remains sealed; safe JavaScript behavior and browser-backed checks still need resolution or must be reported unavailable. |
-| **P2-02 — Improve training data** | Build a family-stratified train/development corpus from approved source groups, then adjust the code/explanation mix using measured development failures. | **Complete for the bounded pilot data scope.** Source approvals, group-separated builds, measured data mix, failure-driven revisions, and the approved 234-example v3 corpus (156 train / 78 validation) are recorded, with tokenizer and EOS/context checks. Data sufficiency for useful coding remains unproven. |
-| **P2-03 — Compare training configurations** | Test context length, model size, training settings, and representation choices through bounded experiments. | **Complete for the small-data representation cycle.** P2-16 through P2-23b established useful semantic transfer but weak exact repository-state resolution; that evidence triggered the Plex Web domain-pretraining pivot rather than more continuation of the same checkpoint. |
-| **P2-04 — Train the next Plex Nano checkpoint** | Increase training only after the bounded representation experiments justify the extra compute. | **Complete for the current Plex Web + first task-format stage.** P2-24 through P2-29 established the reviewed corpus, frozen tokenizer, fresh scratch initialization, and Web-domain trajectories. P2-30 completed its fixed 100-step task run; validation improved materially but complete development tasks remained 0/30, so no continuation is authorized. |
-| **P2-05 — Document capability limits** | Identify supported semantic tasks, task sizes, transfer strengths, and recurring failures; record what belongs in Plex Nano versus deterministic Plex Code. | **Ongoing.** The Plex Nano / deterministic Plex Code boundary is explicit; final capability limits will be updated again after P2-30 task-format fine-tuning and P2-31 structured-plan evaluation. |
-
-### Current status — October 7, 2026
-
-**Phase 2 is active under the Plex Web pretraining program, and its final gate remains unmet.** Plex has not yet demonstrated reliable unseen coding-task completion, and the final project holdout remains closed. P2-24 through P2-30 established the Web-pretraining + task-format path. **P2-31 then failed the structured bridge at the representation boundary: 18/18 responses were present and untruncated, but 0/18 were valid JSON plans. P2-32 structured-plan representation preparation is now active.** Earlier transfer investigations remain below for context:
-
-- **P2-07:** learned 24/24 supplied copies and passed 4/6 held-out wording cases (1/3 selectors, 3/3 gaps).
-- **P2-08:** the approved 100-update selector wording/layout run learned 63/64 supplied records. Because it missed the predeclared 64/64 convergence gate, its 4/16 held-out score is descriptive and formally inconclusive.
-- **P2-09 audit:** teacher-forced scoring of the existing checkpoint found the expected answer newline top-ranked on 64/64 training prompts but only 6/16 held-out prompts. Once the expected newline is supplied, the period is top-ranked on 16/16 evaluation prompts. Selector-body choice is also inconsistent after the expected prefix (11/16 top-ranked).
-
-The [P2-08 run report](docs/PHASE-2-P2-08-SELECTOR-FORMAT-RUN.md) and [P2-09 answer-boundary audit](docs/PHASE-2-P2-09-ANSWER-BOUNDARY-DIAGNOSTIC.md) record the earlier evidence. P2-10 was owner-approved against exact candidate hashes and completed one fresh seed-1337 run within 100 updates / 10 minutes. It learned 64/64 supplied selectors and scored 7/16 on its original held-out wording. A separate 64-row, four-phrase evaluation-only set scored 43/64 on the unchanged checkpoint, ranging from 5/16 to 16/16 by wording. The wider result shows substantial phrasing sensitivity; the [run report](docs/PHASE-2-P2-10-EXPLICIT-ANSWER-START-RUN.md) and [wider evaluation report](docs/PHASE-2-P2-10-WIDER-WORDING-EVALUATION.md) record scope and limits. The final project holdout remains closed.
-
-**Current milestone: P2-40 Bridge Error Decomposition — read-only diagnostic prepared.** P2-31 scored **0/18 complete plans** and **0/18 schema-valid plans**, so P2-32 targets strict representation composition. Preparation verified the **96-record / 24-group** candidate, **72/24** split, **96/96** schema-valid targets, zero P2-31 request/role overlap, frozen tokenizer identity, **447-token** maximum record, **27,251** train tokens and **8,992** validation tokens. The P2-32 weights-only stage SHA is `7028ef63...`; read-only CUDA preflight pinned bundle SHA `a0d3663b...`, **605,231** expected real target positions, and baseline validation loss **8.002869129180908**. P2-32 completed **100/100** CUDA updates and **605,231** real target positions. Validation moved **8.002869 → 2.928607 → 2.606642 → 2.603876 → 2.679591**; the fixed step-100 endpoint SHA is `707e46f9...`. P2-33 re-ran the unchanged P2-31 development gate and still scored **0/18 complete plans, 0/18 schema-valid plans, and 36/162 checks**. P2-34 found a precise failure: **18/18** responses begin with `{`, contain `"schemaVersion"`, and end with `}`, but **18/18** are malformed JSON candidates and **0/18** contain any embedded parseable JSON object. The next experiment therefore targets local serialization grammar rather than broad semantics. P2-35 has a **144-record / 24-group** candidate with six linked stages per group and **108 train / 36 validation** records. Frozen-tokenizer preflight passed with **144/144 JSON-object solutions**, **48 strict full plans**, **346-token** maximum record, **20,427 train / 6,727 validation tokens**, zero P2-31 request/role overlap, and no P2-33 response reuse. The P2-35 bundle/stage/preflight path is complete. Exact local evidence is now frozen: stage SHA `735554ac...`, bundle SHA `17f02f7f...`, train JSONL `b921dd54...`, validation JSONL `e48d45b8...`, train index `e10af50b...`, validation index `cd93cc1d...`, **299,958** expected real target positions, and baseline validation loss **4.335327882033128**. The contract remains draft-only with no training authorization.
-
-**Historical P2-03 result:** the owner-approved [binding-diversity comparison](docs/PHASE-2-BINDING-DIVERSITY-RESULT.md) completed both 100-update CUDA runs in about fourteen seconds each. The varied arm learned 20/24 supplied answers; both arms passed 0/12 new binding requests, 0/12 reserved transfer requests and 0/30 development tasks. Three focused tests passed; exact scratch tensor equality, unchanged tokenizer/provenance, sampler accounting and all 96 diagnostic completions were independently verified. Four supplied answers still failed, so this result did not establish ineffective diversity after convergence. The later answer-focused and selector-copy experiments are recorded above. The final holdout remains closed and a two-hour run remains deferred.
-
-**Earlier P2-03 learning curve:** the [bounded complete-record continuation](docs/PHASE-2-COMPLETE-RECORD-LEARNING-CURVE.md) advanced the preserved step-100 checkpoint to step 200 in 500.47 seconds. Exact seen answers rose from 3/156 to 52/156 across all languages, but corpus validation stayed 0/78 and development stayed 0/30. Cumulative real target positions reached 299,959; held-out text loss rose from 4.32042 to 4.47331. All 116 training tests passed at that milestone, including CLI continuation and CUDA optimizer placement/update equivalence.
-
-**Phase 2 gate:** after domain pretraining and task-format fine-tuning, Plex must reliably convert unseen development requests into a bounded structured edit plan that captures semantic intent well enough for deterministic Plex Code resolution. P2-31 is the structured bridge gate. The final project holdout remains sealed for milestone decisions, and the development-only static evaluator still does not establish JavaScript behavior.
-
-The accepted source decisions, family-stratified split, corpus/tokenizer hashes, and measured data mix are recorded in the [Phase 2 data collection review](docs/PHASE-2-DATA-COLLECTION-REVIEW.md). **Historical source-corpus result: the approved v3 corpus (56 records), matching tokenizer, step-zero baseline, 10-minute training check, matched coding-task comparison, and exact file-format token mix are recorded. The trained checkpoint passed 0/30 tasks and fewer checks than step-zero; the owner-approved [36-example corpus](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md) now has a fresh tokenizer, verified budgets, random initialization, and matching step-zero score. Its ten-minute diagnostic scored 0/30 complete tasks with zero truncations and worsening held-out loss; see the [matched report](docs/PHASE-2-CODE-PAIR-10M-REPORT.md).** The [P2-02 data-mix review](docs/PHASE-2-DATA-MIX-REVIEW.md) records the v2 measurements, v3 composition, matched scores, and safe-JavaScript execution gate. The [v3 report](docs/PHASE-2-DATASET-V3-REPORT.md) and [10-minute training report](docs/PHASE-2-TRAINING-CHECK-V3-REPORT.md) record the user-run counts, hashes, initialization, and results; the [authored-example guide](training/phase2/drafts/README.md) records provenance. P2-01's approved numeric threshold, versioned development tasks, static evaluator, and remaining behavior-check limits are recorded in the [evaluation design](docs/PHASE-2-EVALUATION-DESIGN.md). Subsequent bounded experiments are recorded below; no Phase 2 two-hour run has started.
-
-**Historical 36-example result:** the owner approved the exact 36-example candidate for local training. The [approved corpus and baseline report](docs/PHASE-2-CODE-PAIR-BUILD-REPORT.md) records the completed preparation and next run. Preparation is complete; the matching random baseline passed 0/30 tasks. The ten-minute run and matched scoring are complete: 0/30 tasks, no truncated responses, and worsening held-out loss. Next: a broader reviewed data candidate; a longer run is not justified by these results.
-
-**Historical 180-example result:** the owner approved the [180-example request-following candidate](docs/PHASE-2-CURATED-DATA-APPROVAL.md). Its 120/60 corpus, training-fitted tokenizer, scratch initialization, 100-step CUDA check, and matched development scores are recorded in the [result report](docs/PHASE-2-CURATED-100-STEP-REPORT.md). Held-out loss improved from 7.08 to 2.70, but complete tasks remained 0/30. Next: inspect failed responses and broaden independent coding data before another bounded experiment. A longer run is not justified yet.
-
-**P2-02 failure review and v3 result:** the [30-response audit and v3 data review](docs/PHASE-2-FAILURE-GAP-REVIEW.md) identifies missing structures, seven repeated CSS selectors, and the single JavaScript function name across all 36 prior training examples. The owner approved the exact 234-record v3 candidate. Its separate corpus, training-fitted tokenizer, random initialization, 100-step CUDA run, and matched development scores are recorded in the [v3 result report](docs/PHASE-2-FAILURE-GAP-100-STEP-REPORT.md). Held-out text loss fell, but complete-task passes remained **0/30**. The approved v2 record remains intact; a longer run is not justified by these results.
-
-**P2-03 objective comparison (previously tracked under P2-02):** the [controlled answer-weighted result](docs/PHASE-2-ANSWER-WEIGHTED-100-STEP-REPORT.md) used the same approved v3 corpus, tokenizer, random initialization, 100 steps, and development tasks. Giving code-answer/EOS targets four times the prompt weight still passed **0/30** tasks (34/151 static checks versus 35/151 for ordinary loss). This does not justify a two-hour run.
-
-**P2-03 saved-checkpoint diagnostic:** [read-only inference on the approved v3 examples](docs/PHASE-2-SAVED-CHECKPOINT-DIAGNOSTIC.md) found 0/156 exact or full-static passes on seen training prompts and 0/78 on corpus validation prompts for both existing 100-step checkpoints. Answer weighting raised syntax-pass counts without complete answers. No new training was run for this diagnostic.
-
-**P2-03 three-example probe:** the [bounded result](docs/PHASE-2-THREE-EXAMPLE-PROBE-REPORT.md) reproduced one approved training answer per language exactly by step 25 using complete-record training, with 3/3 retained at step 200. The scratch checkpoint was reloaded and checked. This supports prompt-to-answer learnability for three seen examples only; it does not justify a two-hour run.
-
-### Phase 2 web-pretraining program
-
-P2-23b closed the small-data semantic-probe era. Phase 2 now pivots to a two-stage training strategy:
+Build **Plex Nano**, a small coding model that takes a natural-language coding request plus code/file context supplied by the user and produces the correct code change.
 
 ```text
-large permissively licensed HTML/CSS/JS pretraining
-                    ↓
-             Plex Web Base
-                    ↓
-      task-format fine-tuning
-                    ↓
-       structured coding bridge
+request + supplied code/file
+          ↓
+      Plex Nano
+          ↓
+   correct code change
 ```
 
-| Milestone | Purpose | Exit condition |
-|---|---|---|
-| **P2-24 — Plex Web pretraining specification** | Freeze the source-license policy, supported file types, provenance requirements, quality filters, repository-level split rules, contamination controls, corpus ladder, and owner review gates. | Specification is committed; no large-scale source is ingested without matching provenance and license metadata. |
-| **P2-25 — Corpus ingestion pipeline** | Implement reproducible ingestion for approved sources with license gating, path/file filters, secret checks, generated/minified detection, hashing, provenance, and repository grouping. | A deterministic small-source build reproduces byte-identically and rejects disallowed/ambiguous sources. |
-| **P2-26 — Plex Web Corpus v1** | Build progressively larger repository-grouped HTML/CSS/JS corpora: pipeline scale, pilot scale, then serious pretraining scale. | Corpus manifests record source identity, license, repository split, deduplication, exclusions, token/byte counts, and contamination checks. |
-| **P2-27 — Web tokenizer review** | Fit a tokenizer on the pretraining **training split only** and compare it with the current experimental tokenizer on HTML, CSS, JavaScript, ordinary instructions, and Plex task formats. | Tokenizer choice is measured and frozen before the serious pretraining run. |
-| **P2-28 — Small domain-pretraining pilot** | Train the unchanged 27,566,080-parameter architecture from random initialization on a small Plex Web slice. | Held-out web-code next-token loss improves; checkpoint/provenance/resume checks pass; throughput and resource use are measured. |
-| **P2-29 — Plex Web Base pretraining** | Run the serious domain-pretraining trajectory on the approved larger corpus using the frozen tokenizer/configuration. | A reproducible pretrained checkpoint demonstrates materially stronger HTML/CSS/JS continuation and syntax behavior than step zero and the small-data baselines. |
-| **P2-30 — Plex task fine-tuning** | Begin with the approved request-following v3 curriculum only, using the frozen Web tokenizer and P2-29-derived task-stage checkpoint. Further curricula require later controlled experiments. | **First bounded run complete.** Validation improved sharply, truncation disappeared, but P2-01b remained 0/30 complete tasks. No continuation is authorized. |
-| **P2-31 — Structured coding bridge** | Evaluate unseen repository-style requests → bounded semantic edit plans. Exact file/symbol/state resolution remains deterministic Plex Code work. | **Gate failed.** 0/18 plans passed and 0/18 were schema-valid JSON, despite 18/18 present/untruncated responses. Failure classified as representation-format; Phase 3 not authorized. |
-| **P2-32 — Structured-plan representation curriculum** | Teach the strict plan format and composition boundary on a separate grouped curriculum before re-running a bridge evaluation. | **First bounded run complete.** 100/100 CUDA updates, 605,231 target positions, fixed endpoint SHA `707e46f9...`; no continuation authorized. |
-| **P2-33 — Structured bridge re-evaluation** | Re-run the unchanged P2-31 18-task development set on the P2-32 fixed endpoint. | **Gate failed.** 0/18 complete, 0/18 schema-valid, 36/162 checks; all 18 present/untruncated. |
-| **P2-34 — Output-boundary diagnostic** | Inspect the exact P2-33 raw outputs without repair/rescoring/training. | **Complete.** 18/18 start/end as JSON objects and include schemaVersion, but all 18 have malformed interior JSON grammar; 0 embedded parseable objects. |
-| **P2-35 — Serialization-stability curriculum** | Train local JSON grammar transitions before returning to full semantic-plan generation. | **Tokenizer preflight passed; locked execution path prepared.** 144 records / 24 groups; 108 train / 36 validation; 144 JSON-object targets; 48 strict full plans; 346-token max record; training still unauthorized. |
+Plex is not being developed as a general chatbot. The current research target is a compact model that becomes increasingly reliable at HTML, CSS, and JavaScript coding tasks while remaining small enough for practical local use.
 
-The earlier P2 datasets remain valuable. They move from being tiny stand-ins for pretraining to the **fine-tuning and evaluation layer**.
+## Current controlled model
 
-The architecture boundary remains:
+| Item | Value |
+|---|---:|
+| Parameters | **27,566,080** |
+| Context | **512 tokens** |
+| Vocabulary | **16,384-token byte-level BPE** |
+| Initialization | **Scratch / random weights** |
+| Languages | **HTML / CSS / JavaScript** |
+| Current phase | **Phase 2 — Coding Understanding** |
 
-- **Plex Nano:** HTML/CSS/JS priors, semantic normalization, edit intent, target kind, target role, language, bounded search hints, and structured planning.
-- **Plex Code:** repository search, exact symbol/selector/property lookup, current-state inspection, presence transitions, exact byte resolution, file mutation, validation, and diff generation.
+The 27M model remains the controlled baseline until a roadmap milestone explicitly authorizes a model-size change.
 
-**Phase 2 entry to P3:** Phase 3 remains blocked. P2-31 and P2-33 both failed the structured-plan bridge. P2-34 localized the problem to interior JSON grammar, and P2-35 must resolve that failure before another predeclared bridge evaluation can authorize Phase 3 entry.
+---
 
-## Phase 3 — Repository editing
+# Phase 1 — Model Foundation
 
-| Task | Work | Completion check |
-|---|---|---|
-| **P3-01 — Build repository edit-plan examples** | Prepare task + focused repository context → structured semantic edit-plan examples, including no-change and insufficient-context cases. Keep development and held-out cases separate. | Examples have verified intent, target kind/role, language, search hints, and controlled scope without requiring the model to invent exact repository bytes. |
-| **P3-02 — Train the Plex semantic planner** | Tune Plex Nano to emit the bounded edit-plan contract learned in Phase 2 instead of arbitrary raw patches. | Held-out requests produce usable plans with measured field accuracy, format reliability, and insufficient-context behavior. |
-| **P3-03 — Add deterministic repository resolution** | Convert the semantic plan into exact file, symbol/selector/property, current state, desired state, and edit location using Plex Code. | Known fixtures resolve to the correct source location without model-generated exact-byte lookup or uncontrolled repository mutation. |
-| **P3-04 — Generate and validate patches** | Connect resolved plans to proposal buffers, unified diffs, HTML/CSS/JavaScript checks, and the real Plex inference adapter. | Plex completes a one-file repository edit fixture end to end: request → plan → resolve → patch → validate → diff. |
-| **P3-05 — Add one bounded repair attempt** | Return concrete validation failures to Plex, request one revised semantic plan, and rebuild the proposal from the original snapshot. | Measure successful repairs, regressions, and unchanged source files; no autonomous retry loop. |
+**Status: COMPLETE**
 
-**Phase 3 gate:** Plex's own trained model and deterministic Plex Code tooling complete small unseen repository edits end to end. Start with one-file HTML/CSS/JavaScript edits, preserve the original snapshot, and keep exact repository resolution deterministic wherever practical.
+Phase 1 established that Plex can be trained from scratch and operated locally.
 
-## Phase 4 — Lightweight release
+Completed capabilities include:
 
-| Task | Work | Completion check |
-|---|---|---|
-| **P4-01 — Decide release model size** | Evaluate whether a 0.5B–1.5B training run is justified by results and available compute. | Document quality targets, hardware, data, and training budget before beginning the run. |
-| **P4-02 — Train and evaluate the chosen model** | Train the selected configuration and complete instruction tuning. | Frozen evaluation results meet thresholds defined before the final run. |
-| **P4-03 — Prepare local inference builds** | Export to a supported inference format and prepare quantized variants, including a 4-bit candidate where practical. | Exported models load successfully; quality loss is measured against the original checkpoint. |
-| **P4-04 — Verify Windows operation** | Measure CPU speed, RAM use, and optional GPU acceleration. Test installation and offline operation. | Publish measured hardware requirements and working setup instructions. |
-| **P4-05 — Release Plex Code v0.1** | Package model artifacts, tokenizer, configuration, client, provenance, benchmarks, and limitations. | A clean setup can run documented tasks using the released Plex checkpoint. |
+- deterministic model configuration
+- scratch initialization
+- tokenizer training
+- reproducible dataset builds
+- CPU/CUDA environment reporting
+- bounded training runs
+- checkpoint save/load
+- checkpoint resume
+- validation loss measurement
+- deterministic generation
+- training provenance and hashes
+- local Windows workflow
 
-**Phase 4 gate:** A reproducible local release with measured coding capability and resource requirements.
+Phase 1 proved the training system works. It did **not** prove useful coding ability by itself.
 
-## Development rules
+---
 
-- Preserve completed P1-01–10 tooling and its tests.
-- Validate each phase before increasing model size or training budget.
-- Keep training loss, coding benchmarks, repository task success, and tooling tests as separate measurements.
-- Record data provenance and training configuration for every checkpoint.
-- Use only development cases for prompt, data, and training adjustments; protect final evaluation cases.
-- Treat generated edits as proposals until deterministic checks pass.
-- Report failed, unavailable, and unrun checks accurately.
-- Keep initial scope focused on HTML, CSS, and JavaScript.
-- Defer GUI, IDE integration, autonomous loops, broader languages, and automatic commits until the model and coding workflow demonstrate useful reliability.
-- Set training schedules from measured throughput and available hardware; avoid calendar promises before measurement.
+# Phase 2 — Coding Understanding
 
-## Next task
+**Status: ACTIVE**
 
-**P2-15 CSS request-to-code diagnostic complete.** The approved fresh seed-1337 CUDA run reached its 100-update ceiling. Supplied training edits moved from **0/24 to 24/24 complete passes and exact-string matches**, while the four withheld semantic property families remained **0/12**. P2-14 remained **0/12** and P2-01b remained **0/30**. The model did learn bounded completion behavior: EOS moved to 12/12 on P2-15 validation and 30/30 across the P2-01b CSS/HTML/JavaScript tasks. Treat that as behavioral-format transfer, not coding-task generalization. The final owner-controlled holdout remained closed. See the [P2-15 result](docs/PHASE-2-P2-15-RESULT.md).
+## Phase 2 purpose
 
-**P2-16 first run complete.** The approved fresh seed-1337 CUDA run reached step 100. Supplied training complete-task passes moved from **0/120 to 3/120**, training syntax validity from **0/120 to 45/120**, and EOS to **120/120**. Tier A-D complete-task passes remained zero, but syntax-valid outputs rose to **19/24, 6/12, 4/12 and 3/12** respectively. P2-14 remained **0/12** and P2-01b remained **0/30**. Held-out next-token validation loss fell from **6.71646 to 3.38711** while the supplied training curriculum was still clearly underfit. See the [P2-16 result](docs/PHASE-2-P2-16-RESULT.md).
+Teach Plex to understand coding requests and map them to the intended change.
 
-**P2-16b optimization continuation complete.** Training fit rose from **3/120 at step 100 to 98/120 at 200, 105/120 at 300, 116/120 at 400 and 114/120 at 500**, while Tier A/B/C/D complete-task passes remained **0 throughout**. Held-out validation loss worsened after its step-100 minimum (**3.387 -> 3.946 -> 4.084 -> 4.658 -> 4.620**) even as recent training loss fell to about **0.045**. Tier A and B nevertheless reached **24/24** and **12/12 syntax-valid CSS** by step 500. Manual Tier A inspection showed Plex frequently retrieving remembered training selectors and values instead of binding the literal selector/value from the current request. Additional optimization on the unchanged P2-16 curriculum is not justified. See the [P2-16b result](docs/PHASE-2-P2-16B-RESULT.md).
+Phase 2 research covers:
 
-**P2-17/P2-17b complete and closed.** The v2 trajectory reached **120/120 supplied complete-task passes** by step 500, including 60/60 exact extraction plans and 60/60 exact explicit-plan applications. Held-out transfer remained **0/20 complete** on Tiers A, B and C. Tier A still showed partial categorical transfer (operation **13/20**, property **15/20**) but literal binding remained weak (old **6/20**, new **3/20**, selector **0/20**). Validation loss worsened after the step-100 minimum (**2.574 -> 2.910 -> 3.110 -> 3.206 -> 3.369**) while recent training loss fell to about **0.041**. Additional optimization on the unchanged P2-17 representation is not justified. See the [P2-17b result](docs/PHASE-2-P2-17B-RESULT.md).
+- request following
+- code syntax
+- literal binding
+- semantic roles
+- edit intent
+- target kinds
+- constraints
+- structured output
+- task-format fine-tuning
+- web-code pretraining
+- semantic transfer
+- generalization beyond exact training examples
 
-**P2-18 first run complete.** The fresh v3 CUDA trajectory reached step 100 with only **4/144 supplied complete-task passes**: Level A **2/36**, B **1/36**, C **1/36**, D **0/36**. Held-out Tier A/B/C/D complete-task transfer remained zero. Structural behavior nevertheless emerged strongly: Level B reached **34/36 format-valid** and **33/36 label-exact** outputs, while Tier B reached **18/18 format-valid** and **10/18 label-exact**. Exact held-out literal copying remained **0/18** on Tier A and **0/18** on Tier B. Validation loss fell sharply from **6.82816 to 2.87668** while recent training loss remained **0.54936**, so the run is still underfit rather than diagnostically overfit. See the [P2-18 first-run result](docs/PHASE-2-P2-18-RESULT.md).
+Phase 2 is intentionally about the **model's understanding**, not application UI.
 
-**P2-18/P2-18b complete and closed.** Supplied complete-task fit rose from **4/144 at step 100** to **44/144 at 200, 123/144 at 300, 132/144 at 400 and 129/144 at 500**. Held-out Tier A literal exact, Tier B literal exact, Tier C selected-field exact and Tier D full-plan exact remained **0/18 at every checkpoint**. Training Level C nevertheless reached **36/36**, while Tier C also recorded **0/18 wrong-field retrievals**. Validation loss worsened after the step-100 minimum (**2.877 -> 3.039 -> 3.457 -> 3.819 -> 3.790**) while recent training loss fell to **0.0866**. Additional optimization on the raw-literal representation is not justified. See the [P2-18b result](docs/PHASE-2-P2-18B-RESULT.md).
+## Phase 2 completed research
 
-**P2-19 first run complete.** The fresh seed-1337 CUDA trajectory reached step 100 with **51/144 supplied complete-task passes**: Level A **18/36**, B **12/36**, C **17/36**, D **4/36**. Unlike P2-18, held-out reference behavior is already nonzero: Tier A **4/18**, Tier B **6/18**, Tier C **3/18**, Tier D full plan **1/18**. Tiers A/B/C all produced known references on **18/18** rows, while Tier D reached **17/18 format-valid** plans. Validation loss fell from **6.68696 to 3.04848** while recent training loss remained **0.45931**, so the curriculum is still underfit. See the [P2-19 first-run result](docs/PHASE-2-P2-19-RESULT.md).
+The full experiment history remains in [docs/](docs/) and [training/](training/). Important findings include:
 
-**P2-19/P2-19b complete and closed.** Supplied fit rose from **51/144 at step 100** to **143/144 at step 500**. Stable reference output transferred strongly, and Tier D structured symbolic plans reached **14/18** full-plan exact. However, held-out explicit reference lookup (Tier B) ended at **6/18** and semantic reference selection (Tier C) at only **2/18** despite training B/C reaching **36/36** and **35/36**. Validation loss worsened from **3.0485 at step 100 to 4.2772 at step 500** while recent training loss fell to **0.0665**. Additional optimization on the unchanged P2-19 representation is not justified. See the [P2-19b result](docs/PHASE-2-P2-19B-RESULT.md).
+| Milestone range | Main finding |
+|---|---|
+| **P2-01–P2-16** | Basic request-to-code plumbing works, but early data was too small and transfer remained weak |
+| **P2-17–P2-19** | Plex can fit semantic/literal/reference tasks, but unseen exact binding remains difficult |
+| **P2-20–P2-23** | Broader semantic classes transfer better than exact state/literal relations |
+| **P2-24–P2-29** | Plex Web corpus/tokenizer/pretraining established stronger HTML/CSS/JS priors |
+| **P2-30–P2-36** | Task-format and structured-plan work improved output structure but not reliable semantics |
+| **P2-37–P2-43** | Diagnostics showed training-template retrieval and weak semantic binding were major bottlenecks |
+| **P2-44** | Evidence-first training improved internal validation from **3.39814 → 2.17238** over 100 updates |
+| **P2-45** | Unchanged bridge evaluation still failed: **0/18 complete**, **12/18 schema-valid**, **78/162 checks** |
 
-**P2-20 first run complete.** The fresh seed-1337 CUDA trajectory reached step 100 with **45/144 supplied complete-task passes**: Level A **30/48**, B **8/48**, C **7/48**. Held-out Tier A/B/C were **6/24, 4/24 and 6/24** respectively. Tier B matched the simple six-way chance expectation while Tier C was modestly above it, but B/C were still heavily underfit. Validation loss fell from **6.57959 to 3.27086** while recent training loss remained **0.18277**. See the [P2-20 first-run result](docs/PHASE-2-P2-20-RESULT.md).
+## P2-45 conclusion
 
-**P2-20/P2-20b complete and closed.** Supplied fit rose from **45/144 at step 100** to **114/144 at step 500**. Semantic classification (Level A) reached **48/48** and held-out Tier A improved to **12/24**, while symbolic lookup (Tier B) ended at only **3/24** despite **27/48** supplied fit. Tier C ended at **5/24** with **39/48** supplied fit. Validation loss worsened after step 100 (**3.271 -> 3.576 -> 3.827 -> 4.165 -> 3.901**) while recent training loss continued falling. The result supports keeping semantic normalization in Plex Nano while moving exact role/reference resolution into deterministic Plex Code tooling. See the [P2-20b result](docs/PHASE-2-P2-20B-RESULT.md).
+P2-44 learned its own curriculum well, but that learning did not transfer reliably enough to independently worded coding-plan tasks.
 
-**P2-21/P2-21b complete and closed.** Supplied fit reached **144/144** by step 500. Held-out clean paraphrases ended at **9/24**, while minimal semantic contrasts reached **15/24** and repository-style language **14/24**. The early `OLD` failure was not fundamental: it recovered to **5/8** on Tier B and **4/8** on Tier C. Validation loss worsened from the step-100 minimum (**3.356 -> 3.595 -> 3.844 -> 3.721 -> 4.135**) while recent training loss fell to **0.0752**, so additional optimization is not justified. The result supports structured semantic framing in Plex Nano and deterministic exact-byte resolution in Plex Code. See the [P2-21b result](docs/PHASE-2-P2-21B-RESULT.md).
+P2-45 field results:
 
-**P2-22/P2-22b complete and closed.** Supplied fit reached **150/150** by step 500. Held-out clean paraphrases reached **16/25**, minimal contrasts **16/25**, and repository-style language **18/25**, for **50/75 total held-out exact**. REPLACE recovered from its step-100 collapse, RENAME reached **15/15**, DELETE **10/15**, and TOGGLE **11/15**. INSERT remained the single class-specific defect at only **2/15** despite perfect supplied fit. See the [P2-22b result](docs/PHASE-2-P2-22B-RESULT.md).
+| Field | Correct |
+|---|---:|
+| response present | **18 / 18** |
+| not truncated | **18 / 18** |
+| schema valid | **12 / 18** |
+| language | **12 / 18** |
+| action | **6 / 18** |
+| target kind | **12 / 18** |
+| target role | **0 / 18** |
+| exact constraints | **0 / 18** |
+| required hint coverage | **0 / 18** |
 
-The step-500 INSERT confusion is diagnostic: **6/15** INSERT examples became DELETE, **3/15** became REPLACE, **2/15** became RENAME, **2/15** became TOGGLE, and only **2/15** remained INSERT. All five clean Tier-A INSERT paraphrases became DELETE. This points to a presence-transition polarity defect rather than a general inability to classify edit intent.
+This is a **semantic transfer failure**, not a reason to keep optimizing the unchanged P2-44 dataset.
 
-**P2-22c complete and closed.** The unchanged P2-22b step-500 checkpoint scored **12/45** on the explicit presence-transition diagnostic, below the three-way **15/45** chance expectation. INSERT was **2/15**, DELETE **1/15**, and REPLACE **9/15**. INSERT and DELETE produced the same aggregate prediction distribution, each collapsing to RENAME on **9/15** rows. Explicit `ABSENT -> PRESENT` / `PRESENT -> ABSENT` structure therefore did not solve presence-direction semantics. See the [P2-22c result](docs/PHASE-2-P2-22C-RESULT.md).
+## Remaining Phase 2 milestones
 
-The P2-22c result strengthens the architecture boundary: keep Plex Nano focused on flat semantic normalization, while deterministic Plex Code owns exact state transitions and relational repository logic unless later evidence justifies moving that reasoning into the model.
+### P2-46 — Semantic Transfer Failure Diagnostic
 
-**P2-23/P2-23b complete and closed.** The step-100 run began at **46/144** supplied fit with held-out Tier A/B/C at **4/24, 3/24 and 6/24**. The approved four-stage continuation reached cumulative step 500 without extending beyond the authorized ceiling. Supplied fit reached **143/144** (A **48/48**, B **47/48**, C **48/48**) and held-out Tier A/B/C reached **19/24, 12/24 and 11/24**, or **42/72 total**. The step-500 per-kind held-out totals were CSS_SELECTOR **8/12**, CSS_PROPERTY **5/12**, HTML_ELEMENT **8/12**, HTML_ATTRIBUTE **4/12**, JS_IDENTIFIER **9/12**, and JS_PROPERTY **8/12**. P2-14 remained **0/12**, P2-01b remained **0/30**, automatic continuation beyond step 500 remained disabled, and the final project holdout remained closed. Validation loss rose to **4.34508** while recent training loss fell to **0.06088**, so more optimization of the unchanged representation is not justified. See the [P2-23b result](docs/PHASE-2-P2-23B-RESULT.md).
+**Goal:** identify why P2-44 improves internal validation while P2-45 transfer remains weak.
 
-**P2-24 complete.** The Plex Web pretraining specification, source/license policy, provenance requirements, repository-level split rule, contamination policy, corpus ladder, owner review gates and fixed 27.6M first-pilot rule are committed.
+Measure:
 
-**P2-25 complete.** The seed pipeline accepted 21 HTML/CSS/JavaScript records, rejected 3 secret-pattern files, rebuilt byte-identically under the same seed/source policy, and now includes a hard `web-contamination-check` promotion gate. Historical seed artifacts remain pipeline-validation only unless they are rechecked with the new contamination report.
+- P2-45 target-role outputs
+- constraint composition errors
+- hint grounding failures
+- structural invalidity causes
+- language-specific action collapse
+- similarity between P2-45 outputs and P2-44 training examples
+- response-by-response P2-43 → P2-45 improvements/regressions
 
-**P2-26 complete.** The corrected verifier-locked Plex Web batch #2 contains **3,140 records** (**3,071 train / 69 validation**) after **3,142 files / 5,463,479 normalized bytes** passed Web preflight and two additional JavaScript files failed syntax validation. The final dataset manifest SHA-256 is `2f02f199d101050c9939df6d389851e46bbd858157cb68d7cb8cc75863178a91`. Contamination scanning passed across all 3,140 records with **0 blocked origins, 0 exact protected matches, and 0 long substring matches** while the final project holdout remained closed. See the [P2-26 closeout](docs/PHASE-2-P2-26-CLOSEOUT.md).
+**Training:** none.
 
-**P2-27 complete.** The owner selected the **16,384-token** byte-level BPE candidate after it led both validation and representative-sample compression. The frozen tokenizer SHA-256 is `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`; the review SHA-256 is `3d462afedf7ae2bae33407f4db4f7ab6b53c2dc46c70bec891c95707a4046db8`. No model weights were initialized or trained. See the [P2-27 result](docs/PHASE-2-P2-27-RESULT.md).
+**Completion:** a concrete failure taxonomy exists and points to the smallest next representation change.
 
-**P2-28 complete.** The fresh 27.6M scratch model completed all **100/100 CUDA optimizer updates** from the verified seed-1337 step-zero checkpoint. It processed **819,200 token positions** in **17.48 seconds** at **46,877.65 tokens/s**. Held-out validation loss improved from **9.809301 to 5.695902**; an independent 100-batch evaluation reproduced **5.6959015655517575 exactly**. The trained checkpoint SHA-256 is `cd62c66612c2e7c2c95167da6932ecae5ef622c5a62973ba11cce3d99f75cf87`. This proves a clean early domain-learning signal, not coding ability. See the [P2-28 result](docs/PHASE-2-P2-28-RESULT.md).
+### P2-47 — Request-Grounded Coding Representation
 
-**P2-29 complete.** The matched longer Web run completed **500/500 CUDA updates**, processed **4,096,000 token positions**, and improved held-out validation loss from **9.809301** at step zero to **4.824199** at step 500. Independent evaluation reproduced **4.8241992592811584 exactly**. The saved checkpoint SHA-256 is `3b8303f8a6f56527329774b51278b93588b8383205e85bb2f594a58349acca8e`. Validation was measured at the run endpoints, so monotonic held-out improvement between them is not claimed. See the [P2-29 result](docs/PHASE-2-P2-29-RESULT.md).
+**Goal:** design one final Phase 2 representation specifically around transferable request-to-change understanding.
 
-**P2-40 complete.** The exact P2-39 responses decomposed into **9 invalid JSON**, **4 parseable JSON objects that violate the strict plan schema**, and **5 schema-valid semantic mismatches**. Among those five schema-valid outputs, language and targetKind were **5/5 correct**, action **3/5**, while targetRole, exact constraints, and required hint coverage remained **0/5**. The diagnostic confirms that Plex is learning broad plan categories but still substitutes familiar semantic bundles instead of binding the current request to the correct role/constraints/hints. Residual serialization instability remains a separate secondary failure. No training occurred; the final holdout remained closed. See the [P2-40 result](docs/PHASE-2-P2-40-RESULT.md).
+Requirements:
 
-**P2-43 complete.** The read-only semantic-bundle diagnostic confirms that P2-41's unseen semantic failures are dominated by training-template retrieval: **17/18** P2-42 outputs were strict schema-valid, but targetRole, exact constraints, and required hint coverage remained **0**. Among those strict outputs, **14** reused a P2-41 training targetRole, **8** reused an exact training semantic bundle, **7** reproduced an exact training full plan, and **2** recombined training-seen semantic components. Validation-only role/bundle reuse was **0**. Serialization is no longer the primary bottleneck; do not continue the unchanged P2-41 curriculum. See the [P2-43 result](docs/PHASE-2-P2-43-RESULT.md).
+- grounded in the user's wording
+- grounded in supplied code concepts
+- no opaque synthetic labels as the main target
+- separate syntax correctness from semantic correctness
+- explicit train/validation combination holdouts
+- no P2-31 development leakage
 
-**P2-44 complete.** The bounded evidence-first run finished all **100** authorized updates in **20.95s**, consumed **565,641** real target positions across all **108** train records, and improved validation monotonically from **3.3981438778542183** at step 0 to **2.172380618146948** at step 100. The fixed step-100 endpoint is also the best measured validation checkpoint and is frozen at SHA `69c357db...842e`. Continuation remains unauthorized.
+**Completion:** reviewed candidate and frozen evaluation plan.
 
-**Current task: P2-45 — Structured Bridge Re-evaluation.** Re-run the unchanged P2-31 development gate on the exact P2-44 step-100 endpoint using the same deterministic prompt/schema/inference settings and original gate (**12/18 passed, 3/6 per language, 15/18 schema-valid**). Compare against the P2-43 failure pattern—17 schema-valid but 0 semantic passes, with heavy P2-41 training-template reuse. P2-45 is evaluation-only; **no gradient updates and no final-holdout access are authorized**.
+### P2-48 — Final Bounded Phase 2 Transfer Run
+
+**Goal:** run one bounded experiment on the P2-47 representation.
+
+Requirements:
+
+- frozen seed/data/tokenizer/checkpoint identities
+- bounded optimizer updates
+- predeclared validation cadence
+- no automatic continuation
+- final holdout closed
+
+**Completion:** fixed endpoint recorded with transfer metrics.
+
+### P2-49 — Unchanged Bridge Re-evaluation
+
+**Goal:** run the unchanged development bridge on the fixed P2-48 endpoint.
+
+Use the same P2-31 task set and thresholds so the result is comparable with P2-39, P2-42, and P2-45.
+
+**Completion:** exact field-level comparison recorded.
+
+### P2-50 — Phase 2 Closeout
+
+**Goal:** close Phase 2 whether the final bridge fully passes or not.
+
+Document:
+
+- what the 27M model reliably understands
+- what still fails
+- which weaknesses move into Phase 3 as known limitations
+- whether model size should remain 27M for Phase 3
+- which evaluations become permanent regression tests
+
+**Phase 2 ends at P2-50.** Do not extend Phase 2 indefinitely with unplanned continuation runs.
+
+## Phase 2 exit condition
+
+Phase 2 does **not** require pretending all semantic transfer is solved.
+
+It requires:
+
+1. completing P2-46 through P2-50,
+2. running the final predeclared transfer evaluation honestly,
+3. freezing the capability boundary,
+4. carrying unresolved limitations forward explicitly.
+
+The final project holdout remains closed unless separately authorized.
+
+---
+
+# Phase 3 — File-Conditioned Coding
+
+**Status: PLANNED**
+
+## Phase 3 purpose
+
+Make Plex useful when the user supplies a file or code block and asks for a change.
+
+The model receives the relevant context directly.
+
+### P3-01 — File + Request Contract
+
+Define the simplest stable input/output format for:
+
+```text
+request + supplied file/code → edited result
+```
+
+Support one supplied HTML, CSS, or JavaScript file first.
+
+### P3-02 — Exact Small Replacements
+
+Examples:
+
+- change button text
+- rename a supplied variable
+- change a CSS value
+- replace an attribute
+
+Measure correctness and preservation of unrelated code.
+
+### P3-03 — Insert and Delete
+
+Teach:
+
+- add requested markup
+- add a CSS rule/property
+- add a JavaScript condition
+- remove requested code
+
+### P3-04 — Modify Existing Logic
+
+Handle bounded changes to:
+
+- functions
+- event handlers
+- DOM code
+- CSS components
+- HTML structures
+
+### P3-05 — Preserve Unrelated Code
+
+Add explicit regression tests for accidental edits outside the requested scope.
+
+### P3-06 — Multiple Changes in One Supplied File
+
+Support two or more related requested changes without damaging untouched sections.
+
+### P3-07 — Edited-File and Patch Output
+
+Measure both:
+
+- full-file generation/editing
+- bounded patch/edit output
+
+Choose the more reliable default from evidence.
+
+### P3-08 — Validation-Aware Correction
+
+Given a concrete syntax/test failure from the caller, let Plex make one corrected attempt.
+
+No open-ended retry loop.
+
+### P3-09 — Unseen File Benchmark
+
+Freeze a development benchmark using code files excluded from training.
+
+Measure:
+
+- correct requested behavior
+- syntax
+- scope preservation
+- unnecessary changes
+- repair success
+
+### P3-10 — Phase 3 Closeout
+
+Record what kinds of supplied-file edits Plex can actually perform reliably.
+
+**Phase 3 gate:** Plex can make useful, measured edits to unseen supplied HTML/CSS/JavaScript files from natural-language requests.
+
+---
+
+# Phase 4 — Stronger Coding Ability
+
+**Status: PLANNED**
+
+Move beyond simple edits.
+
+Targets include:
+
+- more complex JavaScript logic
+- bug fixes
+- refactoring
+- state changes
+- DOM behavior
+- CSS interactions
+- larger supplied files
+- longer dependencies within supplied context
+- better explanations of changes
+- stronger error correction
+
+Model-size changes may be considered here only if 27M limitations are clearly measured.
+
+---
+
+# Phase 5 — Conversational Code Editing
+
+**Status: PLANNED**
+
+Support an ongoing conversation about supplied code.
+
+Examples:
+
+```text
+"Make this button smaller."
+"Actually keep the width but reduce the padding."
+"Also add a disabled state."
+"Why did you change this selector?"
+```
+
+Goals:
+
+- retain relevant supplied-code context across turns
+- understand revisions to earlier instructions
+- modify previous edits
+- explain changes when asked
+- avoid drifting into unrelated code
+
+---
+
+# Phase 6 — Local Plex App
+
+**Status: PLANNED**
+
+Wrap the coding model in a simple local experience.
+
+Target interaction:
+
+```text
+drop in a file
+→ chat about the code
+→ request a change
+→ preview the result
+→ accept/save
+```
+
+The app exists to make the model easy to use. The model remains the product focus.
+
+---
+
+# Development Rules
+
+1. **Plex Nano is a small coding model.**
+2. The user/caller supplies relevant code or file context.
+3. Keep the 27M model as the controlled baseline until a milestone explicitly changes it.
+4. Prioritize coding ability over infrastructure expansion.
+5. Preserve failed experiments and negative results.
+6. Keep training authorization separate from preparation/evaluation.
+7. Do not optimize indefinitely on a failed representation.
+8. Keep development and final holdouts separate.
+9. Do not claim capability from training loss alone.
+10. Prefer unseen request/code tests over memorized training checks.
+11. Preserve unrelated code in editing evaluations.
+12. Keep HTML/CSS/JavaScript as the initial language scope.
+13. Update README, roadmap, package metadata, prompts, and AGENTS files together when product direction changes.
+
+Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
+
+---
+
+# Current task
+
+## P2-46 — Semantic Transfer Failure Diagnostic
+
+P2-45 is complete and failed the unchanged bridge:
+
+- **0 / 18** complete semantic passes
+- **12 / 18** schema-valid
+- **78 / 162** checks passed
+- **0 / 18** targetRole
+- **0 / 18** exact constraints
+- **0 / 18** required hint coverage
+
+P2-46 should diagnose **why transfer failed** before another training curriculum is designed.
+
+No P2-44 continuation is authorized.
