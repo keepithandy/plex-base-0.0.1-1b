@@ -197,3 +197,67 @@ It does **not** authorize:
 - gradient updates
 - continuation from P2-41
 - automatic training
+
+
+## Implemented candidate topology
+
+The deterministic P2-44 generator now uses:
+
+- **162 total records**
+- **54 contrast groups**
+- **108 train records / 36 train groups**
+- **54 validation records / 18 validation groups**
+- **54 records per language**
+  - 36 train
+  - 18 validation
+- six contrast families:
+  - role composition
+  - constraint binding
+  - hint grounding
+  - action discrimination
+  - cross-field coherence
+  - near-neighbor discrimination
+
+Each family has two train groups and one validation group per language.
+
+The role space is built from reusable domain/object atoms. Exact validation target roles are absent from training, while every validation role atom must already be present in training. The same requirement applies to validation constraint atoms and hint atoms.
+
+The reviewer rejects:
+
+- exact train/validation targetRole overlap
+- exact train/validation semantic-bundle overlap
+- exact train/validation full-plan overlap
+- any validation role/constraint/hint atom not already present in training
+- any exact P2-31 request, targetRole, or expected-plan overlap
+- milestone-prefixed semantic roles
+- declared grounding evidence that is not literally present in the request
+
+Constraint-set overlap is measured rather than forbidden because P2-44 intentionally tests recombination of familiar requirement atoms into unseen role/bundle combinations.
+
+## Deterministic tooling
+
+Generate the candidate:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-generate
+```
+
+Review grounding, composition, and protected-development leakage:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-review `
+  --bundle-dir training/artifacts/structured-plan/p2-41-training-bundle
+```
+
+The optional bundle argument performs frozen-tokenizer roundtrip, context-length, train-token, validation-token, tokenizer-SHA, and bundle-manifest checks.
+
+Successful review still leaves:
+
+```text
+modelTrainingAuthorized = false
+trainingPerformed       = false
+researchOptimizerUpdates = 0
+finalHoldoutOpened      = false
+```
+
+No stage/run command exists for P2-44 at this point.
