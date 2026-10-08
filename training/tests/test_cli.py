@@ -6,10 +6,25 @@ from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch
 
-from plex_training.cli import main
+from plex_training.cli import _under_artifact_root, main
 
 
 class CliTests(TestCase):
+    def test_artifact_root_helper_does_not_double_existing_prefix(self) -> None:
+        root = Path("training/artifacts")
+        expected = (root / "structured-plan" / "p2-45-step100").resolve()
+        self.assertEqual(
+            _under_artifact_root(Path("structured-plan/p2-45-step100"), root),
+            expected,
+        )
+        self.assertEqual(
+            _under_artifact_root(
+                Path("training/artifacts/structured-plan/p2-45-step100"),
+                root,
+            ),
+            expected,
+        )
+
     def test_resume_passes_matching_dataset_argument(self) -> None:
         output = StringIO()
         with patch("plex_training.pilot.resume_pilot", return_value={"resumeCheckPassed": True}) as resume:
