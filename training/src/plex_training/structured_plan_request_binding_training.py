@@ -777,7 +777,7 @@ def _validate_authorization(contract: dict[str, Any]) -> None:
         "trainRecords": 72,
         "validationRecords": 36,
         "trainIndexSha256": "0ab27caccc5ba11d9d321660197794cff8d2c074fdb843f0149204234a328104",
-        "validationIndexSha256": "70f546c7d3b9c3a99c0e2efc4d16335ea7d1e9fdab90ee7e4f7d1017a8d29c5",
+        "validationIndexSha256": "70f546c7d3b9c3a99c0e2efc4d16335ea7d1e9fdab90ee7e4f7d1017a8d29c5a",
     }.items():
         _require_exact(data.get(key), expected, f"data.{key}")
 
@@ -1162,3 +1162,4 @@ def run_request_binding_training(
         "result": str(result_path.relative_to(root)),
         "metrics": str(metrics_path.relative_to(root)),
     }
+
