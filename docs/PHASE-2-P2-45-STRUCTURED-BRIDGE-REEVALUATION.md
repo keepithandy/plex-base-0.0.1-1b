@@ -63,9 +63,13 @@ uv run --project training --no-sync python -m plex_training.cli plan-generate `
   --checkpoint training/artifacts/structured-plan/p2-44-first-run/checkpoints/step-0100.pt `
   --bundle-dir training/artifacts/structured-plan/p2-44-training-bundle `
   --contract training/pretraining/p2-45-structured-bridge-contract.json `
-  --output-dir training/artifacts/structured-plan/p2-45-step100 `
+  --output-dir structured-plan/p2-45-step100 `
   --device cuda
 ```
+
+
+> `--output-dir` is interpreted under the default artifact root `training/artifacts`.
+> Use `structured-plan/p2-45-step100` rather than repeating the artifact-root prefix.
 
 Then evaluate:
 
