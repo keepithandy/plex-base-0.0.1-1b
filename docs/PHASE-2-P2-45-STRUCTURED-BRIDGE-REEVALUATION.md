@@ -2,7 +2,7 @@
 
 ## Status
 
-**Evaluation-only. No model training is authorized.**
+**Complete. Gate failed. No continuation is authorized.**
 
 P2-45 re-runs the unchanged P2-31 structured-plan development gate on the fixed P2-44 step-100 endpoint.
 
@@ -81,3 +81,48 @@ uv run --project training --no-sync python -m plex_training.cli plan-evaluate `
 ```
 
 P2-45 performs **0** optimizer updates and authorizes no continuation.
+
+
+## Result
+
+P2-45 generated all **18** deterministic development responses from the fixed P2-44 step-100 endpoint.
+
+Response SHA-256:
+
+`ca1e8c8abb8dc419ef2fd2d2c3834964e5baad448b3dd439678decadbf1919a9`
+
+Evaluation:
+
+| Metric | Result |
+|---|---:|
+| Complete semantic passes | **0 / 18** |
+| Schema-valid | **12 / 18** |
+| Checks passed | **78 / 162** |
+| HTML complete passes | **0 / 6** |
+| CSS complete passes | **0 / 6** |
+| JavaScript complete passes | **0 / 6** |
+| Gate passed | **No** |
+
+Field-level result:
+
+| Field | Correct |
+|---|---:|
+| response present | **18 / 18** |
+| not truncated | **18 / 18** |
+| schema valid | **12 / 18** |
+| language | **12 / 18** |
+| action | **6 / 18** |
+| target kind | **12 / 18** |
+| target role | **0 / 18** |
+| exact constraints | **0 / 18** |
+| required hint coverage | **0 / 18** |
+
+Six responses were schema-invalid. The observed failure modes included duplicate constraints, malformed constraint objects, and a target-kind/language mismatch.
+
+### Interpretation
+
+P2-44 produced a strong internal validation curve, but the unchanged P2-31 bridge shows that the learned representation still does not transfer reliably to independently worded coding requests.
+
+This is now classified as a **semantic transfer failure**.
+
+Do not continue the unchanged P2-44 training curriculum. The next milestone is **P2-46 — Semantic Transfer Failure Diagnostic**, which is diagnostic-only and performs no training.
