@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-41",
+  "kind": "plex-p2-41-request-conditioned-plan-binding-preparation-contract-v1",
+  "status": "design-preparation-only",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "purpose": "Generate and review a contrastive full-plan curriculum that separates serialization reliability from request-conditioned semantic binding.",
+  "design": {
+    "generatorVersion": "p2-41-request-binding-generator-v1",
+    "records": 108,
+    "groups": 36,
+    "recordsPerGroup": 3,
+    "trainGroups": 24,
+    "validationGroups": 12,
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "groupsPerLanguage": 12,
+    "groupsPerContrastFamily": 9,
+    "contrastFamilies": [
+      "role",
+      "constraints",
+      "action",
+      "hints"
+    ],
+    "renderMode": "structured-plan-production-prompt-only",
+    "targetFormat": "strict-full-plan-only",
+    "tokenizerRefit": false
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExactRequestsExcluded": true,
+    "p231DevelopmentTargetRolesExcluded": true,
+    "p231DevelopmentExpectedPlansExcluded": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "requiredReviewChecks": [
+    "108 deterministic strict full-plan records",
+    "36 intact three-record contrast groups",
+    "72 train and 36 validation records",
+    "24 train and 12 validation records per language",
+    "two train and one validation group per language and contrast family",
+    "zero exact P2-31 development request overlap",
+    "zero P2-31 targetRole overlap",
+    "zero exact P2-31 expected-plan overlap",
+    "role contrasts vary targetRole",
+    "constraint contrasts isolate constraint differences",
+    "action contrasts isolate create/modify/remove",
+    "hint contrasts isolate searchHint differences",
+    "optional frozen-tokenizer roundtrip and context-limit preflight"
+  ],
+  "trainingCommand": null,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false
+}
