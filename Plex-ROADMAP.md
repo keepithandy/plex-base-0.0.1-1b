@@ -398,6 +398,8 @@ The real P2-48 bundle and sampler preflight are complete and frozen:
 - **429,375** expected real target positions across **1,600** examples
 - exact bundle/data/token/index identities recorded
 
-The next action is the **non-training step-zero stage** from the exact P2-44 step-100 endpoint. The stage must preserve weights bit-for-bit and reset P2-48 step/tokens/sampler state.
+The zero-update P2-48 stage is complete and frozen at checkpoint SHA `52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60`.
 
-Model training remains unauthorized after stage creation.
+The next action is the **final read-only CUDA training preflight**: verify the exact stage/bundle, replay the 429,375-target sampler, and measure step-zero request-grounded validation loss.
+
+Model training remains unauthorized until that preflight result is reviewed and separately approved.
