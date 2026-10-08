@@ -51,13 +51,10 @@
     "objective": "ordinary-next-token-v1",
     "optimizer": "AdamW",
     "learningRate": 0.0003,
-    "betas": [
-      0.9,
-      0.95
-    ],
+    "betas": [0.9, 0.95],
     "epsilon": 1e-8,
     "weightDecay": 0.1,
-    "gradientClippingNorm": 1,
+    "gradientClippingNorm": 1.0,
     "schedule": "constant-v1",
     "microBatch": 1,
     "gradientAccumulation": 16,
@@ -74,20 +71,9 @@
   },
   "evaluation": {
     "method": "sequential-packed-next-token-loss",
-    "steps": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
+    "steps": [0, 25, 50, 75, 100],
     "maximumBatches": 100,
-    "checkpointSteps": [
-      25,
-      50,
-      75,
-      100
-    ],
+    "checkpointSteps": [25, 50, 75, 100],
     "baselineLoss": 6.505710401033101,
     "baselineBatches": 19,
     "checkpointSelection": "Use the fixed step-100 endpoint or an early-stop endpoint; do not retrospectively choose the lowest validation checkpoint.",
