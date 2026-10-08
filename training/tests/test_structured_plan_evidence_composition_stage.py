@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from plex_training.config import DEFAULT_CONFIG
+from plex_training.tokenizer import CODEC
 from plex_training.structured_plan_evidence_composition_stage import (
     EXPECTED_BASE_CHECKPOINT_SHA256,
     EXPECTED_BASE_STAGE_KIND,
@@ -78,7 +79,7 @@ class EvidenceCompositionStageSourceTests(unittest.TestCase):
                 "step": 100,
                 "tokensProcessedTotal": 567311,
                 "seed": 1337,
-                "codec": "plex-bpe-v1",
+                "codec": CODEC,
                 "initializationRecord": {
                     "pretrainedCheckpointLoaded": False,
                     "pretrainedModelWeightsLoaded": False,
