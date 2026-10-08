@@ -340,6 +340,12 @@ def diagnose_semantic_bundle_reuse(
             "validationSemanticBundle": bool(validation_bundle),
             "validationOnlyTargetRole": bool(validation_role) and not bool(train_role),
             "validationOnlySemanticBundle": bool(validation_bundle) and not bool(train_bundle),
+            "trainComponentRecombination": (
+                bool(train_role)
+                and bool(train_constraints)
+                and bool(train_hints)
+                and not bool(train_bundle)
+            ),
         }
         for name, used in reuse.items():
             if used:
@@ -348,6 +354,8 @@ def diagnose_semantic_bundle_reuse(
             aggregate["wrongTargetRoleButSeenInTrain"] += 1
         if not all(correctness.values()) and reuse["trainSemanticBundle"]:
             aggregate["wrongPlanButExactTrainSemanticBundle"] += 1
+        if not all(correctness.values()) and reuse["trainComponentRecombination"]:
+            aggregate["wrongPlanWithTrainComponentRecombination"] += 1
 
         bundle_owners = train_bundle or train_role
         owner_details = []
@@ -394,6 +402,20 @@ def diagnose_semantic_bundle_reuse(
             "expectedSemanticTokenCoverage": evidence_coverage,
             "expectedSemanticTokenHits": evidence_hits,
             "trainingOwners": owner_details,
+            "actual": {
+                "action": plan["action"],
+                "targetKind": plan["targetKind"],
+                "targetRole": plan["targetRole"],
+                "constraints": plan["constraints"],
+                "searchHints": plan["searchHints"],
+            },
+            "expected": {
+                "action": expected["action"],
+                "targetKind": expected["targetKind"],
+                "targetRole": expected["targetRole"],
+                "constraints": expected["constraints"],
+                "hintKeywords": expected["hintKeywords"],
+            },
         })
 
     schema_valid = aggregate["schemaValid"]
@@ -415,6 +437,9 @@ def diagnose_semantic_bundle_reuse(
             "fullPlan": aggregate["reuse.trainFullPlan"],
             "wrongTargetRoleButSeenInTrain": aggregate["wrongTargetRoleButSeenInTrain"],
             "wrongPlanButExactTrainSemanticBundle": aggregate["wrongPlanButExactTrainSemanticBundle"],
+            "componentRecombination": aggregate["reuse.trainComponentRecombination"],
+            "wrongPlanWithTrainComponentRecombination":
+                aggregate["wrongPlanWithTrainComponentRecombination"],
         },
         "validationReuse": {
             "targetRole": aggregate["reuse.validationTargetRole"],
@@ -458,6 +483,8 @@ def diagnose_semantic_bundle_reuse(
             "schemaValidDeltaFromP239": schema_valid - int(baseline.get("schemaValid", 0)),
             "wrongTargetRoleButSeenInTrain": aggregate["wrongTargetRoleButSeenInTrain"],
             "wrongPlanButExactTrainSemanticBundle": aggregate["wrongPlanButExactTrainSemanticBundle"],
+            "wrongPlanWithTrainComponentRecombination":
+                aggregate["wrongPlanWithTrainComponentRecombination"],
             "note": (
                 "These are descriptive measurements, not retrospectively chosen pass/fail thresholds. "
                 "P2-43 does not authorize more training, checkpoint selection, response repair, "
