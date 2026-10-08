@@ -155,3 +155,67 @@ Before any bounded P2-41 training authorization, the repository should demonstra
 Do not perform P2-41 optimizer updates until a separate reviewed authorization contract records the exact candidate, tokenizer, starting checkpoint, step/time bounds, checkpoint schedule, and owner approval.
 
 The fixed P2-39/P2-40 development baseline must remain unchanged for later comparison.
+
+
+## Preparation tooling
+
+The first P2-41 preparation tooling now exists and performs no model training.
+
+It deterministically generates:
+
+- **108** strict full-plan records
+- **36** intact three-record contrast groups
+- **72 train / 36 validation** records
+- **24 train / 12 validation** records per language
+- **9 groups / 27 records** for each contrast family:
+  - `role`
+  - `constraints`
+  - `action`
+  - `hints`
+
+Within every language, each contrast family has exactly **2 train groups and 1 validation group**.
+
+The reviewer enforces:
+
+- exact P2-31 development-set identity
+- zero exact P2-31 request overlap
+- zero P2-31 targetRole overlap
+- zero exact P2-31 expected-plan overlap
+- strict production-plan parsing
+- intact group/split topology
+- isolation of the intended contrast dimension
+- optional frozen-tokenizer roundtrip/context preflight
+- zero optimizer updates
+- closed final holdout
+
+### Generate the candidate
+
+From the repository root:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-generate
+```
+
+This creates:
+
+```text
+training/phase2/drafts/p2-41-request-conditioned-plan-binding-v1.jsonl
+training/phase2/drafts/p2-41-request-conditioned-plan-binding-v1.review.json
+```
+
+Generation refuses to overwrite existing candidate/review outputs.
+
+### Review the generated candidate
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-review
+```
+
+For frozen-tokenizer preflight, add the verified tokenizer bundle:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-review `
+  --bundle-dir <verified-frozen-tokenizer-bundle>
+```
+
+No P2-41 training command exists yet. Candidate generation and review must pass before a separate bounded-run packet is designed.
