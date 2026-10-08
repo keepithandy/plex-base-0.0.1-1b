@@ -2,7 +2,7 @@
 
 ## Status
 
-**Diagnostic implementation prepared. No model training is authorized.**
+**Complete. Request-conditioned semantic binding failure confirmed.**
 
 ## Purpose
 
@@ -127,3 +127,72 @@ uv run --project training --no-sync python -m plex_training.cli plan-transfer-di
 Running P2-46 does not authorize P2-47 data preparation or training.
 
 The generated report must be reviewed first. P2-47 should then make the smallest representation change supported by the measured failure taxonomy.
+
+
+## Recorded result
+
+P2-46 completed against the exact frozen P2-42 and P2-45 response sets.
+
+Key comparison:
+
+| Metric | P2-42 | P2-45 | Delta |
+|---|---:|---:|---:|
+| schema-valid | 17 | 12 | -5 |
+| language | 17 | 12 | -5 |
+| action | 12 | 6 | -6 |
+| target kind | 17 | 12 | -5 |
+| target role | 0 | 0 | 0 |
+| exact constraints | 0 | 0 | 0 |
+| hint coverage | 0 | 0 | 0 |
+
+Task-level movement:
+
+- improved: **2**
+- regressed: **9**
+- unchanged: **7**
+
+P2-44 reuse in the P2-45 outputs:
+
+| Reuse signal | P2-43 baseline | P2-46 measurement |
+|---|---:|---:|
+| training targetRole | 14 | **17** |
+| training constraint set | 11 | **13** |
+| training search hints | 13 | **16** |
+| exact semantic bundle | 8 | **3** |
+| exact full plan | 7 | **2** |
+| component recombination | 2 | **8** |
+
+Request-grounding result:
+
+- targetRole grounded in current request: **0 / 18**
+- all search hints grounded in current request: **0 / 18**
+- targetRole atoms known from P2-44 training: **18 / 18**
+- all constraint triples seen in P2-44 training: **17 / 18**
+
+### Diagnosis
+
+P2-44 changed the failure mode.
+
+Plex moved away from frequent whole-plan/template replay and toward **recombining familiar learned coding components**. That is real progress in composition.
+
+The missing ability is **request-conditioned composition**: the current request does not reliably determine which learned components Plex selects.
+
+The P2-46 conclusion is therefore:
+
+> Plex can compose familiar semantic components, but it does not yet bind those components reliably to the coding request in front of it.
+
+This is the direct design input for P2-47.
+
+## P2-47 decision
+
+Do not extend P2-44.
+
+P2-47 removes `targetRole` and `searchHints` from the primary learning target and instead trains:
+
+```text
+exact request evidence
+        ↓
+concrete coding intent
+```
+
+P2-47 remains preparation/review only until its deterministic candidate is validated.
