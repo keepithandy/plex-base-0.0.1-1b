@@ -35,6 +35,7 @@ Plex does not need to discover files or projects. The caller supplies the code c
 6. Keep claims evidence-based. Do not describe an experiment as solved when the recorded evaluation failed.
 7. Historical reports may describe earlier architecture ideas. Treat those as historical context, not current product direction.
 8. Keep README.md, Plex-ROADMAP.md, package metadata, prompts, and current docs aligned with this file.
+9. Existing TypeScript project-discovery utilities are legacy research scaffolding. Maintain them only when necessary; do not treat them as Plex Nano's product direction or expand them into new product features.
 
 ## Roadmap discipline
 
