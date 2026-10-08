@@ -261,3 +261,58 @@ finalHoldoutOpened      = false
 ```
 
 No stage/run command exists for P2-44 at this point.
+
+
+## Candidate review result
+
+The local deterministic review passed and is now frozen.
+
+Candidate:
+
+- SHA-256: `fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30`
+- bytes: **182,492**
+- records: **162**
+- train / validation: **108 / 54**
+- groups: **54**
+
+Protected-development leakage:
+
+- exact P2-31 request overlap: **0**
+- exact P2-31 targetRole overlap: **0**
+- exact P2-31 expected-plan overlap: **0**
+
+Composition holdout:
+
+- exact train/validation targetRole overlap: **0**
+- exact train/validation search-hint overlap: **0**
+- exact train/validation semantic-bundle overlap: **0**
+- exact train/validation full-plan overlap: **0**
+- validation role atoms seen in train: **19 / 19**
+- validation constraint atoms seen in train: **18 / 18**
+- validation hint atoms seen in train: **22 / 22**
+
+Exact constraint-set overlap is **27**. This is intentional: P2-44 is designed to reuse familiar requirements while withholding the exact role/bundle/full-plan composition.
+
+Frozen-tokenizer preflight:
+
+- tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`
+- bundle manifest SHA-256: `a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a`
+- maximum record tokens including EOS: **375 / 512**
+- train tokens: **38,280**
+- validation tokens: **19,186**
+
+The candidate identity and tokenizer accounting are now hard-pinned in the preparation contract and curriculum code. Regeneration or review will fail if they drift.
+
+### Next gate
+
+The next allowed work is a deterministic **training-bundle pack/preflight** step:
+
+```text
+reviewed candidate
+→ frozen tokenizer pack
+→ train/validation JSONL + token/index manifests
+→ exact bundle hashes
+→ zero-update preflight
+```
+
+This does not authorize checkpoint staging or model training.

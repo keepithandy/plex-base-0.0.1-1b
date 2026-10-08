@@ -25,6 +25,11 @@ PROVENANCE = "project-authored-p2-44-evidence-first-semantic-composition"
 EXPECTED_DEV_SHA256 = "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
 EXPECTED_TOKENIZER_SHA256 = "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
 EXPECTED_TOKENIZER_BUNDLE_SHA256 = "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a"
+EXPECTED_CANDIDATE_SHA256 = "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30"
+EXPECTED_CANDIDATE_BYTES = 182492
+EXPECTED_MAX_RECORD_TOKENS = 375
+EXPECTED_TRAIN_TOKEN_COUNT = 38280
+EXPECTED_VALIDATION_TOKEN_COUNT = 19186
 LANGUAGE_CODES = {"html": "html", "css": "css", "javascript": "js"}
 FAMILIES = (
     "role-composition",
@@ -137,7 +142,7 @@ def _contract(path: Path) -> dict[str, Any]:
         value.get("schemaVersion") != 1
         or value.get("milestone") != MILESTONE
         or value.get("kind") != CONTRACT_KIND
-        or value.get("status") != "design-preparation-only"
+        or value.get("status") != "candidate-review-passed-awaiting-training-preparation"
         or value.get("dataPreparationAuthorized") is not True
         or value.get("modelTrainingAuthorized") is not False
         or value.get("automaticTrainingExtension") is not False
@@ -195,6 +200,48 @@ def _contract(path: Path) -> dict[str, Any]:
         or frozen.get("tokenizerBundleManifestSha256") != EXPECTED_TOKENIZER_BUNDLE_SHA256
     ):
         raise ValueError("P2-44 frozen input identity is invalid")
+    if value.get("candidateIdentity") != {
+        "candidateId": "p2-44-evidence-first-semantic-composition-v1",
+        "sha256": EXPECTED_CANDIDATE_SHA256,
+        "bytes": EXPECTED_CANDIDATE_BYTES,
+    }:
+        raise ValueError("P2-44 candidate identity is invalid")
+    if value.get("tokenizerPreflight") != {
+        "checked": True,
+        "tokenizerSha256": EXPECTED_TOKENIZER_SHA256,
+        "bundleManifestSha256": EXPECTED_TOKENIZER_BUNDLE_SHA256,
+        "maximumRecordTokensIncludingEos": EXPECTED_MAX_RECORD_TOKENS,
+        "trainTokenCount": EXPECTED_TRAIN_TOKEN_COUNT,
+        "validationTokenCount": EXPECTED_VALIDATION_TOKEN_COUNT,
+    }:
+        raise ValueError("P2-44 tokenizer preflight identity is invalid")
+    reviewed = value.get("reviewedCandidate")
+    if not isinstance(reviewed, dict):
+        raise ValueError("P2-44 reviewed candidate metadata is missing")
+    expected_reviewed = {
+        "records": 162,
+        "groups": 54,
+        "trainRecords": 108,
+        "validationRecords": 54,
+        "trainUniqueTargetRoles": 72,
+        "validationUniqueTargetRoles": 36,
+        "trainValidationExactTargetRoleOverlap": 0,
+        "trainValidationExactConstraintSetOverlap": 27,
+        "trainValidationExactSearchHintOverlap": 0,
+        "trainValidationExactSemanticBundleOverlap": 0,
+        "trainValidationExactFullPlanOverlap": 0,
+        "validationRoleAtomsSeenInTrain": 19,
+        "validationRoleAtomCount": 19,
+        "validationConstraintAtomsSeenInTrain": 18,
+        "validationConstraintAtomCount": 18,
+        "validationHintAtomsSeenInTrain": 22,
+        "validationHintAtomCount": 22,
+        "p231ExactRequestOverlap": 0,
+        "p231TargetRoleOverlap": 0,
+        "p231ExpectedPlanOverlap": 0,
+    }
+    if reviewed != expected_reviewed:
+        raise ValueError("P2-44 reviewed candidate metrics changed")
     return value
 
 
@@ -690,6 +737,8 @@ def generate_evidence_composition_candidate(
     summary = _validate_rows(rows, development_task_set_path)
     raw = _candidate_bytes(rows)
     candidate_sha = canonical_text_sha256(raw)
+    if candidate_sha != EXPECTED_CANDIDATE_SHA256 or len(raw) != EXPECTED_CANDIDATE_BYTES:
+        raise ValueError("Deterministic P2-44 generator output differs from the frozen reviewed candidate")
     candidate_path.parent.mkdir(parents=True, exist_ok=True)
     review_path.parent.mkdir(parents=True, exist_ok=True)
     candidate_path.write_bytes(raw)
@@ -742,6 +791,8 @@ def review_evidence_composition_curriculum(
     summary = _validate_rows(rows, development_task_set_path)
     review = _read_json(review_path)
     candidate_sha = canonical_text_sha256(raw)
+    if candidate_sha != EXPECTED_CANDIDATE_SHA256 or len(raw) != EXPECTED_CANDIDATE_BYTES:
+        raise ValueError("P2-44 candidate differs from the frozen reviewed candidate")
     if (
         review.get("schemaVersion") != 1
         or review.get("milestone") != MILESTONE
@@ -792,6 +843,15 @@ def review_evidence_composition_curriculum(
             "trainTokenCount": token_counts["train"],
             "validationTokenCount": token_counts["validation"],
         }
+        if tokenizer_result != {
+            "checked": True,
+            "tokenizerSha256": EXPECTED_TOKENIZER_SHA256,
+            "bundleManifestSha256": EXPECTED_TOKENIZER_BUNDLE_SHA256,
+            "maximumRecordTokensIncludingEos": EXPECTED_MAX_RECORD_TOKENS,
+            "trainTokenCount": EXPECTED_TRAIN_TOKEN_COUNT,
+            "validationTokenCount": EXPECTED_VALIDATION_TOKEN_COUNT,
+        }:
+            raise ValueError("P2-44 tokenizer accounting differs from the frozen reviewed preflight")
 
     return {
         "schemaVersion": 1,
