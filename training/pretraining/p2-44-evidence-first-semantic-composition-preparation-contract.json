@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "milestone": "P2-44",
   "kind": "plex-p2-44-evidence-first-semantic-composition-preparation-contract-v1",
-  "status": "design-preparation-only",
+  "status": "candidate-review-passed-awaiting-training-preparation",
   "dataPreparationAuthorized": true,
   "modelTrainingAuthorized": false,
   "automaticTrainingExtension": false,
@@ -110,5 +110,40 @@
     "p243DiagnosticExcludedFromTraining": true,
     "finalProjectHoldoutMustRemainClosed": true
   },
-  "decisionBoundary": "P2-44 currently authorizes curriculum design and deterministic review tooling only. No optimizer updates, checkpoint staging, or model continuation are authorized until a candidate passes the evidence-grounding and combination-holdout review."
+  "decisionBoundary": "P2-44 candidate and frozen-tokenizer review passed and are hash-pinned. This contract still authorizes no checkpoint staging, optimizer creation, gradient updates, or model continuation. The next allowed work is deterministic training-bundle preparation/preflight under a separate zero-update gate.",
+  "candidateIdentity": {
+    "candidateId": "p2-44-evidence-first-semantic-composition-v1",
+    "sha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+    "bytes": 182492
+  },
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a",
+    "maximumRecordTokensIncludingEos": 375,
+    "trainTokenCount": 38280,
+    "validationTokenCount": 19186
+  },
+  "reviewedCandidate": {
+    "records": 162,
+    "groups": 54,
+    "trainRecords": 108,
+    "validationRecords": 54,
+    "trainUniqueTargetRoles": 72,
+    "validationUniqueTargetRoles": 36,
+    "trainValidationExactTargetRoleOverlap": 0,
+    "trainValidationExactConstraintSetOverlap": 27,
+    "trainValidationExactSearchHintOverlap": 0,
+    "trainValidationExactSemanticBundleOverlap": 0,
+    "trainValidationExactFullPlanOverlap": 0,
+    "validationRoleAtomsSeenInTrain": 19,
+    "validationRoleAtomCount": 19,
+    "validationConstraintAtomsSeenInTrain": 18,
+    "validationConstraintAtomCount": 18,
+    "validationHintAtomsSeenInTrain": 22,
+    "validationHintAtomCount": 22,
+    "p231ExactRequestOverlap": 0,
+    "p231TargetRoleOverlap": 0,
+    "p231ExpectedPlanOverlap": 0
+  }
 }
