@@ -136,6 +136,8 @@ Key evidence:
 
 ### P2-47 — Request-Grounded Coding Representation
 
+**Status: COMPLETE**
+
 **Goal:** design one final Phase 2 representation specifically around transferable request-to-change understanding.
 
 Requirements:
@@ -149,7 +151,7 @@ Requirements:
 - no P2-31 development leakage
 - file context remains deferred to Phase 3
 
-**Completion:** reviewed candidate and frozen evaluation plan.
+**Completion:** achieved. The 108-record candidate passed real tokenizer review at **286/512 max tokens**, with **19,377 / 9,763** train/validation tokens and zero exact request/solution/non-empty binding-set overlap.
 
 ### P2-48 — Final Bounded Phase 2 Transfer Run
 
@@ -385,22 +387,14 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P2-47 — Request-Grounded Coding Representation
+## P2-48 — Final Bounded Phase 2 Transfer Run
 
-P2-46 is complete and confirmed the core failure:
+P2-47 is complete and frozen.
 
-> Plex learned to recombine familiar coding components, but the current request did not reliably control which components were selected.
+The next action is **zero-update P2-48 preparation**:
 
-P2-47 now teaches a simpler relationship:
+1. pack the reviewed 72/36 request-grounded train/validation bundle,
+2. replay the proposed 1,600-example complete-record sampler,
+3. freeze the resulting bundle, JSONL, token, index, and sampler identities.
 
-```text
-natural coding request
-        ↓
-exact request evidence
-        ↓
-concrete coding intent
-```
-
-The deterministic P2-47 candidate generator/reviewer is implemented for **108 records**: 72 train / 36 validation across HTML, CSS, and JavaScript. Validation reuses familiar targets/actions/coding intents in unseen combinations and different natural wording.
-
-The next action is to generate and review the exact frozen candidate. **No P2-48 training is authorized yet.**
+Checkpoint staging and model training are still unauthorized until those real local preflight results are reviewed.

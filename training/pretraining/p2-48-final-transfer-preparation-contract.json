@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-48",
+  "kind": "plex-p2-48-final-phase2-transfer-preparation-contract-v1",
+  "status": "bundle-preparation-authorized",
+  "dataPreparationAuthorized": true,
+  "checkpointStagingAuthorized": false,
+  "modelTrainingAuthorized": false,
+  "optimizerCreationAuthorized": false,
+  "automaticContinuation": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "purpose": "Prepare the final bounded Phase 2 transfer packet for the reviewed P2-47 request-grounded coding representation without staging or training a model.",
+  "source": {
+    "milestone": "P2-44",
+    "checkpointStep": 100,
+    "checkpointSha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "tokenizerBundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6"
+  },
+  "candidate": {
+    "id": "p2-47-request-grounded-coding-v1",
+    "sha256": "6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a",
+    "bytes": 81032,
+    "reviewResult": "training/pretraining/p2-47-request-grounded-coding-review-result.json",
+    "reviewStatus": "candidate-review-passed",
+    "records": 108,
+    "trainRecords": 72,
+    "validationRecords": 36,
+    "maximumRecordTokensIncludingEos": 286,
+    "trainTokenCount": 19377,
+    "validationTokenCount": 9763
+  },
+  "proposedRun": {
+    "seed": 1337,
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "examplesAt100Steps": 1600,
+    "validationSteps": [0, 25, 50, 75, 100],
+    "checkpointSteps": [25, 50, 75, 100],
+    "device": "cuda",
+    "resumeAllowed": false
+  },
+  "requiredBundlePreflight": [
+    "candidate identity",
+    "review identity",
+    "tokenizer identity",
+    "train/validation record counts",
+    "train/validation token counts",
+    "train/validation JSONL hashes",
+    "train/validation token hashes",
+    "train/validation index hashes",
+    "all 72 train records selected in deterministic sampler replay",
+    "minimum and maximum record selection counts",
+    "expected real target positions at 100 steps"
+  ],
+  "protectedEvaluation": {
+    "p231DevelopmentExcludedFromTraining": true,
+    "p242ResponsesExcludedFromTraining": true,
+    "p243DiagnosticExcludedFromTraining": true,
+    "p245ResponsesExcludedFromTraining": true,
+    "p246DiagnosticExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "decisionBoundary": "This contract authorizes only P2-48 training-bundle packing, inspection, and deterministic sampler replay. It does not authorize checkpoint staging, optimizer creation, CUDA training, continuation, P2-49 evaluation, or final-holdout access."
+}

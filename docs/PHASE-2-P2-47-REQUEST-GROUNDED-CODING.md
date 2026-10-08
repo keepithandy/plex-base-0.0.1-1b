@@ -2,7 +2,7 @@
 
 ## Status
 
-**Candidate preparation implemented. No model training is authorized.**
+**Complete. Candidate generated and tokenizer review passed. No P2-48 training is authorized yet.**
 
 ## Purpose
 
@@ -201,3 +201,25 @@ It does not authorize:
 - final-holdout access
 
 P2-48 begins only after the exact P2-47 candidate and tokenizer review are recorded.
+
+
+## Final P2-47 review
+
+The real candidate review passed.
+
+- candidate SHA-256: `6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a`
+- bytes: **81,032**
+- records: **108**
+- train / validation: **72 / 36**
+- maximum record size: **286 / 512 tokens**
+- train tokens: **19,377**
+- validation tokens: **9,763**
+- exact train/validation request overlap: **0**
+- exact train/validation solution overlap: **0**
+- exact non-empty binding-set overlap: **0**
+- validation targets seen in train: **18 / 18**
+- validation binding intents seen in train: **18 / 18**
+- validation actions seen in train: **3 / 3**
+- P2-31 exact request overlap: **0**
+
+P2-47 is complete. P2-48 may now prepare the frozen training bundle and sampler packet, but checkpoint staging and model training remain separately unauthorized.
