@@ -13,15 +13,36 @@
   "trainRecords": 72,
   "validationRecords": 36,
   "perLanguage": {
-    "html": {"train": 24, "validation": 12},
-    "css": {"train": 24, "validation": 12},
-    "javascript": {"train": 24, "validation": 12}
+    "html": {
+      "train": 24,
+      "validation": 12
+    },
+    "css": {
+      "train": 24,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 12
+    }
   },
   "contrastFamilies": {
-    "role": {"groups": 9, "records": 27},
-    "constraints": {"groups": 9, "records": 27},
-    "action": {"groups": 9, "records": 27},
-    "hints": {"groups": 9, "records": 27}
+    "role": {
+      "groups": 9,
+      "records": 27
+    },
+    "constraints": {
+      "groups": 9,
+      "records": 27
+    },
+    "action": {
+      "groups": 9,
+      "records": 27
+    },
+    "hints": {
+      "groups": 9,
+      "records": 27
+    }
   },
   "uniqueRequests": 108,
   "uniqueTargetRoles": 54,
@@ -37,8 +58,9 @@
     "validationTokenCount": 12798
   },
   "verification": {
-    "focusedTests": "5 passed, 1 warning in 1.19s",
-    "fullTrainingSuite": "281 passed, 2 warnings in 22.66s"
+    "focusedTestsBeforeExecutionPath": "5 passed, 1 warning in 1.19s",
+    "fullTrainingSuiteBeforeExecutionPath": "281 passed, 2 warnings in 22.66s",
+    "note": "These owner-reported test counts predate the later P2-41 pack/stage/preflight implementation and execution-boundary regressions; rerun after pulling current master."
   },
   "modelTrainingAuthorized": false,
   "trainingPerformed": false,
