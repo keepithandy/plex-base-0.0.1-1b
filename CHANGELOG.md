@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Added **P2-41 request-conditioned plan-binding preparation tooling**: deterministic **108-record / 36-group / 72-train / 36-validation** generation across isolated role, constraint, action, and hint contrast families; strict P2-31 request/role/expected-plan leakage checks; optional frozen-tokenizer preflight; CLI generation/review commands; and focused regressions. Model training remains unauthorized.
 - Opened **P2-41 — Request-Conditioned Plan Binding** as a preparation-only milestone after P2-40 confirmed two separate failure families: residual serialization instability and request-conditioned semantic-template substitution. The next curriculum will use contrast groups that share superficial structure while requiring different targetRole, constraints, action, or hint semantics. No training is authorized yet.
 - Closed **P2-40 — Bridge Error Decomposition** as **diagnostic complete**: **9 invalid JSON**, **4 parseable-but-invalid strict plans**, and **5 schema-valid semantic mismatches**. Among schema-valid outputs, language and targetKind were **5/5 correct**, action **3/5**, while targetRole, exact constraints, and hint coverage remained **0/5**. No optimizer updates occurred and the final holdout remained sealed.
 - Opened **P2-40 — Bridge Error Decomposition** after P2-39 failed to improve the unchanged bridge gate. The diagnostic is pinned to response SHA `e9aca13ac5fed3286ad00294dc6fc87960ea66e7f22a9abd9cce375e0c92a3e6` and performs no repair, rescoring, or training.
