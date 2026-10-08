@@ -219,3 +219,90 @@ uv run --project training --no-sync python -m plex_training.cli plan-request-bin
 ```
 
 No P2-41 training command exists yet. Candidate generation and review must pass before a separate bounded-run packet is designed.
+
+
+## Frozen candidate and tokenizer preflight
+
+Owner verification passed with:
+
+- candidate SHA-256: `20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba`
+- candidate bytes: **91,551**
+- records / groups: **108 / 36**
+- train / validation: **72 / 36**
+- unique requests: **108**
+- unique target roles: **54**
+- P2-31 exact-request overlap: **0**
+- P2-31 targetRole overlap: **0**
+- P2-31 exact expected-plan overlap: **0**
+- tokenizer SHA-256: `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`
+- maximum record length: **374 tokens including EOS**
+- train tokens: **25,599**
+- validation tokens: **12,798**
+- focused tests: **5 passed**
+- full training suite: **281 passed**
+- training performed: **false**
+- research optimizer updates: **0**
+- final holdout opened: **false**
+
+Machine-readable evidence:
+
+`training/pretraining/p2-41-preparation-result.json`
+
+## Zero-update execution path
+
+P2-41 now has three preparation commands and deliberately has **no training command**.
+
+### Step 1 — pack the frozen candidate
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-prepare `
+  --source-bundle-dir training/artifacts/structured-plan/p2-35-training-bundle
+```
+
+Expected output:
+
+`training/artifacts/structured-plan/p2-41-training-bundle`
+
+### Step 2 — create the weights-only P2-41 stage
+
+P2-41 stages from the fixed P2-38 step-100 endpoint:
+
+`training/artifacts/structured-plan/p2-38-first-run/checkpoints/step-0100.pt`
+
+Pinned SHA-256:
+
+`9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6`
+
+Run:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-stage `
+  --base-checkpoint training/artifacts/structured-plan/p2-38-first-run/checkpoints/step-0100.pt `
+  --bundle-dir training/artifacts/structured-plan/p2-41-training-bundle
+```
+
+Expected output:
+
+`training/artifacts/structured-plan/p2-41-stage0/stage-checkpoint.pt`
+
+The stage must preserve the P2-38 weights exactly while resetting optimizer state, sampler state, P2-41 step, and P2-41 token accounting.
+
+### Step 3 — read-only CUDA preflight
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-preflight `
+  --bundle-dir training/artifacts/structured-plan/p2-41-training-bundle `
+  --stage-checkpoint training/artifacts/structured-plan/p2-41-stage0/stage-checkpoint.pt
+```
+
+This reports the exact bundle/stage hashes, JSONL/index hashes, complete-record sampler identity, expected 100-step real-target count, and stage-zero validation loss.
+
+It still reports:
+
+- `authorized=false`
+- `modelTrainingAuthorized=false`
+- `trainingPerformed=false`
+- `researchOptimizerUpdates=0`
+- `finalHoldoutOpened=false`
+
+Only after those identities are measured may a separate P2-41 first-run authorization contract be prepared.
