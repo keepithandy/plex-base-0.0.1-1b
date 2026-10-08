@@ -400,6 +400,13 @@ The real P2-48 bundle and sampler preflight are complete and frozen:
 
 The zero-update P2-48 stage is complete and frozen at checkpoint SHA `52aabd0c3d07125dfd89eafd1cd9ecfbb79cbf8a89dfa15c8f8334ead3f2dd60`.
 
-The next action is the **final read-only CUDA training preflight**: verify the exact stage/bundle, replay the 429,375-target sampler, and measure step-zero request-grounded validation loss.
+The final CUDA preflight is complete and frozen:
 
-Model training remains unauthorized until that preflight result is reviewed and separately approved.
+- baseline validation loss: **6.505710401033101**
+- baseline batches: **19**
+- **429,375** expected real target positions
+- exact stage/bundle/data/sampler identities verified
+
+The bounded P2-48 training runner and complete authorization packet are now prepared. The checked-in contract remains **owner-approval-required**, so training fails closed until the owner explicitly authorizes the single bounded run.
+
+No gradient update is authorized yet.
