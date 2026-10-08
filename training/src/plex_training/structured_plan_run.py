@@ -40,6 +40,7 @@ def _contract(path: Path) -> dict[str, Any]:
         "P2-33": "plex-p2-33-structured-bridge-recheck-contract-v1",
         "P2-36": "plex-p2-36-structured-bridge-recheck-contract-v1",
         "P2-39": "plex-p2-39-structured-bridge-recheck-contract-v1",
+        "P2-42": "plex-p2-42-structured-bridge-recheck-contract-v1",
     }
     if (milestone not in allowed
             or kind != allowed[milestone]
