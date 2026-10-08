@@ -156,3 +156,56 @@ It does **not** authorize:
 - automatic continuation
 - P2-49 evaluation
 - final project holdout access
+
+
+## Real bundle and sampler preflight
+
+The local P2-48 bundle/preflight passed and is frozen.
+
+Bundle identities:
+
+- bundle manifest SHA-256: `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`
+- source dataset manifest SHA-256: `6cab42b964f4d11680c4109cf4787f9074ba62a9cbff23f92b301d497f77771c`
+- train JSONL SHA-256: `39879c1199e975096ba962fcad023b3b112c2c8b6444c0a3a9f35971a945d530`
+- validation JSONL SHA-256: `9f9514e0feda3e29eb63ee4308e87b94666f05229cfbd26a619a5a35a9708226`
+- train token SHA-256: `2aa8cb0d7970ae8ac329f71fd5d2df00df2345181ae9e8e79534f44409b46785`
+- validation token SHA-256: `8e8307953e2c1c4afcb7dc20c32f5a797611bf2371912a2480312f2094fc004c`
+- train index SHA-256: `5d94bf9c3f0a0867cf945abd965f763c800444cba7162d6cbc522d5de049235f`
+- validation index SHA-256: `2151edd14d340377feb42e2f1baa8fcbefe02aad070429e2dbf9ba519a79f52a`
+
+Sampler replay:
+
+- seed: **1337**
+- examples: **1,600**
+- records selected: **72 / 72**
+- minimum selections: **12**
+- maximum selections: **33**
+- expected real target positions: **429,375**
+
+No training occurred.
+
+## Step-zero stage
+
+P2-48 now authorizes one non-training step-zero stage from the exact P2-44 endpoint:
+
+- source checkpoint SHA-256: `69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e`
+- source step: **100**
+- source tokens processed: **565,641**
+- source stage kind: `plex-evidence-first-semantic-composition-stage-transition-v1`
+- source training kind: `p2-44-authorized-evidence-composition-training-v1`
+
+Run the read-only source check:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli request-grounded-stage-source-preflight
+```
+
+Then create the stage:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli request-grounded-stage
+```
+
+The stage must preserve the model weights exactly, reset P2-48 step/tokens to zero, reset sampler state, serialize a fresh empty optimizer state, and keep training settings/schedule null.
+
+P2-48 model training remains unauthorized after stage creation.
