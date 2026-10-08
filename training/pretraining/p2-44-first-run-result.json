@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-44",
+  "kind": "plex-p2-44-first-evidence-composition-run-result-record-v1",
+  "recordedDate": "2026-10-08",
+  "status": "bounded-first-run-complete",
+  "authorizationContractSha256": "161c5de60b14c764957755f39b9a2924a0b1112d71ffbf81f85f2da05ab401cd",
+  "stageCheckpointSha256": "e454bf4851690d599c88c898a77b7b741b95fe7fbc291f43e98d34bf35807ef4",
+  "candidateSha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+  "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+  "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+  "completedSteps": 100,
+  "authorizedMaximumSteps": 100,
+  "authorizedMaximumWallTimeSeconds": 600,
+  "elapsedSeconds": 20.946219000034034,
+  "tokensProcessed": 565641,
+  "samplingAudit": {
+    "examples": 1600,
+    "recordsSelected": 108,
+    "minimumRecordSelections": 5,
+    "maximumRecordSelections": 24,
+    "realTargetPositions": 565641,
+    "paddingTargetPositions": 0
+  },
+  "baselineValidationLoss": 3.3981438778542183,
+  "validation": [
+    {"step": 0, "meanLoss": 3.3981438778542183},
+    {"step": 25, "meanLoss": 2.2757347886626786},
+    {"step": 50, "meanLoss": 2.2634602172954663},
+    {"step": 75, "meanLoss": 2.2411495543814994},
+    {"step": 100, "meanLoss": 2.172380618146948}
+  ],
+  "finalCheckpoint": {
+    "step": 100,
+    "sha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+    "bytes": 330900379
+  },
+  "checkpointSha256ByStep": {
+    "25": "70251d69827ceb2d996e2e4884339c512c1a98247447c64a985ad0fdee1a379c",
+    "50": "e35cfc1ed167e6fc5ec739549c40f1f22696e95899ddb0655ec25ca73c579821",
+    "75": "8c4d92566f02166c035dcbc6da140eadc36d4f85a04c8ae9f79de35c0a588b6a",
+    "100": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e"
+  },
+  "meanRecentLoss": 0.05258600550587289,
+  "peakGpuMemory": {
+    "allocatedBytes": 651275264,
+    "reservedBytes": 742391808
+  },
+  "interpretation": {
+    "validationImprovedAtEveryMeasuredCheckpoint": true,
+    "fixedEndpointIsBestMeasuredValidationCheckpoint": true,
+    "officialEndpointStep": 100,
+    "officialEndpointSha256": "69c357db13aae930374f013754a4b89c9bc071bd299c34cfa1c1ab362db0842e",
+    "continuationDecision": "Do not continue training. Re-run the unchanged P2-31 development gate on the fixed step-100 endpoint before any further training decision."
+  },
+  "automaticContinuation": false,
+  "resumeAllowed": false,
+  "continuationAuthorized": false,
+  "finalHoldoutOpened": false,
+  "p231DevelopmentEvaluationPending": true
+}
