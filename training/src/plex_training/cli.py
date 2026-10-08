@@ -785,6 +785,61 @@ def build_parser() -> argparse.ArgumentParser:
     )
     request_grounded_coding_review.add_argument("--report", type=Path, default=None)
 
+    request_grounded_bundle_prepare = subparsers.add_parser(
+        "request-grounded-bundle-prepare",
+        help="Pack the frozen P2-47 candidate for P2-48 without staging or training",
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-47-request-grounded-coding-v1.jsonl"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--review", type=Path,
+        default=Path("training/phase2/drafts/p2-47-request-grounded-coding-v1.review.json"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--development-task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--source-bundle-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-training-bundle"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-48-final-transfer-preparation-contract.json"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--review-result", type=Path,
+        default=Path("training/pretraining/p2-47-request-grounded-coding-review-result.json"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--output-dir", type=Path,
+        default=Path("request-grounded/p2-48-training-bundle"),
+    )
+    request_grounded_bundle_prepare.add_argument(
+        "--storage-limit-gib", type=float, default=200.0
+    )
+    _add_artifact_root(request_grounded_bundle_prepare)
+
+    request_grounded_bundle_preflight = subparsers.add_parser(
+        "request-grounded-bundle-preflight",
+        help="Replay the proposed P2-48 complete-record sampler without staging or training",
+    )
+    request_grounded_bundle_preflight.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/request-grounded/p2-48-training-bundle"),
+    )
+    request_grounded_bundle_preflight.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-48-final-transfer-preparation-contract.json"),
+    )
+    request_grounded_bundle_preflight.add_argument(
+        "--review-result", type=Path,
+        default=Path("training/pretraining/p2-47-request-grounded-coding-review-result.json"),
+    )
+    request_grounded_bundle_preflight.add_argument("--report", type=Path, default=None)
+
     plan_request_binding_generate = subparsers.add_parser(
         "plan-request-binding-generate",
         help="Generate the deterministic P2-41 request-conditioned contrast candidate without training",
@@ -1960,6 +2015,48 @@ def _request_grounded_coding_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _request_grounded_bundle_prepare(args: argparse.Namespace) -> dict[str, Any]:
+    from .artifacts import artifact_bytes
+    from .request_grounded_coding_bundle import prepare_request_grounded_bundle
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    if not 0 < args.storage_limit_gib <= 200:
+        raise ValueError("storage-limit-gib must be greater than 0 and no more than 200")
+    limit = int(args.storage_limit_gib * 1024**3)
+    return prepare_request_grounded_bundle(
+        candidate_path=args.candidate,
+        review_path=args.review,
+        development_task_set_path=args.development_task_set,
+        source_bundle_dir=args.source_bundle_dir,
+        output_dir=output,
+        artifact_root=root,
+        preparation_contract_path=args.preparation_contract,
+        review_result_path=args.review_result,
+        storage_limit_bytes=limit - artifact_bytes(root),
+    )
+
+
+def _request_grounded_bundle_preflight(args: argparse.Namespace) -> dict[str, Any]:
+    from .request_grounded_coding_bundle import preflight_request_grounded_bundle
+
+    report = preflight_request_grounded_bundle(
+        bundle_dir=args.bundle_dir,
+        preparation_contract_path=args.preparation_contract,
+        review_result_path=args.review_result,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"P2-48 bundle preflight report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def _plan_request_binding_generate(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_request_binding_curriculum import generate_request_binding_candidate
 
@@ -2445,6 +2542,10 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_request_grounded_coding_generate(args))
         elif args.command == "request-grounded-coding-review":
             _json_print(_request_grounded_coding_review(args))
+        elif args.command == "request-grounded-bundle-prepare":
+            _json_print(_request_grounded_bundle_prepare(args))
+        elif args.command == "request-grounded-bundle-preflight":
+            _json_print(_request_grounded_bundle_preflight(args))
         elif args.command == "plan-request-binding-generate":
             _json_print(_plan_request_binding_generate(args))
         elif args.command == "plan-request-binding-review":
