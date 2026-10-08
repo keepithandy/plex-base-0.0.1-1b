@@ -34,13 +34,13 @@ class RequestGroundedRunAuthorizationTests(unittest.TestCase):
         value["approvedDate"] = AUTHORIZED_DATE
         return value
 
-    def test_repository_contract_is_complete_but_unsigned(self) -> None:
+    def test_repository_contract_is_exact_owner_approved_packet(self) -> None:
         value = self._draft()
-        self.assertEqual(value["status"], "owner-approval-required")
+        self.assertEqual(value["status"], AUTHORIZED_STATUS)
         self.assertTrue(value["approvalPacketComplete"])
-        self.assertFalse(value["modelTrainingAuthorized"])
-        self.assertIsNone(value["approvedBy"])
-        self.assertIsNone(value["approvedDate"])
+        self.assertTrue(value["modelTrainingAuthorized"])
+        self.assertEqual(value["approvedBy"], "keepithandy")
+        self.assertEqual(value["approvedDate"], AUTHORIZED_DATE)
         self.assertEqual(value["evaluation"]["baselineLoss"], FROZEN_BASELINE_LOSS)
         self.assertEqual(value["evaluation"]["baselineBatches"], FROZEN_BASELINE_BATCHES)
         self.assertEqual(value["training"]["maximumSteps"], 100)
@@ -52,8 +52,7 @@ class RequestGroundedRunAuthorizationTests(unittest.TestCase):
         self.assertFalse(value["training"]["resumeAllowed"])
         self.assertFalse(value["training"]["automaticContinuation"])
 
-        with self.assertRaisesRegex(ValueError, "status"):
-            _validate_authorization(value)
+        _validate_authorization(value)
 
     def test_exact_owner_approved_projection_is_accepted(self) -> None:
         value = self._approved()
@@ -77,9 +76,19 @@ class RequestGroundedRunAuthorizationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "training.sampler"):
             _validate_authorization(changed_sampler)
 
-    def test_runner_fails_closed_before_preflight_while_unsigned(self) -> None:
+    def test_runner_fails_closed_before_preflight_with_unsigned_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "artifacts"
+            unsigned = copy.deepcopy(self._draft())
+            unsigned["status"] = "owner-approval-required"
+            unsigned["modelTrainingAuthorized"] = False
+            unsigned["approvedBy"] = None
+            unsigned["approvedDate"] = None
+            unsigned_path = Path(temporary) / "unsigned-contract.json"
+            unsigned_path.write_text(
+                json.dumps(unsigned, indent=2) + "\n",
+                encoding="utf-8",
+            )
             with patch(
                 "plex_training.request_grounded_coding_run.preflight_request_grounded_training",
                 side_effect=AssertionError(
@@ -90,7 +99,7 @@ class RequestGroundedRunAuthorizationTests(unittest.TestCase):
                     run_request_grounded_training(
                         bundle_dir=root / "bundle",
                         stage_checkpoint=root / "stage.pt",
-                        authorization_contract_path=CONTRACT,
+                        authorization_contract_path=unsigned_path,
                         output_dir=root / "request-grounded" / "p2-48-first-run",
                         artifact_root=root,
                     )
