@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-44",
+  "kind": "plex-p2-44-stage-source-preparation-contract-v1",
+  "status": "stage-source-preflight-authorized",
+  "stageSourcePreflightAuthorized": true,
+  "checkpointStagingAuthorized": false,
+  "optimizerCreationAuthorized": false,
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "purpose": "Verify that the exact fixed P2-41 step-100 endpoint is a valid immutable weight source for a future P2-44 evidence-first stage while preserving zero-update boundaries.",
+  "baseCheckpoint": {
+    "path": "training/artifacts/structured-plan/p2-41-first-run/checkpoints/step-0100.pt",
+    "sha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+    "step": 100,
+    "milestone": "P2-41",
+    "tokensProcessedTotal": 567311,
+    "requiredProvenance": {
+      "stageKind": "plex-request-conditioned-plan-binding-stage-transition-v1",
+      "stageMilestone": "P2-41",
+      "trainingSettingsKind": "p2-41-authorized-request-binding-training-v1"
+    }
+  },
+  "p244Bundle": {
+    "path": "training/artifacts/structured-plan/p2-44-training-bundle",
+    "candidateSha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+    "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+    "sourceDatasetManifestSha256": "18d827d2e6bef3aaee41afacee163f16367dc6fc5198334f321c88f7623515b8",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainJsonlSha256": "0141dbd0209d10e2138a0a90ff688e97b4b1de39f91c28ca367ed7267b309789",
+    "validationJsonlSha256": "8b690e91335aab703a331de41ea0d6d801d68058f0dc1a3eada716d952fede2c",
+    "trainIndexSha256": "5364aef18ff9ce5c702989953bf19268c7f4a8af079e84fc2f90672e8a63fc09",
+    "validationIndexSha256": "5c409f624474173648d5068fd1961ea3659ceb304dc65fe66382343cff29ea59",
+    "trainRecords": 108,
+    "validationRecords": 54,
+    "trainTokenCount": 38280,
+    "validationTokenCount": 19186
+  },
+  "proposedFutureStage": {
+    "kind": "plex-evidence-first-semantic-composition-stage-transition-v1",
+    "milestone": "P2-44",
+    "baseCheckpointStep": 100,
+    "p244StageStep": 0,
+    "p244TokensProcessed": 0,
+    "modelWeightsLoadedFromBase": true,
+    "baseOptimizerStateReused": false,
+    "baseSamplerStateReused": false,
+    "baseTrainingStepReusedAsP244Step": false
+  },
+  "protectedEvaluation": {
+    "p231DevelopmentExcludedFromGradients": true,
+    "p242ResponsesExcludedFromGradients": true,
+    "p243DiagnosticExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "decisionBoundary": "This contract authorizes only read-only base-checkpoint and P2-44-bundle compatibility verification. It does not authorize creation of a stage checkpoint, creation of an optimizer, gradient updates, continuation, or final-holdout access."
+}

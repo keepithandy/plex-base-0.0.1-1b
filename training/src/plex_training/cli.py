@@ -517,6 +517,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_evidence_composition_stage_preflight = subparsers.add_parser(
+        "plan-evidence-composition-stage-preflight",
+        help="Verify the exact P2-41 endpoint as a future P2-44 stage source without staging or training",
+    )
+    plan_evidence_composition_stage_preflight.add_argument(
+        "--base-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-41-first-run/checkpoints/step-0100.pt"),
+    )
+    plan_evidence_composition_stage_preflight.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-training-bundle"),
+    )
+    plan_evidence_composition_stage_preflight.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-44-stage-source-preparation-contract.json"),
+    )
+    plan_evidence_composition_stage_preflight.add_argument("--report", type=Path, default=None)
+
     plan_evidence_composition_prepare = subparsers.add_parser(
         "plan-evidence-composition-prepare",
         help="Pack the frozen P2-44 candidate into a deterministic training bundle without training",
@@ -1558,6 +1576,28 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_evidence_composition_stage_preflight(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_stage import (
+        preflight_evidence_composition_stage_source,
+    )
+
+    report = preflight_evidence_composition_stage_source(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        contract_path=args.contract,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"P2-44 stage-source report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def _plan_evidence_composition_prepare(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_evidence_composition_bundle import (
         prepare_evidence_composition_bundle,
@@ -2094,6 +2134,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-evidence-composition-stage-preflight":
+            _json_print(_plan_evidence_composition_stage_preflight(args))
         elif args.command == "plan-evidence-composition-prepare":
             _json_print(_plan_evidence_composition_prepare(args))
         elif args.command == "plan-evidence-composition-preflight":

@@ -30,6 +30,13 @@ EXPECTED_CANDIDATE_BYTES = 182492
 EXPECTED_MAX_RECORD_TOKENS = 375
 EXPECTED_TRAIN_TOKEN_COUNT = 38280
 EXPECTED_VALIDATION_TOKEN_COUNT = 19186
+EXPECTED_BUNDLE_MANIFEST_SHA256 = "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6"
+EXPECTED_SOURCE_DATASET_MANIFEST_SHA256 = "18d827d2e6bef3aaee41afacee163f16367dc6fc5198334f321c88f7623515b8"
+EXPECTED_TRAIN_JSONL_SHA256 = "0141dbd0209d10e2138a0a90ff688e97b4b1de39f91c28ca367ed7267b309789"
+EXPECTED_VALIDATION_JSONL_SHA256 = "8b690e91335aab703a331de41ea0d6d801d68058f0dc1a3eada716d952fede2c"
+EXPECTED_TRAIN_INDEX_SHA256 = "5364aef18ff9ce5c702989953bf19268c7f4a8af079e84fc2f90672e8a63fc09"
+EXPECTED_VALIDATION_INDEX_SHA256 = "5c409f624474173648d5068fd1961ea3659ceb304dc65fe66382343cff29ea59"
+EXPECTED_PROPOSED_REAL_TARGET_POSITIONS = 565641
 LANGUAGE_CODES = {"html": "html", "css": "css", "javascript": "js"}
 FAMILIES = (
     "role-composition",
@@ -142,7 +149,7 @@ def _contract(path: Path) -> dict[str, Any]:
         value.get("schemaVersion") != 1
         or value.get("milestone") != MILESTONE
         or value.get("kind") != CONTRACT_KIND
-        or value.get("status") != "candidate-review-passed-awaiting-training-preparation"
+        or value.get("status") != "bundle-preflight-passed-awaiting-stage-preparation"
         or value.get("dataPreparationAuthorized") is not True
         or value.get("modelTrainingAuthorized") is not False
         or value.get("automaticTrainingExtension") is not False
@@ -242,6 +249,47 @@ def _contract(path: Path) -> dict[str, Any]:
     }
     if reviewed != expected_reviewed:
         raise ValueError("P2-44 reviewed candidate metrics changed")
+    bundle = value.get("bundlePreflight")
+    if not isinstance(bundle, dict):
+        raise ValueError("P2-44 frozen bundle preflight is missing")
+    expected_bundle = {
+        "status": "bundle-preflight-passed-awaiting-separate-stage-decision",
+        "bundleManifestSha256": EXPECTED_BUNDLE_MANIFEST_SHA256,
+        "sourceDatasetManifestSha256": EXPECTED_SOURCE_DATASET_MANIFEST_SHA256,
+        "trainJsonlSha256": EXPECTED_TRAIN_JSONL_SHA256,
+        "validationJsonlSha256": EXPECTED_VALIDATION_JSONL_SHA256,
+        "trainIndexSha256": EXPECTED_TRAIN_INDEX_SHA256,
+        "validationIndexSha256": EXPECTED_VALIDATION_INDEX_SHA256,
+        "trainRecords": 108,
+        "validationRecords": 54,
+        "trainTokenCount": EXPECTED_TRAIN_TOKEN_COUNT,
+        "validationTokenCount": EXPECTED_VALIDATION_TOKEN_COUNT,
+        "maximumRecordTokensIncludingEos": EXPECTED_MAX_RECORD_TOKENS,
+        "sampler": {
+            "kind": "complete-record-v1",
+            "selection": "uniform-record-with-replacement",
+            "endPolicy": "stop-at-record-eos-v1",
+            "records": 108,
+            "trainJsonlSha256": EXPECTED_TRAIN_JSONL_SHA256,
+            "indexSha256": EXPECTED_TRAIN_INDEX_SHA256,
+            "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+            "tokenAccounting": "nonpadding-next-token-targets-v1",
+            "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1",
+        },
+        "proposedRun": {
+            "seed": 1337,
+            "maximumSteps": 100,
+            "microBatch": 1,
+            "gradientAccumulation": 16,
+            "examples": 1600,
+            "expectedRealTargetPositions": EXPECTED_PROPOSED_REAL_TARGET_POSITIONS,
+            "recordsSelected": 108,
+            "minimumRecordSelections": 5,
+            "maximumRecordSelections": 24,
+        },
+    }
+    if bundle != expected_bundle:
+        raise ValueError("P2-44 frozen bundle preflight identity changed")
     return value
 
 
