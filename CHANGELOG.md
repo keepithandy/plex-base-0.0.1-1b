@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Passed the real **P2-44 stage-source compatibility gate** against P2-41 step 100 and added a narrowly authorized step-zero stage creator. It preserves weights bit-for-bit, resets P2-44 step/tokens and sampler state, serializes a fresh empty AdamW state, and keeps training unauthorized.
 - Froze the real **P2-44 packed bundle and sampler replay** at manifest SHA `46d6e450...`: 108/54 records, 38,280/19,186 tokens, all 108 train records selected across the 1,600-example replay, 565,641 expected real target positions, and a 5–24 selection range. Added a read-only P2-41 step-100 stage-source compatibility preflight; stage creation and training remain unauthorized.
 - Added **P2-44 deterministic training-bundle packing and zero-update sampler preflight**. The new commands verify JSONL/token/index/manifests, replay a proposal-only 1,600-example complete-record schedule, and report deterministic sampling accounting without creating checkpoints, optimizers, or training authorization.
 - Froze the reviewed **P2-44** candidate at SHA `fc56eca2...`: 162 records, 108/54 train-validation, zero exact role/hint/bundle/full-plan leakage, full validation-atom familiarity, zero P2-31 leakage, and a 375/512-token maximum under the frozen tokenizer. Candidate identity and tokenizer accounting are now hard-pinned; training remains unauthorized.
