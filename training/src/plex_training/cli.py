@@ -517,6 +517,35 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_evidence_composition_run = subparsers.add_parser(
+        "plan-evidence-composition-run",
+        help="Execute the bounded P2-44 first run only when the owner-approved contract is active",
+    )
+    plan_evidence_composition_run.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-training-bundle"),
+    )
+    plan_evidence_composition_run.add_argument(
+        "--stage-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-stage0/stage-checkpoint.pt"),
+    )
+    plan_evidence_composition_run.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-44-first-run-contract.json"),
+    )
+    plan_evidence_composition_run.add_argument(
+        "--preflight-contract", type=Path,
+        default=Path("training/pretraining/p2-44-training-preflight-contract.json"),
+    )
+    plan_evidence_composition_run.add_argument(
+        "--output-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-first-run"),
+    )
+    plan_evidence_composition_run.add_argument(
+        "--artifact-root", type=Path,
+        default=Path("training/artifacts"),
+    )
+
     plan_evidence_composition_training_preflight = subparsers.add_parser(
         "plan-evidence-composition-training-preflight",
         help="Measure the frozen P2-44 stage/bundle on CUDA without training",
@@ -1631,6 +1660,21 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_evidence_composition_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_run import (
+        run_evidence_composition_training,
+    )
+
+    return run_evidence_composition_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preflight_contract_path=args.preflight_contract,
+        output_dir=args.output_dir,
+        artifact_root=args.artifact_root,
+    )
+
+
 def _plan_evidence_composition_training_preflight(
     args: argparse.Namespace,
 ) -> dict[str, Any]:
@@ -2231,6 +2275,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-evidence-composition-run":
+            _json_print(_plan_evidence_composition_run(args))
         elif args.command == "plan-evidence-composition-training-preflight":
             _json_print(_plan_evidence_composition_training_preflight(args))
         elif args.command == "plan-evidence-composition-stage":
