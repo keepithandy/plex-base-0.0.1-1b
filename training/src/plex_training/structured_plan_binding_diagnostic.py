@@ -198,6 +198,9 @@ def diagnose_semantic_bundle_reuse(
         "trainingPerformed": False,
         "researchOptimizerUpdates": 0,
         "finalHoldoutOpened": False,
+        "temperature": 0,
+        "seed": 1337,
+        "maxNewTokens": 256,
     }.items():
         if manifest.get(key) != expected:
             raise ValueError(f"P2-43 P2-42 manifest mismatch: {key}")
@@ -335,6 +338,8 @@ def diagnose_semantic_bundle_reuse(
             "trainFullPlan": bool(train_full),
             "validationTargetRole": bool(validation_role),
             "validationSemanticBundle": bool(validation_bundle),
+            "validationOnlyTargetRole": bool(validation_role) and not bool(train_role),
+            "validationOnlySemanticBundle": bool(validation_bundle) and not bool(train_bundle),
         }
         for name, used in reuse.items():
             if used:
@@ -414,6 +419,8 @@ def diagnose_semantic_bundle_reuse(
         "validationReuse": {
             "targetRole": aggregate["reuse.validationTargetRole"],
             "semanticBundle": aggregate["reuse.validationSemanticBundle"],
+            "validationOnlyTargetRole": aggregate["reuse.validationOnlyTargetRole"],
+            "validationOnlySemanticBundle": aggregate["reuse.validationOnlySemanticBundle"],
         },
         "classifications": {
             name: aggregate[f"classification.{name}"]
