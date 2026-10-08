@@ -21,6 +21,7 @@ MILESTONE = "P2-41"
 CONTRACT_KIND = "plex-p2-41-request-conditioned-plan-binding-preparation-contract-v1"
 GENERATOR_VERSION = "p2-41-request-binding-generator-v1"
 PROVENANCE = "project-authored-p2-41-request-conditioned-plan-binding"
+EXPECTED_CANDIDATE_SHA256 = "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba"
 EXPECTED_DEV_SHA256 = "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
 EXPECTED_TOKENIZER_SHA256 = "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697"
 EXPECTED_TOKENIZER_BUNDLE_SHA256 = "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d"
@@ -116,6 +117,27 @@ def _contract(path: Path) -> dict[str, Any]:
         or protected.get("finalProjectHoldoutMustRemainClosed") is not True
     ):
         raise ValueError("P2-41 protected evaluation boundary is invalid")
+    if value.get("baseCheckpoint") != {
+        "milestone": "P2-38",
+        "step": 100,
+        "sha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6",
+    }:
+        raise ValueError("P2-41 base checkpoint identity is invalid")
+    if value.get("candidateIdentity") != {
+        "candidateId": "p2-41-request-conditioned-plan-binding-v1",
+        "sha256": EXPECTED_CANDIDATE_SHA256,
+        "bytes": 91551,
+    }:
+        raise ValueError("P2-41 candidate identity is invalid")
+    if value.get("tokenizerPreflight") != {
+        "checked": True,
+        "tokenizerSha256": EXPECTED_TOKENIZER_SHA256,
+        "bundleManifestSha256": EXPECTED_TOKENIZER_BUNDLE_SHA256,
+        "maximumRecordTokensIncludingEos": 374,
+        "trainTokenCount": 25599,
+        "validationTokenCount": 12798,
+    }:
+        raise ValueError("P2-41 tokenizer preflight identity is invalid")
     return value
 
 
@@ -433,6 +455,8 @@ def generate_request_binding_candidate(
     summary = _validate_rows(rows, development_task_set_path)
     raw = _candidate_bytes(rows)
     candidate_sha = canonical_text_sha256(raw)
+    if candidate_sha != EXPECTED_CANDIDATE_SHA256:
+        raise ValueError("Deterministic P2-41 generator output differs from the frozen candidate")
     candidate_path.parent.mkdir(parents=True, exist_ok=True)
     review_path.parent.mkdir(parents=True, exist_ok=True)
     candidate_path.write_bytes(raw)
@@ -485,6 +509,8 @@ def review_request_binding_curriculum(
     summary = _validate_rows(rows, development_task_set_path)
     review = _read_json(review_path)
     candidate_sha = canonical_text_sha256(raw)
+    if candidate_sha != EXPECTED_CANDIDATE_SHA256:
+        raise ValueError("P2-41 candidate differs from the frozen reviewed candidate")
     if (
         review.get("schemaVersion") != 1
         or review.get("milestone") != MILESTONE
