@@ -428,6 +428,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_bridge_diagnose.add_argument("--report", type=Path, default=None)
 
+    plan_transfer_diagnose = subparsers.add_parser(
+        "plan-transfer-diagnose",
+        help="Compare frozen P2-42 and P2-45 responses against P2-44 evidence without training",
+    )
+    plan_transfer_diagnose.add_argument(
+        "--task-set", type=Path,
+        default=Path("training/phase2/evaluation/p2-31-plan-dev-v1.json"),
+    )
+    plan_transfer_diagnose.add_argument(
+        "--p244-candidate", type=Path,
+        default=Path("training/phase2/drafts/p2-44-evidence-first-semantic-composition-v1.jsonl"),
+    )
+    plan_transfer_diagnose.add_argument("--p242-responses", type=Path, required=True)
+    plan_transfer_diagnose.add_argument("--p242-manifest", type=Path, required=True)
+    plan_transfer_diagnose.add_argument("--p245-responses", type=Path, required=True)
+    plan_transfer_diagnose.add_argument("--p245-manifest", type=Path, required=True)
+    plan_transfer_diagnose.add_argument(
+        "--p243-result", type=Path,
+        default=Path("training/pretraining/p2-43-semantic-bundle-reuse-result.json"),
+    )
+    plan_transfer_diagnose.add_argument(
+        "--contract", type=Path,
+        default=Path("training/pretraining/p2-46-semantic-transfer-diagnostic-contract.json"),
+    )
+    plan_transfer_diagnose.add_argument("--report", type=Path, default=None)
+
     plan_binding_diagnose = subparsers.add_parser(
         "plan-binding-diagnose",
         help="Measure P2-41 semantic-bundle reuse in fixed P2-42 development responses",
@@ -1587,6 +1613,33 @@ def _plan_bridge_diagnose(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_transfer_diagnose(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_transfer_diagnostic import (
+        diagnose_semantic_transfer_failure,
+    )
+
+    report = diagnose_semantic_transfer_failure(
+        task_set_path=args.task_set,
+        p244_candidate_path=args.p244_candidate,
+        p242_responses_path=args.p242_responses,
+        p242_manifest_path=args.p242_manifest,
+        p245_responses_path=args.p245_responses,
+        p245_manifest_path=args.p245_manifest,
+        p243_result_path=args.p243_result,
+        contract_path=args.contract,
+    )
+    if args.report is not None:
+        if args.report.exists():
+            raise FileExistsError(f"Transfer diagnostic report already exists: {args.report}")
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        args.report.write_text(
+            json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    return report
+
+
 def _plan_binding_diagnose(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_binding_diagnostic import diagnose_semantic_bundle_reuse
 
@@ -2278,6 +2331,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_diagnose(args))
         elif args.command == "plan-bridge-diagnose":
             _json_print(_plan_bridge_diagnose(args))
+        elif args.command == "plan-transfer-diagnose":
+            _json_print(_plan_transfer_diagnose(args))
         elif args.command == "plan-binding-diagnose":
             _json_print(_plan_binding_diagnose(args))
         elif args.command == "plan-generate":

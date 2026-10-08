@@ -394,6 +394,6 @@ P2-45 is complete and failed the unchanged bridge:
 - **0 / 18** exact constraints
 - **0 / 18** required hint coverage
 
-P2-46 should diagnose **why transfer failed** before another training curriculum is designed.
+P2-46 diagnostic tooling is now prepared. The next action is to run the frozen P2-42 → P2-45 comparison locally and review its failure taxonomy before designing P2-47.
 
-No P2-44 continuation is authorized.
+No P2-44 continuation, P2-47 curriculum preparation, or new training is authorized yet.

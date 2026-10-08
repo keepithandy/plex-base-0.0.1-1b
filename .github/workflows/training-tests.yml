@@ -34,6 +34,7 @@ jobs:
           training/tests/test_structured_plan_curriculum.py
           training/tests/test_structured_plan.py
           training/tests/test_structured_plan_binding_diagnostic.py
+          training/tests/test_structured_plan_transfer_diagnostic.py
           training/tests/test_structured_plan_evidence_composition_curriculum.py
           training/tests/test_structured_plan_evidence_composition_bundle.py
           training/tests/test_structured_plan_evidence_composition_stage.py
