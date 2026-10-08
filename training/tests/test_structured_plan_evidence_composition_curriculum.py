@@ -5,7 +5,11 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
+
+from plex_training.cli import main
 
 from plex_training.structured_plan_evidence_composition_curriculum import (
     FAMILIES,
@@ -97,6 +101,39 @@ class EvidenceCompositionCurriculumTests(unittest.TestCase):
                 row["targetRole"],
                 "-".join(row["semanticAtoms"]["role"]),
             )
+
+    def test_cli_wires_generate_and_review_without_training(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            report = root / "review-report.json"
+
+            with redirect_stdout(StringIO()):
+                status = main([
+                    "plan-evidence-composition-generate",
+                    "--candidate", str(candidate),
+                    "--review", str(review),
+                    "--development-task-set", str(TASK_SET),
+                    "--contract", str(CONTRACT),
+                ])
+            self.assertEqual(status, 0)
+
+            output = StringIO()
+            with redirect_stdout(output):
+                status = main([
+                    "plan-evidence-composition-review",
+                    "--candidate", str(candidate),
+                    "--review", str(review),
+                    "--development-task-set", str(TASK_SET),
+                    "--contract", str(CONTRACT),
+                    "--report", str(report),
+                ])
+            self.assertEqual(status, 0)
+            parsed = json.loads(output.getvalue())
+            self.assertEqual(parsed["status"], "candidate-review-passed")
+            self.assertFalse(parsed["modelTrainingAuthorized"])
+            self.assertTrue(report.is_file())
 
     def test_generate_and_review_roundtrip_without_training(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
