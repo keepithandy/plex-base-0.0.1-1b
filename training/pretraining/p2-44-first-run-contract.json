@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-44",
+  "kind": "plex-p2-44-first-evidence-composition-run-contract-v1",
+  "status": "owner-approval-required",
+  "approvalPacketComplete": true,
+  "modelTrainingAuthorized": false,
+  "approvedBy": null,
+  "approvedDate": null,
+  "outputDirectory": "structured-plan/p2-44-first-run",
+  "executionState": {
+    "trainingExecuted": false,
+    "researchOptimizerUpdates": 0,
+    "finalHoldoutOpened": false
+  },
+  "baseStage": {
+    "checkpointSha256": "e454bf4851690d599c88c898a77b7b741b95fe7fbc291f43e98d34bf35807ef4",
+    "p244Step": 0,
+    "p244TokensProcessed": 0,
+    "baseCheckpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+    "parameterCount": 27566080,
+    "modelWeightsPreserved": true,
+    "optimizerStateEmpty": true,
+    "samplerStateReset": true
+  },
+  "data": {
+    "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+    "candidateSha256": "fc56eca2186e2b7f643af9fbec514c1d5d34248eba2ac380b9f93c482b945c30",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "trainJsonlSha256": "0141dbd0209d10e2138a0a90ff688e97b4b1de39f91c28ca367ed7267b309789",
+    "validationJsonlSha256": "8b690e91335aab703a331de41ea0d6d801d68058f0dc1a3eada716d952fede2c",
+    "trainIndexSha256": "5364aef18ff9ce5c702989953bf19268c7f4a8af079e84fc2f90672e8a63fc09",
+    "validationIndexSha256": "5c409f624474173648d5068fd1961ea3659ceb304dc65fe66382343cff29ea59",
+    "trainRecords": 108,
+    "validationRecords": 54,
+    "trainTokenCount": 38280,
+    "validationTokenCount": 19186
+  },
+  "training": {
+    "sampler": {
+      "endPolicy": "stop-at-record-eos-v1",
+      "indexSha256": "5364aef18ff9ce5c702989953bf19268c7f4a8af079e84fc2f90672e8a63fc09",
+      "kind": "complete-record-v1",
+      "lossReduction": "mean-real-targets-per-microbatch-then-mean-accumulation-v1",
+      "paddingPolicy": "right-pad-to-batch-longest-zero-target-weight-v1",
+      "records": 108,
+      "selection": "uniform-record-with-replacement",
+      "tokenAccounting": "nonpadding-next-token-targets-v1",
+      "trainJsonlSha256": "0141dbd0209d10e2138a0a90ff688e97b4b1de39f91c28ca367ed7267b309789"
+    },
+    "objective": "ordinary-next-token-v1",
+    "optimizer": "AdamW",
+    "learningRate": 0.0003,
+    "betas": [0.9, 0.95],
+    "epsilon": 1e-8,
+    "weightDecay": 0.1,
+    "gradientClippingNorm": 1.0,
+    "schedule": "constant-v1",
+    "microBatch": 1,
+    "gradientAccumulation": 16,
+    "maximumSteps": 100,
+    "maximumWallTimeSeconds": 600,
+    "device": "cuda",
+    "seed": 1337,
+    "contextLength": 512,
+    "dropout": 0.1,
+    "expectedExamplesAt100Steps": 1600,
+    "expectedRealTargetPositionsAt100Steps": 565641,
+    "resumeAllowed": false,
+    "automaticContinuation": false
+  },
+  "evaluation": {
+    "method": "sequential-packed-next-token-loss",
+    "steps": [0, 25, 50, 75, 100],
+    "maximumBatches": 100,
+    "checkpointSteps": [25, 50, 75, 100],
+    "baselineLoss": 3.3981438778542183,
+    "baselineBatches": 37,
+    "checkpointSelection": "Use the fixed step-100 endpoint or an early-stop endpoint; do not retrospectively choose the lowest validation checkpoint.",
+    "p231DevelopmentRunAt": "final completed step only after bounded training; never used in gradients or checkpoint selection"
+  },
+  "protectedEvaluation": {
+    "validationExcludedFromGradients": true,
+    "p231DevelopmentExcludedFromGradients": true,
+    "p242ResponsesExcludedFromGradients": true,
+    "p243DiagnosticExcludedFromGradients": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "continuationRule": "Stop after the bounded first run. Any continuation is a separate reviewed decision.",
+  "command": "uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-run",
+  "preflightEvidence": "training/pretraining/p2-44-training-preflight-result.json",
+  "approvalInstruction": "The owner must explicitly authorize this bounded run before status may change to owner-approved-first-run and modelTrainingAuthorized may become true."
+}
