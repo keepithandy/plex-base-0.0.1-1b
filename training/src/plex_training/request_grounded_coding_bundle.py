@@ -585,14 +585,21 @@ def preflight_request_grounded_bundle(
         index_path=bundle["root"] / "train.index.json",
         tokenizer=tokenizer,
         expected_jsonl_sha256=bundle["dataset"]["trainJsonlSha256"],
+        expected_text_prefix=(
+            "Map the coding request to one request-grounded change record.\n"
+        ),
     ) as train:
-        expected_positions, counts = train.replay_progress(
+        expected_positions, _ = train.replay_progress(
             PROPOSED_SEED,
             PROPOSED_EXAMPLES,
         )
+        rng = random.Random(PROPOSED_SEED)
+        selection_counts: dict[int, int] = {start: 0 for start in train.starts}
+        for _ in range(PROPOSED_EXAMPLES):
+            selection_counts[rng.choice(train.starts)] += 1
         sampler = train.sampler_record
 
-    selected = [count for count in counts.values() if count > 0]
+    selected = [count for count in selection_counts.values() if count > 0]
     if len(selected) != TRAIN_RECORDS:
         raise ValueError("P2-48 proposed sampler failed to select every train record")
 
