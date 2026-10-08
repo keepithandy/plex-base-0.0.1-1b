@@ -1114,10 +1114,21 @@ def _json_print(result: Any) -> None:
 
 
 def _under_artifact_root(path: Path, root: Path) -> Path:
-    if not path.is_absolute():
-        path = root / path
     canonical_root = root.resolve()
-    canonical_path = path.resolve(strict=False)
+    if path.is_absolute():
+        canonical_path = path.resolve(strict=False)
+    else:
+        # Accept either an artifact-root-relative path such as
+        # "structured-plan/run" or a repository-relative path that already
+        # includes the artifact root such as
+        # "training/artifacts/structured-plan/run". Avoid silently doubling
+        # the artifact-root prefix.
+        repository_relative = path.resolve(strict=False)
+        try:
+            repository_relative.relative_to(canonical_root)
+            canonical_path = repository_relative
+        except ValueError:
+            canonical_path = (canonical_root / path).resolve(strict=False)
     try:
         canonical_path.relative_to(canonical_root)
     except ValueError as exc:
