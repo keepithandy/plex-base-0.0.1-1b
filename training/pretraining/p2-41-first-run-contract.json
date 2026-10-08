@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "milestone": "P2-41",
   "kind": "plex-p2-41-first-request-binding-run-contract-v1",
-  "status": "draft-awaiting-owner-authorization",
+  "status": "owner-approved-first-run",
   "approvalPacketComplete": true,
-  "modelTrainingAuthorized": false,
-  "approvedBy": null,
-  "approvedDate": null,
+  "modelTrainingAuthorized": true,
+  "approvedBy": "keepithandy",
+  "approvedDate": "2026-10-07",
   "outputDirectory": "structured-plan/p2-41-first-run",
   "executionState": {
     "trainingExecuted": false,
@@ -45,10 +45,13 @@
     "objective": "ordinary-next-token-v1",
     "optimizer": "AdamW",
     "learningRate": 0.0003,
-    "betas": [0.9, 0.95],
+    "betas": [
+      0.9,
+      0.95
+    ],
     "epsilon": 1e-8,
     "weightDecay": 0.1,
-    "gradientClippingNorm": 1.0,
+    "gradientClippingNorm": 1,
     "schedule": "constant-v1",
     "microBatch": 1,
     "gradientAccumulation": 16,
@@ -65,9 +68,20 @@
   },
   "evaluation": {
     "method": "sequential-packed-next-token-loss",
-    "steps": [0, 25, 50, 75, 100],
+    "steps": [
+      0,
+      25,
+      50,
+      75,
+      100
+    ],
     "maximumBatches": 100,
-    "checkpointSteps": [25, 50, 75, 100],
+    "checkpointSteps": [
+      25,
+      50,
+      75,
+      100
+    ],
     "baselineLoss": 3.0144005020459494,
     "checkpointSelection": "Use the fixed step-100 endpoint or an early-stop endpoint; do not retrospectively choose the lowest validation checkpoint.",
     "p231DevelopmentRunAt": "final completed step only after bounded training; never used in gradients or checkpoint selection"
@@ -78,6 +92,6 @@
     "finalProjectHoldoutMustRemainClosed": true
   },
   "continuationRule": "Stop after the bounded first run. Any continuation is a separate decision.",
-  "command": null,
+  "command": "uv run --project training --no-sync python -m plex_training.cli plan-request-binding-run --bundle-dir training/artifacts/structured-plan/p2-41-training-bundle --stage-checkpoint training/artifacts/structured-plan/p2-41-stage0/stage-checkpoint.pt",
   "preflightEvidence": "training/pretraining/p2-41-stage-preflight-result.json"
 }

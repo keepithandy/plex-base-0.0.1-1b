@@ -356,3 +356,20 @@ The draft is intentionally still unauthorized:
 - `command=null`
 
 No P2-41 training runner should be used until the current test suite passes against this packet and the owner explicitly authorizes the bounded first run.
+
+
+## First bounded run authorization
+
+The owner authorized the measured P2-41 packet for one bounded first run.
+
+The available command is:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-request-binding-run `
+  --bundle-dir training/artifacts/structured-plan/p2-41-training-bundle `
+  --stage-checkpoint training/artifacts/structured-plan/p2-41-stage0/stage-checkpoint.pt
+```
+
+The run is limited to **100 CUDA optimizer updates** or **600 seconds**, whichever comes first. Validation runs at steps **0, 25, 50, 75, and 100** and checkpoints are saved at **25, 50, 75, and 100**.
+
+The run does not resume or automatically continue. Further work after the bounded result is a separate decision.

@@ -109,7 +109,7 @@ class RequestBindingCurriculumTests(unittest.TestCase):
             ]), 2)
 
 
-    def test_zero_update_execution_commands_exist_but_run_command_does_not(self):
+    def test_request_binding_execution_commands_include_authorized_run(self):
         parser = build_parser()
         subparsers = next(
             action for action in parser._actions
@@ -119,9 +119,9 @@ class RequestBindingCurriculumTests(unittest.TestCase):
             "plan-request-binding-prepare",
             "plan-request-binding-stage",
             "plan-request-binding-preflight",
+            "plan-request-binding-run",
         ):
             self.assertIn(command, subparsers.choices)
-        self.assertNotIn("plan-request-binding-run", subparsers.choices)
 
     def test_training_path_is_pinned_to_p238_endpoint(self):
         self.assertEqual(
@@ -136,13 +136,13 @@ class RequestBindingCurriculumTests(unittest.TestCase):
         self.assertEqual(training_path.MAXIMUM_STEPS, 100)
         self.assertEqual(training_path.MAXIMUM_WALL_SECONDS, 600)
 
-    def test_first_run_contract_matches_measured_preflight_and_is_unauthorized(self):
+    def test_first_run_contract_matches_measured_preflight_and_is_authorized(self):
         contract = json.loads(FIRST_RUN_CONTRACT.read_text(encoding="utf-8"))
-        self.assertEqual(contract["status"], "draft-awaiting-owner-authorization")
-        self.assertFalse(contract["modelTrainingAuthorized"])
-        self.assertIsNone(contract["approvedBy"])
-        self.assertIsNone(contract["approvedDate"])
-        self.assertIsNone(contract["command"])
+        self.assertEqual(contract["status"], "owner-approved-first-run")
+        self.assertTrue(contract["modelTrainingAuthorized"])
+        self.assertEqual(contract["approvedBy"], "keepithandy")
+        self.assertEqual(contract["approvedDate"], "2026-10-07")
+        self.assertIn("plan-request-binding-run", contract["command"])
         self.assertEqual(
             contract["baseStage"]["checkpointSha256"],
             "763920474516488e5bc68d00e77320916c95d9c67253752c03f48f9da36b67fd",
@@ -159,6 +159,10 @@ class RequestBindingCurriculumTests(unittest.TestCase):
         self.assertFalse(contract["executionState"]["trainingExecuted"])
         self.assertEqual(contract["executionState"]["researchOptimizerUpdates"], 0)
         self.assertFalse(contract["executionState"]["finalHoldoutOpened"])
+
+    def test_authorization_validator_accepts_frozen_first_run_packet(self):
+        contract = json.loads(FIRST_RUN_CONTRACT.read_text(encoding="utf-8"))
+        training_path._validate_authorization(contract)
 
     def test_review_rejects_candidate_tampering(self):
         with tempfile.TemporaryDirectory() as temporary:

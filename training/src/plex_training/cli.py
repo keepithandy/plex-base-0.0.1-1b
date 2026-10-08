@@ -603,6 +603,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_artifact_root(plan_request_binding_preflight)
 
+    plan_request_binding_run = subparsers.add_parser(
+        "plan-request-binding-run",
+        help="Run the single bounded owner-authorized P2-41 request-binding experiment",
+    )
+    plan_request_binding_run.add_argument("--bundle-dir", type=Path, required=True)
+    plan_request_binding_run.add_argument("--stage-checkpoint", type=Path, required=True)
+    plan_request_binding_run.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-41-first-run-contract.json"),
+    )
+    plan_request_binding_run.add_argument(
+        "--preparation-contract", type=Path,
+        default=Path("training/pretraining/p2-41-request-conditioned-plan-binding-preparation-contract.json"),
+    )
+    plan_request_binding_run.add_argument(
+        "--output-dir", type=Path, default=Path("structured-plan/p2-41-first-run"),
+    )
+    _add_artifact_root(plan_request_binding_run)
+
     plan_semantic_binding_review = subparsers.add_parser(
         "plan-semantic-binding-review",
         help="Review the P2-38 full-plan semantic-binding candidate without training",
@@ -1492,6 +1511,21 @@ def _plan_request_binding_preflight(args: argparse.Namespace) -> dict[str, Any]:
     )
 
 
+def _plan_request_binding_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_request_binding_training import run_request_binding_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_request_binding_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preparation_contract_path=args.preparation_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
 def _plan_semantic_binding_review(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_semantic_binding_curriculum import review_semantic_binding_curriculum
 
@@ -1860,6 +1894,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_request_binding_stage(args))
         elif args.command == "plan-request-binding-preflight":
             _json_print(_plan_request_binding_preflight(args))
+        elif args.command == "plan-request-binding-run":
+            _json_print(_plan_request_binding_run(args))
         elif args.command == "plan-semantic-binding-review":
             _json_print(_plan_semantic_binding_review(args))
         elif args.command == "plan-semantic-binding-prepare":
