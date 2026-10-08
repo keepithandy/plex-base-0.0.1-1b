@@ -517,6 +517,35 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_serialization_review.add_argument("--report", type=Path, default=None)
 
+    plan_evidence_composition_stage = subparsers.add_parser(
+        "plan-evidence-composition-stage",
+        help="Create the authorized P2-44 step-zero stage without training",
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--base-checkpoint", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-41-first-run/checkpoints/step-0100.pt"),
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-training-bundle"),
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--output-dir", type=Path,
+        default=Path("training/artifacts/structured-plan/p2-44-stage0"),
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--artifact-root", type=Path,
+        default=Path("training/artifacts"),
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--source-contract", type=Path,
+        default=Path("training/pretraining/p2-44-stage-source-preparation-contract.json"),
+    )
+    plan_evidence_composition_stage.add_argument(
+        "--stage-contract", type=Path,
+        default=Path("training/pretraining/p2-44-step-zero-stage-contract.json"),
+    )
+
     plan_evidence_composition_stage_preflight = subparsers.add_parser(
         "plan-evidence-composition-stage-preflight",
         help="Verify the exact P2-41 endpoint as a future P2-44 stage source without staging or training",
@@ -1576,6 +1605,21 @@ def _plan_serialization_review(args: argparse.Namespace) -> dict[str, Any]:
     return report
 
 
+def _plan_evidence_composition_stage(args: argparse.Namespace) -> dict[str, Any]:
+    from .structured_plan_evidence_composition_stage import (
+        create_evidence_composition_stage,
+    )
+
+    return create_evidence_composition_stage(
+        base_checkpoint=args.base_checkpoint,
+        bundle_dir=args.bundle_dir,
+        output_dir=args.output_dir,
+        artifact_root=args.artifact_root,
+        source_contract_path=args.source_contract,
+        stage_contract_path=args.stage_contract,
+    )
+
+
 def _plan_evidence_composition_stage_preflight(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_evidence_composition_stage import (
         preflight_evidence_composition_stage_source,
@@ -2134,6 +2178,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_plan_curriculum_review(args))
         elif args.command == "plan-serialization-review":
             _json_print(_plan_serialization_review(args))
+        elif args.command == "plan-evidence-composition-stage":
+            _json_print(_plan_evidence_composition_stage(args))
         elif args.command == "plan-evidence-composition-stage-preflight":
             _json_print(_plan_evidence_composition_stage_preflight(args))
         elif args.command == "plan-evidence-composition-prepare":
