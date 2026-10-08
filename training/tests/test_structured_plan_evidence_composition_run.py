@@ -26,29 +26,19 @@ class EvidenceCompositionRunAuthorizationTests(unittest.TestCase):
     def _draft(self) -> dict:
         return json.loads(CONTRACT.read_text(encoding="utf-8"))
 
-    def test_repository_contract_is_complete_but_not_owner_approved(self) -> None:
+    def test_repository_contract_is_exact_owner_approved_packet(self) -> None:
         value = self._draft()
-        self.assertEqual(value["status"], "owner-approval-required")
+        self.assertEqual(value["status"], AUTHORIZED_STATUS)
         self.assertTrue(value["approvalPacketComplete"])
-        self.assertFalse(value["modelTrainingAuthorized"])
-        self.assertIsNone(value["approvedBy"])
-        self.assertIsNone(value["approvedDate"])
+        self.assertTrue(value["modelTrainingAuthorized"])
+        self.assertEqual(value["approvedBy"], "keepithandy")
+        self.assertEqual(value["approvedDate"], AUTHORIZED_DATE)
         self.assertEqual(value["evaluation"]["baselineLoss"], FROZEN_BASELINE_LOSS)
         self.assertEqual(value["evaluation"]["baselineBatches"], FROZEN_BASELINE_BATCHES)
         self.assertEqual(value["training"]["maximumSteps"], 100)
         self.assertEqual(value["training"]["maximumWallTimeSeconds"], 600)
         self.assertFalse(value["training"]["resumeAllowed"])
         self.assertFalse(value["training"]["automaticContinuation"])
-
-        with self.assertRaisesRegex(ValueError, "status"):
-            _validate_authorization(value)
-
-    def test_exact_owner_approved_projection_passes_validator(self) -> None:
-        value = copy.deepcopy(self._draft())
-        value["status"] = AUTHORIZED_STATUS
-        value["modelTrainingAuthorized"] = True
-        value["approvedBy"] = "keepithandy"
-        value["approvedDate"] = AUTHORIZED_DATE
 
         _validate_authorization(value)
 
@@ -74,9 +64,19 @@ class EvidenceCompositionRunAuthorizationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "training.sampler"):
             _validate_authorization(changed_sampler)
 
-    def test_runner_fails_closed_before_preflight_when_owner_approval_is_absent(self) -> None:
+    def test_runner_fails_closed_before_preflight_with_unsigned_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "artifacts"
+            unsigned = copy.deepcopy(self._draft())
+            unsigned["status"] = "owner-approval-required"
+            unsigned["modelTrainingAuthorized"] = False
+            unsigned["approvedBy"] = None
+            unsigned["approvedDate"] = None
+            unsigned_path = Path(temporary) / "unsigned-contract.json"
+            unsigned_path.write_text(
+                json.dumps(unsigned, indent=2) + "\n",
+                encoding="utf-8",
+            )
             with patch(
                 "plex_training.structured_plan_evidence_composition_run.preflight_evidence_composition_training",
                 side_effect=AssertionError("preflight must not run before owner approval"),
@@ -85,7 +85,7 @@ class EvidenceCompositionRunAuthorizationTests(unittest.TestCase):
                     run_evidence_composition_training(
                         bundle_dir=root / "bundle",
                         stage_checkpoint=root / "stage.pt",
-                        authorization_contract_path=CONTRACT,
+                        authorization_contract_path=unsigned_path,
                         output_dir=root / "structured-plan" / "p2-44-first-run",
                         artifact_root=root,
                     )
