@@ -244,6 +244,7 @@ For detailed experiment commands and retained results, see [training/README.md](
 - [P2-46 — Semantic transfer failure diagnostic](docs/PHASE-2-P2-46-SEMANTIC-TRANSFER-DIAGNOSTIC.md)
 - [P2-47 — Request-grounded coding representation](docs/PHASE-2-P2-47-REQUEST-GROUNDED-CODING.md)
 - [P2-48 — Final bounded Phase 2 transfer run](docs/PHASE-2-P2-48-FINAL-TRANSFER-RUN.md)
+- [P2-49 — Unchanged bridge re-evaluation](docs/PHASE-2-P2-49-UNCHANGED-BRIDGE-REEVALUATION.md)
 
 ---
 
