@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-44",
+  "kind": "plex-p2-44-evidence-first-semantic-composition-preparation-contract-v1",
+  "status": "design-preparation-only",
+  "dataPreparationAuthorized": true,
+  "modelTrainingAuthorized": false,
+  "automaticTrainingExtension": false,
+  "trainingCommand": null,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "purpose": "Design a replacement semantic-binding curriculum in which targetRole, constraints, and searchHints are compositionally grounded in the current request instead of opaque P2-41 identifiers or memorized semantic bundles.",
+  "motivation": {
+    "sourceMilestone": "P2-43",
+    "result": "training-template-retrieval-confirmed",
+    "schemaValid": 17,
+    "tasks": 18,
+    "wrongTargetRoleButSeenInP241Train": 14,
+    "wrongPlanExactP241TrainSemanticBundle": 8,
+    "wrongPlanExactP241TrainFullPlan": 7,
+    "wrongPlanWithTrainComponentRecombination": 2,
+    "validationOnlyRoleReuse": 0,
+    "targetRoleCorrect": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "frozenInputs": {
+    "p243Result": "training/pretraining/p2-43-semantic-bundle-reuse-result.json",
+    "p241CheckpointSha256": "adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc",
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "developmentTaskSet": "training/phase2/evaluation/p2-31-plan-dev-v1.json",
+    "developmentTaskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5"
+  },
+  "design": {
+    "productionPromptOnly": true,
+    "strictFullPlanTargetsOnly": true,
+    "planSchemaVersion": "plex-structured-edit-plan-v1",
+    "languages": [
+      "html",
+      "css",
+      "javascript"
+    ],
+    "opaqueSyntheticRoleIdentifiersProhibited": true,
+    "p2MilestonePrefixesInSemanticTargetsProhibited": true,
+    "requestGroundedTargetRolesRequired": true,
+    "requestGroundedConstraintsRequired": true,
+    "requestGroundedSearchHintsRequired": true,
+    "semanticAtomReuseAcrossExamplesRequired": true,
+    "heldoutCombinationGeneralizationRequired": true,
+    "exactTrainingBundleReuseInValidationProhibited": true,
+    "sameBroadCategoryNearNeighborContrastsRequired": true,
+    "fieldSpecificContrastsRequired": true,
+    "crossFieldCoherenceRequired": true,
+    "tokenizerRefit": false,
+    "continuationFromP241NotAuthorized": true
+  },
+  "groundingRules": {
+    "targetRole": "Every content atom in targetRole must be supported by request wording or a deterministic documented normalization of request wording. Arbitrary milestone-specific labels such as p241-* are forbidden.",
+    "constraints": "Constraint kind/key/value triples must be traceable to explicit request requirements. Do not inject stable filler constraints merely to make examples look structurally similar.",
+    "searchHints": "Hints must be concise lexical anchors derived from the request and must vary when request evidence varies. Generic filler such as requirements, primary, lifecycle, or settings may not be used unless explicitly supported by the request.",
+    "action": "Action remains directly request-conditioned and should be contrasted independently from semantic role and constraints.",
+    "targetKind": "Target kind remains language-bound but must not carry the semantic burden that belongs in targetRole or constraints."
+  },
+  "splitPolicy": {
+    "principle": "Hold out semantic combinations, not opaque labels.",
+    "trainMayExposeAtomsIndividually": true,
+    "validationMustContainNovelAtomCombinations": true,
+    "validationMayReuseIndividualAtoms": true,
+    "validationMayNotReuseExactSemanticBundles": true,
+    "validationMayNotReuseExactFullPlans": true,
+    "developmentExactRequestsExcluded": true,
+    "developmentExactTargetRolesExcluded": true,
+    "developmentExpectedPlansExcluded": true,
+    "developmentResponsesExcluded": true
+  },
+  "requiredDiagnosticsBeforeTraining": [
+    "candidate record count and language balance",
+    "semantic atom inventory by field",
+    "train/validation atom overlap",
+    "train/validation exact targetRole overlap",
+    "train/validation exact constraint-set overlap",
+    "train/validation exact search-hint overlap",
+    "train/validation exact semantic-bundle overlap",
+    "train/validation exact full-plan overlap",
+    "P2-31 exact request overlap",
+    "P2-31 exact targetRole overlap",
+    "P2-31 exact expected-plan overlap",
+    "maximum token length under frozen tokenizer",
+    "candidate and review hashes"
+  ],
+  "successQuestion": "Can Plex produce a novel targetRole/constraint/hint combination from current-request evidence when each underlying semantic atom is familiar but the full bundle was never seen during training?",
+  "protectedEvaluation": {
+    "p231DevelopmentExactRequestsExcluded": true,
+    "p231DevelopmentTargetRolesExcluded": true,
+    "p231DevelopmentExpectedPlansExcluded": true,
+    "p242ResponsesExcludedFromTraining": true,
+    "p243DiagnosticExcludedFromTraining": true,
+    "finalProjectHoldoutMustRemainClosed": true
+  },
+  "decisionBoundary": "P2-44 currently authorizes curriculum design and deterministic review tooling only. No optimizer updates, checkpoint staging, or model continuation are authorized until a candidate passes the evidence-grounding and combination-holdout review."
+}
