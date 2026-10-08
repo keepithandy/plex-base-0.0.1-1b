@@ -52,5 +52,23 @@
   "trainingCommand": null,
   "trainingPerformed": false,
   "researchOptimizerUpdates": 0,
-  "finalHoldoutOpened": false
+  "finalHoldoutOpened": false,
+  "baseCheckpoint": {
+    "milestone": "P2-38",
+    "step": 100,
+    "sha256": "9117e34433d6faa404117f557a48d12e840355ed5c7580d5b60f8e565564dbf6"
+  },
+  "candidateIdentity": {
+    "candidateId": "p2-41-request-conditioned-plan-binding-v1",
+    "sha256": "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+    "bytes": 91551
+  },
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+    "maximumRecordTokensIncludingEos": 374,
+    "trainTokenCount": 25599,
+    "validationTokenCount": 12798
+  }
 }
