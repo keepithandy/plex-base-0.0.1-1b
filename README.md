@@ -231,7 +231,7 @@ For detailed experiment commands and retained results, see [training/README.md](
 ## Selected reports
 
 - [P1-20 — First experiment report](docs/PLEX-EXPERIMENT-REPORT-P1-20.md)
-- [P2-29 — Longer Plex Web run](docs/PHASE-2-P2-29-LONGER-WEB-RUN.md)
+- [P2-29 — Longer Plex Web run](docs/PHASE-2-P2-29-RESULT.md)
 - [P2-43 — Semantic bundle reuse diagnostic](docs/PHASE-2-P2-43-SEMANTIC-BUNDLE-REUSE-DIAGNOSTIC.md)
 - [P2-44 — Evidence-first semantic composition](docs/PHASE-2-P2-44-EVIDENCE-FIRST-SEMANTIC-COMPOSITION.md)
 - [P2-45 — Structured bridge re-evaluation](docs/PHASE-2-P2-45-STRUCTURED-BRIDGE-REEVALUATION.md)
