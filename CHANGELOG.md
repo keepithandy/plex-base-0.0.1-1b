@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Added **P2-43 Semantic Bundle Reuse Diagnostic** to determine whether P2-42 failures come from exact P2-41 training-template reuse or broader semantic generalization failure. The diagnostic compares target roles, constraint sets, hints, semantic bundles, full plans, repeated-role collapse, and request-to-training-owner overlap without training, response repair, checkpoint selection, or final-holdout access.
 - Prepared **P2-42 structured bridge re-evaluation** for the fixed P2-41 step-100 checkpoint `adec7fa3...`. The unchanged 18-task P2-31 development gate remains evaluation-only and the final project holdout stays closed.
 - Authorized the **first bounded P2-41 request-binding run** from the measured packet and added `plan-request-binding-run`. The run is capped at **100 CUDA updates / 600 seconds**, uses the frozen P2-41 stage and bundle, validates at steps **0/25/50/75/100**, saves checkpoints at **25/50/75/100**, and does not auto-continue or resume.
 - Froze the **P2-41 zero-update experiment packet** after successful bundle packing, weights-only staging, and CUDA preflight. Exact packet: bundle `a05e0949...`, stage `76392047...`, **567,311** expected real target positions at 100 steps, and baseline validation loss **3.0144005020459494**. A draft 100-step first-run contract now records those measured identities but remains unauthorized; no P2-41 training has run.
