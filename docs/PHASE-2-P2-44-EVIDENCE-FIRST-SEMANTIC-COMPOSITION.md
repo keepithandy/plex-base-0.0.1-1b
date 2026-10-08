@@ -580,3 +580,62 @@ researchOptimizerUpdates = 0
 ```
 
 The baseline validation loss returned by the real CUDA preflight must be frozen before any P2-44 training authorization packet can exist.
+
+
+## Frozen CUDA training preflight
+
+The real CUDA training preflight passed.
+
+Frozen baseline:
+
+- validation loss: **3.3981438778542183**
+- validation batches: **37**
+- stage checkpoint SHA-256: `e454bf4851690d599c88c898a77b7b741b95fe7fbc291f43e98d34bf35807ef4`
+- expected examples at 100 steps: **1,600**
+- expected real target positions: **565,641**
+- device: **CUDA**
+- resume: **disabled**
+- automatic continuation: **disabled**
+
+The first-run implementation now exists, but the checked-in authorization packet remains deliberately unsigned:
+
+```text
+status                  = owner-approval-required
+modelTrainingAuthorized = false
+approvedBy              = null
+approvedDate            = null
+```
+
+The runner fails closed before it performs CUDA preflight or creates an optimizer unless the exact frozen packet is explicitly changed to:
+
+```text
+status                  = owner-approved-first-run
+modelTrainingAuthorized = true
+approvedBy              = keepithandy
+approvedDate            = 2026-10-08
+```
+
+No other scientific field may change at approval time.
+
+The bounded run, once explicitly authorized, is locked to:
+
+- **100** maximum optimizer updates
+- **600 seconds** maximum wall time
+- micro-batch **1**
+- accumulation **16**
+- validation at **0 / 25 / 50 / 75 / 100**
+- checkpoint saves at **25 / 50 / 75 / 100**
+- fixed step-100 endpoint policy
+- no retrospective lowest-loss checkpoint selection
+- no resume
+- no automatic continuation
+- final holdout closed
+- P2-31 development evaluation only after the bounded run, never for gradients or checkpoint selection
+
+The command is present but cannot run while the packet is unsigned:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-run
+```
+
+P2-44 is therefore technically ready for an explicit owner training decision, but **training is not authorized by the repository state yet**.
