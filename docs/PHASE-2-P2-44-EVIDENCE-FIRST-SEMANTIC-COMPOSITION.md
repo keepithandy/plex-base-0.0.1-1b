@@ -453,3 +453,52 @@ stage-source-preflight-passed-awaiting-stage-authorization
 The command is read-only. It does not create an optimizer or stage checkpoint.
 
 Actual P2-44 stage creation remains a separate future authorization decision.
+
+
+## Step-zero stage construction
+
+The real stage-source preflight passed against the exact P2-41 step-100 endpoint:
+
+- checkpoint SHA-256: `adec7fa31e40a52caa89aa7bb7150983ce7c4f1c5df899285cec3e3f24bf79cc`
+- checkpoint step: **100**
+- previous processed targets: **567,311**
+- parameters: **27,566,080**
+- source stage kind: `plex-request-conditioned-plan-binding-stage-transition-v1`
+- source training kind: `p2-41-authorized-request-binding-training-v1`
+- P2-44 bundle compatibility: **passed**
+
+P2-44 now authorizes creation of one step-zero stage checkpoint. This authorization is deliberately narrower than training authorization.
+
+Run:
+
+```powershell
+uv run --project training --no-sync python -m plex_training.cli plan-evidence-composition-stage
+```
+
+Default output:
+
+```text
+training/artifacts/structured-plan/p2-44-stage0
+```
+
+The stage creator must prove after reload that:
+
+- every model tensor is bit-identical to the P2-41 base
+- the fresh AdamW optimizer has empty state
+- P2-41 optimizer state is not reused
+- sampler RNG resets to seed **1337**
+- P2-41 sampler state is not reused
+- P2-44 stage step is **0**
+- P2-44 processed targets are **0**
+- training settings are null
+- schedule state is null
+- the exact frozen P2-44 bundle/tokenizer records are attached
+- no gradient update occurred
+
+The expected terminal status is:
+
+```text
+stage-created-training-not-authorized
+```
+
+A successful stage does **not** authorize a training run. Its checkpoint SHA must be frozen first, followed by a separate training preflight/authorization packet.
