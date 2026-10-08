@@ -89,6 +89,9 @@ class StructuredPlanBindingDiagnosticTests(unittest.TestCase):
                             "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
                         "tokenizerBundleManifestSha256":
                             "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a",
+                        "temperature": 0,
+                        "seed": 1337,
+                        "maxNewTokens": 256,
                         "responsesSha256": responses_sha,
                     },
                     indent=2,
