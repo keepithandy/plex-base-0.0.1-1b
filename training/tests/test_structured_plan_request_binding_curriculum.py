@@ -15,6 +15,7 @@ from plex_training import structured_plan_request_binding_training as training_p
 
 DEV = Path("training/phase2/evaluation/p2-31-plan-dev-v1.json")
 CONTRACT = Path("training/pretraining/p2-41-request-conditioned-plan-binding-preparation-contract.json")
+FIRST_RUN_CONTRACT = Path("training/pretraining/p2-41-first-run-contract.json")
 
 
 class RequestBindingCurriculumTests(unittest.TestCase):
@@ -134,6 +135,30 @@ class RequestBindingCurriculumTests(unittest.TestCase):
         )
         self.assertEqual(training_path.MAXIMUM_STEPS, 100)
         self.assertEqual(training_path.MAXIMUM_WALL_SECONDS, 600)
+
+    def test_first_run_contract_matches_measured_preflight_and_is_unauthorized(self):
+        contract = json.loads(FIRST_RUN_CONTRACT.read_text(encoding="utf-8"))
+        self.assertEqual(contract["status"], "draft-awaiting-owner-authorization")
+        self.assertFalse(contract["modelTrainingAuthorized"])
+        self.assertIsNone(contract["approvedBy"])
+        self.assertIsNone(contract["approvedDate"])
+        self.assertIsNone(contract["command"])
+        self.assertEqual(
+            contract["baseStage"]["checkpointSha256"],
+            "763920474516488e5bc68d00e77320916c95d9c67253752c03f48f9da36b67fd",
+        )
+        self.assertEqual(
+            contract["data"]["bundleManifestSha256"],
+            "a05e09493778ca772d583a17e01fbd3a5efa84c3897f7865f89ab9679518b22a",
+        )
+        self.assertEqual(
+            contract["training"]["expectedRealTargetPositionsAt100Steps"],
+            567311,
+        )
+        self.assertEqual(contract["evaluation"]["baselineLoss"], 3.0144005020459494)
+        self.assertFalse(contract["executionState"]["trainingExecuted"])
+        self.assertEqual(contract["executionState"]["researchOptimizerUpdates"], 0)
+        self.assertFalse(contract["executionState"]["finalHoldoutOpened"])
 
     def test_review_rejects_candidate_tampering(self):
         with tempfile.TemporaryDirectory() as temporary:
