@@ -909,6 +909,32 @@ def build_parser() -> argparse.ArgumentParser:
     request_grounded_training_preflight.add_argument("--report", type=Path, default=None)
     _add_artifact_root(request_grounded_training_preflight)
 
+    request_grounded_run = subparsers.add_parser(
+        "request-grounded-run",
+        help="Execute the bounded owner-authorized P2-48 request-grounded training run",
+    )
+    request_grounded_run.add_argument(
+        "--bundle-dir", type=Path,
+        default=Path("training/artifacts/request-grounded/p2-48-training-bundle"),
+    )
+    request_grounded_run.add_argument(
+        "--stage-checkpoint", type=Path,
+        default=Path("training/artifacts/request-grounded/p2-48-stage0/stage-checkpoint.pt"),
+    )
+    request_grounded_run.add_argument(
+        "--authorization-contract", type=Path,
+        default=Path("training/pretraining/p2-48-first-run-contract.json"),
+    )
+    request_grounded_run.add_argument(
+        "--preflight-contract", type=Path,
+        default=Path("training/pretraining/p2-48-training-preflight-contract.json"),
+    )
+    request_grounded_run.add_argument(
+        "--output-dir", type=Path,
+        default=Path("request-grounded/p2-48-first-run"),
+    )
+    _add_artifact_root(request_grounded_run)
+
     plan_request_binding_generate = subparsers.add_parser(
         "plan-request-binding-generate",
         help="Generate the deterministic P2-41 request-conditioned contrast candidate without training",
@@ -2188,6 +2214,21 @@ def _request_grounded_training_preflight(args: argparse.Namespace) -> dict[str, 
     return report
 
 
+def _request_grounded_run(args: argparse.Namespace) -> dict[str, Any]:
+    from .request_grounded_coding_run import run_request_grounded_training
+
+    root = args.artifact_root.resolve()
+    output = _under_artifact_root(args.output_dir, root)
+    return run_request_grounded_training(
+        bundle_dir=args.bundle_dir,
+        stage_checkpoint=args.stage_checkpoint,
+        authorization_contract_path=args.authorization_contract,
+        preflight_contract_path=args.preflight_contract,
+        output_dir=output,
+        artifact_root=root,
+    )
+
+
 def _plan_request_binding_generate(args: argparse.Namespace) -> dict[str, Any]:
     from .structured_plan_request_binding_curriculum import generate_request_binding_candidate
 
@@ -2683,6 +2724,8 @@ def main(argv: list[str] | None = None) -> int:
             _json_print(_request_grounded_stage(args))
         elif args.command == "request-grounded-training-preflight":
             _json_print(_request_grounded_training_preflight(args))
+        elif args.command == "request-grounded-run":
+            _json_print(_request_grounded_run(args))
         elif args.command == "plan-request-binding-generate":
             _json_print(_plan_request_binding_generate(args))
         elif args.command == "plan-request-binding-review":
