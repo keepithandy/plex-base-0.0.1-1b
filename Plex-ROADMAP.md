@@ -23,7 +23,7 @@ Plex is not being developed as a general chatbot. The current research target is
 | Vocabulary | **16,384-token byte-level BPE** |
 | Initialization | **Scratch / random weights** |
 | Languages | **HTML / CSS / JavaScript** |
-| Current phase | **Phase 2 — Coding Understanding** |
+| Current phase | **Phase 3 — File-Conditioned Coding** |
 
 The 27M model remains the controlled baseline until a roadmap milestone explicitly authorizes a model-size change.
 
@@ -56,7 +56,7 @@ Phase 1 proved the training system works. It did **not** prove useful coding abi
 
 # Phase 2 — Coding Understanding
 
-**Status: ACTIVE**
+**Status: COMPLETE**
 
 ## Phase 2 purpose
 
@@ -155,6 +155,8 @@ Requirements:
 
 ### P2-48 — Final Bounded Phase 2 Transfer Run
 
+**Status: COMPLETE**
+
 **Goal:** run one bounded experiment on the P2-47 representation.
 
 Requirements:
@@ -173,9 +175,11 @@ Requirements:
 
 Use the same P2-31 task set and thresholds so the result is comparable with P2-39, P2-42, and P2-45.
 
-**Completion:** exact field-level comparison recorded.
+**Completion:** recorded. The fixed P2-48 step-100 endpoint produced **0/18 complete passes, 0/18 schema-valid, and 36/162 checks** on the unchanged P2-31 gate. All 18 responses were present and non-truncated; 15 used a field set that did not match the old schema and 3 were invalid JSON.
 
 ### P2-50 — Phase 2 Closeout
+
+**Status: COMPLETE**
 
 **Goal:** close Phase 2 whether the final bridge fully passes or not.
 
@@ -187,7 +191,15 @@ Document:
 - whether model size should remain 27M for Phase 3
 - which evaluations become permanent regression tests
 
-**Phase 2 ends at P2-50.** Do not extend Phase 2 indefinitely with unplanned continuation runs.
+**Phase 2 ended at P2-50.** No P2-51+ continuation is planned.
+
+Closeout decision:
+
+- request-grounded learning improved substantially inside its own representation,
+- the unchanged legacy structured-plan transfer gate still failed,
+- supplied-file editing remains unproven,
+- the **27,566,080-parameter model remains the controlled Phase 3 baseline**,
+- model-size changes wait for direct Phase 3 editing evidence.
 
 ## Phase 2 exit condition
 
@@ -206,7 +218,7 @@ The final project holdout remains closed unless separately authorized.
 
 # Phase 3 — File-Conditioned Coding
 
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ## Phase 3 purpose
 
@@ -387,16 +399,28 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P2-49 — Unchanged Bridge Re-evaluation
+## P3-01 — File + Request Contract
 
-P2-48 completed **100 / 100** authorized updates and processed exactly **429,375** real target positions.
+Phase 2 is complete.
 
-Internal validation improved sharply from **6.505710401033101** to **2.7775440717998303** at step 25, then rose to **3.233508963333933** at step 100. That is recorded as an overfitting signal, but the predeclared endpoint policy requires evaluation of the fixed step-100 checkpoint.
+The next task is to define the smallest stable model contract for:
 
-P2-49 now re-runs the original 18-task P2-31 development bridge on checkpoint:
+```text
+natural-language coding request
++ one supplied HTML/CSS/JavaScript file
+                ↓
+             Plex Nano
+                ↓
+        correct edited result
+```
 
-`fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7`
+Start with **one supplied file**, one bounded requested change, and a deterministic target representation that can be scored for:
 
-No training, continuation, checkpoint reselection, threshold changes, or final-holdout access are authorized.
+- requested behavior correctness,
+- syntax validity,
+- preservation of unrelated code,
+- unnecessary changes.
 
-After P2-49, **P2-50 closes Phase 2**.
+Keep the current **27,566,080-parameter** model as the controlled baseline.
+
+Do not add repository discovery, autonomous navigation, or application-agent behavior. The caller supplies the code context.
