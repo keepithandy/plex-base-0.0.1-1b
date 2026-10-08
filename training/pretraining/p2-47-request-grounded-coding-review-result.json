@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-47",
+  "kind": "plex-p2-47-request-grounded-coding-review-result-v1",
+  "recordedDate": "2026-10-08",
+  "status": "candidate-review-passed",
+  "representation": "plex-request-grounded-change-v1",
+  "generatorVersion": "p2-47-request-grounded-coding-generator-v1",
+  "candidateId": "p2-47-request-grounded-coding-v1",
+  "candidateSha256": "6e39259cc8fc1646fb7a16d2056706312f8736d330f94a642690aaf9d1c1489a",
+  "byteCount": 81032,
+  "records": 108,
+  "groups": 36,
+  "trainRecords": 72,
+  "validationRecords": 36,
+  "uniqueRequests": 108,
+  "perLanguage": {
+    "html": {"train": 24, "validation": 12},
+    "css": {"train": 24, "validation": 12},
+    "javascript": {"train": 24, "validation": 12}
+  },
+  "contrastFamilies": {
+    "target-binding": {"train": 18, "validation": 9},
+    "requirement-binding": {"train": 18, "validation": 9},
+    "action-binding": {"train": 18, "validation": 9},
+    "near-neighbor": {"train": 18, "validation": 9}
+  },
+  "trainValidationExactRequestOverlap": 0,
+  "trainValidationExactSolutionOverlap": 0,
+  "trainValidationNonemptyBindingSetOverlap": 0,
+  "p231ExactRequestOverlap": 0,
+  "validationTargetCount": 18,
+  "validationTargetsSeenInTrain": 18,
+  "validationBindingIntentCount": 18,
+  "validationBindingIntentsSeenInTrain": 18,
+  "validationActionCount": 3,
+  "validationActionsSeenInTrain": 3,
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+    "maximumRecordTokensIncludingEos": 286,
+    "trainTokenCount": 19377,
+    "validationTokenCount": 9763
+  },
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "decision": "P2-47 candidate is frozen and reviewed. P2-48 may prepare and inspect a packed training bundle and replay the proposed sampler, but checkpoint staging and model training remain separately unauthorized."
+}

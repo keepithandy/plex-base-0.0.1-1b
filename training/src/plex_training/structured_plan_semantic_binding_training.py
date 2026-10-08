@@ -415,6 +415,9 @@ class StructuredPlanCompleteRecordCorpus(TokenCorpus):
         index_path: Path,
         tokenizer: PlexTokenizer,
         expected_jsonl_sha256: str,
+        expected_text_prefix: str = (
+            "Convert the repository-style request into one semantic edit plan.\n"
+        ),
     ) -> None:
         if (dataset_jsonl.is_symlink() or index_path.is_symlink()
                 or not dataset_jsonl.is_file() or not index_path.is_file()):
@@ -437,9 +440,7 @@ class StructuredPlanCompleteRecordCorpus(TokenCorpus):
                 record_id, text = row.get("recordId"), row.get("text")
                 if (not isinstance(record_id, str) or record_id in ids
                         or not isinstance(text, str)
-                        or not text.startswith(
-                            "Convert the repository-style request into one semantic edit plan.\n"
-                        )
+                        or not text.startswith(expected_text_prefix)
                         or "\nJSON:{" not in text):
                     raise ValueError("P2-38 sampler record shape is invalid")
                 expected = tokenizer.encode(text) + [3]
