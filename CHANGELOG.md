@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Froze the real **P2-44 CUDA training preflight** at baseline validation loss **3.3981438778542183** over 37 batches and added the bounded 100-step first-run implementation. The checked-in approval packet remains unsigned (`owner-approval-required`, training false), and the runner fails closed until explicit owner authorization.
 - Froze the real **P2-44 step-zero stage** at SHA `e454bf48...`: 27,566,080 parameters, bit-identical P2-41 weights, empty fresh optimizer state, reset sampler RNG, and P2-44 step/tokens 0/0. Added a read-only CUDA training preflight that replays the 1,600-example / 565,641-target schedule and measures baseline validation loss without optimizer steps or checkpoint writes.
 - Passed the real **P2-44 stage-source compatibility gate** against P2-41 step 100 and added a narrowly authorized step-zero stage creator. It preserves weights bit-for-bit, resets P2-44 step/tokens and sampler state, serializes a fresh empty AdamW state, and keeps training unauthorized.
 - Froze the real **P2-44 packed bundle and sampler replay** at manifest SHA `46d6e450...`: 108/54 records, 38,280/19,186 tokens, all 108 train records selected across the 1,600-example replay, 565,641 expected real target positions, and a 5–24 selection range. Added a read-only P2-41 step-100 stage-source compatibility preflight; stage creation and training remain unauthorized.
