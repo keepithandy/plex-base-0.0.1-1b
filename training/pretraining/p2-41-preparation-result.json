@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-41",
+  "kind": "plex-p2-41-request-conditioned-plan-binding-preparation-result-v1",
+  "recordedDate": "2026-10-07",
+  "status": "candidate-review-and-tokenizer-preflight-passed",
+  "generatorVersion": "p2-41-request-binding-generator-v1",
+  "candidateId": "p2-41-request-conditioned-plan-binding-v1",
+  "candidateSha256": "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+  "byteCount": 91551,
+  "records": 108,
+  "groups": 36,
+  "trainRecords": 72,
+  "validationRecords": 36,
+  "perLanguage": {
+    "html": {"train": 24, "validation": 12},
+    "css": {"train": 24, "validation": 12},
+    "javascript": {"train": 24, "validation": 12}
+  },
+  "contrastFamilies": {
+    "role": {"groups": 9, "records": 27},
+    "constraints": {"groups": 9, "records": 27},
+    "action": {"groups": 9, "records": 27},
+    "hints": {"groups": 9, "records": 27}
+  },
+  "uniqueRequests": 108,
+  "uniqueTargetRoles": 54,
+  "p231ExactRequestOverlap": 0,
+  "p231TargetRoleOverlap": 0,
+  "p231ExpectedPlanOverlap": 0,
+  "tokenizerPreflight": {
+    "checked": true,
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "17f02f7f0b786be770f964b445854684fee0a010793672149e7fcc6c611aae5d",
+    "maximumRecordTokensIncludingEos": 374,
+    "trainTokenCount": 25599,
+    "validationTokenCount": 12798
+  },
+  "verification": {
+    "focusedTests": "5 passed, 1 warning in 1.19s",
+    "fullTrainingSuite": "281 passed, 2 warnings in 22.66s"
+  },
+  "modelTrainingAuthorized": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "nextStep": "pack candidate, create weights-only P2-41 stage from fixed P2-38 step-100 endpoint, then run read-only CUDA preflight"
+}
