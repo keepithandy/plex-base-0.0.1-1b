@@ -1,0 +1,54 @@
+{
+  "byteCount": 91551,
+  "candidateId": "p2-41-request-conditioned-plan-binding-v1",
+  "candidateSha256": "20f309181adbd4c86ff0c5a7ad833792d754e3a9102000003922696a237b64ba",
+  "contrastFamilies": {
+    "action": {
+      "groups": 9,
+      "records": 27
+    },
+    "constraints": {
+      "groups": 9,
+      "records": 27
+    },
+    "hints": {
+      "groups": 9,
+      "records": 27
+    },
+    "role": {
+      "groups": 9,
+      "records": 27
+    }
+  },
+  "finalHoldoutOpened": false,
+  "generatorVersion": "p2-41-request-binding-generator-v1",
+  "groups": 36,
+  "milestone": "P2-41",
+  "modelTrainingAuthorized": false,
+  "p231ExactRequestOverlap": 0,
+  "p231ExpectedPlanOverlap": 0,
+  "p231TargetRoleOverlap": 0,
+  "perLanguage": {
+    "css": {
+      "train": 24,
+      "validation": 12
+    },
+    "html": {
+      "train": 24,
+      "validation": 12
+    },
+    "javascript": {
+      "train": 24,
+      "validation": 12
+    }
+  },
+  "records": 108,
+  "researchOptimizerUpdates": 0,
+  "schemaVersion": 1,
+  "status": "candidate-generated-pending-review",
+  "trainRecords": 72,
+  "trainingPerformed": false,
+  "uniqueRequests": 108,
+  "uniqueTargetRoles": 54,
+  "validationRecords": 36
+}
