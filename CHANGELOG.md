@@ -7,6 +7,7 @@
 _🗓️ Updated October 7, 2026_
 
 ### 🧬 Phase 2 — data and training experiments
+- Re-centered the project around **Plex Nano as a small 27.6M coding model**: README, roadmap, package metadata, implementation prompt, and scoped AGENTS.md guardrails now define the product as request + user-supplied code/file context -> correct code change. The old TypeScript project-discovery utilities are retained only as legacy auxiliary scaffolding and are no longer part of the product roadmap. P2-45 is recorded as a failed transfer gate (0/18 complete, 12/18 schema-valid, 78/162 checks), and P2-46 is now the next diagnostic milestone.
 - Completed the bounded **P2-44 evidence-first run**: 100/100 updates, 565,641 real target positions, all 108 train records sampled, and validation improved at every measured checkpoint from 3.39814 to **2.17238**. Froze step 100 at SHA `69c357db...` and opened **P2-45** as an evaluation-only re-run of the unchanged P2-31 development gate.
 - Activated the previously frozen **P2-44 bounded first-run authorization**: only the approval fields changed (`owner-approved-first-run`, training authorized, approved by keepithandy on 2026-10-08). All stage/data/baseline/sampler/schedule guardrails remain unchanged.
 - Froze the real **P2-44 CUDA training preflight** at baseline validation loss **3.3981438778542183** over 37 batches and added the bounded 100-step first-run implementation. The checked-in approval packet remains unsigned (`owner-approval-required`, training false), and the runner fails closed until explicit owner authorization.
