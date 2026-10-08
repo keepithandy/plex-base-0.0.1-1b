@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P2-49",
+  "kind": "plex-p2-49-unchanged-bridge-result-v1",
+  "recordedDate": "2026-10-08",
+  "status": "evaluation-complete-gate-failed",
+  "evaluator": "plex-structured-plan-evaluator-v1",
+  "taskSetId": "p2-31-plan-dev-v1",
+  "taskSetKind": "development",
+  "taskSetSha256": "8e3f30f93abbbd1b96223b26e21f35d362d2b1084857072c4d7d72a014c527f5",
+  "responsesSha256": "b9ba75d9c058d26299c22950b0cfd0e9248011f5663886b96d96006ccda1cb06",
+  "checkpoint": {
+    "step": 100,
+    "sha256": "fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7"
+  },
+  "tasks": 18,
+  "partialTaskCount": 18,
+  "passed": 0,
+  "passRate": 0.0,
+  "schemaValid": 0,
+  "schemaValidRate": 0.0,
+  "checksPassed": 36,
+  "checksTotal": 162,
+  "gatePassed": false,
+  "perLanguage": {
+    "html": {"tasks": 6, "passed": 0, "passRate": 0.0},
+    "css": {"tasks": 6, "passed": 0, "passRate": 0.0},
+    "javascript": {"tasks": 6, "passed": 0, "passRate": 0.0}
+  },
+  "fieldCorrect": {
+    "responsePresent": 18,
+    "notTruncated": 18,
+    "schemaValid": 0,
+    "language": 0,
+    "action": 0,
+    "targetKind": 0,
+    "targetRole": 0,
+    "constraintsExact": 0,
+    "hintCoverage": 0
+  },
+  "schemaFailureBreakdown": {
+    "structuredPlanFieldSetMismatch": 15,
+    "invalidJson": 3
+  },
+  "comparisonToP245": {
+    "passedDelta": 0,
+    "schemaValidDelta": -12,
+    "checksPassedDelta": -42,
+    "languageDelta": -12,
+    "actionDelta": -6,
+    "targetKindDelta": -12,
+    "targetRoleDelta": 0,
+    "constraintsExactDelta": 0,
+    "hintCoverageDelta": 0
+  },
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "interpretation": "The P2-48 request-grounded representation learned strongly on its own held-out distribution but did not transfer back into the unchanged P2-31 structured-plan output contract. P2-49 therefore fails the legacy transfer gate and Phase 2 closes without claiming solved semantic transfer.",
+  "nextMilestone": "P2-50 — Phase 2 Closeout"
+}
