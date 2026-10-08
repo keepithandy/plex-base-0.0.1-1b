@@ -448,15 +448,13 @@ def diagnose_semantic_bundle_reuse(
         "summary": summary,
         "comparisonBaseline": baseline,
         "diagnosis": {
-            "serializationNoLongerPrimaryCandidate": schema_valid
-            >= int(contract.get("diagnosticThresholds", {}).get("schemaValidEvidence", 15)),
-            "memorizedTrainingRoleReuseSignal": aggregate["wrongTargetRoleButSeenInTrain"]
-            >= int(contract.get("diagnosticThresholds", {}).get("wrongTrainRoleReuseEvidence", 9)),
-            "memorizedTrainingBundleReuseSignal": aggregate["wrongPlanButExactTrainSemanticBundle"]
-            >= int(contract.get("diagnosticThresholds", {}).get("wrongExactTrainBundleEvidence", 6)),
+            "schemaValidDeltaFromP239": schema_valid - int(baseline.get("schemaValid", 0)),
+            "wrongTargetRoleButSeenInTrain": aggregate["wrongTargetRoleButSeenInTrain"],
+            "wrongPlanButExactTrainSemanticBundle": aggregate["wrongPlanButExactTrainSemanticBundle"],
             "note": (
-                "Signals are diagnostic evidence only. P2-43 does not authorize more training, "
-                "checkpoint selection, response repair, or final-holdout access."
+                "These are descriptive measurements, not retrospectively chosen pass/fail thresholds. "
+                "P2-43 does not authorize more training, checkpoint selection, response repair, "
+                "or final-holdout access."
             ),
         },
         "tasks": tasks_out,
