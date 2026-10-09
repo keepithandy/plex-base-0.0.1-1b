@@ -105,7 +105,12 @@ class PlexLanguageModel(nn.Module):
         if targets is not None:
             if targets.shape != (batch, sequence):
                 raise ValueError("targets must have the same shape as input_ids")
-            vocabulary_size = loss_vocabulary_size or self.config.vocab_size
+            if loss_vocabulary_size is None:
+                vocabulary_size = self.config.vocab_size
+            else:
+                if type(loss_vocabulary_size) is not int:
+                    raise ValueError("loss vocabulary size must be an exact integer")
+                vocabulary_size = loss_vocabulary_size
             if not 1 <= vocabulary_size <= self.config.vocab_size:
                 raise ValueError("loss vocabulary size is outside the model capacity")
             if torch.any(targets < 0) or torch.any(targets >= vocabulary_size):

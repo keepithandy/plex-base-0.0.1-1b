@@ -21,6 +21,7 @@ Status legend:
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
+| **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -533,6 +534,49 @@ Verified cases for every dimension field through both direct construction and `f
 Verification run:
 
 - **216 passed**
+- **9 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
+
+## B13 — Explicit loss-vocabulary validation
+
+**Priority:** P3  
+**Type:** Code defect / objective-validation defect
+
+The model previously used `loss_vocabulary_size or self.config.vocab_size`, so explicit zero or `False` silently selected the full model vocabulary before range validation. That changed the requested training/evaluation objective instead of rejecting an invalid argument.
+
+Required regression coverage:
+
+- `None` retains the normal full-vocabulary loss objective
+- explicit zero is rejected
+- explicit `False` is rejected rather than treated as zero/full-vocabulary fallback
+- explicit non-integer values are rejected before slicing/arithmetic
+- negative and above-capacity integer values remain rejected
+- existing valid reduced-vocabulary loss behavior remains unchanged
+
+### Resolution
+
+🟢 **COMPLETE**
+
+Loss-vocabulary selection now defaults to the full configured vocabulary only when `loss_vocabulary_size is None`. Every explicit value must have exact type `int` before range validation, so booleans and other non-integers cannot be truthiness-coerced into a different objective.
+
+Explicit integer values must satisfy `1 <= loss_vocabulary_size <= config.vocab_size`. Existing valid reduced-vocabulary loss behavior remains unchanged.
+
+Verified cases:
+
+- `None`: uses the complete configured vocabulary and matches full-logit cross-entropy
+- zero: rejected instead of selecting the full vocabulary
+- `False`: rejected as a non-exact integer
+- float: rejected as a non-exact integer
+- string: rejected as a non-exact integer
+- negative integer: rejected by range validation
+- above-capacity integer: rejected by range validation
+- existing valid reduced-vocabulary masking remains green
+
+Verification run:
+
+- **218 passed**
 - **9 skipped**
 - **1 warning**
 
