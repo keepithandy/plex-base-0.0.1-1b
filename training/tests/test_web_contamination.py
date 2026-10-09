@@ -34,6 +34,8 @@ class PlexWebContaminationTests(unittest.TestCase):
                     "protectedPaths": [protected_relative],
                     "blockedSourceOrigins": blocked or [],
                     "minimumSubstringCharacters": 80,
+                    "minimumProtectedFiles": 1,
+                    "minimumProtectedSegments": 1,
                     "finalHoldout": "closed-not-addressable",
                 },
                 indent=2,
@@ -57,6 +59,10 @@ class PlexWebContaminationTests(unittest.TestCase):
             with patch("plex_training.web_contamination.REPO_ROOT", root):
                 report = check_contamination(dataset, protected_config=config, report_path=report_path)
             self.assertTrue(report["passed"])
+            self.assertTrue(report["protectionCoveragePassed"])
+            self.assertEqual(report["protectedFilesDiscovered"], 1)
+            self.assertEqual(report["protectedFilesScanned"], 1)
+            self.assertEqual(report["protectedFilesSkipped"], 0)
             self.assertEqual(report["exactMatches"], [])
             self.assertEqual(report["substringMatches"], [])
             self.assertTrue(report_path.is_file())
@@ -88,6 +94,100 @@ class PlexWebContaminationTests(unittest.TestCase):
                 report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
             self.assertFalse(report["passed"])
             self.assertEqual(len(report["blockedOriginMatches"]), 1)
+
+    def test_empty_protected_directory_fails_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "protected").mkdir()
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertFalse(report["protectionCoveragePassed"])
+            self.assertEqual(report["protectedFilesDiscovered"], 0)
+            self.assertEqual(report["protectedFilesScanned"], 0)
+            self.assertEqual(report["protectedSegmentsScanned"], 0)
+            self.assertIn("minimum-protected-files-not-met", report["protectionCoverageFailures"])
+            self.assertIn("minimum-protected-segments-not-met", report["protectionCoverageFailures"])
+
+    def test_invalid_utf8_protected_file_fails_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            (protected / "eval.txt").write_bytes(b"\xff\xfe\xfd")
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(report["protectedFilesDiscovered"], 1)
+            self.assertEqual(report["protectedFilesScanned"], 0)
+            self.assertEqual(report["protectedFilesSkipped"], 1)
+            self.assertEqual(report["protectedFileResults"][0]["reason"], "invalid-utf8")
+            self.assertIn("protected-files-skipped", report["protectionCoverageFailures"])
+
+    def test_oversized_protected_file_fails_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            (protected / "eval.txt").write_bytes(b"A" * (2 * 1024 * 1024 + 1))
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(report["protectedFilesScanned"], 0)
+            self.assertEqual(report["protectedFilesSkipped"], 1)
+            self.assertEqual(report["protectedFileResults"][0]["reason"], "oversized")
+
+    def test_mixed_successful_and_unreadable_protected_files_fail_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            good = protected / "good.txt"
+            bad = protected / "bad.txt"
+            good.write_text("G" * 100, encoding="utf-8")
+            bad.write_text("B" * 100, encoding="utf-8")
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            original_read_text = Path.read_text
+
+            def selective_read_text(path: Path, *args, **kwargs):
+                if path == bad:
+                    raise OSError("synthetic unreadable file")
+                return original_read_text(path, *args, **kwargs)
+
+            with patch("plex_training.web_contamination.REPO_ROOT", root), patch.object(
+                Path, "read_text", selective_read_text
+            ):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(report["protectedFilesDiscovered"], 2)
+            self.assertEqual(report["protectedFilesScanned"], 1)
+            self.assertEqual(report["protectedFilesSkipped"], 1)
+            results = {entry["path"]: entry for entry in report["protectedFileResults"]}
+            self.assertEqual(results["protected/good.txt"]["status"], "scanned")
+            self.assertEqual(results["protected/bad.txt"]["reason"], "unreadable")
+            self.assertIn("protected-files-skipped", report["protectionCoverageFailures"])
+
+    def test_short_only_protection_fails_minimum_segment_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            (protected / "eval.json").write_text(json.dumps({"prompt": "short"}), encoding="utf-8")
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(report["protectedFilesScanned"], 1)
+            self.assertEqual(report["protectedSegmentsScanned"], 0)
+            self.assertIn("minimum-protected-segments-not-met", report["protectionCoverageFailures"])
 
 
 if __name__ == "__main__":

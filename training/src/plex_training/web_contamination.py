@@ -51,13 +51,20 @@ def _strings(value: Any, output: list[str]) -> None:
             _strings(item, output)
 
 
-def _protected_segments(path: Path, minimum: int) -> list[str]:
-    if path.is_symlink() or not path.is_file() or path.stat().st_size > MAX_PROTECTED_FILE_BYTES:
-        return []
+def _protected_segments(path: Path, minimum: int) -> tuple[list[str], str | None]:
+    try:
+        if path.is_symlink() or not path.is_file():
+            return [], "not-regular-file"
+        if path.stat().st_size > MAX_PROTECTED_FILE_BYTES:
+            return [], "oversized"
+    except OSError:
+        return [], "unreadable"
     try:
         raw = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return []
+    except OSError:
+        return [], "unreadable"
+    except UnicodeDecodeError:
+        return [], "invalid-utf8"
     values: list[str] = []
     suffix = path.suffix.lower()
     if suffix == ".json":
@@ -76,7 +83,7 @@ def _protected_segments(path: Path, minimum: int) -> list[str]:
     else:
         values.append(raw)
     normalised = {_normalise(value) for value in values}
-    return sorted(value for value in normalised if len(value) >= minimum)
+    return sorted(value for value in normalised if len(value) >= minimum), None
 
 
 def _resolve_protected_files(config: dict[str, Any]) -> list[Path]:
@@ -149,6 +156,12 @@ def check_contamination(
     minimum = config.get("minimumSubstringCharacters", 120)
     if type(minimum) is not int or not 80 <= minimum <= 4096:
         raise ValueError("minimumSubstringCharacters must be an integer from 80 to 4096")
+    minimum_protected_files = config.get("minimumProtectedFiles")
+    if type(minimum_protected_files) is not int or minimum_protected_files < 1:
+        raise ValueError("minimumProtectedFiles must be a positive integer")
+    minimum_protected_segments = config.get("minimumProtectedSegments")
+    if type(minimum_protected_segments) is not int or minimum_protected_segments < 1:
+        raise ValueError("minimumProtectedSegments must be a positive integer")
 
     manifest_path = dataset_dir / "manifest.json"
     manifest = _read_json(manifest_path, "Dataset manifest")
@@ -168,10 +181,29 @@ def check_contamination(
 
     protected_files = _resolve_protected_files(config)
     segments: list[tuple[str, str]] = []
+    protected_file_results: list[dict[str, Any]] = []
     for path in protected_files:
         display = path.relative_to(REPO_ROOT).as_posix()
-        for segment in _protected_segments(path, minimum):
-            segments.append((display, segment))
+        file_segments, failure = _protected_segments(path, minimum)
+        result: dict[str, Any] = {"path": display}
+        if failure is None:
+            result.update({"status": "scanned", "segments": len(file_segments)})
+            for segment in file_segments:
+                segments.append((display, segment))
+        else:
+            result.update({"status": "skipped", "reason": failure, "segments": 0})
+        protected_file_results.append(result)
+
+    protected_files_scanned = sum(result["status"] == "scanned" for result in protected_file_results)
+    protected_files_skipped = len(protected_file_results) - protected_files_scanned
+    protection_coverage_failures: list[str] = []
+    if len(protected_files) < minimum_protected_files:
+        protection_coverage_failures.append("minimum-protected-files-not-met")
+    if len(segments) < minimum_protected_segments:
+        protection_coverage_failures.append("minimum-protected-segments-not-met")
+    if protected_files_skipped:
+        protection_coverage_failures.append("protected-files-skipped")
+    protection_coverage_passed = not protection_coverage_failures
 
     records = _read_dataset_records(dataset_dir)
     exact_matches: list[dict[str, Any]] = []
@@ -200,7 +232,12 @@ def check_contamination(
                     }
                 )
 
-    passed = not blocked_origin_matches and not exact_matches and not substring_matches
+    passed = (
+        protection_coverage_passed
+        and not blocked_origin_matches
+        and not exact_matches
+        and not substring_matches
+    )
     report = {
         "schemaVersion": 1,
         "kind": "plex-web-contamination-report-v1",
@@ -208,8 +245,15 @@ def check_contamination(
         "datasetDirectory": dataset_dir.name,
         "datasetManifestSha256": _sha256(manifest_path.read_bytes()),
         "recordsScanned": len(records),
-        "protectedFilesScanned": len(protected_files),
+        "protectedFilesDiscovered": len(protected_files),
+        "protectedFilesScanned": protected_files_scanned,
+        "protectedFilesSkipped": protected_files_skipped,
+        "protectedFileResults": protected_file_results,
         "protectedSegmentsScanned": len(segments),
+        "minimumProtectedFiles": minimum_protected_files,
+        "minimumProtectedSegments": minimum_protected_segments,
+        "protectionCoveragePassed": protection_coverage_passed,
+        "protectionCoverageFailures": protection_coverage_failures,
         "minimumSubstringCharacters": minimum,
         "blockedOriginMatches": blocked_origin_matches,
         "exactMatches": exact_matches,
