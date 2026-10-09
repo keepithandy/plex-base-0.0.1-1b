@@ -225,6 +225,37 @@ class PlexWebContaminationTests(unittest.TestCase):
             self.assertEqual(results["protected/bad.txt"]["reason"], "unreadable")
             self.assertIn("protected-files-skipped", report["protectionCoverageFailures"])
 
+    def test_each_configured_path_requires_usable_protection(self) -> None:
+        for other_kind in ("empty-directory", "short-directory", "short-file", "usable-directory"):
+            with self.subTest(other_kind=other_kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                good = root / "good"
+                good.mkdir()
+                (good / "eval.txt").write_text("G" * 100, encoding="utf-8")
+                other = root / "other"
+                if other_kind == "short-file":
+                    other.write_text("short", encoding="utf-8")
+                else:
+                    other.mkdir()
+                    if other_kind != "empty-directory":
+                        text = "Z" * 100 if other_kind == "usable-directory" else "short"
+                        (other / "eval.txt").write_text(text, encoding="utf-8")
+                dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+                config = self._config(root, "good")
+                settings = json.loads(config.read_text(encoding="utf-8"))
+                settings["protectedPaths"] = ["good", "other"]
+                config.write_text(json.dumps(settings), encoding="utf-8")
+                with patch("plex_training.web_contamination.REPO_ROOT", root):
+                    report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+                usable = other_kind == "usable-directory"
+                self.assertEqual(report["passed"], usable)
+                self.assertEqual(report["protectionCoveragePassed"], usable)
+                self.assertEqual(report["protectedFilesSkipped"], 0)
+                self.assertEqual(
+                    report["protectionCoverageFailures"],
+                    [] if usable else ["protected-path-without-usable-segments:other"],
+                )
+
     def test_short_only_protection_fails_minimum_segment_coverage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

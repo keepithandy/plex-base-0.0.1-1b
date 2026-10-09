@@ -69,6 +69,8 @@ Required regression coverage:
 
 The scanner now makes usable protection part of the pass condition, records protected files as discovered/scanned/skipped with explicit reasons, rejects any skipped protection from a passing result, and requires predeclared minimum protected-file and protected-segment coverage.
 
+Follow-up: each configured protected path must also contribute at least one usable segment. A usable directory can no longer mask another configured directory that is empty or contains only short content, or a configured short-only file. Coverage failures identify the affected configured path. Regression coverage includes those mixed cases and two usable directories.
+
 Verified cases:
 
 - empty protected directory: rejected

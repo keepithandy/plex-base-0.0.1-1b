@@ -260,6 +260,19 @@ def check_contamination(
     protected_files_scanned = sum(result["status"] == "scanned" for result in protected_file_results)
     protected_files_skipped = len(protected_file_results) - protected_files_scanned
     protection_coverage_failures: list[str] = []
+    usable_files = {
+        path for path, result in zip(protected_files, protected_file_results)
+        if result["status"] == "scanned" and result["segments"] > 0
+    }
+    for value in config["protectedPaths"]:
+        configured_path = (REPO_ROOT / value).resolve(strict=False)
+        if not any(
+            path == configured_path or configured_path in path.parents
+            for path in usable_files
+        ):
+            protection_coverage_failures.append(
+                f"protected-path-without-usable-segments:{value}"
+            )
     if len(protected_files) < minimum_protected_files:
         protection_coverage_failures.append("minimum-protected-files-not-met")
     if len(segments) < minimum_protected_segments:
