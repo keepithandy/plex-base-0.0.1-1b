@@ -18,6 +18,7 @@ Status legend:
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 | **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
+| **B10** | **P2** | 🔴 **OPEN** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs must not overwrite protected inputs or collide through path aliases. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -389,3 +390,29 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B10 — P3 protected-input and path-alias collisions
+
+**Priority:** P2  
+**Type:** Code defect / artifact-integrity defect
+
+P3-01 generation previously compared only candidate and review output spellings with `Path.absolute()`. It did not protect the contract input. Review similarly compared the optional report only against candidate, review metadata, and contract spellings, leaving tokenizer inputs unprotected and filesystem aliases incompletely handled.
+
+Required regression coverage:
+
+- generation rejects the contract itself as an output
+- generation rejects a canonical path alias of the contract
+- candidate and review outputs cannot be existing filesystem aliases
+- review report cannot overwrite the candidate
+- review report cannot alias tokenizer input files
+- collision rejection occurs before protected inputs are read
+- rejected operations preserve all protected bytes
+- ordinary unrelated output overwrite behavior remains unchanged
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix centralizes P3 output separation. Output paths are resolved canonically before P3 input reads, output/output and output/input pairs are compared, and existing pairs are additionally checked with filesystem identity. Filesystem-identity lookup failures fail closed. Review protects the candidate, draft review metadata, contract, tokenizer bundle, and tokenizer files used by the review.
+
+B10 remains open until pull-request CI is green and the fix is merged.
