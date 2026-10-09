@@ -18,6 +18,7 @@ Status legend:
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 | **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
+| **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -386,6 +387,52 @@ Verification run:
 
 - **192 passed**
 - **4 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B10 — P3 protected-input and path-alias collisions
+
+**Priority:** P2  
+**Type:** Code defect / artifact-integrity defect
+
+P3-01 generation previously compared only candidate and review output spellings with `Path.absolute()`. It did not protect the contract input. Review similarly compared the optional report only against candidate, review metadata, and contract spellings, leaving tokenizer inputs unprotected and filesystem aliases incompletely handled.
+
+Required regression coverage:
+
+- generation rejects the contract itself as an output
+- generation rejects a canonical path alias of the contract
+- candidate and review outputs cannot be existing filesystem aliases
+- review report cannot overwrite the candidate
+- review report cannot alias tokenizer input files
+- collision rejection occurs before protected inputs are read
+- rejected operations preserve all protected bytes
+- ordinary unrelated output overwrite behavior remains unchanged
+
+### Resolution
+
+🟢 **COMPLETE**
+
+P3-01 now checks output separation before protected input reads. Output paths are resolved canonically, output/output and output/input pairs are compared, and existing pairs are additionally checked with filesystem identity so distinct hard-link names cannot bypass the guard. Filesystem-identity lookup failures fail closed.
+
+Generation protects the contract from both candidate and review outputs and prevents the two generation outputs from aliasing each other. Review protects the candidate, draft review metadata, contract, tokenizer bundle directory, and tokenizer manifest/config/data files from the optional report output. Existing unrelated output overwrite behavior remains unchanged.
+
+During verification, the repository workflow was found not to include the P3 file-conditioned contract test module. The workflow now runs that module explicitly so these regressions are part of pull-request CI.
+
+Verified cases:
+
+- contract supplied directly as a generation output: rejected before contract read
+- canonical path spelling that resolves back to the contract: rejected
+- existing hard-linked candidate/review generation outputs: rejected
+- report equal to candidate: rejected before review input reads
+- report hard-linked to a tokenizer input: rejected
+- collision failures preserve protected candidate, review, contract, and tokenizer bytes
+- P3 contract regressions now execute in the main training CI suite
+
+Verification run:
+
+- **207 passed**
+- **6 skipped**
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.

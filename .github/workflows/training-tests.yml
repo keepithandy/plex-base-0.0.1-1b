@@ -54,4 +54,5 @@ jobs:
           training/tests/test_answer_weighting.py
           training/tests/test_web_contamination.py
           training/tests/test_resume_and_completion.py
+          training/tests/test_file_conditioned_contract.py
           -q
