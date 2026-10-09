@@ -19,6 +19,7 @@ Status legend:
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 | **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
+| **B11** | **P2** | 🔴 **OPEN** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata must publish as a recoverable coordinated pair. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -444,3 +445,29 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B11 — P3 paired candidate/review publication
+
+**Priority:** P2  
+**Type:** Code defect / artifact-consistency defect
+
+P3-01 generation previously wrote candidate bytes directly to the final destination and only afterward created or replaced the review metadata. If the second write failed, the candidate could already be new while the previous review metadata remained, leaving a broken pair. Direct final writes also exposed partial-output risk during interruption.
+
+Required regression coverage:
+
+- both candidate and review bytes are fully staged before either final destination is replaced
+- failure while staging the second file preserves the previous pair
+- failure while publishing the second file restores the previous candidate
+- fresh/temporary transaction files are cleaned after a recoverable failure
+- overwrite remains supported for existing regular candidate/review files
+- caught interruption/failure cannot silently leave a mixed pair
+- if rollback itself fails, a recovery backup and explicit transaction marker remain
+- stale transaction artifacts fail closed instead of being overwritten
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix stages and fsyncs both new files before publication. At commit time, an existing candidate is moved to a recovery backup, the staged candidate is published, then the staged review is published. A failure before the second publish completes restores the prior candidate (or removes a newly created candidate). A machine-readable transaction marker exists during the commit window; if rollback itself fails or the process is abruptly terminated, that marker makes the incomplete state explicit. Stale staging, backup, or marker files block a later publication until inspected.
+
+B11 remains open until pull-request CI is green and the fix is merged.
