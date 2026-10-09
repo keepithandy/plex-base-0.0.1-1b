@@ -128,6 +128,54 @@ class PlexWebContaminationTests(unittest.TestCase):
                         )
                 self.assertFalse(report_path.exists())
 
+    def test_dataset_rows_require_json_objects_with_split_and_line_context(self) -> None:
+        nonobjects = (
+            ("null", None),
+            ("array", []),
+            ("string", "not-an-object"),
+            ("number", 7),
+            ("boolean", True),
+        )
+        for split in ("train", "validation"):
+            for label, value in nonobjects:
+                with self.subTest(split=split, value=label), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    protected = root / "protected"
+                    protected.mkdir()
+                    (protected / "eval.txt").write_text("P" * 100, encoding="utf-8")
+                    dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+                    config = self._config(root, "protected")
+
+                    split_path = dataset / f"{split}.jsonl"
+                    valid_row = {
+                        "sourceId": f"{split}-valid",
+                        "path": "valid.txt",
+                        "text": "clean row",
+                    }
+                    split_path.write_text(
+                        json.dumps(valid_row) + "\n" + json.dumps(value) + "\n",
+                        encoding="utf-8",
+                    )
+                    manifest_path = dataset / "manifest.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["summary"][f"{split}JsonlSha256"] = hashlib.sha256(
+                        split_path.read_bytes()
+                    ).hexdigest()
+                    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+                    report_path = root / "report.json"
+                    with patch("plex_training.web_contamination.REPO_ROOT", root):
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            rf"{split}\.jsonl:2 must contain a JSON object",
+                        ):
+                            check_contamination(
+                                dataset,
+                                protected_config=config,
+                                report_path=report_path,
+                            )
+                    self.assertFalse(report_path.exists())
+
     def test_dataset_bytes_change_identity_when_manifest_has_no_split_hashes(self) -> None:
         identities = {}
         manifest_hashes = {}
