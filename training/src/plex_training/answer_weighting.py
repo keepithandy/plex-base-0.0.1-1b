@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import random
+from itertools import zip_longest
 from pathlib import Path
 
 import torch
@@ -38,8 +39,13 @@ class AnswerWeightedTokenCorpus(TokenCorpus):
                 raise ValueError("Answer-weighted token index is empty or malformed")
             weights = bytearray([1]) * self.token_count
             offset = prompt_count = answer_count = record_count = 0
+            sentinel = object()
             with dataset_jsonl.open("r", encoding="utf-8") as stream:
-                for line, entry in zip(stream, entries):
+                for line, entry in zip_longest(stream, entries, fillvalue=sentinel):
+                    if line is sentinel:
+                        raise ValueError("Training dataset has fewer rows than its token index")
+                    if entry is sentinel:
+                        raise ValueError("Training dataset has more rows than its token index")
                     row = json.loads(line)
                     if not isinstance(row, dict) or not isinstance(entry, dict):
                         raise ValueError("Answer-weighted record or index is malformed")
@@ -68,8 +74,6 @@ class AnswerWeightedTokenCorpus(TokenCorpus):
                     answer_count += end - first_answer
                     offset = end
                     record_count += 1
-                if stream.readline():
-                    raise ValueError("Training dataset has more rows than its token index")
             if record_count != len(entries) or offset != self.token_count or not prompt_count or not answer_count:
                 raise ValueError("Answer-weighted records do not cover the packed corpus")
             self._weights = weights
