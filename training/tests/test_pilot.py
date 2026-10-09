@@ -4,10 +4,12 @@ import random
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import torch
 from torch.nn import functional as F
 
+from plex_training.artifacts import atomic_write_checkpoint
 from plex_training.checkpoint import save_checkpoint
 from plex_training.config import tiny_test_config
 from plex_training.model import PlexLanguageModel
@@ -44,6 +46,61 @@ class PilotSafetyTests(unittest.TestCase):
         bundle = root / "bundle"
         train_tokenizer(dataset, bundle, vocab_size=300)
         return bundle
+
+    def test_checkpoint_serialization_is_bounded_before_overallocation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            filler = root / "filler.bin"
+            filler.write_bytes(b"123456")
+            destination = root / "model.pt"
+            observed = {}
+
+            def fake_save(_checkpoint, stream) -> None:
+                observed["stream"] = stream
+                self.assertEqual(stream.write(b"abc"), 3)
+                with self.assertRaisesRegex(RuntimeError, "during checkpoint serialization"):
+                    stream.write(b"de")
+                raise RuntimeError("stop after bounded-write assertion")
+
+            with patch("plex_training.artifacts.torch.save", side_effect=fake_save):
+                with self.assertRaisesRegex(RuntimeError, "stop after bounded-write assertion"):
+                    atomic_write_checkpoint(
+                        {"fixture": True},
+                        destination,
+                        root,
+                        storage_limit_bytes=10,
+                    )
+
+            self.assertEqual(observed["stream"].bytes_written, 3)
+            self.assertEqual(filler.read_bytes(), b"123456")
+            self.assertFalse(destination.exists())
+            self.assertFalse((root / "model.pt.tmp").exists())
+
+    def test_checkpoint_overwrite_budget_counts_old_checkpoint_during_temp_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            destination = root / "model.pt"
+            destination.write_bytes(b"GOOD")
+            filler = root / "filler.bin"
+            filler.write_bytes(b"12")
+
+            def fake_save(_checkpoint, stream) -> None:
+                self.assertEqual(stream.write(b"abcd"), 4)
+                stream.write(b"e")
+
+            with patch("plex_training.artifacts.torch.save", side_effect=fake_save):
+                with self.assertRaisesRegex(RuntimeError, "11 bytes requested, limit is 10 bytes"):
+                    atomic_write_checkpoint(
+                        {"fixture": True},
+                        destination,
+                        root,
+                        overwrite=True,
+                        storage_limit_bytes=10,
+                    )
+
+            self.assertEqual(destination.read_bytes(), b"GOOD")
+            self.assertEqual(filler.read_bytes(), b"12")
+            self.assertFalse((root / "model.pt.tmp").exists())
 
     def test_pilot_bundle_rejects_modified_validation_tokens(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
