@@ -6,6 +6,7 @@ import json
 import math
 import random
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
@@ -46,12 +47,45 @@ def seed_everything(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
 
 
-def _write_event(metrics_path: Path, artifact_root: Path, event: dict[str, Any]) -> None:
+def _require_metrics_run_identity(metrics_path: Path, run_id: str) -> None:
+    try:
+        with metrics_path.open("r", encoding="utf-8") as stream:
+            saw_event = False
+            for line_number, line in enumerate(stream, start=1):
+                if not line.strip():
+                    continue
+                saw_event = True
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise FileExistsError(
+                        f"Existing metrics file cannot prove run ownership at line {line_number}"
+                    ) from exc
+                if not isinstance(event, dict) or event.get("runId") != run_id:
+                    raise FileExistsError(
+                        "Existing metrics file belongs to a different or unidentifiable run"
+                    )
+    except OSError as exc:
+        raise FileExistsError("Existing metrics file cannot be verified for resume") from exc
+    if not saw_event:
+        raise FileExistsError("Existing metrics file has no run identity")
+
+
+def _write_event(
+    metrics_path: Path,
+    artifact_root: Path,
+    event: dict[str, Any],
+    *,
+    run_id: str,
+    allow_existing: bool,
+) -> None:
     metrics_path = path_within_root(metrics_path, artifact_root)
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
     enforce_storage_limit(artifact_root, additional_bytes=2048)
-    with metrics_path.open("a", encoding="utf-8", newline="\n") as stream:
-        json.dump(event, stream, sort_keys=True)
+    record = {**event, "runId": run_id}
+    mode = "a" if allow_existing else "x"
+    with metrics_path.open(mode, encoding="utf-8", newline="\n") as stream:
+        json.dump(record, stream, sort_keys=True)
         stream.write("\n")
         stream.flush()
 
@@ -287,10 +321,22 @@ def run_training(
     artifact_root = artifact_root.resolve()
     output_checkpoint = path_within_root(output_checkpoint, artifact_root)
     metrics_path = path_within_root(metrics_path, artifact_root)
-    if resume_from is None and (output_checkpoint.exists() or metrics_path.exists()):
-        raise FileExistsError("Run outputs already exist; choose a fresh path or resume explicitly")
-    output_checkpoint.parent.mkdir(parents=True, exist_ok=True)
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint_owned = False
+    metrics_owned = False
+    if resume_from is None:
+        if output_checkpoint.exists() or metrics_path.exists():
+            raise FileExistsError("Run outputs already exist; choose a fresh path or resume explicitly")
+        run_id = uuid.uuid4().hex
+    elif output_checkpoint.exists():
+        try:
+            same_checkpoint = output_checkpoint.resolve(strict=True) == resume_from.resolve(strict=True)
+        except OSError as exc:
+            raise FileExistsError("Existing resume checkpoint destination cannot be verified") from exc
+        if not same_checkpoint:
+            raise FileExistsError(
+                "Resume output checkpoint already exists and is not the checkpoint being resumed"
+            )
+        checkpoint_owned = True
 
     seed_everything(seed)
     rng = random.Random(seed)
@@ -309,6 +355,11 @@ def run_training(
         start_step = 0
     else:
         model, payload = read_checkpoint(resume_from, device)
+        saved_run_id = payload.get("runId")
+        run_id = saved_run_id if saved_run_id is not None else uuid.uuid4().hex
+        if metrics_path.exists():
+            _require_metrics_run_identity(metrics_path, run_id)
+            metrics_owned = True
         if payload.get("stageTransitionRecord") is not None:
             raise ValueError("Task-stage checkpoints require a separately authorized fine-tuning path")
         if model.config != config:
@@ -349,6 +400,9 @@ def run_training(
     if resume_from is None:
         initialization_record = None
 
+    output_checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+
     actual_parameters = parameter_count(model)
     if config == DEFAULT_CONFIG and actual_parameters != 27_566_080:
         raise RuntimeError(f"Model parameter count mismatch: expected 27566080, got {actual_parameters}")
@@ -386,7 +440,14 @@ def run_training(
             model, validation, device, maximum_batches=validation_maximum_batches,
             loss_vocabulary_size=loss_vocabulary_size,
         )
-    _write_event(metrics_path, artifact_root, event)
+    _write_event(
+        metrics_path,
+        artifact_root,
+        event,
+        run_id=run_id,
+        allow_existing=metrics_owned,
+    )
+    metrics_owned = True
 
     interrupted = False
     try:
@@ -408,14 +469,20 @@ def run_training(
             losses.append(loss)
             elapsed = time.perf_counter() - started
             if len(losses) == 1 or step % 10 == 0:
-                _write_event(metrics_path, artifact_root, {
-                    "event": "training_progress",
-                    "step": step,
-                    "loss": loss,
-                    "elapsedSeconds": elapsed,
-                    "tokensPerSecond": tokens_seen / max(elapsed, 1e-9),
-                    "peakGpuMemory": peak_gpu_memory(device),
-                })
+                _write_event(
+                    metrics_path,
+                    artifact_root,
+                    {
+                        "event": "training_progress",
+                        "step": step,
+                        "loss": loss,
+                        "elapsedSeconds": elapsed,
+                        "tokensPerSecond": tokens_seen / max(elapsed, 1e-9),
+                        "peakGpuMemory": peak_gpu_memory(device),
+                    },
+                    run_id=run_id,
+                    allow_existing=metrics_owned,
+                )
             now = time.perf_counter()
             if now - last_checkpoint >= checkpoint_interval_minutes * 60.0:
                 saved = save_checkpoint(
@@ -428,7 +495,8 @@ def run_training(
                     device=device,
                     destination=output_checkpoint,
                     artifact_root=artifact_root,
-                    overwrite=output_checkpoint.exists(),
+                    overwrite=checkpoint_owned,
+                    run_id=run_id,
                     initialization_record=initialization_record,
                     stage_transition_record=stage_transition_record,
                     tokenizer_record=tokenizer_record,
@@ -438,7 +506,14 @@ def run_training(
                     tokens_processed_total=start_positions + tokens_seen
                     if training_settings is not None else None,
                 )
-                _write_event(metrics_path, artifact_root, {"event": "checkpoint_saved", **saved})
+                checkpoint_owned = True
+                _write_event(
+                    metrics_path,
+                    artifact_root,
+                    {"event": "checkpoint_saved", **saved},
+                    run_id=run_id,
+                    allow_existing=metrics_owned,
+                )
                 last_checkpoint = now
     except KeyboardInterrupt:
         interrupted = True
@@ -460,7 +535,8 @@ def run_training(
         device=device,
         destination=output_checkpoint,
         artifact_root=artifact_root,
-        overwrite=output_checkpoint.exists(),
+        overwrite=checkpoint_owned,
+        run_id=run_id,
         initialization_record=initialization_record,
         stage_transition_record=stage_transition_record,
         tokenizer_record=tokenizer_record,
@@ -470,8 +546,10 @@ def run_training(
         tokens_processed_total=start_positions + tokens_seen
         if training_settings is not None else None,
     )
+    checkpoint_owned = True
     summary = {
         "event": "run_finished",
+        "runId": run_id,
         "step": step,
         "stepsThisRun": step - start_step,
         "elapsedSeconds": elapsed,
@@ -495,7 +573,13 @@ def run_training(
         "stageTransitionRecord": stage_transition_record,
         "interrupted": interrupted,
     }
-    _write_event(metrics_path, artifact_root, summary)
+    _write_event(
+        metrics_path,
+        artifact_root,
+        summary,
+        run_id=run_id,
+        allow_existing=metrics_owned,
+    )
     return summary
 
 
