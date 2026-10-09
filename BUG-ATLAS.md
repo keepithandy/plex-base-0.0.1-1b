@@ -15,7 +15,7 @@ Status legend:
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume enforces artifact ownership and safe metrics record boundaries. |
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
-| **B07** | **P2** | 🔴 **OPEN** | `training/src/plex_training/runner.py` | Shared training updates must fail closed on nonfinite loss or gradient norm. |
+| **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -284,10 +284,29 @@ Required regression coverage:
 - a numerical failure does not execute the final checkpoint save
 - an existing resumed checkpoint remains byte-for-byte unchanged after failure
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix introduces a dedicated numerical-training exception. Loss finiteness is checked before backward. Gradient clipping uses `error_if_nonfinite=True`, and any resulting nonfinite-gradient failure is converted into the same controlled failure path before the optimizer can update state. The runner records `run_failed` and re-raises before validation or final checkpoint saving.
+The shared training step now fails closed at both numerical mutation boundaries. A nonfinite loss is rejected before backward, and gradient clipping uses `error_if_nonfinite=True` so a NaN/Inf total gradient norm raises before `optimizer.step()`. Both cases use a dedicated `TrainingNumericsError` with a stable reason.
 
-B07 remains open until pull-request CI is green and the fix is merged.
+At the run level, that numerical exception records a `run_failed` metrics event and is immediately re-raised. The normal post-loop validation and final checkpoint save are therefore skipped. If the run was resuming an existing checkpoint, the last good checkpoint remains untouched.
+
+Verified cases:
+
+- nonfinite loss is rejected before backward
+- loss failure leaves model gradients unset and never calls `optimizer.step()`
+- a finite loss that produces an infinite gradient is rejected at gradient-norm clipping
+- gradient failure never calls `optimizer.step()`
+- numerical failure records `run_started` followed by `run_failed`
+- `run_failed` records the stable numerical reason and current step
+- the final checkpoint save is not invoked after numerical failure
+- an existing resumed checkpoint remains byte-for-byte unchanged
+
+Verification run:
+
+- **188 passed**
+- **4 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
