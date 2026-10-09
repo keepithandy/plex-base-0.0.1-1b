@@ -10,7 +10,7 @@ Status legend:
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
-| **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination protection now fails closed when configured coverage is unusable. |
+| **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 
 ## B01 — Answer-weighting dataset/index cardinality
@@ -70,6 +70,10 @@ Required regression coverage:
 The scanner now makes usable protection part of the pass condition, records protected files as discovered/scanned/skipped with explicit reasons, rejects any skipped protection from a passing result, and requires predeclared minimum protected-file and protected-segment coverage.
 
 Follow-up: each configured protected path must also contribute at least one usable segment. A usable directory can no longer mask another configured directory that is empty or contains only short content, or a configured short-only file. Coverage failures identify the affected configured path. Regression coverage includes those mixed cases and two usable directories.
+
+Reopened and resolved after discovering that recursive glob enumeration suppressed nested-directory permission failures. Discovery now uses explicit directory enumeration and metadata checks; failures to open or finish enumerating a directory, or inspect an entry, raise a contextual error before a passing report can be written. Links, Windows reparse points, and special files are rejected instead of silently omitted.
+
+Follow-up verification: **17 focused tests passed**, **1 checkpoint/training test deselected**, and **1 existing NumPy warning**. Synthetic regressions cover directory-open failure, mid-enumeration failure, entry-metadata failure, links, reparse points, and special files alongside usable protection. Restoring access detects the exact contamination match in the previously unreadable directory. No research training or final-holdout access was performed.
 
 Verified cases:
 
