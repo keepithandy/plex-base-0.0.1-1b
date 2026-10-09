@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from collections import Counter
 from pathlib import Path
 from statistics import mean, median
@@ -107,6 +108,39 @@ def _check_identity(raw):
         raise ValueError("P3-01 frozen candidate identity changed")
 
 
+def _paths_alias(first: Path, second: Path) -> bool:
+    first_resolved = first.resolve(strict=False)
+    second_resolved = second.resolve(strict=False)
+    if first_resolved == second_resolved:
+        return True
+    if first.exists() and second.exists():
+        try:
+            return os.path.samefile(first, second)
+        except OSError as exc:
+            raise ValueError("P3 path identity could not be verified safely") from exc
+    return False
+
+
+def _require_separate_p3_outputs(
+    *,
+    outputs: dict[str, Path],
+    protected_inputs: dict[str, Path],
+) -> None:
+    output_items = list(outputs.items())
+    for index, (first_name, first_path) in enumerate(output_items):
+        for second_name, second_path in output_items[index + 1:]:
+            if _paths_alias(first_path, second_path):
+                raise ValueError(
+                    f"P3 output paths must differ: {first_name} aliases {second_name}"
+                )
+        for input_name, input_path in protected_inputs.items():
+            if _paths_alias(first_path, input_path):
+                raise ValueError(
+                    f"P3 output must not overwrite protected input: "
+                    f"{first_name} aliases {input_name}"
+                )
+
+
 def score_file_edit(row, actual):
     """Conservative replacement-region scoring for the frozen fixtures only."""
     if not isinstance(actual, str):
@@ -189,12 +223,14 @@ def _contract(contract_path):
 
 
 def generate_file_edit_candidate(*, candidate_path: Path, review_path: Path, contract_path: Path = DEFAULT_CONTRACT) -> dict[str, Any]:
+    _require_separate_p3_outputs(
+        outputs={"candidate": candidate_path, "review metadata": review_path},
+        protected_inputs={"contract": contract_path},
+    )
     rows = build_candidate_rows()
     raw = _canonical_bytes(rows)
     _check_identity(raw)
     _contract(contract_path)
-    if candidate_path.absolute() == review_path.absolute():
-        raise ValueError("Candidate and review paths must differ")
     candidate_path.parent.mkdir(parents=True, exist_ok=True)
     candidate_path.write_bytes(raw)
     review = {"schemaVersion": 1, "milestone": MILESTONE, "generatorVersion": GENERATOR_VERSION,
@@ -208,9 +244,21 @@ def generate_file_edit_candidate(*, candidate_path: Path, review_path: Path, con
 
 def review_file_edit_candidate(*, candidate_path: Path, review_path: Path, contract_path: Path,
                                tokenizer_bundle: Path | None = None, report_path: Path | None = None) -> dict[str, Any]:
+    if report_path is not None:
+        protected_inputs = {
+            "candidate": candidate_path,
+            "review metadata": review_path,
+            "contract": contract_path,
+        }
+        if tokenizer_bundle is not None:
+            protected_inputs["tokenizer bundle"] = tokenizer_bundle
+            for name in ("manifest.json", "tokenizer-config.json", "tokenizer.json"):
+                protected_inputs[f"tokenizer {name}"] = tokenizer_bundle / name
+        _require_separate_p3_outputs(
+            outputs={"review report": report_path},
+            protected_inputs=protected_inputs,
+        )
     _contract(contract_path)
-    if report_path and report_path.absolute() in {path.absolute() for path in (candidate_path, review_path, contract_path)}:
-        raise ValueError("Report must not overwrite an input")
     raw = candidate_path.read_bytes()
     if raw.startswith(b"\xef\xbb\xbf") or b"\r" in raw:
         raise ValueError("P3-01 candidate must be UTF-8 without BOM and use LF newlines")
