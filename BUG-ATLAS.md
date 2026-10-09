@@ -19,6 +19,7 @@ Status legend:
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 | **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
+| **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -441,6 +442,53 @@ Verification run:
 
 - **207 passed**
 - **6 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B11 — P3 paired candidate/review publication
+
+**Priority:** P2  
+**Type:** Code defect / artifact-consistency defect
+
+P3-01 generation previously wrote candidate bytes directly to the final destination and only afterward created or replaced the review metadata. If the second write failed, the candidate could already be new while the previous review metadata remained, leaving a broken pair. Direct final writes also exposed partial-output risk during interruption.
+
+Required regression coverage:
+
+- both candidate and review bytes are fully staged before either final destination is replaced
+- failure while staging the second file preserves the previous pair
+- failure while publishing the second file restores the previous candidate
+- fresh/temporary transaction files are cleaned after a recoverable failure
+- overwrite remains supported for existing regular candidate/review files
+- caught interruption/failure cannot silently leave a mixed pair
+- if rollback itself fails, a recovery backup and explicit transaction marker remain
+- stale transaction artifacts fail closed instead of being overwritten
+
+### Resolution
+
+🟢 **COMPLETE**
+
+P3-01 generation now stages and fsyncs both candidate and review bytes before either final destination is replaced. Existing regular output files remain explicitly overwriteable. At commit time, an existing candidate is moved to a recovery backup, the staged candidate is published, and only then is the staged review metadata published.
+
+If review publication fails, the previous candidate is restored; when there was no previous candidate, the newly published candidate is removed. Caught interruption paths use the same rollback because publication recovery catches `BaseException`. A machine-readable `.p3txn` marker exists only during the commit window. If rollback itself fails or the process is terminated before recovery can run, the marker and candidate backup make the incomplete state explicit.
+
+Stale staging, backup, or transaction-marker artifacts fail closed rather than being overwritten. Successful or recoverable failed publications clean temporary staging state.
+
+Verified cases:
+
+- both new artifacts are fully staged before final publication begins
+- failure while staging the second file preserves the old candidate/review pair
+- failure while publishing review metadata restores the previous candidate
+- recoverable failures remove staging, backup, and transaction artifacts
+- rollback failure leaves the previous candidate backup plus a machine-readable recovery marker
+- a stale transaction marker blocks a later generation and is preserved for inspection
+- existing regular candidate/review files can still be regenerated successfully
+- prior B10 protected-input and path-alias checks remain in the same publication path
+
+Verification run:
+
+- **214 passed**
+- **9 skipped**
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.

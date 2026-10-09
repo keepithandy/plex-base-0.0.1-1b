@@ -85,6 +85,147 @@ class FileConditionedContractTests(unittest.TestCase):
         finally:
             shutil.rmtree(root)
 
+    def test_generation_second_stage_failure_preserves_existing_pair(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            real_stage = __import__(
+                "plex_training.file_conditioned_contract",
+                fromlist=["_write_staged_p3_file"],
+            )._write_staged_p3_file
+            review_stage = review.with_name(review.name + ".p3tmp")
+
+            def fail_second_stage(path, data):
+                if path == review_stage:
+                    raise OSError("synthetic second-stage failure")
+                return real_stage(path, data)
+
+            with patch(
+                "plex_training.file_conditioned_contract._write_staged_p3_file",
+                side_effect=fail_second_stage,
+            ):
+                with self.assertRaisesRegex(OSError, "second-stage failure"):
+                    generate_file_edit_candidate(
+                        candidate_path=candidate,
+                        review_path=review,
+                        contract_path=CONTRACT,
+                    )
+
+            self.assertEqual(candidate.read_bytes(), b"old-candidate")
+            self.assertEqual(review.read_bytes(), b"old-review")
+            for suffix in (".p3tmp", ".p3bak", ".p3txn"):
+                self.assertFalse(candidate.with_name(candidate.name + suffix).exists())
+            self.assertFalse(review_stage.exists())
+
+    def test_generation_second_publish_failure_rolls_back_existing_pair(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            review_stage = review.with_name(review.name + ".p3tmp")
+            real_replace = os.replace
+
+            def fail_review_publish(source, destination):
+                if Path(source) == review_stage and Path(destination) == review:
+                    raise OSError("synthetic second-publish failure")
+                return real_replace(source, destination)
+
+            with patch(
+                "plex_training.file_conditioned_contract.os.replace",
+                side_effect=fail_review_publish,
+            ):
+                with self.assertRaisesRegex(OSError, "second-publish failure"):
+                    generate_file_edit_candidate(
+                        candidate_path=candidate,
+                        review_path=review,
+                        contract_path=CONTRACT,
+                    )
+
+            self.assertEqual(candidate.read_bytes(), b"old-candidate")
+            self.assertEqual(review.read_bytes(), b"old-review")
+            for path in (
+                candidate.with_name(candidate.name + ".p3tmp"),
+                review_stage,
+                candidate.with_name(candidate.name + ".p3bak"),
+                candidate.with_name(candidate.name + ".p3txn"),
+            ):
+                self.assertFalse(path.exists())
+
+    def test_generation_rollback_failure_leaves_explicit_recovery_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            review_stage = review.with_name(review.name + ".p3tmp")
+            backup = candidate.with_name(candidate.name + ".p3bak")
+            marker = candidate.with_name(candidate.name + ".p3txn")
+            real_replace = os.replace
+
+            def fail_publish_and_rollback(source, destination):
+                source, destination = Path(source), Path(destination)
+                if source == review_stage and destination == review:
+                    raise OSError("synthetic second-publish failure")
+                if source == backup and destination == candidate:
+                    raise OSError("synthetic rollback failure")
+                return real_replace(source, destination)
+
+            with patch(
+                "plex_training.file_conditioned_contract.os.replace",
+                side_effect=fail_publish_and_rollback,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "recovery marker remains"):
+                    generate_file_edit_candidate(
+                        candidate_path=candidate,
+                        review_path=review,
+                        contract_path=CONTRACT,
+                    )
+
+            self.assertTrue(marker.is_file())
+            marker_value = json.loads(marker.read_text(encoding="utf-8"))
+            self.assertEqual(marker_value["kind"], "plex-p3-paired-publication-v1")
+            self.assertEqual(marker_value["candidate"], str(candidate.resolve()))
+            self.assertEqual(marker_value["review"], str(review.resolve()))
+            self.assertTrue(marker_value["candidateExisted"])
+            self.assertTrue(backup.is_file())
+            self.assertEqual(backup.read_bytes(), b"old-candidate")
+            self.assertEqual(review.read_bytes(), b"old-review")
+
+    def test_generation_stale_transaction_marker_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            marker = candidate.with_name(candidate.name + ".p3txn")
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            marker.write_text(
+                '{"kind":"plex-p3-paired-publication-v1","recovery":"inspect"}\n',
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(FileExistsError, "stale transaction artifact"):
+                generate_file_edit_candidate(
+                    candidate_path=candidate,
+                    review_path=review,
+                    contract_path=CONTRACT,
+                )
+
+            self.assertEqual(candidate.read_bytes(), b"old-candidate")
+            self.assertEqual(review.read_bytes(), b"old-review")
+            self.assertEqual(
+                marker.read_text(encoding="utf-8"),
+                '{"kind":"plex-p3-paired-publication-v1","recovery":"inspect"}\n',
+            )
+            self.assertFalse(candidate.with_name(candidate.name + ".p3tmp").exists())
+            self.assertFalse(review.with_name(review.name + ".p3tmp").exists())
+
     def test_generation_rejects_contract_output_and_canonical_alias_before_contract_read(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
