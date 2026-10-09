@@ -30,6 +30,7 @@ def save_checkpoint(
     destination: Path,
     artifact_root: Path,
     overwrite: bool = False,
+    run_id: str | None = None,
     initialization_record: dict[str, Any] | None = None,
     stage_transition_record: dict[str, Any] | None = None,
     tokenizer_record: dict[str, Any] | None = None,
@@ -52,6 +53,7 @@ def save_checkpoint(
         "torchCudaRngStates": torch.cuda.get_rng_state_all() if device.type == "cuda" else [],
         "pythonVersion": platform.python_version(),
         "torchVersion": str(torch.__version__),
+        "runId": run_id,
         "initializationRecord": initialization_record,
         "stageTransitionRecord": stage_transition_record,
         "tokenizerRecord": tokenizer_record,
@@ -87,6 +89,13 @@ def read_checkpoint(path: Path, device: torch.device) -> tuple[PlexLanguageModel
         raise ValueError("Checkpoint step must be a non-negative integer")
     if not isinstance(payload.get("modelStateDict"), dict):
         raise ValueError("Checkpoint model state is missing")
+    run_id = payload.get("runId")
+    if run_id is not None and (
+        not isinstance(run_id, str)
+        or len(run_id) != 32
+        or any(char not in "0123456789abcdef" for char in run_id)
+    ):
+        raise ValueError("Checkpoint run identity is invalid")
     model = PlexLanguageModel(config).to(device)
     try:
         model.load_state_dict(payload["modelStateDict"], strict=True)
