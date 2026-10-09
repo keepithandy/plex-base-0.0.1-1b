@@ -21,7 +21,7 @@ Status legend:
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
-| **B13** | **P3** | 🔴 **OPEN** | `training/src/plex_training/model.py` | Explicit loss vocabulary values must not be truthiness-coerced; only `None` selects the full vocabulary. |
+| **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -555,10 +555,29 @@ Required regression coverage:
 - negative and above-capacity integer values remain rejected
 - existing valid reduced-vocabulary loss behavior remains unchanged
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix defaults only when `loss_vocabulary_size is None`. Any explicit value must have exact type `int`, then satisfy `1 <= value <= config.vocab_size`.
+Loss-vocabulary selection now defaults to the full configured vocabulary only when `loss_vocabulary_size is None`. Every explicit value must have exact type `int` before range validation, so booleans and other non-integers cannot be truthiness-coerced into a different objective.
 
-B13 remains open until pull-request CI is green and the fix is merged.
+Explicit integer values must satisfy `1 <= loss_vocabulary_size <= config.vocab_size`. Existing valid reduced-vocabulary loss behavior remains unchanged.
+
+Verified cases:
+
+- `None`: uses the complete configured vocabulary and matches full-logit cross-entropy
+- zero: rejected instead of selecting the full vocabulary
+- `False`: rejected as a non-exact integer
+- float: rejected as a non-exact integer
+- string: rejected as a non-exact integer
+- negative integer: rejected by range validation
+- above-capacity integer: rejected by range validation
+- existing valid reduced-vocabulary masking remains green
+
+Verification run:
+
+- **218 passed**
+- **9 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
