@@ -9,7 +9,7 @@ Status legend:
 
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
-| **B01** | **P1** | 🔴 **OPEN** | `training/src/plex_training/answer_weighting.py` | One extra dataset row can escape the answer-weighting verifier. |
+| **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -25,4 +25,24 @@ Required regression coverage:
 - N+1 JSONL rows
 - N+2 JSONL rows
 
-B01 may be marked green only after the fix is merged with passing regression tests.
+### Resolution
+
+🟢 **COMPLETE**
+
+Fixed by replacing `zip(stream, entries)` plus the trailing `readline()` check with `zip_longest(..., fillvalue=sentinel)` and explicit rejection of either unmatched side.
+
+Verified cases:
+
+- N-1 rows: rejected
+- N rows: accepted
+- N+1 rows: rejected
+- N+2 rows: rejected
+
+The answer-weighting regression module is now included in the repository CI suite.
+
+Verification run:
+
+- **159 passed**
+- **2 skipped**
+- **1 warning**
+
