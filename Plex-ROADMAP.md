@@ -228,6 +228,8 @@ The model receives the relevant context directly.
 
 ### P3-01 — File + Request Contract
 
+**Status: IN PROGRESS — candidate prepared; tokenizer/context review blocked.**
+
 Define the simplest stable input/output format for:
 
 ```text
@@ -399,7 +401,7 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P3-01 — File + Request Contract
+## P3-01 — File + Request Contract (review incomplete)
 
 Phase 2 is complete.
 

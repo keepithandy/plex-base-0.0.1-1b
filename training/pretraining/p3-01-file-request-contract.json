@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "milestone": "P3-01",
+  "kind": "plex-p3-01-file-request-contract-v1",
+  "status": "candidate-preparation-authorized",
+  "dataPreparationAuthorized": true,
+  "contractReviewAuthorized": true,
+  "tokenizerContextReviewAuthorized": true,
+  "checkpointStagingAuthorized": false,
+  "optimizerCreationAuthorized": false,
+  "modelTrainingAuthorized": false,
+  "automaticContinuation": false,
+  "trainingPerformed": false,
+  "researchOptimizerUpdates": 0,
+  "finalHoldoutOpened": false,
+  "representation": "plex-file-edit-v1",
+  "candidateIdentity": {
+    "candidateId": "p3-01-file-edit-contract-v1",
+    "fixtures": 18,
+    "perLanguage": {"html": 6, "css": 6, "javascript": 6}
+  },
+  "tokenizer": {
+    "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
+    "bundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6",
+    "contextTokens": 512
+  },
+  "decisionBoundary": "P3-01 authorizes deterministic fixture preparation and contract/tokenizer review only. It does not authorize checkpoint staging, optimizer creation, model training, automatic continuation, or final holdout access."
+}
