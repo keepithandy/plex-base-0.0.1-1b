@@ -15,6 +15,7 @@ Status legend:
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume enforces artifact ownership and safe metrics record boundaries. |
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
+| **B07** | **P2** | 🔴 **OPEN** | `training/src/plex_training/runner.py` | Shared training updates must fail closed on nonfinite loss or gradient norm. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -266,3 +267,27 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B07 — Nonfinite training update guard
+
+**Priority:** P2  
+**Type:** Code defect / training-integrity defect
+
+The shared training step previously checked only for a missing loss. A NaN or Inf loss could reach backward, and gradient clipping used its default nonfinite behavior before the optimizer was stepped unconditionally. That could contaminate model parameters or optimizer state and later allow corrupted state to be checkpointed.
+
+Required regression coverage:
+
+- a nonfinite loss is rejected before backward
+- a nonfinite gradient norm is rejected before `optimizer.step()`
+- the optimizer is not stepped in either failure case
+- a numerical failure emits a `run_failed` event with a stable reason
+- a numerical failure does not execute the final checkpoint save
+- an existing resumed checkpoint remains byte-for-byte unchanged after failure
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix introduces a dedicated numerical-training exception. Loss finiteness is checked before backward. Gradient clipping uses `error_if_nonfinite=True`, and any resulting nonfinite-gradient failure is converted into the same controlled failure path before the optimizer can update state. The runner records `run_failed` and re-raises before validation or final checkpoint saving.
+
+B07 remains open until pull-request CI is green and the fix is merged.
