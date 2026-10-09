@@ -16,6 +16,7 @@ import torch
 
 from plex_training.checkpoint import read_checkpoint, restore_optimizer, restore_random_states
 from plex_training.config import tiny_test_config
+from plex_training.model import PlexLanguageModel
 from plex_training.data import TokenCorpus
 from plex_training.pilot import resume_pilot
 from plex_training.runner import (
@@ -135,6 +136,51 @@ class ResumeAndCompletionTests(unittest.TestCase):
                 self._assert_same_state(first, second)
         else:
             self.assertEqual(expected, actual)
+
+    def test_common_checkpoint_reader_rejects_boolean_version_and_step(self) -> None:
+        model = PlexLanguageModel(tiny_test_config())
+        base_payload = {
+            "formatVersion": 1,
+            "modelFamily": "plex-from-scratch",
+            "modelConfig": tiny_test_config().to_dict(),
+            "modelStateDict": model.state_dict(),
+            "step": 0,
+            "runId": None,
+        }
+        cases = (
+            ("version-true", {**base_payload, "formatVersion": True}, "format version"),
+            ("step-true", {**base_payload, "step": True}, "step must be"),
+            ("step-false", {**base_payload, "step": False}, "step must be"),
+        )
+        for name, payload, message in cases:
+            with self.subTest(name=name), patch(
+                "plex_training.checkpoint.torch.load",
+                return_value=payload,
+            ):
+                with self.assertRaisesRegex(ValueError, message):
+                    read_checkpoint(Path("synthetic.pt"), torch.device("cpu"))
+
+    def test_common_checkpoint_reader_accepts_exact_v1_zero_step_metadata(self) -> None:
+        model = PlexLanguageModel(tiny_test_config())
+        payload = {
+            "formatVersion": 1,
+            "modelFamily": "plex-from-scratch",
+            "modelConfig": tiny_test_config().to_dict(),
+            "modelStateDict": model.state_dict(),
+            "step": 0,
+            "runId": None,
+        }
+        with patch(
+            "plex_training.checkpoint.torch.load",
+            return_value=payload,
+        ):
+            loaded, loaded_payload = read_checkpoint(
+                Path("synthetic.pt"),
+                torch.device("cpu"),
+            )
+        self.assertEqual(loaded.config, tiny_test_config())
+        self.assertEqual(loaded_payload["formatVersion"], 1)
+        self.assertEqual(loaded_payload["step"], 0)
 
     def test_bpe_resume_matches_uninterrupted_training_exactly_on_cpu(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
