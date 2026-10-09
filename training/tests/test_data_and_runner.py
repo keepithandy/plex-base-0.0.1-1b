@@ -3,6 +3,8 @@ import random
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 import torch
 
@@ -12,6 +14,8 @@ from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus, resolve_source_files, write_byte_corpus
 from plex_training.runner import (
     SyntheticTokenSource,
+    TrainingNumericsError,
+    _training_step,
     evaluate_checkpoint,
     generate_bytes,
     run_training,
@@ -53,6 +57,78 @@ class DataAndRunnerTests(unittest.TestCase):
                 write_byte_corpus([source], packed, storage_limit=1024)
             self.assertFalse(packed.exists())
             self.assertFalse(packed.with_name(packed.name + ".tmp").exists())
+
+    def test_training_step_rejects_nonfinite_loss_before_backward(self) -> None:
+        class NonfiniteLossModel:
+            config = SimpleNamespace(context_length=4)
+
+            def __init__(self) -> None:
+                self.weight = torch.nn.Parameter(torch.tensor(1.0))
+
+            def parameters(self):
+                return [self.weight]
+
+            def __call__(self, *_args, **_kwargs):
+                loss = self.weight * torch.tensor(float("nan"))
+                return torch.zeros((1, 4, 256)), loss
+
+        model = NonfiniteLossModel()
+        optimizer = Mock()
+        with self.assertRaisesRegex(
+            TrainingNumericsError,
+            "Training loss is nonfinite",
+        ) as raised:
+            _training_step(
+                model,
+                optimizer,
+                SyntheticTokenSource(token_count=32),
+                random.Random(3),
+                torch.device("cpu"),
+                micro_batch=1,
+                accumulation_steps=1,
+            )
+        self.assertEqual(raised.exception.reason, "nonfinite-loss")
+        optimizer.zero_grad.assert_called_once_with(set_to_none=True)
+        optimizer.step.assert_not_called()
+        self.assertIsNone(model.weight.grad)
+
+    def test_training_step_rejects_nonfinite_gradient_before_optimizer_step(self) -> None:
+        class NonfiniteGradientModel:
+            config = SimpleNamespace(context_length=4)
+
+            def __init__(self) -> None:
+                self.weight = torch.nn.Parameter(torch.tensor(1.0))
+                self.weight.register_hook(
+                    lambda gradient: torch.full_like(gradient, float("inf"))
+                )
+
+            def parameters(self):
+                return [self.weight]
+
+            def __call__(self, *_args, **_kwargs):
+                loss = self.weight.square()
+                return torch.zeros((1, 4, 256)), loss
+
+        model = NonfiniteGradientModel()
+        optimizer = Mock()
+        with self.assertRaisesRegex(
+            TrainingNumericsError,
+            "gradient norm is nonfinite",
+        ) as raised:
+            _training_step(
+                model,
+                optimizer,
+                SyntheticTokenSource(token_count=32),
+                random.Random(3),
+                torch.device("cpu"),
+                micro_batch=1,
+                accumulation_steps=1,
+            )
+        self.assertEqual(raised.exception.reason, "nonfinite-gradient-norm")
+        optimizer.zero_grad.assert_called_once_with(set_to_none=True)
+        optimizer.step.assert_not_called()
+        self.assertIsNotNone(model.weight.grad)
+        self.assertFalse(bool(torch.isfinite(model.weight.grad).all()))
 
     def test_tiny_training_checkpoint_resumes_and_runs_eval_and_generation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
