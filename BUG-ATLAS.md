@@ -10,7 +10,7 @@ Status legend:
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
-| **B02** | **P1** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination protection must fail closed when configured coverage is unusable. |
+| **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination protection now fails closed when configured coverage is unusable. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -52,7 +52,7 @@ Verification run:
 **Priority:** P1  
 **Type:** Code defect / verification defect
 
-The contamination scanner can currently report `passed: true` when no usable protected segment was scanned. Oversized, unreadable, and invalid UTF-8 protected files are silently converted to empty segment lists; an empty protected directory also produces no protection. `protectedFilesScanned` currently counts discovered files rather than successfully read files.
+The contamination scanner previously allowed `passed: true` when no usable protected segment was scanned. Oversized, unreadable, and invalid UTF-8 protected files were silently converted to empty segment lists; an empty protected directory also produced no protection. `protectedFilesScanned` counted discovered files rather than successfully read files.
 
 Required regression coverage:
 
@@ -62,10 +62,25 @@ Required regression coverage:
 - mixed successful and failed protected-file reads
 - protected content with no segment meeting the configured minimum length
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix makes usable protection part of the pass condition, records discovered/scanned/skipped protected files explicitly, rejects any skipped protection from a passing result, and requires configured minimum protected-file and protected-segment coverage.
+The scanner now makes usable protection part of the pass condition, records protected files as discovered/scanned/skipped with explicit reasons, rejects any skipped protection from a passing result, and requires predeclared minimum protected-file and protected-segment coverage.
 
-The focused synthetic regression module passes locally. B02 remains open until the pull-request CI run is green and the fix is merged.
+Verified cases:
+
+- empty protected directory: rejected
+- invalid UTF-8 protected file: rejected
+- oversized protected file: rejected
+- mixed successful/unreadable reads: rejected
+- short-only protected content below the minimum segment length: rejected
+- usable protected content with no contamination match: accepted
+
+The contamination regression module is now included in the repository CI suite.
+
+Verification run:
+
+- **167 passed**
+- **2 skipped**
+- **1 warning**
