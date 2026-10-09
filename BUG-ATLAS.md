@@ -373,6 +373,10 @@ Checkpoint serialization now computes the artifact bytes already allocated befor
 
 Overwrite peak usage also counts the existing destination until the atomic replacement occurs. A failed over-budget replacement therefore preserves the previous checkpoint and removes the partial temporary file.
 
+Completion follow-up: storage enumeration previously used recursive globbing, which could silently omit an unreadable directory and understate the starting allocation. Accounting now explicitly enumerates directories and inspects each entry. Directory-open, enumeration, and metadata failures stop the write; links, reparse points, and special files are rejected rather than omitted. A failed final accounting check also cleans up the temporary output while preserving the old checkpoint.
+
+The original synthetic 80-byte hidden artifact plus 30-byte write under a 100-byte limit now fails before serialization when discovery is denied, and fails the byte budget when access is restored. Normal toy checkpoint serialization and weights-only loading were also verified.
+
 Verified cases:
 
 - an over-budget serialization chunk is rejected before that chunk is written
@@ -416,6 +420,10 @@ Required regression coverage:
 P3-01 now checks output separation before protected input reads. Output paths are resolved canonically, output/output and output/input pairs are compared, and existing pairs are additionally checked with filesystem identity so distinct hard-link names cannot bypass the guard. Filesystem-identity lookup failures fail closed.
 
 Generation protects the contract from both candidate and review outputs and prevents the two generation outputs from aliasing each other. Review protects the candidate, draft review metadata, contract, tokenizer bundle directory, and tokenizer manifest/config/data files from the optional report output. Existing unrelated output overwrite behavior remains unchanged.
+
+Completion follow-up: fresh Windows names such as `output` and `output.` previously bypassed the existing-file identity check and allowed review metadata to replace the candidate. P3 now validates output spellings before and after resolution using the shared Windows guard also used by the training runner. Ambiguous names are rejected before protected input reads or output writes, for both generation outputs and review reports. Normal candidate generation remains intact.
+
+Follow-up verification for B09/B10: **15 focused allocation/path tests passed** and **18 P3 contract tests passed** on Windows (these selections overlap). The focused run reported **1 existing NumPy warning**. Independent synthetic replays confirmed both original failures are blocked, and positive checks confirmed normal checkpoint serialization/loading and candidate generation. Resolved-link spelling is simulated because native Windows symlink privileges are unavailable. No research training or final-holdout access was performed.
 
 During verification, the repository workflow was found not to include the P3 file-conditioned contract test module. The workflow now runs that module explicitly so these regressions are part of pull-request CI.
 

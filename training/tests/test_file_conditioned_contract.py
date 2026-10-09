@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import hashlib
 import shutil
 import tempfile
@@ -178,6 +179,58 @@ class FileConditionedContractTests(unittest.TestCase):
                         (bundle / "tokenizer.json").read_bytes(),
                         b"tokenizer.json",
                     )
+
+    @unittest.skipUnless(os.name == "nt", "Win32 output aliases require Windows")
+    def test_generation_rejects_fresh_windows_output_aliases_before_input_read(self) -> None:
+        for spelling in ("output.", "output ", "nested./output", "output:stream"):
+            for alias_is_candidate in (False, True):
+                with self.subTest(spelling=spelling, candidate=alias_is_candidate), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    first, second = root / "output", root / spelling
+                    with patch("plex_training.file_conditioned_contract._contract") as contract_check:
+                        with self.assertRaisesRegex(ValueError, "Windows"):
+                            generate_file_edit_candidate(
+                                candidate_path=second if alias_is_candidate else first,
+                                review_path=first if alias_is_candidate else second,
+                                contract_path=root / "contract.json",
+                            )
+                    contract_check.assert_not_called()
+                    self.assertEqual(list(root.iterdir()), [])
+
+    @unittest.skipUnless(os.name == "nt", "Win32 output aliases require Windows")
+    def test_review_rejects_windows_report_spellings_before_input_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            candidate.write_bytes(b"preserve")
+            for report in (root / "candidate.jsonl.", root / "candidate.jsonl ", root / "candidate.jsonl:stream"):
+                with self.subTest(report=report), patch("plex_training.file_conditioned_contract._contract") as contract_check:
+                    with self.assertRaisesRegex(ValueError, "Windows"):
+                        review_file_edit_candidate(
+                            candidate_path=candidate, review_path=root / "review.json",
+                            contract_path=root / "contract.json", report_path=report,
+                        )
+                    contract_check.assert_not_called()
+                    self.assertEqual(candidate.read_bytes(), b"preserve")
+                    self.assertEqual(list(root.iterdir()), [candidate])
+
+    @unittest.skipUnless(os.name == "nt", "Win32 output aliases require Windows")
+    def test_generation_checks_resolved_windows_output_spelling(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            link = root / "link"
+            original = Path.resolve
+
+            def resolved(path, *args, **kwargs):
+                return root / "output." if path == link else original(path, *args, **kwargs)
+
+            with patch.object(Path, "resolve", resolved), patch("plex_training.file_conditioned_contract._contract") as contract_check:
+                with self.assertRaisesRegex(ValueError, "Windows"):
+                    generate_file_edit_candidate(
+                        candidate_path=root / "output", review_path=link, contract_path=root / "contract.json",
+                    )
+            contract_check.assert_not_called()
+            self.assertEqual(list(root.iterdir()), [])
 
     def test_review_fails_closed_when_bundle_is_missing(self) -> None:
         root = Path(".test-tmp") / str(uuid.uuid4())
