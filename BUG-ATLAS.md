@@ -12,6 +12,7 @@ Status legend:
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
+| **B04** | **P2** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination reports must identify the exact effective input bytes and verify declared split hashes. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -124,3 +125,27 @@ Verification run:
 - **170 passed**
 - **2 skipped**
 - **1 warning**
+
+## B04 — Contamination report input identity
+
+**Priority:** P2  
+**Type:** Code defect / auditability defect
+
+The v1 contamination report records the dataset manifest hash but not the exact train/validation JSONL bytes, protected configuration bytes, or protected-file bytes assessed by the scanner. A saved report therefore cannot independently identify all effective inputs. The Plex Web dataset builder already declares train and validation SHA-256 values in `manifest.json`, but the contamination scanner does not verify those declarations.
+
+Required regression coverage:
+
+- train JSONL identity is recorded from the exact bytes parsed
+- validation JSONL identity is recorded from the exact bytes parsed
+- protected config and readable protected-file identities are recorded
+- declared train/validation manifest hashes are verified and mismatches are rejected
+- changing manifest, corpus, protected config, protected content, scanner settings, or scanner version changes the assessment identity
+- existing v1 report files are not rewritten
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed v2 report records scanner version/settings, raw-byte SHA-256 and byte counts for the manifest, both dataset splits, protected config, and readable protected files. It derives a canonical `assessmentSha256` from those effective inputs. Dataset split hashes declared by the builder are verified before the report is written.
+
+Historical v1 reports remain untouched. B04 remains open until pull-request CI is green and the v2 fix is merged.
