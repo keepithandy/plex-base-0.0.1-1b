@@ -21,6 +21,7 @@ Status legend:
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
+| **B13** | **P3** | 🔴 **OPEN** | `training/src/plex_training/model.py` | Explicit loss vocabulary values must not be truthiness-coerced; only `None` selects the full vocabulary. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -537,3 +538,27 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
+
+## B13 — Explicit loss-vocabulary validation
+
+**Priority:** P3  
+**Type:** Code defect / objective-validation defect
+
+The model previously used `loss_vocabulary_size or self.config.vocab_size`, so explicit zero or `False` silently selected the full model vocabulary before range validation. That changed the requested training/evaluation objective instead of rejecting an invalid argument.
+
+Required regression coverage:
+
+- `None` retains the normal full-vocabulary loss objective
+- explicit zero is rejected
+- explicit `False` is rejected rather than treated as zero/full-vocabulary fallback
+- explicit non-integer values are rejected before slicing/arithmetic
+- negative and above-capacity integer values remain rejected
+- existing valid reduced-vocabulary loss behavior remains unchanged
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix defaults only when `loss_vocabulary_size is None`. Any explicit value must have exact type `int`, then satisfy `1 <= value <= config.vocab_size`.
+
+B13 remains open until pull-request CI is green and the fix is merged.
