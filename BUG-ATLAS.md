@@ -20,7 +20,7 @@ Status legend:
 | **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
 | **B10** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 outputs cannot overwrite protected inputs or collide through canonical/filesystem aliases. |
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
-| **B12** | **P3** | 🔴 **OPEN** | `training/src/plex_training/config.py` | Model dimension fields must be exact positive integers; booleans and other non-integers are invalid. |
+| **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -512,10 +512,28 @@ Required regression coverage:
 - type rejection occurs before divisibility or parameter-count arithmetic
 - the controlled default configuration and parameter count remain unchanged
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed validation requires `type(value) is int` for all six dimension fields before positivity and divisibility checks. This intentionally rejects booleans despite Python's `bool` subclassing `int`. Existing dropout validation remains unchanged.
+All six model dimension fields now require `type(value) is int` before positivity, divisibility, or parameter-count arithmetic. This deliberately rejects booleans despite Python's `bool` subclassing `int`, and it converts previously late or misleading failures for fractional/string dimensions into deterministic configuration validation failures.
 
-B12 remains open until pull-request CI is green and the fix is merged.
+`from_dict` retains its existing checkpoint-facing error contract by wrapping the underlying validation failure as `Checkpoint model_config is invalid`. Dropout validation is unchanged.
+
+Verified cases for every dimension field through both direct construction and `from_dict`:
+
+- positive fractional value: rejected
+- boolean: rejected
+- string: rejected
+- zero: rejected
+- negative integer: rejected
+- controlled default dimensions remain unchanged
+- controlled default parameter count remains exactly **27,566,080**
+
+Verification run:
+
+- **216 passed**
+- **9 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
