@@ -65,6 +65,8 @@ def _require_metrics_run_identity(metrics_path: Path, run_id: str) -> None:
                     raise FileExistsError(
                         "Existing metrics file belongs to a different or unidentifiable run"
                     )
+    except FileExistsError:
+        raise
     except OSError as exc:
         raise FileExistsError("Existing metrics file cannot be verified for resume") from exc
     if not saw_event:
