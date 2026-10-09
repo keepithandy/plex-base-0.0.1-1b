@@ -12,7 +12,7 @@ Status legend:
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
-| **B04** | **P2** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination reports must identify the exact effective input bytes and verify declared split hashes. |
+| **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -142,10 +142,28 @@ Required regression coverage:
 - changing manifest, corpus, protected config, protected content, scanner settings, or scanner version changes the assessment identity
 - existing v1 report files are not rewritten
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed v2 report records scanner version/settings, raw-byte SHA-256 and byte counts for the manifest, both dataset splits, protected config, and readable protected files. It derives a canonical `assessmentSha256` from those effective inputs. Dataset split hashes declared by the builder are verified before the report is written.
+The v2 report records scanner version/settings, raw-byte SHA-256 and byte counts for the manifest, both dataset splits, protected config, and readable protected files. It derives a canonical `assessmentSha256` from those effective inputs. Dataset split hashes declared by the builder are verified before the report is written.
 
-Historical v1 reports remain untouched. B04 remains open until pull-request CI is green and the v2 fix is merged.
+Verified cases:
+
+- train and validation hashes are computed from the exact bytes parsed by the scanner
+- a declared train or validation hash mismatch is rejected before a report is written
+- changing corpus bytes changes `assessmentSha256` even when the manifest has no declared split hashes and remains byte-identical
+- changing manifest, protected config, protected content, scanner settings, or scanner version changes `assessmentSha256`
+- readable protected files and the protected config receive explicit raw-byte SHA-256 fingerprints
+- an existing v1 report file is not rewritten by a v2 scan
+- prior B01-B03 and B02 follow-up regressions remain green
+
+The first CI attempt exposed a stale B02 unreadable-file test mock that intercepted text-mode reads while the v2 scanner now reads exact raw bytes. The synthetic mock was updated to intercept the raw-byte open path; scanner behavior itself remained fail-closed.
+
+Verification run:
+
+- **177 passed**
+- **2 skipped**
+- **1 warning**
+
+Historical v1 reports remain untouched; new reports use `schemaVersion: 2` and `plex-web-contamination-report-v2`.
