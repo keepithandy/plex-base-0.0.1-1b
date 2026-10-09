@@ -9,15 +9,15 @@ Status legend:
 
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
-| **B01** | **P1** | 🟢 **COMPLETE** | \`training/src/plex_training/answer_weighting.py\` | Exact dataset/index cardinality is now enforced. |
-| **B02** | **P1** | 🔴 **OPEN** | \`training/src/plex_training/web_contamination.py\` | Contamination protection must fail closed when configured coverage is unusable. |
+| **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
+| **B02** | **P1** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination protection must fail closed when configured coverage is unusable. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
 **Priority:** P1  
 **Type:** Code defect / verification defect
 
-The verifier previously iterated with \`zip(stream, entries)\` and then checked \`stream.readline()\` for leftovers. With exactly one extra JSONL row, \`zip\` could advance the stream to that unmatched row before discovering that the index iterator was exhausted, causing the later leftover check to miss it.
+The verifier previously iterated with `zip(stream, entries)` and then checked `stream.readline()` for leftovers. With exactly one extra JSONL row, `zip` could advance the stream to that unmatched row before discovering that the index iterator was exhausted, causing the later leftover check to miss it.
 
 Required regression coverage:
 
@@ -30,7 +30,7 @@ Required regression coverage:
 
 🟢 **COMPLETE**
 
-Fixed by replacing \`zip(stream, entries)\` plus the trailing \`readline()\` check with \`zip_longest(..., fillvalue=sentinel)\` and explicit rejection of either unmatched side.
+Fixed by replacing `zip(stream, entries)` plus the trailing `readline()` check with `zip_longest(..., fillvalue=sentinel)` and explicit rejection of either unmatched side.
 
 Verified cases:
 
@@ -52,7 +52,7 @@ Verification run:
 **Priority:** P1  
 **Type:** Code defect / verification defect
 
-The contamination scanner can currently report \`passed: true\` when no usable protected segment was scanned. Oversized, unreadable, and invalid UTF-8 protected files are silently converted to empty segment lists; an empty protected directory also produces no protection. \`protectedFilesScanned\` currently counts discovered files rather than successfully read files.
+The contamination scanner can currently report `passed: true` when no usable protected segment was scanned. Oversized, unreadable, and invalid UTF-8 protected files are silently converted to empty segment lists; an empty protected directory also produces no protection. `protectedFilesScanned` currently counts discovered files rather than successfully read files.
 
 Required regression coverage:
 
