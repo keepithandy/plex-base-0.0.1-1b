@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import random
 import time
 import uuid
@@ -90,6 +91,21 @@ def _write_event(
         json.dump(record, stream, sort_keys=True)
         stream.write("\n")
         stream.flush()
+
+
+def _require_distinct_run_destinations(
+    output_checkpoint: Path,
+    metrics_path: Path,
+) -> None:
+    if output_checkpoint == metrics_path:
+        raise ValueError("Checkpoint and metrics destinations must be different files")
+    if output_checkpoint.exists() and metrics_path.exists():
+        try:
+            same_file = os.path.samefile(output_checkpoint, metrics_path)
+        except OSError as exc:
+            raise ValueError("Training output destinations could not be compared safely") from exc
+        if same_file:
+            raise ValueError("Checkpoint and metrics destinations must be different files")
 
 
 def _training_step(
@@ -323,6 +339,7 @@ def run_training(
     artifact_root = artifact_root.resolve()
     output_checkpoint = path_within_root(output_checkpoint, artifact_root)
     metrics_path = path_within_root(metrics_path, artifact_root)
+    _require_distinct_run_destinations(output_checkpoint, metrics_path)
     checkpoint_owned = False
     metrics_owned = False
     if resume_from is None:
