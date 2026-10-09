@@ -11,7 +11,7 @@ Status legend:
 |---|---|---|---|---|
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination protection now fails closed when configured coverage is unusable. |
-| **B03** | **P2** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold must be detected. |
+| **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -100,10 +100,21 @@ Required regression coverage:
 - overlap one character below the threshold
 - existing whole-segment containment behavior
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix computes the exact longest shared substring with a suffix automaton, preserving whole-segment containment while adding interior-overlap detection without an unbounded quadratic search.
+The scanner now computes the exact longest shared substring with a suffix automaton, preserving whole-segment containment while adding interior-overlap detection without an unbounded quadratic search. The report records the detected overlap length.
 
-B03 remains open until the pull-request CI run is green and the fix is merged.
+Verified cases:
+
+- interior overlap above the threshold: rejected
+- overlap exactly at the threshold: rejected
+- overlap one character below the threshold: accepted
+- existing whole-segment containment: rejected
+
+Verification run:
+
+- **170 passed**
+- **2 skipped**
+- **1 warning**
