@@ -1,7 +1,11 @@
 import json
+import os
+import stat
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from plex_training.web_contamination import check_contamination
@@ -224,6 +228,82 @@ class PlexWebContaminationTests(unittest.TestCase):
             self.assertEqual(results["protected/good.txt"]["status"], "scanned")
             self.assertEqual(results["protected/bad.txt"]["reason"], "unreadable")
             self.assertIn("protected-files-skipped", report["protectionCoverageFailures"])
+
+    def test_discovery_failures_block_promotion_despite_usable_sibling(self) -> None:
+        for failure in ("open-directory", "iterate-directory", "stat-file"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                protected = root / "protected"
+                protected.mkdir()
+                (protected / "good.txt").write_text("G" * 100, encoding="utf-8")
+                hidden = protected / "nested"
+                hidden.mkdir()
+                secret = hidden / "eval.txt"
+                secret.write_text("S" * 100, encoding="utf-8")
+                dataset = self._dataset(root, "S" * 100, "const clean = true;")
+                config = self._config(root, "protected")
+                original_scandir = os.scandir
+                original_lstat = Path.lstat
+
+                @contextmanager
+                def checked_scandir(path):
+                    if Path(path) == hidden and failure == "open-directory":
+                        raise PermissionError("synthetic traversal denial")
+                    with original_scandir(path) as entries:
+                        if Path(path) == hidden and failure == "iterate-directory":
+                            def failed_entries():
+                                yield from entries
+                                raise OSError("synthetic enumeration failure")
+                            yield failed_entries()
+                        else:
+                            yield entries
+
+                def checked_lstat(path, *args, **kwargs):
+                    if path == secret and failure == "stat-file":
+                        raise PermissionError("synthetic metadata denial")
+                    return original_lstat(path, *args, **kwargs)
+
+                report_path = root / "report.json"
+                with patch("plex_training.web_contamination.REPO_ROOT", root), patch(
+                    "plex_training.web_contamination.os.scandir", checked_scandir
+                ), patch.object(Path, "lstat", checked_lstat):
+                    with self.assertRaisesRegex(ValueError, "Protected path discovery failed"):
+                        check_contamination(dataset, protected_config=config, report_path=report_path)
+                self.assertFalse(report_path.exists())
+                with patch("plex_training.web_contamination.REPO_ROOT", root):
+                    report = check_contamination(dataset, protected_config=config, report_path=report_path)
+                self.assertFalse(report["passed"])
+                self.assertEqual(report["protectedFilesDiscovered"], 2)
+                self.assertEqual(len(report["exactMatches"]), 1)
+
+    def test_discovery_rejects_links_reparse_points_and_special_files(self) -> None:
+        for kind in ("link", "reparse", "special"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                protected = root / "protected"
+                protected.mkdir()
+                (protected / "good.txt").write_text("G" * 100, encoding="utf-8")
+                bad = protected / "bad"
+                bad.write_text("B" * 100, encoding="utf-8")
+                dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+                config = self._config(root, "protected")
+                original_lstat = Path.lstat
+
+                def checked_lstat(path, *args, **kwargs):
+                    if path == bad:
+                        return SimpleNamespace(
+                            st_mode={"link": stat.S_IFLNK, "reparse": stat.S_IFREG, "special": stat.S_IFIFO}[kind],
+                            st_file_attributes=0x400 if kind == "reparse" else 0,
+                        )
+                    return original_lstat(path, *args, **kwargs)
+
+                report_path = root / "report.json"
+                with patch("plex_training.web_contamination.REPO_ROOT", root), patch.object(
+                    Path, "lstat", checked_lstat
+                ):
+                    with self.assertRaisesRegex(ValueError, "Protected path discovery rejected"):
+                        check_contamination(dataset, protected_config=config, report_path=report_path)
+                self.assertFalse(report_path.exists())
 
     def test_each_configured_path_requires_usable_protection(self) -> None:
         for other_kind in ("empty-directory", "short-directory", "short-file", "usable-directory"):

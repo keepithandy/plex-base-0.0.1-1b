@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from pathlib import Path
 from typing import Any
 
@@ -158,19 +160,30 @@ def _resolve_protected_files(config: dict[str, Any]) -> list[Path]:
         relative = Path(value)
         if relative.is_absolute() or ".." in relative.parts:
             raise ValueError("Protected paths must stay beneath the repository root")
-        candidate = (REPO_ROOT / relative).resolve(strict=False)
+        candidate = REPO_ROOT / relative
         try:
-            candidate.relative_to(REPO_ROOT.resolve())
+            pending = [candidate]
+            while pending:
+                path = pending.pop()
+                metadata = path.lstat()
+                if (stat.S_ISLNK(metadata.st_mode)
+                        or getattr(metadata, "st_file_attributes", 0)
+                        & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)):
+                    raise ValueError(f"Protected path must not be a link or reparse point: {path}")
+                resolved = path.resolve(strict=True)
+                resolved.relative_to(REPO_ROOT.resolve())
+                if stat.S_ISREG(metadata.st_mode):
+                    files.add(resolved)
+                elif stat.S_ISDIR(metadata.st_mode):
+                    # Unlike Path.rglob, scandir propagates traversal failures.
+                    with os.scandir(path) as entries:
+                        pending.extend(Path(entry.path) for entry in entries)
+                else:
+                    raise ValueError(f"Protected path must be a regular file or directory: {path}")
+        except OSError as exc:
+            raise ValueError(f"Protected path discovery failed: {value}: {exc}") from exc
         except ValueError as exc:
-            raise ValueError("Protected paths must stay beneath the repository root") from exc
-        if not candidate.exists():
-            raise ValueError(f"Protected path is unavailable: {value}")
-        if candidate.is_file():
-            files.add(candidate)
-        else:
-            for path in candidate.rglob("*"):
-                if path.is_file() and not path.is_symlink():
-                    files.add(path.resolve())
+            raise ValueError(f"Protected path discovery rejected {value}: {exc}") from exc
     return sorted(files)
 
 
