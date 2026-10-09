@@ -128,6 +128,57 @@ class PlexWebContaminationTests(unittest.TestCase):
                         )
                 self.assertFalse(report_path.exists())
 
+    def test_dataset_bytes_change_identity_when_manifest_has_no_split_hashes(self) -> None:
+        identities = {}
+        manifest_hashes = {}
+        dataset_hashes = {}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name, train_text in (
+                ("baseline", "<div>baseline train</div>"),
+                ("changed", "<div>changed train</div>"),
+            ):
+                case_root = root / name
+                case_root.mkdir()
+                protected = case_root / "protected"
+                protected.mkdir()
+                (protected / "eval.txt").write_text("P" * 100, encoding="utf-8")
+                dataset = self._dataset(
+                    case_root,
+                    train_text,
+                    "const identicalValidation = true;",
+                )
+                manifest_path = dataset / "manifest.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest.pop("summary")
+                manifest_path.write_text(
+                    json.dumps(manifest, indent=2),
+                    encoding="utf-8",
+                )
+                config = self._config(case_root, "protected")
+                with patch("plex_training.web_contamination.REPO_ROOT", case_root):
+                    report = check_contamination(
+                        dataset,
+                        protected_config=config,
+                        report_path=case_root / "report.json",
+                    )
+                identities[name] = report["assessmentSha256"]
+                manifest_hashes[name] = report["datasetManifestSha256"]
+                dataset_hashes[name] = {
+                    item["path"]: item["sha256"] for item in report["datasetFiles"]
+                }
+
+        self.assertEqual(manifest_hashes["baseline"], manifest_hashes["changed"])
+        self.assertNotEqual(
+            dataset_hashes["baseline"]["train.jsonl"],
+            dataset_hashes["changed"]["train.jsonl"],
+        )
+        self.assertEqual(
+            dataset_hashes["baseline"]["validation.jsonl"],
+            dataset_hashes["changed"]["validation.jsonl"],
+        )
+        self.assertNotEqual(identities["baseline"], identities["changed"])
+
     def test_assessment_identity_changes_with_every_effective_input(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
