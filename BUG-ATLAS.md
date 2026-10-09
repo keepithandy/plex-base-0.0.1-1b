@@ -17,6 +17,7 @@ Status legend:
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
+| **B09** | **P2** | 🔴 **OPEN** | `training/src/plex_training/artifacts.py` | Checkpoint serialization must enforce the storage allocation before temporary writes exceed it. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -346,3 +347,27 @@ Verification run:
 - **190 passed**
 - **4 skipped**
 - **1 warning**
+
+## B09 — Temporary checkpoint over-allocation
+
+**Priority:** P2  
+**Type:** Code defect / storage-integrity defect
+
+The atomic checkpoint writer previously checked only one extra byte before serialization. The full temporary checkpoint could therefore be written and synced before the configured artifact allocation was checked again, allowing the temporary file to exceed the allocation at peak usage.
+
+Required regression coverage:
+
+- serialization is bounded by the remaining configured allocation
+- an over-budget write is rejected before that chunk reaches the temporary file
+- partial temporary output is cleaned up after failure
+- overwrite peak accounting includes the old checkpoint while the temporary replacement exists
+- an over-budget overwrite preserves the previous checkpoint bytes
+- large real checkpoints are not required for the regression
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed writer computes bytes already allocated before creating the temporary file, gives serialization only the remaining budget, and rejects any individual write that would cross that budget. Existing destination bytes remain part of the peak accounting until the atomic replacement occurs.
+
+B09 remains open until pull-request CI is green and the fix is merged.
