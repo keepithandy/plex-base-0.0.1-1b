@@ -25,7 +25,13 @@ class PlexWebContaminationTests(unittest.TestCase):
         )
         return dataset
 
-    def _config(self, root: Path, protected_relative: str, blocked: list[str] | None = None) -> Path:
+    def _config(
+        self,
+        root: Path,
+        protected_relative: str,
+        blocked: list[str] | None = None,
+        minimum: int = 80,
+    ) -> Path:
         path = root / "protected.json"
         path.write_text(
             json.dumps(
@@ -33,7 +39,7 @@ class PlexWebContaminationTests(unittest.TestCase):
                     "schemaVersion": 1,
                     "protectedPaths": [protected_relative],
                     "blockedSourceOrigins": blocked or [],
-                    "minimumSubstringCharacters": 80,
+                    "minimumSubstringCharacters": minimum,
                     "minimumProtectedFiles": 1,
                     "minimumProtectedSegments": 1,
                     "finalHoldout": "closed-not-addressable",
@@ -80,6 +86,51 @@ class PlexWebContaminationTests(unittest.TestCase):
                 report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
             self.assertFalse(report["passed"])
             self.assertEqual(len(report["substringMatches"]), 1)
+
+    def test_interior_shared_substring_blocks_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            shared = "shared-interior-" * 8
+            protected_text = "protected-prefix-" + shared + "-protected-suffix"
+            corpus_text = "corpus-prefix-" + shared + "-corpus-suffix"
+            (protected / "eval.txt").write_text(protected_text, encoding="utf-8")
+            dataset = self._dataset(root, corpus_text, "const other = true;")
+            config = self._config(root, "protected", minimum=80)
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(len(report["substringMatches"]), 1)
+            self.assertGreaterEqual(report["substringMatches"][0]["overlapAtLeastCharacters"], 80)
+
+    def test_shared_substring_at_exact_threshold_blocks_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            shared = "S" * 80
+            (protected / "eval.txt").write_text("P" * 40 + shared + "Q" * 40, encoding="utf-8")
+            dataset = self._dataset(root, "R" * 40 + shared + "T" * 40, "const other = true;")
+            config = self._config(root, "protected", minimum=80)
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertFalse(report["passed"])
+            self.assertEqual(report["substringMatches"][0]["overlapAtLeastCharacters"], 80)
+
+    def test_shared_substring_below_threshold_does_not_block(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            shared = "S" * 79
+            (protected / "eval.txt").write_text("P" * 40 + shared + "Q" * 40, encoding="utf-8")
+            dataset = self._dataset(root, "R" * 40 + shared + "T" * 40, "const other = true;")
+            config = self._config(root, "protected", minimum=80)
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
+            self.assertTrue(report["passed"])
+            self.assertEqual(report["substringMatches"], [])
 
     def test_blocked_source_origin_fails_even_without_text_match(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
