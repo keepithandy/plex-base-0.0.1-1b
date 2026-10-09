@@ -70,6 +70,50 @@ class AnswerWeightingTests(unittest.TestCase):
                 self.assertEqual(weights.shape, targets.shape)
                 self.assertEqual(weighted.objective_record["records"], 2)
 
+    def test_dataset_row_count_must_exactly_match_index(self):
+        for row_count in (1, 2, 3, 4):
+            with self.subTest(row_count=row_count):
+                with tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    token_path, dataset, index_path, _, _ = self._fixture(root)
+                    rows = [
+                        json.loads(line)
+                        for line in dataset.read_text(encoding="utf-8").splitlines()
+                    ]
+                    while len(rows) < row_count:
+                        extra = dict(rows[-1])
+                        extra["recordId"] = f"extra-{len(rows)}"
+                        rows.append(extra)
+                    rows = rows[:row_count]
+                    dataset.write_text(
+                        "".join(json.dumps(row) + "\n" for row in rows),
+                        encoding="utf-8",
+                    )
+                    digest = hashlib.sha256(dataset.read_bytes()).hexdigest()
+
+                    if row_count == 2:
+                        with AnswerWeightedTokenCorpus(
+                            token_path,
+                            dataset_jsonl=dataset,
+                            index_path=index_path,
+                            tokenizer=AsciiTokenizer(),
+                            expected_jsonl_sha256=digest,
+                        ) as weighted:
+                            self.assertEqual(weighted.objective_record["records"], 2)
+                    else:
+                        direction = "fewer" if row_count < 2 else "more"
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            f"{direction} rows than its token index",
+                        ):
+                            AnswerWeightedTokenCorpus(
+                                token_path,
+                                dataset_jsonl=dataset,
+                                index_path=index_path,
+                                tokenizer=AsciiTokenizer(),
+                                expected_jsonl_sha256=digest,
+                            )
+
     def test_wrong_text_identity_or_shifted_index_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
