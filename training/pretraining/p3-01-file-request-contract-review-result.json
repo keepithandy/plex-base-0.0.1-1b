@@ -3,10 +3,11 @@
   "milestone": "P3-01",
   "status": "candidate-review-passed",
   "representation": "plex-file-edit-v1",
+  "generatorVersion": "p3-01-file-edit-contract-generator-v2",
   "promptTemplate": "Edit the supplied file to satisfy the request.\nLanguage: {language}\nRequest: {request}\nFile:\n{input_file}\nEdited file:",
   "targetRule": "Complete edited file text only, followed by EOS; no wrapper or explanation.",
-  "candidateSha256": "3b3ba80a7845888982967eb879053ea0d4c0dbe22adbd2e59ba00c28992d7b6c",
-  "byteCount": 4257,
+  "candidateSha256": "7f81bd850fa522adeb92f030ac51a91cab7ff3b0145a3bab9af0ca56956d638a",
+  "byteCount": 4264,
   "fixtures": 18,
   "perLanguage": {
     "css": 6,
@@ -15,19 +16,20 @@
   },
   "tokenizerPreflight": {
     "checked": true,
+    "recordEncoding": "encode(prompt) + encode(target) + [EOS=3]",
     "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",
     "bundleManifestSha256": "71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7",
     "minimumTokensIncludingEos": 46,
     "maximumTokensIncludingEos": 77,
-    "meanTokensIncludingEos": 61.222,
-    "medianTokensIncludingEos": 59.0,
+    "meanTokensIncludingEos": 61.667,
+    "medianTokensIncludingEos": 59.5,
     "allFit512Tokens": true,
     "sourceBundleManifestSha256": "46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6"
   },
   "scoring": {
     "exactMatch": "UTF-8 text equality after CRLF/CR to LF normalization; preserve all other whitespace.",
-    "preservation": "Compare actual and expected replacement spans; all text outside the single expected span must match input.",
-    "unnecessaryEdits": "Count output changes outside the expected replacement; exact-match success has zero.",
+    "preservation": "Frozen replacement prefix and suffix must remain unchanged; no semantic equivalence claim.",
+    "unnecessaryEdits": "Boolean: output fails to preserve the frozen prefix or suffix. Extra content inside the replacement region fails exact correctness.",
     "syntaxCheckability": "Record per-language syntax check status when a later evaluator provides a cheap checker; exact fixture targets are known-valid."
   },
   "modelTrainingAuthorized": false,

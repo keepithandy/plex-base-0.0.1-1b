@@ -1,4 +1,4 @@
-{"editKind":"replace","expectedFile":"<button>Store</button>","id":"p301-html-01","inputFile":"<button>Apply</button>","language":"html","request":"Change the button text to Save Changes.","schemaVersion":1}
+{"editKind":"replace","expectedFile":"<button>Save Changes</button>","id":"p301-html-01","inputFile":"<button>Apply</button>","language":"html","request":"Change the button text to Save Changes.","schemaVersion":1}
 {"editKind":"replace","expectedFile":"<h1>Welcome</h1>","id":"p301-html-02","inputFile":"<h1>Hello</h1>","language":"html","request":"Change the heading text to Welcome.","schemaVersion":1}
 {"editKind":"replace","expectedFile":"<a href=\"/account\">Account</a>","id":"p301-html-03","inputFile":"<a href=\"/home\">Account</a>","language":"html","request":"Change the link destination to /account.","schemaVersion":1}
 {"editKind":"replace","expectedFile":"<input type=\"email\" name=\"email\">","id":"p301-html-04","inputFile":"<input type=\"text\" name=\"email\">","language":"html","request":"Change the input type to email.","schemaVersion":1}

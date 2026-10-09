@@ -69,3 +69,7 @@ training/pretraining/p2-38-first-run-result.json text eol=lf
 training/pretraining/p2-39-structured-bridge-contract.json text eol=lf
 training/pretraining/p2-39-structured-bridge-result.json text eol=lf
 training/pretraining/p2-40-bridge-error-decomposition-contract.json text eol=lf
+
+# P3-01 frozen fixtures and provenance retain exact LF bytes.
+training/phase3/drafts/p3-01-* text eol=lf
+training/pretraining/p3-01-*.json text eol=lf

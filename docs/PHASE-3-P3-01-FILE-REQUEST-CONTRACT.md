@@ -30,7 +30,7 @@ Edit the supplied file to satisfy the request.
 Language: html
 Request: Change the button text to Save Changes.
 File:
-<button>Submit</button>
+<button>Apply</button>
 Edited file:
 ```
 
@@ -74,22 +74,22 @@ Target: `const retryLimit = 5;`
 
 ## Candidate and preservation
 
-The deterministic candidate is `training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl`: 18 contract fixtures, with 6 HTML, 6 CSS, and 6 JavaScript. It is a contract-validation set, not a representative training corpus. Its SHA-256 is `3b3ba80a7845888982967eb879053ea0d4c0dbe22adbd2e59ba00c28992d7b6c`; it is 4,257 bytes. JSONL metadata is not the model output format.
+The deterministic candidate is `training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl`: 18 contract fixtures, with 6 HTML, 6 CSS, and 6 JavaScript. It is a contract-validation set, not a representative training corpus. Its SHA-256 is `7f81bd850fa522adeb92f030ac51a91cab7ff3b0145a3bab9af0ca56956d638a`; it is 4,264 bytes. JSONL metadata is not the model output format.
 
-Text is UTF-8 without BOM, serialized with LF, and preserves meaningful whitespace. Expected output must differ by one contiguous replacement; surrounding input text remains byte-for-byte the same. Exact expected text measures edit correctness and provides a conservative preservation baseline.
+Text is UTF-8 without BOM, serialized with LF, and preserves meaningful whitespace. The validator accepts only these frozen fixtures, using an explicit old/new replacement for each fixture ID. Multiword replacements such as Apply to Save Changes are supported. Expected output must differ by that exact replacement; surrounding input text remains byte-for-byte the same. Exact expected text measures edit correctness and provides a conservative preservation baseline.
 
 ## Scoring contract
 
 - **Exact correctness:** compare output with expected file after CRLF/CR-to-LF normalization; preserve all other whitespace.
 - **Preservation:** compare text outside the expected replacement span; record any difference.
-- **Unnecessary edits:** record output changes outside the expected replacement. Exact match implies none.
-- **Syntax/checkability:** retain a per-language syntax status when a later evaluator has a cheap checker. The expected targets are authored as valid examples; P3-01 adds no parser dependency.
+- **Unnecessary edits:** a boolean reports failure to preserve the frozen prefix or suffix. Extra or incorrect content inside the replacement region fails exact correctness; this is not a general diff count. `score_file_edit` implements these rules.
+- **Syntax/checkability:** retain a per-language syntax status when a later evaluator has a cheap checker. Exact output reports `known-valid-target`; every nonexact output reports `not-checked`. The expected targets are authored as valid examples; P3-01 adds no parser dependency.
 
 ## Tokenizer and context
 
 The frozen tokenizer SHA is `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`. The source P2-48 tokenizer-bundle manifest SHA is `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`. The locally available P2-48 derived bundle manifest SHA is `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`.
 
-The read-only tokenizer preflight passed using the P2-48 frozen tokenizer (`2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`). The P2-48 derived bundle manifest SHA is `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`, from source tokenizer bundle manifest `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`. All 18 prompts and targets roundtripped exactly. Record tokens including EOS ranged from **46 to 77** (mean **61.222**, median **59**); all fit the 512-token context.
+The read-only tokenizer preflight passed using the P2-48 frozen tokenizer (`2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`). The P2-48 derived bundle manifest SHA is `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`, from source tokenizer bundle manifest `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`. Records are encoded as `encode(prompt) + encode(target) + [EOS=3]`, with no automatic BOS or padding; the prompt ends exactly at `Edited file:` and the completion begins immediately. All 18 prompts and targets roundtripped exactly. Record tokens including EOS ranged from **46 to 77** (mean **61.667**, median **59.5**); all fit the 512-token context.
 
 ## Authorization and evidence boundary
 
@@ -98,3 +98,11 @@ P3-01 preparation and contract review are authorized. Checkpoint staging, optimi
 ## Next milestone
 
 The next milestone is **P3-02 — Exact Small Replacements**. This documentation update does not start its work or authorize training.
+
+## Review correction and reproducibility
+
+The review in commit `e4fe1bf9a1ce260cfa95a221e24a523ef7d299c2` was premature: its first fixture requested Save Changes but expected Store. Its candidate was 4,257 bytes with SHA `3b3ba80a7845888982967eb879053ea0d4c0dbe22adbd2e59ba00c28992d7b6c`, and its reported mean/median token counts were 61.222/59 using joint encoding. Those results are preserved, explicitly superseded, in `training/pretraining/p3-01-superseded-review.json`; they are not evidence for a correct fixture set. The earlier 4,263-byte candidate (`0ca36cb544a89b62c8968c060f83d97e38754cb68e06c178c309daf71bb78f80`) remains in commit `cc992f3` history.
+
+Generator revision `p3-01-file-edit-contract-generator-v2` corrects the expected answer. Both code and preparation contract pin the corrected candidate SHA and byte count. Review rejects coordinated changes to candidate and draft metadata. Generation also checks preparation authorization. Git attributes require LF for candidate and provenance files on Windows. CLI defaults are absolute repository paths, so invoking from `training/` does not create nested artifacts.
+
+The corrected review result is `training/pretraining/p3-01-file-request-contract-review-result.json`. Fourteen focused regressions passed locally, including real frozen-tokenizer review. These checks validate contract preparation, not model editing ability. The controlled model remains 27,566,080 parameters, with P2-48 step 100 (`fd86d11375e547f05b2fab7a36188ca30a7ecd0b0f38198de62bcddbfba489b7`) as the unchanged baseline; no checkpoint was loaded.

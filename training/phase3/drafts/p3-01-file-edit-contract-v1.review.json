@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "milestone": "P3-01",
-  "generatorVersion": "p3-01-file-edit-contract-generator-v1",
+  "generatorVersion": "p3-01-file-edit-contract-generator-v2",
   "representation": "plex-file-edit-v1",
-  "candidateSha256": "3b3ba80a7845888982967eb879053ea0d4c0dbe22adbd2e59ba00c28992d7b6c",
-  "byteCount": 4257,
+  "candidateSha256": "7f81bd850fa522adeb92f030ac51a91cab7ff3b0145a3bab9af0ca56956d638a",
+  "byteCount": 4264,
   "fixtures": 18,
   "modelTrainingAuthorized": false,
   "trainingPerformed": false,

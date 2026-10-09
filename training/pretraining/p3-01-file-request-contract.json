@@ -17,7 +17,13 @@
   "candidateIdentity": {
     "candidateId": "p3-01-file-edit-contract-v1",
     "fixtures": 18,
-    "perLanguage": {"html": 6, "css": 6, "javascript": 6}
+    "perLanguage": {
+      "html": 6,
+      "css": 6,
+      "javascript": 6
+    },
+    "sha256": "7f81bd850fa522adeb92f030ac51a91cab7ff3b0145a3bab9af0ca56956d638a",
+    "bytes": 4264
   },
   "tokenizer": {
     "tokenizerSha256": "2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697",

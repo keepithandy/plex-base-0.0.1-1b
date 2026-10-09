@@ -790,22 +790,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Generate the deterministic P3-01 file-edit contract fixtures without training",
     )
     file_edit_generate.add_argument("--candidate", type=Path,
-        default=Path("training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl"))
+        default=Path(__file__).absolute().parents[3] / Path("training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl"))
     file_edit_generate.add_argument("--review", type=Path,
-        default=Path("training/phase3/drafts/p3-01-file-edit-contract-v1.review.json"))
+        default=Path(__file__).absolute().parents[3] / Path("training/phase3/drafts/p3-01-file-edit-contract-v1.review.json"))
 
     file_edit_review = subparsers.add_parser(
         "file-edit-contract-review",
         help="Review P3-01 fixtures and frozen-tokenizer context fit without training",
     )
     file_edit_review.add_argument("--candidate", type=Path,
-        default=Path("training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl"))
+        default=Path(__file__).absolute().parents[3] / Path("training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl"))
     file_edit_review.add_argument("--review", type=Path,
-        default=Path("training/phase3/drafts/p3-01-file-edit-contract-v1.review.json"))
+        default=Path(__file__).absolute().parents[3] / Path("training/phase3/drafts/p3-01-file-edit-contract-v1.review.json"))
     file_edit_review.add_argument("--contract", type=Path,
-        default=Path("training/pretraining/p3-01-file-request-contract.json"))
+        default=Path(__file__).absolute().parents[3] / Path("training/pretraining/p3-01-file-request-contract.json"))
     file_edit_review.add_argument("--bundle-dir", type=Path,
-        default=Path("training/artifacts/request-grounded/p2-48-training-bundle"),
+        default=Path(__file__).absolute().parents[3] / Path("training/artifacts/request-grounded/p2-48-training-bundle"),
         help="Frozen P2-48 tokenizer bundle; read-only")
     file_edit_review.add_argument("--report", type=Path, default=None)
 

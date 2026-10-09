@@ -142,7 +142,7 @@ natural-language request
 
 The current model remains **27,566,080 parameters** so Phase 3 can measure the direct file-editing task without changing model size at the same time.
 
-The first milestone is **P3-01 — File + Request Contract**: define the simplest stable single-file input/output contract and measure correctness, syntax, unrelated-code preservation, and unnecessary edits.
+**P3-01 — File + Request Contract** has a corrected, frozen 18-fixture review for supplied HTML/CSS/JavaScript files. This validates the contract and tokenizer fit; model editing ability remains unproven. **P3-02 — Exact Small Replacements** is next, with training requiring separate authorization.
 
 ## Roadmap
 

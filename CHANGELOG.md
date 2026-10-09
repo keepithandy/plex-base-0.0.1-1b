@@ -7,6 +7,7 @@
 _🗓️ Updated October 8, 2026_
 
 ### 🧬 Phase 3 — file-conditioned coding
+- Corrected the P3-01 Save Changes target, pinned its 4,264-byte candidate identity in code and contract, protected LF checkout bytes, and preserved the superseded review. Added explicit replacement scoring, authorization/provenance checks, repository-rooted CLI paths, and 14 passing focused regressions. The corrected frozen-tokenizer review remains 46–77 tokens including EOS; no training occurred.
 - Completed **P3-01 — File + Request Contract**: the frozen 18-fixture candidate passed strict one-replacement preservation review and read-only roundtrip/context preflight with the P2-48 tokenizer (46–77 tokens including EOS; all fit 512). No training occurred; model-editing ability remains unproven. **P3-02 — Exact Small Replacements** is next and has not started.
 
 ### 🧬 Phase 2 — data and training experiments
