@@ -197,6 +197,35 @@ class FileConditionedContractTests(unittest.TestCase):
             self.assertEqual(backup.read_bytes(), b"old-candidate")
             self.assertEqual(review.read_bytes(), b"old-review")
 
+    def test_generation_stale_transaction_marker_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            review = root / "review.json"
+            marker = candidate.with_name(candidate.name + ".p3txn")
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            marker.write_text(
+                '{"kind":"plex-p3-paired-publication-v1","recovery":"inspect"}\n',
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(FileExistsError, "stale transaction artifact"):
+                generate_file_edit_candidate(
+                    candidate_path=candidate,
+                    review_path=review,
+                    contract_path=CONTRACT,
+                )
+
+            self.assertEqual(candidate.read_bytes(), b"old-candidate")
+            self.assertEqual(review.read_bytes(), b"old-review")
+            self.assertEqual(
+                marker.read_text(encoding="utf-8"),
+                '{"kind":"plex-p3-paired-publication-v1","recovery":"inspect"}\n',
+            )
+            self.assertFalse(candidate.with_name(candidate.name + ".p3tmp").exists())
+            self.assertFalse(review.with_name(review.name + ".p3tmp").exists())
+
     def test_generation_rejects_contract_output_and_canonical_alias_before_contract_read(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
