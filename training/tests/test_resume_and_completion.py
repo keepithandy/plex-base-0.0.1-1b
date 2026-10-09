@@ -149,6 +149,7 @@ class ResumeAndCompletionTests(unittest.TestCase):
         }
         cases = (
             ("version-true", {**base_payload, "formatVersion": True}, "format version"),
+            ("version-float", {**base_payload, "formatVersion": 1.0}, "format version"),
             ("step-true", {**base_payload, "step": True}, "step must be"),
             ("step-false", {**base_payload, "step": False}, "step must be"),
         )
