@@ -227,6 +227,35 @@ class PilotSafetyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "loss vocabulary"):
             model(inputs, torch.tensor([[5, 6, 7, 129]]), loss_vocabulary_size=128)
 
+    def test_loss_vocabulary_none_uses_full_model_vocabulary(self) -> None:
+        model = PlexLanguageModel(tiny_test_config()).eval()
+        inputs = torch.tensor([[4, 5, 6, 7]], dtype=torch.long)
+        targets = torch.tensor([[5, 6, 7, 8]], dtype=torch.long)
+        logits, loss = model(inputs, targets, loss_vocabulary_size=None)
+        self.assertIsNotNone(loss)
+        expected = F.cross_entropy(
+            logits.reshape(-1, model.config.vocab_size),
+            targets.reshape(-1),
+        )
+        self.assertTrue(torch.allclose(loss, expected))
+
+    def test_loss_vocabulary_rejects_zero_boolean_and_invalid_explicit_values(self) -> None:
+        model = PlexLanguageModel(tiny_test_config()).eval()
+        inputs = torch.tensor([[4, 5, 6, 7]], dtype=torch.long)
+        targets = torch.tensor([[5, 6, 7, 8]], dtype=torch.long)
+
+        for value, message in (
+            (0, "outside the model capacity"),
+            (-1, "outside the model capacity"),
+            (model.config.vocab_size + 1, "outside the model capacity"),
+            (False, "exact integer"),
+            (1.0, "exact integer"),
+            ("128", "exact integer"),
+        ):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, message):
+                    model(inputs, targets, loss_vocabulary_size=value)
+
     def test_pilot_rejects_over_two_hours_before_creating_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
