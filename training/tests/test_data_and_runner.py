@@ -10,7 +10,7 @@ import torch
 
 from plex_training.checkpoint import read_checkpoint
 from plex_training.cli import build_parser
-from plex_training.config import tiny_test_config
+from plex_training.config import DEFAULT_CONFIG, ModelConfig, tiny_test_config
 from plex_training.data import TokenCorpus, resolve_source_files, write_byte_corpus
 from plex_training.runner import (
     SyntheticTokenSource,
@@ -23,6 +23,46 @@ from plex_training.runner import (
 
 
 class DataAndRunnerTests(unittest.TestCase):
+    def test_model_config_dimensions_require_exact_positive_integers(self) -> None:
+        dimensions = (
+            "vocab_size",
+            "context_length",
+            "width",
+            "layers",
+            "heads",
+            "feed_forward_width",
+        )
+        invalid_values = (1.5, True, "2", 0, -1)
+        defaults = DEFAULT_CONFIG.to_dict()
+
+        for field in dimensions:
+            for value in invalid_values:
+                with self.subTest(path="constructor", field=field, value=value):
+                    with self.assertRaises(ValueError):
+                        ModelConfig(**{**defaults, field: value})
+
+                with self.subTest(path="from_dict", field=field, value=value):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "Checkpoint model_config is invalid",
+                    ):
+                        ModelConfig.from_dict({**defaults, field: value})
+
+    def test_controlled_default_model_size_is_unchanged(self) -> None:
+        self.assertEqual(DEFAULT_CONFIG.parameter_count(), 27_566_080)
+        self.assertEqual(
+            DEFAULT_CONFIG,
+            ModelConfig(
+                vocab_size=16_384,
+                context_length=512,
+                width=512,
+                layers=6,
+                heads=8,
+                feed_forward_width=2_048,
+                dropout=0.1,
+            ),
+        )
+
     def test_packed_corpus_yields_next_token_pairs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
