@@ -23,6 +23,7 @@ Status legend:
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
 | **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
 | **B14** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows now require JSON objects before field access, with split/line diagnostics. |
+| **B15** | **P3** | 🔴 **OPEN** | `training/src/plex_training/checkpoint.py` | Checkpoint format version and step must be exact integers; booleans and integer-like values are invalid. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -627,3 +628,29 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
+
+## B15 — Exact checkpoint version/step types
+
+**Priority:** P3  
+**Type:** Code defect / checkpoint-schema defect
+
+The common checkpoint reader previously compared `formatVersion` by value and validated `step` with `isinstance(..., int)`. Because Python booleans are integer-like, `formatVersion=True`, `step=True`, and `step=False` could pass metadata validation. Numeric equality also allowed `formatVersion=1.0`.
+
+Required regression coverage:
+
+- `formatVersion=True` is rejected by the common reader
+- `formatVersion=1.0` is rejected despite comparing equal to version 1
+- `step=True` is rejected
+- `step=False` is rejected
+- exact integer `formatVersion=1` remains accepted
+- exact integer historical `step=0` remains accepted
+- existing completion/resume metadata consumers remain consistent with the common reader
+- historical valid checkpoint payloads require no rewriting
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix requires `type(formatVersion) is int` before comparing it with the supported version, and `type(step) is int` before the existing non-negative range check. Completion and resume already use exact integer step checks; runner/evaluation consume metadata only after `read_checkpoint` succeeds.
+
+B15 remains open until pull-request CI is green and the fix is merged.
