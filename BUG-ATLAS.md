@@ -14,7 +14,7 @@ Status legend:
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume now enforces checkpoint destination ownership and metrics run identity. |
-| **B06** | **P1** | 🔴 **OPEN** | `training/src/plex_training/runner.py` | Checkpoint and metrics outputs must resolve to distinct filesystem objects. |
+| **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Checkpoint and metrics destinations now must resolve to distinct filesystem objects. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -233,10 +233,28 @@ Required regression coverage:
 - existing filesystem aliases such as hard links are rejected
 - no output bytes are created or modified when the guard rejects the request
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed guard runs immediately after both destinations are canonicalized beneath the artifact root. Canonical equality is rejected directly. When both destinations already exist, filesystem identity is checked with `samefile` so distinct pathnames referring to the same object are also rejected.
+The runner now checks destination separation immediately after both paths are canonicalized beneath the artifact root and before resume ownership checks, device selection, model construction, or checkpoint loading.
 
-B06 remains open until pull-request CI is green and the fix is merged.
+Canonical equality is rejected directly, covering identical paths and aliases that resolve to the same pathname. When both destinations already exist, filesystem identity is checked with `samefile`, which also rejects distinct pathnames that refer to the same underlying file, including hard links.
+
+Verified cases:
+
+- a fresh run with one shared nonexistent checkpoint/metrics path is rejected
+- the fresh-run guard fires before device selection or model construction
+- a resume using existing hard-linked checkpoint/metrics destinations is rejected
+- the resume guard fires before device selection or checkpoint loading
+- rejected fresh requests create no output
+- rejected alias requests preserve the existing bytes unchanged
+- existing B05 checkpoint ownership and metrics `runId` behavior remains green for distinct destinations
+
+Verification run:
+
+- **181 passed**
+- **2 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
