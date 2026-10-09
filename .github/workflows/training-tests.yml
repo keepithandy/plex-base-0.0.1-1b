@@ -52,5 +52,6 @@ jobs:
           training/tests/test_cli.py
           training/tests/test_data_and_runner.py
           training/tests/test_answer_weighting.py
+          training/tests/test_web_contamination.py
           training/tests/test_resume_and_completion.py
           -q
