@@ -10,7 +10,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import torch
 
