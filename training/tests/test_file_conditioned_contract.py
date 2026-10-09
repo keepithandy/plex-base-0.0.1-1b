@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import hashlib
 import shutil
+import tempfile
 import uuid
 import unittest
 from pathlib import Path
@@ -82,6 +83,101 @@ class FileConditionedContractTests(unittest.TestCase):
             self.assertFalse(json.loads(CONTRACT.read_text(encoding="utf-8"))["finalHoldoutOpened"])
         finally:
             shutil.rmtree(root)
+
+    def test_generation_rejects_contract_output_and_canonical_alias_before_contract_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            contract = root / "contract.json"
+            contract.write_bytes(b"protected-contract")
+            review = root / "review.json"
+            for candidate in (
+                contract,
+                root / "nested" / ".." / "contract.json",
+            ):
+                with self.subTest(candidate=candidate), patch(
+                    "plex_training.file_conditioned_contract._contract"
+                ) as contract_check:
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "must not overwrite protected input",
+                    ):
+                        generate_file_edit_candidate(
+                            candidate_path=candidate,
+                            review_path=review,
+                            contract_path=contract,
+                        )
+                    contract_check.assert_not_called()
+                    self.assertEqual(contract.read_bytes(), b"protected-contract")
+                    self.assertFalse(review.exists())
+
+    def test_generation_rejects_existing_candidate_review_filesystem_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            candidate.write_bytes(b"existing-output")
+            review = root / "review-alias.json"
+            review.hardlink_to(candidate)
+            contract = root / "contract.json"
+            contract.write_bytes(b"contract")
+            with patch(
+                "plex_training.file_conditioned_contract._contract"
+            ) as contract_check:
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "output paths must differ",
+                ):
+                    generate_file_edit_candidate(
+                        candidate_path=candidate,
+                        review_path=review,
+                        contract_path=contract,
+                    )
+            contract_check.assert_not_called()
+            self.assertEqual(candidate.read_bytes(), b"existing-output")
+            self.assertEqual(review.read_bytes(), b"existing-output")
+
+    def test_review_report_rejects_candidate_and_tokenizer_aliases_before_input_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate = root / "candidate.jsonl"
+            candidate.write_bytes(b"candidate")
+            review = root / "review.json"
+            review.write_bytes(b"review")
+            contract = root / "contract.json"
+            contract.write_bytes(b"contract")
+            bundle = root / "tokenizer"
+            bundle.mkdir()
+            for name in ("manifest.json", "tokenizer-config.json", "tokenizer.json"):
+                (bundle / name).write_bytes(name.encode("ascii"))
+
+            cases = [
+                ("candidate", candidate),
+                ("tokenizer-hardlink", root / "report-tokenizer-alias.json"),
+            ]
+            cases[1][1].hardlink_to(bundle / "tokenizer.json")
+
+            for name, report in cases:
+                with self.subTest(name=name), patch(
+                    "plex_training.file_conditioned_contract._contract"
+                ) as contract_check:
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "must not overwrite protected input",
+                    ):
+                        review_file_edit_candidate(
+                            candidate_path=candidate,
+                            review_path=review,
+                            contract_path=contract,
+                            tokenizer_bundle=bundle,
+                            report_path=report,
+                        )
+                    contract_check.assert_not_called()
+                    self.assertEqual(candidate.read_bytes(), b"candidate")
+                    self.assertEqual(review.read_bytes(), b"review")
+                    self.assertEqual(contract.read_bytes(), b"contract")
+                    self.assertEqual(
+                        (bundle / "tokenizer.json").read_bytes(),
+                        b"tokenizer.json",
+                    )
 
     def test_review_fails_closed_when_bundle_is_missing(self) -> None:
         root = Path(".test-tmp") / str(uuid.uuid4())
