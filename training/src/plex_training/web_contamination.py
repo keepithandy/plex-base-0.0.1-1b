@@ -250,6 +250,8 @@ def _read_dataset_records(
                 row = json.loads(line)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"{path.name}:{line_number} is not valid JSON") from exc
+            if not isinstance(row, dict):
+                raise ValueError(f"{path.name}:{line_number} must contain a JSON object")
             text_value = row.get("text")
             if not isinstance(text_value, str) or not text_value:
                 raise ValueError(f"{path.name}:{line_number} is missing text")
