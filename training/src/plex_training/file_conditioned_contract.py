@@ -146,6 +146,90 @@ def _require_separate_p3_outputs(
                 )
 
 
+def _require_overwritable_p3_output(path: Path) -> None:
+    if not path.exists():
+        return
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("Existing P3 output must be a regular file, not a link or special path")
+
+
+def _write_staged_p3_file(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("xb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _publish_p3_pair(
+    *,
+    candidate_path: Path,
+    candidate_bytes: bytes,
+    review_path: Path,
+    review_bytes: bytes,
+    contract_path: Path,
+) -> None:
+    candidate_stage = candidate_path.with_name(candidate_path.name + ".p3tmp")
+    review_stage = review_path.with_name(review_path.name + ".p3tmp")
+    candidate_backup = candidate_path.with_name(candidate_path.name + ".p3bak")
+
+    _require_separate_p3_outputs(
+        outputs={
+            "candidate": candidate_path,
+            "review metadata": review_path,
+            "candidate staging": candidate_stage,
+            "review staging": review_stage,
+            "candidate recovery backup": candidate_backup,
+        },
+        protected_inputs={"contract": contract_path},
+    )
+    _require_overwritable_p3_output(candidate_path)
+    _require_overwritable_p3_output(review_path)
+    for internal in (candidate_stage, review_stage, candidate_backup):
+        if internal.exists() or internal.is_symlink():
+            raise FileExistsError(
+                f"Refusing P3 publication with stale transaction artifact: {internal.name}"
+            )
+
+    candidate_existed = candidate_path.exists()
+    candidate_backup_created = False
+    candidate_published = False
+    try:
+        _write_staged_p3_file(candidate_stage, candidate_bytes)
+        _write_staged_p3_file(review_stage, review_bytes)
+
+        try:
+            if candidate_existed:
+                os.replace(candidate_path, candidate_backup)
+                candidate_backup_created = True
+            os.replace(candidate_stage, candidate_path)
+            candidate_published = True
+            os.replace(review_stage, review_path)
+        except BaseException:
+            try:
+                if candidate_backup_created:
+                    os.replace(candidate_backup, candidate_path)
+                elif candidate_published:
+                    candidate_path.unlink(missing_ok=True)
+            except BaseException as rollback_exc:
+                raise RuntimeError(
+                    "P3 paired publication failed and candidate rollback also failed; "
+                    f"recovery artifact may remain at {candidate_backup}"
+                ) from rollback_exc
+            raise
+
+        if candidate_backup_created:
+            try:
+                candidate_backup.unlink(missing_ok=True)
+            except OSError:
+                # The published pair is already consistent. A stale backup is
+                # intentionally left visible so the next run fails closed.
+                pass
+    finally:
+        candidate_stage.unlink(missing_ok=True)
+        review_stage.unlink(missing_ok=True)
+
+
 def score_file_edit(row, actual):
     """Conservative replacement-region scoring for the frozen fixtures only."""
     if not isinstance(actual, str):
@@ -236,14 +320,18 @@ def generate_file_edit_candidate(*, candidate_path: Path, review_path: Path, con
     raw = _canonical_bytes(rows)
     _check_identity(raw)
     _contract(contract_path)
-    candidate_path.parent.mkdir(parents=True, exist_ok=True)
-    candidate_path.write_bytes(raw)
     review = {"schemaVersion": 1, "milestone": MILESTONE, "generatorVersion": GENERATOR_VERSION,
               "representation": REPRESENTATION, "candidateSha256": hashlib.sha256(raw).hexdigest(),
               "byteCount": len(raw), "fixtures": len(rows), "modelTrainingAuthorized": False,
               "trainingPerformed": False, "researchOptimizerUpdates": 0, "finalHoldoutOpened": False}
-    review_path.parent.mkdir(parents=True, exist_ok=True)
-    review_path.write_text(json.dumps(review, indent=2) + "\n", encoding="utf-8", newline="\n")
+    review_raw = (json.dumps(review, indent=2) + "\n").encode("utf-8")
+    _publish_p3_pair(
+        candidate_path=candidate_path,
+        candidate_bytes=raw,
+        review_path=review_path,
+        review_bytes=review_raw,
+        contract_path=contract_path,
+    )
     return {"candidateSha256": review["candidateSha256"], "byteCount": len(raw), "fixtures": len(rows)}
 
 
