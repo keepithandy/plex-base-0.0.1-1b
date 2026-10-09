@@ -16,6 +16,7 @@ Status legend:
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume enforces artifact ownership and safe metrics record boundaries. |
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
+| **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -310,3 +311,38 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B08 — Oversized completion prompt truncation
+
+**Priority:** P2  
+**Type:** Code defect / input-integrity defect
+
+Completion previously limited the raw UTF-8 prompt to 4096 bytes but did not require the tokenized prompt to fit the model context. Generation sliced the prompt to the final `context_length` tokens from the first decoding step, so an accepted prompt could silently lose its beginning while the result still reported the original full prompt.
+
+Required regression coverage:
+
+- a prompt with exactly `context_length` tokens reaches the model unchanged
+- a prompt with `context_length + 1` tokens is rejected
+- the rejection reports both the actual token count and allowed model context
+- the oversized prompt is rejected before the model's first completion call
+- the public `complete_pilot` entry point inherits the same guard
+
+### Resolution
+
+🟢 **COMPLETE**
+
+Completion now rejects a tokenized prompt when its length exceeds the loaded model context. The error includes the actual prompt token count and the allowed context size. The rolling context window is still used only after an initially valid prompt begins generation.
+
+Verified cases:
+
+- exactly at the context limit: accepted intact
+- one token over the context limit: rejected
+- rejection includes actual and allowed token counts
+- public completion rejects the oversized prompt before model evaluation
+- existing completion sampling and EOS tests remain green
+
+Verification run:
+
+- **190 passed**
+- **4 skipped**
+- **1 warning**

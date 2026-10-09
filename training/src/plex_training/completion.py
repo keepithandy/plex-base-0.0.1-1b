@@ -44,6 +44,12 @@ def _generate_token_ids(
         raise ValueError("Prompt must contain ordinary in-vocabulary tokens")
     if not 4 <= actual_vocab <= model.config.vocab_size:
         raise ValueError("Learned vocabulary is outside the model capacity")
+    prompt_token_count = len(prompt_ids)
+    if prompt_token_count > model.config.context_length:
+        raise ValueError(
+            f"Prompt has {prompt_token_count} tokens; model context allows "
+            f"{model.config.context_length}"
+        )
     if type(max_new_tokens) is not int or not 1 <= max_new_tokens <= 256:
         raise ValueError("max-new-tokens must be in the range 1..256")
     if not math.isfinite(temperature) or not 0 <= temperature <= 10:

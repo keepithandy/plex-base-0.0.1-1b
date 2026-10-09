@@ -10,7 +10,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import torch
 
@@ -439,6 +439,88 @@ class ResumeAndCompletionTests(unittest.TestCase):
                     steps=1,
                 )
             self.assertEqual(marker.read_text(encoding="utf-8"), "preserve")
+
+    def test_completion_uses_full_prompt_at_exact_context_boundary(self) -> None:
+        from plex_training.completion import _generate_token_ids
+
+        class RecordingModel:
+            config = SimpleNamespace(context_length=4, vocab_size=8)
+
+            def __init__(self) -> None:
+                self.inputs: list[list[int]] = []
+
+            def eval(self) -> "RecordingModel":
+                return self
+
+            def __call__(self, visible: torch.Tensor) -> tuple[torch.Tensor, None]:
+                self.inputs.append(visible[0].tolist())
+                scores = torch.full((1, visible.shape[1], 8), -20.0)
+                scores[0, -1, 3] = 20.0  # Stop immediately at EOS.
+                return scores, None
+
+        model = RecordingModel()
+        prompt_ids = [4, 5, 6, 7]
+        generated, stopped = _generate_token_ids(
+            model,
+            prompt_ids,
+            actual_vocab=8,
+            max_new_tokens=1,
+            temperature=0.0,
+            seed=7,
+            device=torch.device("cpu"),
+        )
+        self.assertEqual(model.inputs, [prompt_ids])
+        self.assertEqual(generated, [])
+        self.assertTrue(stopped)
+
+    def test_complete_pilot_rejects_prompt_one_token_over_model_context(self) -> None:
+        from plex_training.completion import complete_pilot
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            checkpoint = root / "model.pt"
+            checkpoint.write_bytes(b"checkpoint-placeholder")
+            prompt_ids = [4, 5, 6, 7, 4]
+            tokenizer = SimpleNamespace(
+                vocabulary_size=8,
+                encode=Mock(return_value=prompt_ids),
+            )
+            tokenizer_record = {"tokenizerSha256": "fixture-tokenizer"}
+            model = SimpleNamespace(
+                config=SimpleNamespace(context_length=4, vocab_size=8),
+                eval=Mock(),
+            )
+            payload = {
+                "codec": CODEC,
+                "tokenizerRecord": tokenizer_record,
+                "step": 1,
+                "datasetRecord": {"fixture": True},
+                "initializationRecord": {"pretrainedCheckpointLoaded": False},
+            }
+            with patch(
+                "plex_training.completion._completion_tokenizer",
+                return_value=(tokenizer, tokenizer_record),
+            ), patch(
+                "plex_training.completion.select_device",
+                return_value=torch.device("cpu"),
+            ), patch(
+                "plex_training.completion.read_checkpoint",
+                return_value=(model, payload),
+            ):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Prompt has 5 tokens; model context allows 4",
+                ):
+                    complete_pilot(
+                        checkpoint_path=checkpoint,
+                        prompt="small byte prompt",
+                        bundle_dir=root / "bundle",
+                        device_name="cpu",
+                        max_new_tokens=1,
+                    )
+
+            tokenizer.encode.assert_called_once_with("small byte prompt")
+            model.eval.assert_not_called()
 
     def test_generation_masks_controls_and_unused_vocab_then_stops_on_eos(self) -> None:
         from plex_training.completion import _generate_token_ids
