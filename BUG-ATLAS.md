@@ -14,6 +14,7 @@ Status legend:
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume now enforces checkpoint destination ownership and metrics run identity. |
+| **B06** | **P1** | 🔴 **OPEN** | `training/src/plex_training/runner.py` | Checkpoint and metrics outputs must resolve to distinct filesystem objects. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -215,3 +216,27 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
+
+## B06 — Distinct metrics and checkpoint destinations
+
+**Priority:** P1  
+**Type:** Code defect / artifact-contract defect
+
+The training runner previously constrained the checkpoint and metrics destinations independently to the artifact root but never required them to be distinct. A single path could therefore be used for both the JSONL metrics stream and the binary checkpoint, allowing one artifact contract to overwrite or corrupt the other.
+
+Required regression coverage:
+
+- a fresh run rejects the same nonexistent path for checkpoint and metrics
+- destination separation is checked before model construction or device selection
+- resume rejects checkpoint/metrics aliases before checkpoint loading
+- canonical path aliases are rejected
+- existing filesystem aliases such as hard links are rejected
+- no output bytes are created or modified when the guard rejects the request
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed guard runs immediately after both destinations are canonicalized beneath the artifact root. Canonical equality is rejected directly. When both destinations already exist, filesystem identity is checked with `samefile` so distinct pathnames referring to the same object are also rejected.
+
+B06 remains open until pull-request CI is green and the fix is merged.
