@@ -1,15 +1,19 @@
 import hashlib
 import json
+import os
 import random
+import stat
 import tempfile
 import unittest
 from pathlib import Path
+from contextlib import contextmanager
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import torch
 from torch.nn import functional as F
 
-from plex_training.artifacts import atomic_write_checkpoint
+from plex_training.artifacts import artifact_bytes, atomic_write_checkpoint
 from plex_training.checkpoint import save_checkpoint
 from plex_training.config import tiny_test_config
 from plex_training.model import PlexLanguageModel
@@ -100,6 +104,86 @@ class PilotSafetyTests(unittest.TestCase):
 
             self.assertEqual(destination.read_bytes(), b"GOOD")
             self.assertEqual(filler.read_bytes(), b"12")
+            self.assertFalse((root / "model.pt.tmp").exists())
+
+    def test_allocation_discovery_failures_block_checkpoint_serialization(self) -> None:
+        for failure in ("open", "iterate", "metadata"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                hidden = root / "hidden"
+                hidden.mkdir()
+                existing = hidden / "existing.bin"
+                existing.write_bytes(b"x" * 80)
+                destination = root / "model.pt"
+                original_scandir = os.scandir
+                original_lstat = Path.lstat
+
+                @contextmanager
+                def failing_scandir(path):
+                    if Path(path) == hidden and failure == "open":
+                        raise PermissionError("synthetic allocation access denial")
+                    with original_scandir(path) as entries:
+                        if Path(path) == hidden and failure == "iterate":
+                            def failed_entries():
+                                yield from entries
+                                raise OSError("synthetic enumeration failure")
+                            yield failed_entries()
+                        else:
+                            yield entries
+
+                def failing_lstat(path, *args, **kwargs):
+                    if path == existing and failure == "metadata":
+                        raise PermissionError("synthetic metadata failure")
+                    return original_lstat(path, *args, **kwargs)
+
+                with patch("plex_training.artifacts.os.scandir", failing_scandir), patch.object(
+                    Path, "lstat", failing_lstat
+                ), patch("plex_training.artifacts.torch.save") as save:
+                    with self.assertRaisesRegex(RuntimeError, "allocation cannot be verified"):
+                        atomic_write_checkpoint({}, destination, root, storage_limit_bytes=100)
+                save.assert_not_called()
+                self.assertEqual(existing.read_bytes(), b"x" * 80)
+                self.assertFalse(destination.exists())
+                self.assertFalse((root / "model.pt.tmp").exists())
+                self.assertEqual(artifact_bytes(root), 80)
+                with patch("plex_training.artifacts.torch.save", side_effect=lambda _, stream: stream.write(b"y" * 30)):
+                    with self.assertRaisesRegex(RuntimeError, "110 bytes requested, limit is 100 bytes"):
+                        atomic_write_checkpoint({}, destination, root, storage_limit_bytes=100)
+                self.assertEqual(artifact_bytes(root), 80)
+
+    def test_allocation_rejects_links_reparse_points_and_special_files(self) -> None:
+        for kind in ("link", "reparse", "special"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                entry = root / "entry"
+                entry.write_bytes(b"existing")
+                original = Path.lstat
+
+                def metadata(path, *args, **kwargs):
+                    if path == entry:
+                        return SimpleNamespace(
+                            st_mode={"link": stat.S_IFLNK, "reparse": stat.S_IFREG, "special": stat.S_IFIFO}[kind],
+                            st_file_attributes=0x400 if kind == "reparse" else 0,
+                        )
+                    return original(path, *args, **kwargs)
+
+                with patch.object(Path, "lstat", metadata), patch("plex_training.artifacts.torch.save") as save:
+                    with self.assertRaisesRegex(RuntimeError, "allocation cannot include"):
+                        atomic_write_checkpoint({}, root / "model.pt", root, storage_limit_bytes=100)
+                save.assert_not_called()
+                self.assertEqual(entry.read_bytes(), b"existing")
+
+    def test_failed_final_allocation_check_preserves_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            destination = root / "model.pt"
+            destination.write_bytes(b"GOOD")
+            with patch("plex_training.artifacts.artifact_bytes", side_effect=[4, RuntimeError("allocation cannot be verified")]), patch(
+                "plex_training.artifacts.torch.save", side_effect=lambda _, stream: stream.write(b"NEW")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "allocation cannot be verified"):
+                    atomic_write_checkpoint({}, destination, root, overwrite=True, storage_limit_bytes=100)
+            self.assertEqual(destination.read_bytes(), b"GOOD")
             self.assertFalse((root / "model.pt.tmp").exists())
 
     def test_pilot_bundle_rejects_modified_validation_tokens(self) -> None:

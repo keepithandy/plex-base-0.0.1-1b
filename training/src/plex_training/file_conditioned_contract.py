@@ -6,11 +6,12 @@ import hashlib
 import json
 import os
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from statistics import mean, median
 from typing import Any
 
 from .tokenizer import PlexTokenizer, sha256_file
+from .path_safety import require_unambiguous_windows_destination
 
 ROOT = Path(__file__).absolute().parents[3]
 DEFAULT_CONTRACT = ROOT / "training/pretraining/p3-01-file-request-contract.json"
@@ -127,6 +128,10 @@ def _require_separate_p3_outputs(
     protected_inputs: dict[str, Path],
 ) -> None:
     output_items = list(outputs.items())
+    if os.name == "nt":
+        for _, path in output_items:
+            require_unambiguous_windows_destination(PureWindowsPath(path))
+            require_unambiguous_windows_destination(PureWindowsPath(path.resolve(strict=False)))
     for index, (first_name, first_path) in enumerate(output_items):
         for second_name, second_path in output_items[index + 1:]:
             if _paths_alias(first_path, second_path):

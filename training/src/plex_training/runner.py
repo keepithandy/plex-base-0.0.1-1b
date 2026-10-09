@@ -22,6 +22,7 @@ from .config import DEFAULT_CONFIG, ModelConfig
 from .data import BYTE_VOCABULARY_SIZE, SyntheticTokenSource, TokenCorpus
 from .limits import MAX_PILOT_MINUTES, MAX_SMOKE_MINUTES
 from .model import PlexLanguageModel, parameter_count
+from .path_safety import require_unambiguous_windows_destination as _require_unambiguous_windows_destination
 from .record_sampling import CompleteRecordTokenCorpus
 from .telemetry import environment_report, peak_gpu_memory, reset_peak_gpu_memory, select_device
 
@@ -101,23 +102,6 @@ def _write_event(
         json.dump(record, stream, sort_keys=True)
         stream.write("\n")
         stream.flush()
-
-
-def _require_unambiguous_windows_destination(path: PureWindowsPath) -> None:
-    # Validate spelling before resolve(): Win32 can alias nonexistent names too.
-    if str(path).startswith(("\\\\?\\", "\\\\.\\")) or (path.drive and not path.root):
-        raise ValueError("Training destinations must use ordinary Windows paths")
-    reserved = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"} | {
-        prefix + suffix for prefix in ("COM", "LPT")
-        for suffix in "123456789\u00b9\u00b2\u00b3"
-    }
-    for part in path.parts[1:] if path.anchor else path.parts:
-        if part in {".", ".."}:
-            continue
-        if (part != part.rstrip(" .")
-                or part.split(".")[0].rstrip(" ").upper() in reserved
-                or any(char in '<>:"|?*' or ord(char) < 32 for char in part)):
-            raise ValueError("Training destinations must not use ambiguous Windows names")
 
 
 def _require_distinct_run_destinations(

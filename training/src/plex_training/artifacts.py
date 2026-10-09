@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import stat
 from pathlib import Path
 from typing import BinaryIO
 
@@ -22,13 +23,33 @@ def path_within_root(path: Path, root: Path) -> Path:
 
 
 def artifact_bytes(root: Path) -> int:
-    if not root.exists():
+    try:
+        root_metadata = root.lstat()
+    except FileNotFoundError:
         return 0
+    except OSError as exc:
+        raise RuntimeError(f"Artifact allocation cannot be verified: {root}") from exc
+    if not stat.S_ISDIR(root_metadata.st_mode):
+        raise RuntimeError("Artifact allocation root must be a regular directory")
     total = 0
-    for path in root.rglob("*"):
-        if path.is_symlink() or not path.is_file():
-            continue
-        total += path.stat().st_size
+    pending = [root]
+    while pending:
+        path = pending.pop()
+        try:
+            metadata = path.lstat()
+            if (stat.S_ISLNK(metadata.st_mode)
+                    or getattr(metadata, "st_file_attributes", 0)
+                    & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)):
+                raise RuntimeError(f"Artifact allocation cannot include links or reparse points: {path}")
+            if stat.S_ISREG(metadata.st_mode):
+                total += metadata.st_size
+            elif stat.S_ISDIR(metadata.st_mode):
+                with os.scandir(path) as entries:
+                    pending.extend(Path(entry.path) for entry in entries)
+            else:
+                raise RuntimeError(f"Artifact allocation cannot include special files: {path}")
+        except OSError as exc:
+            raise RuntimeError(f"Artifact allocation cannot be verified: {path}") from exc
     return total
 
 
