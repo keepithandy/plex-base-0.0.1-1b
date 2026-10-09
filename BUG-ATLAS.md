@@ -22,7 +22,7 @@ Status legend:
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
 | **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
-| **B14** | **P3** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows must be JSON objects before field access, with split/line diagnostics. |
+| **B14** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows now require JSON objects before field access, with split/line diagnostics. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -601,10 +601,29 @@ Required regression coverage:
 - both train and validation split paths use the same validation
 - no contamination report is written after the malformed row is rejected
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix requires each decoded dataset row to be a dictionary immediately after `json.loads`. Non-object rows raise `ValueError("<split>.jsonl:<line> must contain a JSON object")` before any field access.
+Each decoded dataset JSONL row is now required to be a dictionary immediately after `json.loads` and before any field access. Syntactically valid non-object JSON therefore follows the scanner's deterministic validation path instead of raising an attribute error.
 
-B14 remains open until pull-request CI is green and the fix is merged.
+The error preserves the exact split filename and line number: `ValueError("<split>.jsonl:<line> must contain a JSON object")`. Existing invalid-JSON and missing-text diagnostics remain unchanged.
+
+Verified in both `train.jsonl` and `validation.jsonl`:
+
+- JSON `null`: rejected contextually
+- JSON array: rejected contextually
+- JSON string: rejected contextually
+- JSON number: rejected contextually
+- JSON boolean: rejected contextually
+- line number is preserved after a valid preceding row
+- no contamination report is written after malformed-row rejection
+- existing contamination scanner regressions remain green
+
+Verification run:
+
+- **219 passed**
+- **9 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
