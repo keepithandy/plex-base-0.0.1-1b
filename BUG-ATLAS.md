@@ -245,7 +245,9 @@ Canonical equality is rejected directly, covering identical paths and aliases th
 
 Completion follow-up: Windows can treat nonexistent `output` and `output.` (or `output `) as the same file even when path resolution returns different spellings. Before canonicalization, Windows output names now reject trailing dots/spaces in any component, reserved device names, alternate data streams, invalid characters, drive-relative paths, and device namespaces. The metrics destination must also differ from the checkpoint's `.tmp` staging file, including existing filesystem aliases. All these checks run before device selection or checkpoint loading for both fresh and resumed runs.
 
-Follow-up review and verification for B05/B06: **27 focused tests passed**, **8 unrelated/model-execution tests deselected**, and **1 existing NumPy warning** on Windows. Coverage includes rejection without artifact mutation, safe metrics appends, the native nonexistent Windows alias cases, checkpoint staging collisions, and the prior B04-B06 regressions. No research training or final-holdout access was performed.
+Resolved Windows destinations are validated again so path resolution cannot introduce an ambiguous spelling hidden by the original input. This boundary is covered with simulated link resolution; native symlink creation was unavailable because the local account lacks that Windows privilege.
+
+Follow-up review and verification for B05/B06: **28 focused tests passed**, **8 unrelated/model-execution tests deselected**, and **1 existing NumPy warning** on Windows. Coverage includes rejection without artifact mutation, safe metrics appends, the native nonexistent Windows alias cases, resolved destination validation, checkpoint staging collisions, and the prior B04-B06 regressions. No research training or final-holdout access was performed.
 
 Verified cases:
 

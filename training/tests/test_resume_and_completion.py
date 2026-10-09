@@ -532,6 +532,27 @@ class ArtifactDestinationRegressionTests(unittest.TestCase):
                     checkpoint.assert_not_called()
                     self.assertEqual(list(root.iterdir()), [])
 
+    @unittest.skipUnless(os.name == "nt", "Win32 aliases require Windows")
+    def test_resolved_windows_destination_is_validated_too(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            # A link can hide a target spelling that was absent from the input.
+            def resolved_destination(path, artifact_root):
+                return root / "output." if path == root / "link" else path
+
+            with patch("plex_training.runner.path_within_root", side_effect=resolved_destination), patch(
+                "plex_training.runner.select_device"
+            ) as device:
+                with self.assertRaisesRegex(ValueError, "Windows"):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32), validation=None,
+                        device_name="cpu", minutes=0.1, step_limit=1,
+                        output_checkpoint=root / "output", metrics_path=root / "link",
+                        artifact_root=root, config=tiny_test_config(), allow_tiny_config=True,
+                    )
+            device.assert_not_called()
+            self.assertEqual(list(root.iterdir()), [])
+
     def test_checkpoint_staging_path_cannot_be_metrics_destination(self):
         for resume in (False, True):
             with self.subTest(resume=resume), tempfile.TemporaryDirectory() as temporary:

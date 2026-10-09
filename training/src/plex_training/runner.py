@@ -366,6 +366,9 @@ def run_training(
             _require_unambiguous_windows_destination(PureWindowsPath(destination))
     output_checkpoint = path_within_root(output_checkpoint, artifact_root)
     metrics_path = path_within_root(metrics_path, artifact_root)
+    if os.name == "nt":
+        for destination in (output_checkpoint, metrics_path):
+            _require_unambiguous_windows_destination(PureWindowsPath(destination))
     _require_distinct_run_destinations(output_checkpoint, metrics_path)
     checkpoint_owned = False
     metrics_owned = False
