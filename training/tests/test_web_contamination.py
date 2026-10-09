@@ -412,15 +412,16 @@ class PlexWebContaminationTests(unittest.TestCase):
             bad.write_text("B" * 100, encoding="utf-8")
             dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
             config = self._config(root, "protected")
-            original_read_text = Path.read_text
+            original_open = Path.open
 
-            def selective_read_text(path: Path, *args, **kwargs):
-                if path == bad:
+            def selective_open(path: Path, *args, **kwargs):
+                mode = args[0] if args else kwargs.get("mode", "r")
+                if path == bad and "r" in mode:
                     raise OSError("synthetic unreadable file")
-                return original_read_text(path, *args, **kwargs)
+                return original_open(path, *args, **kwargs)
 
             with patch("plex_training.web_contamination.REPO_ROOT", root), patch.object(
-                Path, "read_text", selective_read_text
+                Path, "open", selective_open
             ):
                 report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
             self.assertFalse(report["passed"])
