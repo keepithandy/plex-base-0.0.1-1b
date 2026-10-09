@@ -179,6 +179,75 @@ class ResumeAndCompletionTests(unittest.TestCase):
                         )
                     self.assertFalse((root / name / "model.pt").exists())
 
+    def test_fresh_run_rejects_identical_checkpoint_and_metrics_before_model_work(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            shared = root / "shared-output"
+            with patch("plex_training.runner.PlexLanguageModel") as model_mock, patch(
+                "plex_training.runner.select_device"
+            ) as device_mock:
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Checkpoint and metrics destinations must be different files",
+                ):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32),
+                        validation=None,
+                        device_name="cpu",
+                        minutes=0.1,
+                        step_limit=1,
+                        output_checkpoint=shared,
+                        metrics_path=shared,
+                        artifact_root=root,
+                        seed=3,
+                        micro_batch=1,
+                        accumulation_steps=1,
+                        config=tiny_test_config(),
+                        allow_tiny_config=True,
+                    )
+            model_mock.assert_not_called()
+            device_mock.assert_not_called()
+            self.assertFalse(shared.exists())
+
+    def test_resume_rejects_hardlinked_checkpoint_and_metrics_before_checkpoint_io(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            resume_from = root / "resume.pt"
+            resume_from.write_bytes(b"resume-placeholder")
+            output = root / "owned-output"
+            metrics = root / "metrics-alias"
+            output.write_bytes(b"existing-artifact")
+            metrics.hardlink_to(output)
+            self.assertNotEqual(output, metrics)
+            self.assertTrue(output.samefile(metrics))
+            with patch("plex_training.runner.read_checkpoint") as read_checkpoint_mock, patch(
+                "plex_training.runner.select_device"
+            ) as device_mock:
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Checkpoint and metrics destinations must be different files",
+                ):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32),
+                        validation=None,
+                        device_name="cpu",
+                        minutes=0.1,
+                        step_limit=1,
+                        output_checkpoint=output,
+                        metrics_path=metrics,
+                        artifact_root=root,
+                        seed=3,
+                        micro_batch=1,
+                        accumulation_steps=1,
+                        resume_from=resume_from,
+                        config=tiny_test_config(),
+                        allow_tiny_config=True,
+                    )
+            read_checkpoint_mock.assert_not_called()
+            device_mock.assert_not_called()
+            self.assertEqual(output.read_bytes(), b"existing-artifact")
+            self.assertEqual(metrics.read_bytes(), b"existing-artifact")
+
     def test_resume_rejects_different_existing_checkpoint_destination_before_io(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
