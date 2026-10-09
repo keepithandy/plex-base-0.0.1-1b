@@ -79,13 +79,14 @@ def read_checkpoint(path: Path, device: torch.device) -> tuple[PlexLanguageModel
         raise ValueError("Checkpoint could not be loaded as a safe Plex checkpoint") from exc
     if not isinstance(payload, dict):
         raise ValueError("Checkpoint root must be an object")
-    if payload.get("formatVersion") != CHECKPOINT_FORMAT_VERSION:
+    format_version = payload.get("formatVersion")
+    if type(format_version) is not int or format_version != CHECKPOINT_FORMAT_VERSION:
         raise ValueError("Unsupported checkpoint format version")
     if payload.get("modelFamily") != "plex-from-scratch":
         raise ValueError("Checkpoint is not a Plex from-scratch checkpoint")
     config = ModelConfig.from_dict(payload.get("modelConfig"))
     step = payload.get("step")
-    if not isinstance(step, int) or step < 0:
+    if type(step) is not int or step < 0:
         raise ValueError("Checkpoint step must be a non-negative integer")
     if not isinstance(payload.get("modelStateDict"), dict):
         raise ValueError("Checkpoint model state is missing")
