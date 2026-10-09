@@ -23,7 +23,7 @@ Status legend:
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
 | **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
 | **B14** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows now require JSON objects before field access, with split/line diagnostics. |
-| **B15** | **P3** | 🔴 **OPEN** | `training/src/plex_training/checkpoint.py` | Checkpoint format version and step must be exact integers; booleans and integer-like values are invalid. |
+| **B15** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/checkpoint.py` | Checkpoint format version and step now require exact integer types before schema/range validation. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -647,10 +647,29 @@ Required regression coverage:
 - existing completion/resume metadata consumers remain consistent with the common reader
 - historical valid checkpoint payloads require no rewriting
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix requires `type(formatVersion) is int` before comparing it with the supported version, and `type(step) is int` before the existing non-negative range check. Completion and resume already use exact integer step checks; runner/evaluation consume metadata only after `read_checkpoint` succeeds.
+The common checkpoint reader now requires `type(formatVersion) is int` before comparing the supported format version and `type(step) is int` before applying the non-negative step range. Boolean and integer-like metadata therefore cannot pass the shared checkpoint schema.
 
-B15 remains open until pull-request CI is green and the fix is merged.
+Consumer review confirmed completion and resume already apply exact-integer step checks at their additional product-specific boundaries. Runner and evaluation consume step metadata only after `read_checkpoint` succeeds, so the shared reader now provides the consistent base guarantee without rewriting or migrating historical valid artifacts.
+
+Verified cases:
+
+- `formatVersion=True`: rejected
+- `formatVersion=1.0`: rejected despite numeric equality with version 1
+- `step=True`: rejected
+- `step=False`: rejected
+- exact integer `formatVersion=1`: accepted
+- historical exact integer `step=0`: accepted
+- valid v1 model configuration/state still loads through the common reader
+- existing completion/resume/checkpoint regressions remain green
+
+Verification run:
+
+- **221 passed**
+- **9 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, checkpoint rewriting, or final-holdout access was performed for this fix.
