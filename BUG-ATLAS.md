@@ -11,6 +11,7 @@ Status legend:
 |---|---|---|---|---|
 | **B01** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/answer_weighting.py` | Exact dataset/index cardinality is now enforced. |
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination protection now fails closed when configured coverage is unusable. |
+| **B03** | **P2** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold must be detected. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -84,3 +85,25 @@ Verification run:
 - **167 passed**
 - **2 skipped**
 - **1 warning**
+
+## B03 — Interior shared-substring contamination detection
+
+**Priority:** P2  
+**Type:** Code defect / verification defect
+
+The scanner currently checks only whether an entire protected segment is contained in a corpus record or vice versa. Two longer strings can therefore share a protected interior passage at or above `minimumSubstringCharacters` while neither whole string contains the other.
+
+Required regression coverage:
+
+- shared substring inside both strings
+- overlap exactly at the configured threshold
+- overlap one character below the threshold
+- existing whole-segment containment behavior
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix computes the exact longest shared substring with a suffix automaton, preserving whole-segment containment while adding interior-overlap detection without an unbounded quadratic search.
+
+B03 remains open until the pull-request CI run is green and the fix is merged.
