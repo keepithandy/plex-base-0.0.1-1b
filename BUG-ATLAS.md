@@ -16,7 +16,7 @@ Status legend:
 | **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume enforces artifact ownership and safe metrics record boundaries. |
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
-| **B08** | **P2** | 🔴 **OPEN** | `training/src/plex_training/completion.py` | Completion must reject prompts that exceed model token context instead of truncating silently. |
+| **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -327,10 +327,22 @@ Required regression coverage:
 - the oversized prompt is rejected before the model's first completion call
 - the public `complete_pilot` entry point inherits the same guard
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed fix rejects any prompt whose tokenized length exceeds the loaded model's context length. The error reports the actual prompt token count and the allowed context. The rolling context slice remains only for later generated tokens after an initially valid prompt.
+Completion now rejects a tokenized prompt when its length exceeds the loaded model context. The error includes the actual prompt token count and the allowed context size. The rolling context window is still used only after an initially valid prompt begins generation.
 
-B08 remains open until pull-request CI is green and the fix is merged.
+Verified cases:
+
+- exactly at the context limit: accepted intact
+- one token over the context limit: rejected
+- rejection includes actual and allowed token counts
+- public completion rejects the oversized prompt before model evaluation
+- existing completion sampling and EOS tests remain green
+
+Verification run:
+
+- **190 passed**
+- **4 skipped**
+- **1 warning**
