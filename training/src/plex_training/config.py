@@ -24,6 +24,11 @@ class ModelConfig:
             "heads": self.heads,
             "feed_forward_width": self.feed_forward_width,
         }
+        nonintegers = [name for name, value in positive.items() if type(value) is not int]
+        if nonintegers:
+            raise ValueError(
+                f"Configuration dimensions must be exact integers: {', '.join(nonintegers)}"
+            )
         invalid = [name for name, value in positive.items() if value <= 0]
         if invalid:
             raise ValueError(f"Configuration values must be positive: {', '.join(invalid)}")
