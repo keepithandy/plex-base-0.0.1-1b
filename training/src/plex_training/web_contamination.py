@@ -22,6 +22,69 @@ def _sha256(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def _longest_shared_substring_length(left: str, right: str) -> int:
+    if not left or not right:
+        return 0
+    if left in right:
+        return len(left)
+    if right in left:
+        return len(right)
+    if len(left) > len(right):
+        left, right = right, left
+
+    transitions: list[dict[str, int]] = [{}]
+    links = [-1]
+    lengths = [0]
+    last = 0
+
+    for char in left:
+        current = len(transitions)
+        transitions.append({})
+        links.append(0)
+        lengths.append(lengths[last] + 1)
+
+        state = last
+        while state >= 0 and char not in transitions[state]:
+            transitions[state][char] = current
+            state = links[state]
+
+        if state >= 0:
+            target = transitions[state][char]
+            if lengths[state] + 1 == lengths[target]:
+                links[current] = target
+            else:
+                clone = len(transitions)
+                transitions.append(transitions[target].copy())
+                links.append(links[target])
+                lengths.append(lengths[state] + 1)
+                while state >= 0 and transitions[state].get(char) == target:
+                    transitions[state][char] = clone
+                    state = links[state]
+                links[target] = clone
+                links[current] = clone
+        last = current
+
+    state = 0
+    matched = 0
+    longest = 0
+    for char in right:
+        if char in transitions[state]:
+            state = transitions[state][char]
+            matched += 1
+        else:
+            while state >= 0 and char not in transitions[state]:
+                state = links[state]
+            if state < 0:
+                state = 0
+                matched = 0
+                continue
+            matched = lengths[state] + 1
+            state = transitions[state][char]
+        longest = max(longest, matched)
+
+    return longest
+
+
 def _read_json(path: Path, label: str) -> dict[str, Any]:
     if path.is_symlink():
         raise ValueError(f"{label} must not be a symbolic link")
@@ -221,16 +284,18 @@ def check_contamination(
                         "characters": len(segment),
                     }
                 )
-            elif segment in text or (len(text) >= minimum and text in segment):
-                substring_matches.append(
-                    {
-                        "split": record["split"],
-                        "sourceId": record["sourceId"],
-                        "path": record["path"],
-                        "protectedPath": protected_path,
-                        "overlapAtLeastCharacters": min(len(text), len(segment)),
-                    }
-                )
+            else:
+                overlap = _longest_shared_substring_length(text, segment)
+                if overlap >= minimum:
+                    substring_matches.append(
+                        {
+                            "split": record["split"],
+                            "sourceId": record["sourceId"],
+                            "path": record["path"],
+                            "protectedPath": protected_path,
+                            "overlapAtLeastCharacters": overlap,
+                        }
+                    )
 
     passed = (
         protection_coverage_passed
