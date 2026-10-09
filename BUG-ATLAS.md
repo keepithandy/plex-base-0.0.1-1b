@@ -13,6 +13,7 @@ Status legend:
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
+| **B05** | **P1** | 🔴 **OPEN** | `training/src/plex_training/runner.py` | Resume must not overwrite another checkpoint or append to metrics owned by another run. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -167,3 +168,29 @@ Verification run:
 - **1 warning**
 
 Historical v1 reports remain untouched; new reports use `schemaVersion: 2` and `plex-web-contamination-report-v2`.
+
+## B05 — Resume artifact ownership
+
+**Priority:** P1  
+**Type:** Code defect / artifact-integrity defect
+
+The training runner previously skipped checkpoint/metrics collision protection whenever `resume_from` was set. A resumed run could therefore target an unrelated existing checkpoint and later overwrite it, while an unrelated existing metrics file would be appended to without an ownership check.
+
+Required regression coverage:
+
+- resuming checkpoint A cannot target an already-existing checkpoint B
+- collision rejection happens before checkpoint loading or optimizer work where possible
+- in-place continuation of the exact checkpoint being resumed remains supported
+- a fresh continuation checkpoint path remains supported
+- checkpoints persist a stable run identity across continuation
+- every metrics event carries that run identity
+- an existing metrics file must prove the same run identity before append
+- unrelated or legacy/unidentifiable existing metrics are rejected
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix establishes explicit artifact ownership before training begins. Existing checkpoint overwrite is allowed only when the destination resolves to the same checkpoint supplied as `resume_from`; otherwise the destination must not already exist. A per-run `runId` is stored in checkpoints and metrics events, and existing metrics must contain only that same identity before a resume can append. Legacy checkpoints without a run identity remain resumable when new output/metrics paths are selected.
+
+B05 remains open until pull-request CI is green and the fix is merged.
