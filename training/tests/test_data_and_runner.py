@@ -75,7 +75,10 @@ class DataAndRunnerTests(unittest.TestCase):
                 allow_tiny_config=True,
             )
             self.assertEqual(result["stepsThisRun"], 1)
+            run_id = result["runId"]
+            self.assertEqual(len(run_id), 32)
             model, payload = read_checkpoint(output, torch.device("cpu"))
+            self.assertEqual(payload["runId"], run_id)
             self.assertEqual(payload["step"], 1)
             self.assertEqual(model.config, tiny_test_config())
 
@@ -96,7 +99,9 @@ class DataAndRunnerTests(unittest.TestCase):
                 allow_tiny_config=True,
             )
             self.assertEqual(resumed["step"], 2)
+            self.assertEqual(resumed["runId"], run_id)
             resumed_model, resumed_payload = read_checkpoint(output, torch.device("cpu"))
+            self.assertEqual(resumed_payload["runId"], run_id)
             self.assertEqual(resumed_model.config, tiny_test_config())
             self.assertEqual(resumed_payload["modelConfig"]["vocab_size"], 256)
 
@@ -119,6 +124,8 @@ class DataAndRunnerTests(unittest.TestCase):
 
             events = [json.loads(line) for line in metrics.read_text(encoding="utf-8").splitlines()]
             self.assertTrue(any(event["event"] == "run_finished" for event in events))
+            self.assertTrue(events)
+            self.assertEqual({event["runId"] for event in events}, {run_id})
 
     def test_smoke_has_a_ten_minute_hard_limit(self) -> None:
         args = build_parser().parse_args(["smoke", "--minutes", "10.1"])
