@@ -22,6 +22,7 @@ Status legend:
 | **B11** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/file_conditioned_contract.py` | P3 candidate and review metadata now publish as a staged, recoverable coordinated pair. |
 | **B12** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/config.py` | Model dimension fields now require exact positive integers and reject booleans/non-integers. |
 | **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
+| **B14** | **P3** | 🔴 **OPEN** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows must be JSON objects before field access, with split/line diagnostics. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -581,3 +582,29 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
+
+## B14 — Contamination JSONL row object validation
+
+**Priority:** P3  
+**Type:** Code defect / diagnostic-validation defect
+
+Dataset split rows were parsed as JSON and then immediately accessed with `.get()`. Syntactically valid non-object JSON values such as `null`, arrays, strings, numbers, and booleans therefore raised unrelated attribute errors instead of the scanner's contextual validation error.
+
+Required regression coverage:
+
+- JSON `null` is rejected before field access
+- JSON arrays are rejected before field access
+- JSON strings are rejected before field access
+- JSON numbers are rejected before field access
+- JSON booleans are rejected before field access
+- errors identify the exact split filename and line number
+- both train and validation split paths use the same validation
+- no contamination report is written after the malformed row is rejected
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed fix requires each decoded dataset row to be a dictionary immediately after `json.loads`. Non-object rows raise `ValueError("<split>.jsonl:<line> must contain a JSON object")` before any field access.
+
+B14 remains open until pull-request CI is green and the fix is merged.
