@@ -19,8 +19,8 @@ from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus
 from plex_training.pilot import resume_pilot
 from plex_training.runner import (
-    SyntheticTokenSource, run_training, _require_metrics_run_identity,
-    _require_unambiguous_windows_destination, _write_event,
+    SyntheticTokenSource, TrainingNumericsError, run_training,
+    _require_metrics_run_identity, _require_unambiguous_windows_destination, _write_event,
 )
 from plex_training.tokenizer import CODEC
 
@@ -332,6 +332,81 @@ class ResumeAndCompletionTests(unittest.TestCase):
             optimizer_mock.assert_not_called()
             self.assertEqual(metrics.read_text(encoding="utf-8"), original_metrics)
             self.assertFalse(output.exists())
+
+    def test_nonfinite_training_failure_records_event_without_replacing_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            checkpoint = root / "model.pt"
+            checkpoint.write_bytes(b"last-good-checkpoint")
+            metrics = root / "metrics.jsonl"
+            run_id = "a" * 32
+
+            class FakeModel(torch.nn.Module):
+                def __init__(self) -> None:
+                    super().__init__()
+                    self.config = tiny_test_config()
+                    self.weight = torch.nn.Parameter(torch.tensor(1.0))
+
+            fake_model = FakeModel()
+            payload = {
+                "runId": run_id,
+                "stageTransitionRecord": None,
+                "codec": "byte-v1",
+                "step": 4,
+                "initializationRecord": None,
+            }
+            failure = TrainingNumericsError(
+                "nonfinite-gradient-norm",
+                "Training gradient norm is nonfinite; refusing optimizer update",
+            )
+            with patch(
+                "plex_training.runner.select_device",
+                return_value=torch.device("cpu"),
+            ), patch(
+                "plex_training.runner.read_checkpoint",
+                return_value=(fake_model, payload),
+            ), patch(
+                "plex_training.runner.restore_optimizer",
+            ), patch(
+                "plex_training.runner.restore_random_states",
+            ), patch(
+                "plex_training.runner._training_step",
+                side_effect=failure,
+            ), patch(
+                "plex_training.runner.save_checkpoint",
+            ) as save_checkpoint_mock:
+                with self.assertRaisesRegex(
+                    TrainingNumericsError,
+                    "gradient norm is nonfinite",
+                ):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32),
+                        validation=None,
+                        device_name="cpu",
+                        minutes=0.1,
+                        step_limit=1,
+                        output_checkpoint=checkpoint,
+                        metrics_path=metrics,
+                        artifact_root=root,
+                        seed=3,
+                        micro_batch=1,
+                        accumulation_steps=1,
+                        resume_from=checkpoint,
+                        config=tiny_test_config(),
+                        allow_tiny_config=True,
+                    )
+
+            save_checkpoint_mock.assert_not_called()
+            self.assertEqual(checkpoint.read_bytes(), b"last-good-checkpoint")
+            events = [
+                json.loads(line)
+                for line in metrics.read_text(encoding="utf-8").splitlines()
+            ]
+            self.assertEqual([event["event"] for event in events], ["run_started", "run_failed"])
+            self.assertEqual({event["runId"] for event in events}, {run_id})
+            self.assertEqual(events[-1]["reason"], "nonfinite-gradient-norm")
+            self.assertEqual(events[-1]["step"], 4)
+            self.assertEqual(events[-1]["stepsThisRun"], 0)
 
     def test_bpe_resume_rejects_changed_schedule_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

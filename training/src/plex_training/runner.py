@@ -41,6 +41,12 @@ class BatchSource(Protocol):
     ) -> tuple[Tensor, Tensor]: ...
 
 
+class TrainingNumericsError(RuntimeError):
+    def __init__(self, reason: str, message: str) -> None:
+        super().__init__(message)
+        self.reason = reason
+
+
 def seed_everything(seed: int) -> None:
     random.seed(seed)
     torch.manual_seed(seed)
@@ -172,9 +178,24 @@ def _training_step(
         )
         if loss is None:
             raise RuntimeError("Model did not produce a training loss")
+        if not bool(torch.isfinite(loss).all()):
+            raise TrainingNumericsError(
+                "nonfinite-loss",
+                "Training loss is nonfinite; refusing backward and optimizer update",
+            )
         (loss / accumulation_steps).backward()
         total_loss += float(loss.detach().item())
-    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    try:
+        torch.nn.utils.clip_grad_norm_(
+            model.parameters(),
+            max_norm=1.0,
+            error_if_nonfinite=True,
+        )
+    except RuntimeError as exc:
+        raise TrainingNumericsError(
+            "nonfinite-gradient-norm",
+            "Training gradient norm is nonfinite; refusing optimizer update",
+        ) from exc
     optimizer.step()
     return total_loss / accumulation_steps, real_positions, padding_positions
 
@@ -564,6 +585,25 @@ def run_training(
                     allow_existing=metrics_owned,
                 )
                 last_checkpoint = now
+    except TrainingNumericsError as exc:
+        elapsed = time.perf_counter() - started
+        _write_event(
+            metrics_path,
+            artifact_root,
+            {
+                "event": "run_failed",
+                "failedAtUtc": datetime.now(timezone.utc).isoformat(),
+                "step": step,
+                "stepsThisRun": step - start_step,
+                "reason": exc.reason,
+                "error": str(exc),
+                "tokensProcessedThisRun": tokens_seen,
+                "tokensProcessedTotal": start_positions + tokens_seen,
+            },
+            run_id=run_id,
+            allow_existing=metrics_owned,
+        )
+        raise
     except KeyboardInterrupt:
         interrupted = True
 
