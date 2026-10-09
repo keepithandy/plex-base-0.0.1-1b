@@ -10,6 +10,8 @@
     "https://github.com/keepithandy/plex-base-0.0.1-1b"
   ],
   "minimumSubstringCharacters": 120,
+  "minimumProtectedFiles": 1,
+  "minimumProtectedSegments": 1,
   "finalHoldout": "closed-not-addressable; remains outside pretraining and is not opened by this checker",
   "notes": [
     "Existing Phase 2 authored task material is protected from domain pretraining even when it may later be used for fine-tuning.",
