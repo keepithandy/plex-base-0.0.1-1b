@@ -17,7 +17,7 @@ Status legend:
 | **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
 | **B07** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Shared training updates now fail closed on nonfinite loss or gradient norm. |
 | **B08** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/completion.py` | Completion rejects prompts that exceed model token context instead of truncating silently. |
-| **B09** | **P2** | 🔴 **OPEN** | `training/src/plex_training/artifacts.py` | Checkpoint serialization must enforce the storage allocation before temporary writes exceed it. |
+| **B09** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/artifacts.py` | Checkpoint serialization now enforces storage allocation before temporary writes exceed it. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -364,10 +364,28 @@ Required regression coverage:
 - an over-budget overwrite preserves the previous checkpoint bytes
 - large real checkpoints are not required for the regression
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed writer computes bytes already allocated before creating the temporary file, gives serialization only the remaining budget, and rejects any individual write that would cross that budget. Existing destination bytes remain part of the peak accounting until the atomic replacement occurs.
+Checkpoint serialization now computes the artifact bytes already allocated before creating the temporary file and wraps the temporary stream in a bounded writer. Each serialization write is checked before it reaches disk, so a write that would cross the configured allocation is rejected without causing the temporary checkpoint to exceed the budget.
 
-B09 remains open until pull-request CI is green and the fix is merged.
+Overwrite peak usage also counts the existing destination until the atomic replacement occurs. A failed over-budget replacement therefore preserves the previous checkpoint and removes the partial temporary file.
+
+Verified cases:
+
+- an over-budget serialization chunk is rejected before that chunk is written
+- partial temporary output is removed after failure
+- existing unrelated artifact bytes reduce the available checkpoint budget
+- overwrite peak accounting includes the old checkpoint bytes
+- an over-budget overwrite leaves the previous checkpoint byte-for-byte unchanged
+- normal real checkpoint serialization remains compatible with the bounded writer
+- large real checkpoint fixtures were not required
+
+Verification run:
+
+- **192 passed**
+- **4 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
