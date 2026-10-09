@@ -14,6 +14,8 @@ TRAINING_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = TRAINING_ROOT.parent
 DEFAULT_PROTECTED_CONFIG = TRAINING_ROOT / "pretraining" / "protected-eval-paths.json"
 MAX_PROTECTED_FILE_BYTES = 2 * 1024 * 1024
+SCANNER_VERSION = "plex-web-contamination-v2"
+SCANNER_NORMALIZATION = "crlf-cr-to-lf-collapse-whitespace-strip-v1"
 
 
 def _normalise(text: str) -> str:
@@ -87,7 +89,7 @@ def _longest_shared_substring_length(left: str, right: str) -> int:
     return longest
 
 
-def _read_json(path: Path, label: str) -> dict[str, Any]:
+def _read_json_with_bytes(path: Path, label: str) -> tuple[dict[str, Any], bytes]:
     if path.is_symlink():
         raise ValueError(f"{label} must not be a symbolic link")
     try:
@@ -97,13 +99,22 @@ def _read_json(path: Path, label: str) -> dict[str, Any]:
     if not resolved.is_file() or resolved.stat().st_size > MAX_PROTECTED_FILE_BYTES:
         raise ValueError(f"{label} must be a regular file no larger than 2 MiB")
     try:
-        value = json.loads(resolved.read_text(encoding="utf-8"))
+        raw = resolved.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"{label} is unavailable: {path}") from exc
+    if len(raw) > MAX_PROTECTED_FILE_BYTES:
+        raise ValueError(f"{label} must be a regular file no larger than 2 MiB")
+    try:
+        value = json.loads(raw.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"{label} must be valid UTF-8 JSON") from exc
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain a JSON object")
-    return value
+    return value, raw
 
+
+def _read_json(path: Path, label: str) -> dict[str, Any]:
+    return _read_json_with_bytes(path, label)[0]
 
 def _strings(value: Any, output: list[str]) -> None:
     if isinstance(value, str):
@@ -116,29 +127,36 @@ def _strings(value: Any, output: list[str]) -> None:
             _strings(item, output)
 
 
-def _protected_segments(path: Path, minimum: int) -> tuple[list[str], str | None]:
+def _protected_segments(
+    path: Path,
+    minimum: int,
+) -> tuple[list[str], str | None, str | None, int | None]:
     try:
         if path.is_symlink() or not path.is_file():
-            return [], "not-regular-file"
-        if path.stat().st_size > MAX_PROTECTED_FILE_BYTES:
-            return [], "oversized"
+            return [], "not-regular-file", None, None
+        metadata = path.stat()
+        if metadata.st_size > MAX_PROTECTED_FILE_BYTES:
+            return [], "oversized", None, metadata.st_size
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_PROTECTED_FILE_BYTES + 1)
     except OSError:
-        return [], "unreadable"
+        return [], "unreadable", None, None
+    if len(raw) > MAX_PROTECTED_FILE_BYTES:
+        return [], "oversized", None, len(raw)
+    digest = _sha256(raw)
     try:
-        raw = path.read_text(encoding="utf-8")
-    except OSError:
-        return [], "unreadable"
+        text = raw.decode("utf-8")
     except UnicodeDecodeError:
-        return [], "invalid-utf8"
+        return [], "invalid-utf8", digest, len(raw)
     values: list[str] = []
     suffix = path.suffix.lower()
     if suffix == ".json":
         try:
-            _strings(json.loads(raw), values)
+            _strings(json.loads(text), values)
         except json.JSONDecodeError:
-            values.append(raw)
+            values.append(text)
     elif suffix == ".jsonl":
-        for line in raw.splitlines():
+        for line in text.splitlines():
             if not line.strip():
                 continue
             try:
@@ -146,10 +164,14 @@ def _protected_segments(path: Path, minimum: int) -> tuple[list[str], str | None
             except json.JSONDecodeError:
                 values.append(line)
     else:
-        values.append(raw)
+        values.append(text)
     normalised = {_normalise(value) for value in values}
-    return sorted(value for value in normalised if len(value) >= minimum), None
-
+    return (
+        sorted(value for value in normalised if len(value) >= minimum),
+        None,
+        digest,
+        len(raw),
+    )
 
 def _resolve_protected_files(config: dict[str, Any]) -> list[Path]:
     raw_paths = config.get("protectedPaths")
@@ -187,34 +209,72 @@ def _resolve_protected_files(config: dict[str, Any]) -> list[Path]:
     return sorted(files)
 
 
-def _read_dataset_records(dataset_dir: Path) -> list[dict[str, str]]:
+def _read_dataset_records(
+    dataset_dir: Path,
+    manifest: dict[str, Any],
+) -> tuple[list[dict[str, str]], list[dict[str, Any]]]:
     records: list[dict[str, str]] = []
+    inputs: list[dict[str, Any]] = []
+    summary = manifest.get("summary")
+    if summary is not None and not isinstance(summary, dict):
+        raise ValueError("Dataset manifest summary must be an object when present")
     for split in ("train", "validation"):
         path = dataset_dir / f"{split}.jsonl"
         if not path.is_file():
             raise ValueError(f"Dataset is missing {path.name}")
-        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        try:
+            raw = path.read_bytes()
+        except OSError as exc:
+            raise ValueError(f"Dataset split is unavailable: {path.name}") from exc
+        digest = _sha256(raw)
+        declared_field = f"{split}JsonlSha256"
+        declared = None if summary is None else summary.get(declared_field)
+        if declared is not None:
+            if not isinstance(declared, str) or re.fullmatch(r"[a-f0-9]{64}", declared) is None:
+                raise ValueError(
+                    f"Dataset manifest {declared_field} must be a lowercase SHA-256 digest"
+                )
+            if declared != digest:
+                raise ValueError(
+                    f"Dataset manifest {declared_field} does not match {path.name}"
+                )
+        try:
+            text_content = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"{path.name} is not valid UTF-8") from exc
+        split_records = 0
+        for line_number, line in enumerate(text_content.splitlines(), start=1):
             if not line.strip():
                 continue
             try:
                 row = json.loads(line)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"{path.name}:{line_number} is not valid JSON") from exc
-            text = row.get("text")
-            if not isinstance(text, str) or not text:
+            text_value = row.get("text")
+            if not isinstance(text_value, str) or not text_value:
                 raise ValueError(f"{path.name}:{line_number} is missing text")
             records.append(
                 {
                     "split": split,
                     "sourceId": str(row.get("sourceId", "")),
                     "path": str(row.get("path", "")),
-                    "text": _normalise(text),
+                    "text": _normalise(text_value),
                 }
             )
+            split_records += 1
+        inputs.append(
+            {
+                "path": path.name,
+                "bytes": len(raw),
+                "sha256": digest,
+                "manifestDeclaredSha256": declared,
+                "manifestHashVerified": declared is not None,
+                "records": split_records,
+            }
+        )
     if not records:
         raise ValueError("Dataset contains no records")
-    return records
-
+    return records, inputs
 
 def check_contamination(
     dataset_dir: Path,
@@ -226,7 +286,7 @@ def check_contamination(
     if not dataset_dir.is_dir():
         raise ValueError("Dataset path must be a directory")
 
-    config = _read_json(protected_config, "Protected-eval config")
+    config, config_raw = _read_json_with_bytes(protected_config, "Protected-eval config")
     if config.get("schemaVersion") != 1:
         raise ValueError("Protected-eval config schemaVersion must be 1")
     minimum = config.get("minimumSubstringCharacters", 120)
@@ -240,7 +300,7 @@ def check_contamination(
         raise ValueError("minimumProtectedSegments must be a positive integer")
 
     manifest_path = dataset_dir / "manifest.json"
-    manifest = _read_json(manifest_path, "Dataset manifest")
+    manifest, manifest_raw = _read_json_with_bytes(manifest_path, "Dataset manifest")
     blocked_origins = config.get("blockedSourceOrigins", [])
     if not isinstance(blocked_origins, list) or not all(isinstance(v, str) and v for v in blocked_origins):
         raise ValueError("blockedSourceOrigins must be an array of nonempty strings")
@@ -260,8 +320,12 @@ def check_contamination(
     protected_file_results: list[dict[str, Any]] = []
     for path in protected_files:
         display = path.relative_to(REPO_ROOT).as_posix()
-        file_segments, failure = _protected_segments(path, minimum)
+        file_segments, failure, content_sha256, content_bytes = _protected_segments(path, minimum)
         result: dict[str, Any] = {"path": display}
+        if content_sha256 is not None:
+            result["sha256"] = content_sha256
+        if content_bytes is not None:
+            result["bytes"] = content_bytes
         if failure is None:
             result.update({"status": "scanned", "segments": len(file_segments)})
             for segment in file_segments:
@@ -294,7 +358,7 @@ def check_contamination(
         protection_coverage_failures.append("protected-files-skipped")
     protection_coverage_passed = not protection_coverage_failures
 
-    records = _read_dataset_records(dataset_dir)
+    records, dataset_inputs = _read_dataset_records(dataset_dir, manifest)
     exact_matches: list[dict[str, Any]] = []
     substring_matches: list[dict[str, Any]] = []
     for record in records:
@@ -323,6 +387,39 @@ def check_contamination(
                         }
                     )
 
+    scanner = {
+        "version": SCANNER_VERSION,
+        "normalization": SCANNER_NORMALIZATION,
+        "minimumSubstringCharacters": minimum,
+        "minimumProtectedFiles": minimum_protected_files,
+        "minimumProtectedSegments": minimum_protected_segments,
+        "maximumProtectedFileBytes": MAX_PROTECTED_FILE_BYTES,
+        "blockedSourceOrigins": sorted(blocked),
+    }
+    dataset_manifest_sha256 = _sha256(manifest_raw)
+    protected_config_sha256 = _sha256(config_raw)
+    assessment_inputs = {
+        "scanner": scanner,
+        "datasetManifest": {
+            "bytes": len(manifest_raw),
+            "sha256": dataset_manifest_sha256,
+        },
+        "datasetFiles": dataset_inputs,
+        "protectedConfig": {
+            "bytes": len(config_raw),
+            "sha256": protected_config_sha256,
+        },
+        "protectedFiles": protected_file_results,
+    }
+    assessment_sha256 = _sha256(
+        json.dumps(
+            assessment_inputs,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    )
+
     passed = (
         protection_coverage_passed
         and not blocked_origin_matches
@@ -330,11 +427,17 @@ def check_contamination(
         and not substring_matches
     )
     report = {
-        "schemaVersion": 1,
-        "kind": "plex-web-contamination-report-v1",
+        "schemaVersion": 2,
+        "kind": "plex-web-contamination-report-v2",
         "passed": passed,
         "datasetDirectory": dataset_dir.name,
-        "datasetManifestSha256": _sha256(manifest_path.read_bytes()),
+        "scanner": scanner,
+        "assessmentSha256": assessment_sha256,
+        "datasetManifestSha256": dataset_manifest_sha256,
+        "datasetManifestBytes": len(manifest_raw),
+        "datasetFiles": dataset_inputs,
+        "protectedConfigSha256": protected_config_sha256,
+        "protectedConfigBytes": len(config_raw),
         "recordsScanned": len(records),
         "protectedFilesDiscovered": len(protected_files),
         "protectedFilesScanned": protected_files_scanned,

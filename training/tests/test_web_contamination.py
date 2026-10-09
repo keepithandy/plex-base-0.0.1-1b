@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import stat
@@ -15,16 +16,28 @@ class PlexWebContaminationTests(unittest.TestCase):
     def _dataset(self, root: Path, train_text: str, validation_text: str, origin: str = "https://example.invalid/source") -> Path:
         dataset = root / "dataset"
         dataset.mkdir()
-        (dataset / "train.jsonl").write_text(
+        train_path = dataset / "train.jsonl"
+        validation_path = dataset / "validation.jsonl"
+        train_path.write_text(
             json.dumps({"sourceId": "train-source", "path": "index.html", "text": train_text}) + "\n",
             encoding="utf-8",
         )
-        (dataset / "validation.jsonl").write_text(
+        validation_path.write_text(
             json.dumps({"sourceId": "validation-source", "path": "app.js", "text": validation_text}) + "\n",
             encoding="utf-8",
         )
         (dataset / "manifest.json").write_text(
-            json.dumps({"schemaVersion": 1, "sources": [{"id": "source", "origin": origin}]}, indent=2),
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "sources": [{"id": "source", "origin": origin}],
+                    "summary": {
+                        "trainJsonlSha256": hashlib.sha256(train_path.read_bytes()).hexdigest(),
+                        "validationJsonlSha256": hashlib.sha256(validation_path.read_bytes()).hexdigest(),
+                    },
+                },
+                indent=2,
+            ),
             encoding="utf-8",
         )
         return dataset
@@ -69,6 +82,19 @@ class PlexWebContaminationTests(unittest.TestCase):
             with patch("plex_training.web_contamination.REPO_ROOT", root):
                 report = check_contamination(dataset, protected_config=config, report_path=report_path)
             self.assertTrue(report["passed"])
+            self.assertEqual(report["schemaVersion"], 2)
+            self.assertEqual(report["kind"], "plex-web-contamination-report-v2")
+            self.assertEqual(report["scanner"]["version"], "plex-web-contamination-v2")
+            self.assertRegex(report["assessmentSha256"], r"^[a-f0-9]{64}$")
+            self.assertEqual(
+                report["protectedConfigSha256"],
+                hashlib.sha256(config.read_bytes()).hexdigest(),
+            )
+            self.assertTrue(all(item["manifestHashVerified"] for item in report["datasetFiles"]))
+            self.assertEqual(
+                report["protectedFileResults"][0]["sha256"],
+                hashlib.sha256((protected / "eval.json").read_bytes()).hexdigest(),
+            )
             self.assertTrue(report["protectionCoveragePassed"])
             self.assertEqual(report["protectedFilesDiscovered"], 1)
             self.assertEqual(report["protectedFilesScanned"], 1)
@@ -76,6 +102,183 @@ class PlexWebContaminationTests(unittest.TestCase):
             self.assertEqual(report["exactMatches"], [])
             self.assertEqual(report["substringMatches"], [])
             self.assertTrue(report_path.is_file())
+
+    def test_manifest_declared_split_hash_mismatch_is_rejected(self) -> None:
+        for split in ("train", "validation"):
+            with self.subTest(split=split), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                protected = root / "protected"
+                protected.mkdir()
+                (protected / "eval.txt").write_text("P" * 100, encoding="utf-8")
+                dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+                config = self._config(root, "protected")
+                split_path = dataset / f"{split}.jsonl"
+                split_path.write_bytes(split_path.read_bytes() + b"\n")
+                report_path = root / "report.json"
+                field = f"{split}JsonlSha256"
+                with patch("plex_training.web_contamination.REPO_ROOT", root):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        f"Dataset manifest {field} does not match {split}.jsonl",
+                    ):
+                        check_contamination(
+                            dataset,
+                            protected_config=config,
+                            report_path=report_path,
+                        )
+                self.assertFalse(report_path.exists())
+
+    def test_dataset_bytes_change_identity_when_manifest_has_no_split_hashes(self) -> None:
+        identities = {}
+        manifest_hashes = {}
+        dataset_hashes = {}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name, train_text in (
+                ("baseline", "<div>baseline train</div>"),
+                ("changed", "<div>changed train</div>"),
+            ):
+                case_root = root / name
+                case_root.mkdir()
+                protected = case_root / "protected"
+                protected.mkdir()
+                (protected / "eval.txt").write_text("P" * 100, encoding="utf-8")
+                dataset = self._dataset(
+                    case_root,
+                    train_text,
+                    "const identicalValidation = true;",
+                )
+                manifest_path = dataset / "manifest.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest.pop("summary")
+                manifest_path.write_text(
+                    json.dumps(manifest, indent=2),
+                    encoding="utf-8",
+                )
+                config = self._config(case_root, "protected")
+                with patch("plex_training.web_contamination.REPO_ROOT", case_root):
+                    report = check_contamination(
+                        dataset,
+                        protected_config=config,
+                        report_path=case_root / "report.json",
+                    )
+                identities[name] = report["assessmentSha256"]
+                manifest_hashes[name] = report["datasetManifestSha256"]
+                dataset_hashes[name] = {
+                    item["path"]: item["sha256"] for item in report["datasetFiles"]
+                }
+
+        self.assertEqual(manifest_hashes["baseline"], manifest_hashes["changed"])
+        self.assertNotEqual(
+            dataset_hashes["baseline"]["train.jsonl"],
+            dataset_hashes["changed"]["train.jsonl"],
+        )
+        self.assertEqual(
+            dataset_hashes["baseline"]["validation.jsonl"],
+            dataset_hashes["changed"]["validation.jsonl"],
+        )
+        self.assertNotEqual(identities["baseline"], identities["changed"])
+
+    def test_assessment_identity_changes_with_every_effective_input(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+
+            def run_case(
+                name: str,
+                *,
+                train_text: str = "<div>clean baseline</div>",
+                validation_text: str = "const cleanBaseline = true;",
+                protected_text: str = "P" * 100,
+                config_note: str | None = None,
+                manifest_marker: str | None = None,
+                minimum: int = 80,
+                scanner_version: str | None = None,
+            ) -> str:
+                case_root = root / name
+                case_root.mkdir()
+                protected = case_root / "protected"
+                protected.mkdir()
+                (protected / "eval.txt").write_text(protected_text, encoding="utf-8")
+                dataset = self._dataset(case_root, train_text, validation_text)
+                if manifest_marker is not None:
+                    manifest_path = dataset / "manifest.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["auditMarker"] = manifest_marker
+                    manifest_path.write_text(
+                        json.dumps(manifest, indent=2),
+                        encoding="utf-8",
+                    )
+                config = self._config(case_root, "protected", minimum=minimum)
+                if config_note is not None:
+                    settings = json.loads(config.read_text(encoding="utf-8"))
+                    settings["notes"] = [config_note]
+                    config.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+                patches = [patch("plex_training.web_contamination.REPO_ROOT", case_root)]
+                if scanner_version is not None:
+                    patches.append(
+                        patch(
+                            "plex_training.web_contamination.SCANNER_VERSION",
+                            scanner_version,
+                        )
+                    )
+                with patches[0]:
+                    if len(patches) == 2:
+                        with patches[1]:
+                            report = check_contamination(
+                                dataset,
+                                protected_config=config,
+                                report_path=case_root / "report.json",
+                            )
+                    else:
+                        report = check_contamination(
+                            dataset,
+                            protected_config=config,
+                            report_path=case_root / "report.json",
+                        )
+                return report["assessmentSha256"]
+
+            baseline = run_case("baseline")
+            changed = {
+                "train": run_case("train", train_text="<div>changed train</div>"),
+                "validation": run_case(
+                    "validation",
+                    validation_text="const changedValidation = true;",
+                ),
+                "protected-file": run_case("protected-file", protected_text="Q" * 100),
+                "protected-config": run_case("protected-config", config_note="changed"),
+                "manifest": run_case("manifest", manifest_marker="changed"),
+                "scanner-setting": run_case("scanner-setting", minimum=81),
+                "scanner-version": run_case(
+                    "scanner-version",
+                    scanner_version="plex-web-contamination-v2-test",
+                ),
+            }
+            for label, identity in changed.items():
+                with self.subTest(label=label):
+                    self.assertNotEqual(identity, baseline)
+            self.assertEqual(len(set(changed.values()) | {baseline}), len(changed) + 1)
+
+    def test_existing_v1_report_is_preserved(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            protected = root / "protected"
+            protected.mkdir()
+            (protected / "eval.txt").write_text("P" * 100, encoding="utf-8")
+            dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
+            config = self._config(root, "protected")
+            report_path = root / "report.json"
+            historical = (
+                '{"schemaVersion":1,"kind":"plex-web-contamination-report-v1"}\n'
+            )
+            report_path.write_text(historical, encoding="utf-8")
+            with patch("plex_training.web_contamination.REPO_ROOT", root):
+                with self.assertRaisesRegex(FileExistsError, "already exists"):
+                    check_contamination(
+                        dataset,
+                        protected_config=config,
+                        report_path=report_path,
+                    )
+            self.assertEqual(report_path.read_text(encoding="utf-8"), historical)
 
     def test_long_protected_string_blocks_promotion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -209,15 +412,16 @@ class PlexWebContaminationTests(unittest.TestCase):
             bad.write_text("B" * 100, encoding="utf-8")
             dataset = self._dataset(root, "<div>clean</div>", "const clean = true;")
             config = self._config(root, "protected")
-            original_read_text = Path.read_text
+            original_open = Path.open
 
-            def selective_read_text(path: Path, *args, **kwargs):
-                if path == bad:
+            def selective_open(path: Path, *args, **kwargs):
+                mode = args[0] if args else kwargs.get("mode", "r")
+                if path == bad and "r" in mode:
                     raise OSError("synthetic unreadable file")
-                return original_read_text(path, *args, **kwargs)
+                return original_open(path, *args, **kwargs)
 
             with patch("plex_training.web_contamination.REPO_ROOT", root), patch.object(
-                Path, "read_text", selective_read_text
+                Path, "open", selective_open
             ):
                 report = check_contamination(dataset, protected_config=config, report_path=root / "report.json")
             self.assertFalse(report["passed"])
