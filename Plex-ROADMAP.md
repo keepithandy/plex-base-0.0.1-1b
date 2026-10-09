@@ -228,7 +228,7 @@ The model receives the relevant context directly.
 
 ### P3-01 — File + Request Contract
 
-**Status: IN PROGRESS — candidate prepared; tokenizer/context review blocked.**
+**Status: COMPLETE — contract and tokenizer/context review passed.**
 
 Define the simplest stable input/output format for:
 
@@ -401,7 +401,7 @@ Project-wide guardrails are defined in [AGENTS.md](AGENTS.md).
 
 # Current task
 
-## P3-01 — File + Request Contract (review incomplete)
+## P3-02 — Exact Small Replacements
 
 Phase 2 is complete.
 
@@ -415,6 +415,10 @@ natural-language coding request
                 ↓
         correct edited result
 ```
+
+P3-01 froze the one-file request/edit contract and passed deterministic fixture, preservation, tokenizer roundtrip, and context checks. The 18-fixture contract-validation set is not a representative training corpus and no editing capability is claimed from its preparation.
+
+P3-02 is the next milestone. It may define a bounded exact-replacement learning experiment, but requires its own explicit training authorization before any model updates.
 
 Start with **one supplied file**, one bounded requested change, and a deterministic target representation that can be scored for:
 

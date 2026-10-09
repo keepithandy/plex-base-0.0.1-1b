@@ -10,7 +10,8 @@ from pathlib import Path
 from statistics import mean, median
 from typing import Any
 
-from .completion import _completion_tokenizer
+from .initialization import _tokenizer_metadata
+from .tokenizer import PlexTokenizer
 
 MILESTONE = "P3-01"
 REPRESENTATION = "plex-file-edit-v1"
@@ -69,7 +70,7 @@ def _canonical_bytes(rows: list[dict[str, Any]]) -> bytes:
 
 def _replacement_signature(before: str, after: str) -> tuple[str, str] | None:
     # Accept one contiguous replacement with identical surrounding content.
-    matcher = re.compile(r'<[^>]+>|"[^"\n]*"|\'[^\'\n]*\'|\b[A-Za-z_$][A-Za-z0-9_$]*\b|\d+(?:\.\d+)?(?:px|ms)?|#[0-9A-Fa-f]+|/[-A-Za-z0-9_./]+|\.[A-Za-z_-][A-Za-z0-9_-]*')
+    matcher = re.compile(r'"[^"\n]*"|\'[^\'\n]*\'|\b[A-Za-z_$][A-Za-z0-9_$]*\b|\d+(?:\.\d+)?(?:px|ms)?|#[0-9A-Fa-f]+|/[-A-Za-z0-9_./]+|\.[A-Za-z_-][A-Za-z0-9_-]*')
     old_tokens = list(matcher.finditer(before))
     new_tokens = list(matcher.finditer(after))
     matches = [(old, new) for old in old_tokens for new in new_tokens
@@ -84,7 +85,7 @@ def _replacement_signature(before: str, after: str) -> tuple[str, str] | None:
 
 def _replacement_preserves(before: str, after: str, expected: tuple[str, str]) -> bool:
     old, new = expected
-    matcher = re.compile(r'<[^>]+>|"[^"\n]*"|\'[^\'\n]*\'|\b[A-Za-z_$][A-Za-z0-9_$]*\b|\d+(?:\.\d+)?(?:px|ms)?|#[0-9A-Fa-f]+|/[-A-Za-z0-9_./]+|\.[A-Za-z_-][A-Za-z0-9_-]*')
+    matcher = re.compile(r'"[^"\n]*"|\'[^\'\n]*\'|\b[A-Za-z_$][A-Za-z0-9_$]*\b|\d+(?:\.\d+)?(?:px|ms)?|#[0-9A-Fa-f]+|/[-A-Za-z0-9_./]+|\.[A-Za-z_-][A-Za-z0-9_-]*')
     return any(before[:left.start()] == after[:right.start()]
                and before[left.end():] == after[right.end():]
                and before[left.start():left.end()] == old
@@ -166,7 +167,8 @@ def review_file_edit_candidate(*, candidate_path: Path, review_path: Path, contr
     if tokenizer_bundle is None or tokenizer_bundle.is_symlink() or not tokenizer_bundle.is_dir():
         raise ValueError("P3-01 frozen tokenizer bundle is required for context review")
     try:
-        tokenizer, record = _completion_tokenizer(tokenizer_bundle)
+        _, record = _tokenizer_metadata(tokenizer_bundle)
+        tokenizer = PlexTokenizer.load(tokenizer_bundle)
     except PermissionError as exc:
         raise ValueError("P3-01 tokenizer bundle is inaccessible; context review cannot pass") from exc
     if record.get("tokenizerSha256") != EXPECTED_TOKENIZER_SHA256:

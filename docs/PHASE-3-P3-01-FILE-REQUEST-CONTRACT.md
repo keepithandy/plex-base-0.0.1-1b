@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implementation candidate prepared; tokenizer/context review blocked by inaccessible local tokenizer artifacts. P3-01 is not complete.** The fixture set and task representation are defined, but the required executed tokenizer preflight has not passed. Phase 3 remains active and P3-01 remains the current task.
+**Complete.** The deterministic contract review and frozen-tokenizer context preflight passed. This establishes the task representation and fixture review shape; it does not establish Plex file-editing capability. Phase 3 remains active.
 
 ## Why Phase 3 differs from Phase 2
 
@@ -74,7 +74,7 @@ Target: `const retryLimit = 5;`
 
 ## Candidate and preservation
 
-The deterministic candidate is `training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl`: 18 contract fixtures, with 6 HTML, 6 CSS, and 6 JavaScript. It is a contract-validation set, not a representative training corpus. Its SHA-256 is `0ca36cb544a89b62c8968c060f83d97e38754cb68e06c178c309daf71bb78f80`; it is 4,263 bytes. JSONL metadata is not the model output format.
+The deterministic candidate is `training/phase3/drafts/p3-01-file-edit-contract-v1.jsonl`: 18 contract fixtures, with 6 HTML, 6 CSS, and 6 JavaScript. It is a contract-validation set, not a representative training corpus. Its SHA-256 is `3b3ba80a7845888982967eb879053ea0d4c0dbe22adbd2e59ba00c28992d7b6c`; it is 4,257 bytes. JSONL metadata is not the model output format.
 
 Text is UTF-8 without BOM, serialized with LF, and preserves meaningful whitespace. Expected output must differ by one contiguous replacement; surrounding input text remains byte-for-byte the same. Exact expected text measures edit correctness and provides a conservative preservation baseline.
 
@@ -89,7 +89,7 @@ Text is UTF-8 without BOM, serialized with LF, and preserves meaningful whitespa
 
 The frozen tokenizer SHA is `2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`. The source P2-48 tokenizer-bundle manifest SHA is `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`. The locally available P2-48 derived bundle manifest SHA is `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`.
 
-The tokenizer artifacts are inaccessible to the review process in this environment, so record-level token counts, roundtrip, maximum including EOS, and 512-token fit are **not verified**. Existing P2-48 reports confirm the frozen tokenizer was used for that earlier candidate, but do not establish P3-01 fixture sizes. P3-01 therefore remains incomplete.
+The read-only tokenizer preflight passed using the P2-48 frozen tokenizer (`2d5102623cf8e8e51925ab5e6ea05716221013538c5b661476aa1ea765af2697`). The P2-48 derived bundle manifest SHA is `71fec0882692f5eb1b47b72f4a9f539e53e77882d003649beacd5f341b5a4ea7`, from source tokenizer bundle manifest `46d6e4501d56c45196e604fb78dafaaada49e6c386badaae07ffbd4d6794f5d6`. All 18 prompts and targets roundtripped exactly. Record tokens including EOS ranged from **46 to 77** (mean **61.222**, median **59**); all fit the 512-token context.
 
 ## Authorization and evidence boundary
 
@@ -97,4 +97,4 @@ P3-01 preparation and contract review are authorized. Checkpoint staging, optimi
 
 ## Next milestone
 
-After P3-01 review passes and is closed, the next milestone is **P3-02 — Exact Small Replacements**. It has not been started.
+The next milestone is **P3-02 — Exact Small Replacements**. This documentation update does not start its work or authorize training.

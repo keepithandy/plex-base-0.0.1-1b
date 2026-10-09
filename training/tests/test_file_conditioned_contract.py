@@ -71,7 +71,7 @@ class FileConditionedContractTests(unittest.TestCase):
         finally:
             shutil.rmtree(root)
 
-    def test_review_fails_closed_when_bundle_is_inaccessible(self) -> None:
+    def test_review_fails_closed_when_bundle_is_missing(self) -> None:
         root = Path(".test-tmp") / str(uuid.uuid4())
         root.mkdir(parents=True)
         try:
@@ -79,7 +79,7 @@ class FileConditionedContractTests(unittest.TestCase):
             generate_file_edit_candidate(candidate_path=candidate, review_path=draft)
             with self.assertRaisesRegex(ValueError, "inaccessible|tokenizer bundle"):
                 review_file_edit_candidate(candidate_path=candidate, review_path=draft,
-                    contract_path=CONTRACT, tokenizer_bundle=BUNDLE)
+                    contract_path=CONTRACT, tokenizer_bundle=root / "missing-tokenizer")
         finally:
             shutil.rmtree(root)
 
