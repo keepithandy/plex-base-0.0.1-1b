@@ -13,6 +13,7 @@ Status legend:
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
+| **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume now enforces checkpoint destination ownership and metrics run identity. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -167,3 +168,50 @@ Verification run:
 - **1 warning**
 
 Historical v1 reports remain untouched; new reports use `schemaVersion: 2` and `plex-web-contamination-report-v2`.
+
+## B05 — Resume artifact ownership
+
+**Priority:** P1  
+**Type:** Code defect / artifact-integrity defect
+
+The training runner previously skipped checkpoint/metrics collision protection whenever `resume_from` was set. A resumed run could therefore target an unrelated existing checkpoint and later overwrite it, while an unrelated existing metrics file would be appended to without an ownership check.
+
+Required regression coverage:
+
+- resuming checkpoint A cannot target an already-existing checkpoint B
+- collision rejection happens before checkpoint loading or optimizer work where possible
+- in-place continuation of the exact checkpoint being resumed remains supported
+- a fresh continuation checkpoint path remains supported
+- checkpoints persist a stable run identity across continuation
+- every metrics event carries that run identity
+- an existing metrics file must prove the same run identity before append
+- unrelated or legacy/unidentifiable existing metrics are rejected
+
+### Resolution
+
+🟢 **COMPLETE**
+
+Resume now establishes artifact ownership before training begins. Existing checkpoint overwrite is allowed only when the destination resolves to the same checkpoint supplied as `resume_from`; otherwise an existing destination is rejected before checkpoint loading. Fresh continuation destinations remain supported.
+
+Runner-created checkpoints persist a 32-character `runId`, and every metrics event carries that same identity. Before a resume appends to an existing metrics file, every nonempty event must prove the resumed checkpoint's `runId`. Unrelated, malformed, empty, or legacy/unidentifiable existing metrics are rejected. Legacy checkpoints without a `runId` remain resumable when fresh output and metrics paths are selected, at which point a new identity is established.
+
+Verified cases:
+
+- checkpoint A cannot overwrite existing checkpoint B
+- checkpoint collision rejection occurs before checkpoint I/O
+- unrelated metrics are rejected before optimizer construction
+- exact in-place continuation of checkpoint A remains supported
+- continuation to a fresh checkpoint path remains supported
+- `runId` persists from checkpoint through resumed checkpoint and returned summary
+- every metrics event from an owned run carries the same `runId`
+- overwrite permission is tracked as runner ownership rather than inferred from destination existence
+
+The first CI attempt exposed exception wrapping in the new metrics guard: `FileExistsError` is an `OSError`, so the intended ownership error was being caught by the generic I/O handler. The helper now preserves explicit ownership failures before handling unrelated I/O errors.
+
+Verification run:
+
+- **179 passed**
+- **2 skipped**
+- **1 warning**
+
+No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.

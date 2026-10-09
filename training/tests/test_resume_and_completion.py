@@ -8,6 +8,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import torch
 
@@ -15,7 +16,7 @@ from plex_training.checkpoint import read_checkpoint, restore_optimizer, restore
 from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus
 from plex_training.pilot import resume_pilot
-from plex_training.runner import run_training
+from plex_training.runner import SyntheticTokenSource, run_training
 from plex_training.tokenizer import CODEC
 
 
@@ -156,6 +157,9 @@ class ResumeAndCompletionTests(unittest.TestCase):
                     self._assert_same_state(uninterrupted[key], resumed[key])
             self.assertEqual(resumed["tokenizerRecord"], uninterrupted["tokenizerRecord"])
             self.assertEqual(resumed["datasetRecord"], uninterrupted["datasetRecord"])
+            _, first_payload = read_checkpoint(first_path, torch.device("cpu"))
+            self.assertEqual(resumed["runId"], first_payload["runId"])
+            self.assertEqual(resumed_result["runId"], first_payload["runId"])
 
     def test_bpe_resume_rejects_changed_batch_or_accumulation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -174,6 +178,86 @@ class ResumeAndCompletionTests(unittest.TestCase):
                             accumulation_steps=accumulation_steps,
                         )
                     self.assertFalse((root / name / "model.pt").exists())
+
+    def test_resume_rejects_different_existing_checkpoint_destination_before_io(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            resume_from = root / "checkpoint-a.pt"
+            output = root / "checkpoint-b.pt"
+            metrics = root / "metrics.jsonl"
+            resume_from.write_bytes(b"resume-a")
+            output.write_bytes(b"preserve-b")
+            with patch("plex_training.runner.read_checkpoint") as read_checkpoint_mock:
+                with self.assertRaisesRegex(
+                    FileExistsError,
+                    "not the checkpoint being resumed",
+                ):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32),
+                        validation=None,
+                        device_name="cpu",
+                        minutes=0.1,
+                        step_limit=1,
+                        output_checkpoint=output,
+                        metrics_path=metrics,
+                        artifact_root=root,
+                        seed=3,
+                        micro_batch=1,
+                        accumulation_steps=1,
+                        resume_from=resume_from,
+                        config=tiny_test_config(),
+                        allow_tiny_config=True,
+                    )
+            read_checkpoint_mock.assert_not_called()
+            self.assertEqual(output.read_bytes(), b"preserve-b")
+            self.assertFalse(metrics.exists())
+
+    def test_resume_rejects_unrelated_metrics_before_optimizer_work(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            resume_from = root / "checkpoint-a.pt"
+            output = root / "fresh-output.pt"
+            metrics = root / "metrics.jsonl"
+            resume_from.write_bytes(b"checkpoint-placeholder")
+            original_metrics = (
+                '{"event":"run_started","runId":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}\n'
+            )
+            metrics.write_text(original_metrics, encoding="utf-8")
+            fake_model = SimpleNamespace(config=tiny_test_config())
+            payload = {"runId": "a" * 32}
+            with patch(
+                "plex_training.runner.select_device",
+                return_value=torch.device("cpu"),
+            ), patch(
+                "plex_training.runner.read_checkpoint",
+                return_value=(fake_model, payload),
+            ) as read_checkpoint_mock, patch(
+                "plex_training.runner.torch.optim.AdamW",
+            ) as optimizer_mock:
+                with self.assertRaisesRegex(
+                    FileExistsError,
+                    "different or unidentifiable run",
+                ):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32),
+                        validation=None,
+                        device_name="cpu",
+                        minutes=0.1,
+                        step_limit=1,
+                        output_checkpoint=output,
+                        metrics_path=metrics,
+                        artifact_root=root,
+                        seed=3,
+                        micro_batch=1,
+                        accumulation_steps=1,
+                        resume_from=resume_from,
+                        config=tiny_test_config(),
+                        allow_tiny_config=True,
+                    )
+            read_checkpoint_mock.assert_called_once()
+            optimizer_mock.assert_not_called()
+            self.assertEqual(metrics.read_text(encoding="utf-8"), original_metrics)
+            self.assertFalse(output.exists())
 
     def test_bpe_resume_rejects_changed_schedule_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
