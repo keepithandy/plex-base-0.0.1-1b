@@ -9,7 +9,7 @@ import random
 import time
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any, Protocol
 
 import torch
@@ -53,6 +53,10 @@ def _require_metrics_run_identity(metrics_path: Path, run_id: str) -> None:
         with metrics_path.open("r", encoding="utf-8") as stream:
             saw_event = False
             for line_number, line in enumerate(stream, start=1):
+                if not line.endswith("\n"):
+                    raise FileExistsError(
+                        "Existing metrics file must end with a newline before resume"
+                    )
                 if not line.strip():
                     continue
                 saw_event = True
@@ -93,19 +97,39 @@ def _write_event(
         stream.flush()
 
 
+def _require_unambiguous_windows_destination(path: PureWindowsPath) -> None:
+    # Validate spelling before resolve(): Win32 can alias nonexistent names too.
+    if str(path).startswith(("\\\\?\\", "\\\\.\\")) or (path.drive and not path.root):
+        raise ValueError("Training destinations must use ordinary Windows paths")
+    reserved = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"} | {
+        prefix + suffix for prefix in ("COM", "LPT")
+        for suffix in "123456789\u00b9\u00b2\u00b3"
+    }
+    for part in path.parts[1:] if path.anchor else path.parts:
+        if part in {".", ".."}:
+            continue
+        if (part != part.rstrip(" .")
+                or part.split(".")[0].rstrip(" ").upper() in reserved
+                or any(char in '<>:"|?*' or ord(char) < 32 for char in part)):
+            raise ValueError("Training destinations must not use ambiguous Windows names")
+
+
 def _require_distinct_run_destinations(
     output_checkpoint: Path,
     metrics_path: Path,
 ) -> None:
-    if output_checkpoint == metrics_path:
-        raise ValueError("Checkpoint and metrics destinations must be different files")
-    if output_checkpoint.exists() and metrics_path.exists():
-        try:
-            same_file = os.path.samefile(output_checkpoint, metrics_path)
-        except OSError as exc:
-            raise ValueError("Training output destinations could not be compared safely") from exc
-        if same_file:
-            raise ValueError("Checkpoint and metrics destinations must be different files")
+    staging_path = output_checkpoint.with_name(output_checkpoint.name + ".tmp")
+    collision = "Checkpoint and metrics destinations must be different files (including checkpoint staging)"
+    for checkpoint_path in (output_checkpoint, staging_path):
+        if checkpoint_path == metrics_path:
+            raise ValueError(collision)
+        if checkpoint_path.exists() and metrics_path.exists():
+            try:
+                same_file = os.path.samefile(checkpoint_path, metrics_path)
+            except OSError as exc:
+                raise ValueError("Training output destinations could not be compared safely") from exc
+            if same_file:
+                raise ValueError(collision)
 
 
 def _training_step(
@@ -337,8 +361,14 @@ def run_training(
     )
 
     artifact_root = artifact_root.resolve()
+    if os.name == "nt":
+        for destination in (output_checkpoint, metrics_path):
+            _require_unambiguous_windows_destination(PureWindowsPath(destination))
     output_checkpoint = path_within_root(output_checkpoint, artifact_root)
     metrics_path = path_within_root(metrics_path, artifact_root)
+    if os.name == "nt":
+        for destination in (output_checkpoint, metrics_path):
+            _require_unambiguous_windows_destination(PureWindowsPath(destination))
     _require_distinct_run_destinations(output_checkpoint, metrics_path)
     checkpoint_owned = False
     metrics_owned = False

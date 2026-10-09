@@ -13,8 +13,8 @@ Status legend:
 | **B02** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Protection coverage and directory discovery now fail closed. |
 | **B03** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Interior shared substrings at the configured threshold are now detected. |
 | **B04** | **P2** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination reports now fingerprint exact effective inputs and verify declared split hashes. |
-| **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume now enforces checkpoint destination ownership and metrics run identity. |
-| **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Checkpoint and metrics destinations now must resolve to distinct filesystem objects. |
+| **B05** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Resume enforces artifact ownership and safe metrics record boundaries. |
+| **B06** | **P1** | 🟢 **COMPLETE** | `training/src/plex_training/runner.py` | Destination checks reject Windows aliases and checkpoint staging collisions before model work. |
 
 ## B01 — Answer-weighting dataset/index cardinality
 
@@ -196,6 +196,8 @@ Resume now establishes artifact ownership before training begins. Existing check
 
 Runner-created checkpoints persist a 32-character `runId`, and every metrics event carries that same identity. Before a resume appends to an existing metrics file, every nonempty event must prove the resumed checkpoint's `runId`. Unrelated, malformed, empty, or legacy/unidentifiable existing metrics are rejected. Legacy checkpoints without a `runId` remain resumable when fresh output and metrics paths are selected, at which point a new identity is established.
 
+Completion follow-up: an existing metrics file must also end with a line terminator. An unterminated final event previously passed ownership checks and became invalid JSONL when the next event was appended. Resume now rejects that file before optimizer construction and preserves its bytes. LF, CRLF, and CR line endings remain supported; valid appends preserve the original records. A fresh metrics destination remains available when an old log cannot be safely continued.
+
 Verified cases:
 
 - checkpoint A cannot overwrite existing checkpoint B
@@ -240,6 +242,12 @@ Required regression coverage:
 The runner now checks destination separation immediately after both paths are canonicalized beneath the artifact root and before resume ownership checks, device selection, model construction, or checkpoint loading.
 
 Canonical equality is rejected directly, covering identical paths and aliases that resolve to the same pathname. When both destinations already exist, filesystem identity is checked with `samefile`, which also rejects distinct pathnames that refer to the same underlying file, including hard links.
+
+Completion follow-up: Windows can treat nonexistent `output` and `output.` (or `output `) as the same file even when path resolution returns different spellings. Before canonicalization, Windows output names now reject trailing dots/spaces in any component, reserved device names, alternate data streams, invalid characters, drive-relative paths, and device namespaces. The metrics destination must also differ from the checkpoint's `.tmp` staging file, including existing filesystem aliases. All these checks run before device selection or checkpoint loading for both fresh and resumed runs.
+
+Resolved Windows destinations are validated again so path resolution cannot introduce an ambiguous spelling hidden by the original input. This boundary is covered with simulated link resolution; native symlink creation was unavailable because the local account lacks that Windows privilege.
+
+Follow-up review and verification for B05/B06: **28 focused tests passed**, **8 unrelated/model-execution tests deselected**, and **1 existing NumPy warning** on Windows. Coverage includes rejection without artifact mutation, safe metrics appends, the native nonexistent Windows alias cases, resolved destination validation, checkpoint staging collisions, and the prior B04-B06 regressions. No research training or final-holdout access was performed.
 
 Verified cases:
 

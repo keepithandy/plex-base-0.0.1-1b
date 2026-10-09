@@ -1,12 +1,14 @@
 """P1-19 checks for exact resume state and bounded BPE completion."""
 
 import random
+import json
+import os
 import copy
 import struct
 import tempfile
 import unittest
 from dataclasses import replace
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -16,7 +18,10 @@ from plex_training.checkpoint import read_checkpoint, restore_optimizer, restore
 from plex_training.config import tiny_test_config
 from plex_training.data import TokenCorpus
 from plex_training.pilot import resume_pilot
-from plex_training.runner import SyntheticTokenSource, run_training
+from plex_training.runner import (
+    SyntheticTokenSource, run_training, _require_metrics_run_identity,
+    _require_unambiguous_windows_destination, _write_event,
+)
 from plex_training.tokenizer import CODEC
 
 
@@ -450,6 +455,122 @@ class ResumeAndCompletionTests(unittest.TestCase):
         finally:
             torch.set_rng_state(original_cpu)
             torch.cuda.set_rng_state_all(original_cuda)
+
+
+class ArtifactDestinationRegressionTests(unittest.TestCase):
+    def test_unterminated_owned_metrics_rejected_before_optimizer_work(self):
+        for suffix in (b"", b" ", b"\n "):
+            with self.subTest(suffix=suffix), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                metrics = root / "metrics.jsonl"
+                original = json.dumps({"runId": "a" * 32, "event": "run_started"}).encode() + suffix
+                metrics.write_bytes(original)
+                model = SimpleNamespace(config=tiny_test_config())
+                with patch("plex_training.runner.read_checkpoint", return_value=(model, {"runId": "a" * 32})), patch(
+                    "plex_training.runner.select_device", return_value=torch.device("cpu")
+                ), patch("plex_training.runner.torch.optim.AdamW") as optimizer:
+                    with self.assertRaisesRegex(FileExistsError, "end with a newline"):
+                        run_training(
+                            train_source=SyntheticTokenSource(token_count=32), validation=None,
+                            device_name="cpu", minutes=0.1, step_limit=1,
+                            output_checkpoint=root / "new.pt", metrics_path=metrics,
+                            artifact_root=root, resume_from=root / "source.pt",
+                            config=tiny_test_config(), allow_tiny_config=True,
+                        )
+                optimizer.assert_not_called()
+                self.assertEqual(metrics.read_bytes(), original)
+                self.assertFalse((root / "new.pt").exists())
+
+    def test_owned_metrics_append_preserves_records_with_supported_line_endings(self):
+        for ending in (b"\n", b"\r\n", b"\r"):
+            with self.subTest(ending=ending), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                metrics = root / "metrics.jsonl"
+                first = {"runId": "a" * 32, "event": "run_started"}
+                original = json.dumps(first).encode() + ending
+                metrics.write_bytes(original)
+                _require_metrics_run_identity(metrics, "a" * 32)
+                _write_event(metrics, root, {"event": "run_finished"}, run_id="a" * 32, allow_existing=True)
+                self.assertTrue(metrics.read_bytes().startswith(original))
+                self.assertEqual(
+                    [json.loads(line) for line in metrics.read_text().splitlines()],
+                    [first, {"runId": "a" * 32, "event": "run_finished"}],
+                )
+
+    def test_windows_destination_spelling_rejects_aliases_and_devices(self):
+        bad = [
+            "output.", "output ", "dir./output", "dir /output", "output:stream",
+            "NUL", "con.txt", "CON .txt", "CONIN$", "CONOUT$", "COM1.log", "LPT9",
+            "COM\u00b9", "bad?name", "bad\x01name",
+            "C:relative", "\\\\?\\C:\\output", "\\\\.\\NUL",
+        ]
+        for value in bad:
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "Windows"):
+                _require_unambiguous_windows_destination(PureWindowsPath(value))
+        for value in ("model.pt", "dir/../model.pt", "C:/runs/model.pt", "//server/share/model.pt"):
+            with self.subTest(value=value):
+                _require_unambiguous_windows_destination(PureWindowsPath(value))
+
+    @unittest.skipUnless(os.name == "nt", "Win32 aliases require Windows")
+    def test_windows_aliases_rejected_before_device_or_checkpoint_work(self):
+        for resume in (False, True):
+            for spelling in ("output.", "output ", "nested./output", "output:stream"):
+                with self.subTest(resume=resume, spelling=spelling), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    with patch("plex_training.runner.select_device") as device, patch(
+                        "plex_training.runner.read_checkpoint"
+                    ) as checkpoint:
+                        with self.assertRaisesRegex(ValueError, "Windows"):
+                            run_training(
+                                train_source=SyntheticTokenSource(token_count=32), validation=None,
+                                device_name="cpu", minutes=0.1, step_limit=1,
+                                output_checkpoint=root / "output", metrics_path=root / spelling,
+                                artifact_root=root, resume_from=root / "source.pt" if resume else None,
+                                config=tiny_test_config(), allow_tiny_config=True,
+                            )
+                    device.assert_not_called()
+                    checkpoint.assert_not_called()
+                    self.assertEqual(list(root.iterdir()), [])
+
+    @unittest.skipUnless(os.name == "nt", "Win32 aliases require Windows")
+    def test_resolved_windows_destination_is_validated_too(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            # A link can hide a target spelling that was absent from the input.
+            def resolved_destination(path, artifact_root):
+                return root / "output." if path == root / "link" else path
+
+            with patch("plex_training.runner.path_within_root", side_effect=resolved_destination), patch(
+                "plex_training.runner.select_device"
+            ) as device:
+                with self.assertRaisesRegex(ValueError, "Windows"):
+                    run_training(
+                        train_source=SyntheticTokenSource(token_count=32), validation=None,
+                        device_name="cpu", minutes=0.1, step_limit=1,
+                        output_checkpoint=root / "output", metrics_path=root / "link",
+                        artifact_root=root, config=tiny_test_config(), allow_tiny_config=True,
+                    )
+            device.assert_not_called()
+            self.assertEqual(list(root.iterdir()), [])
+
+    def test_checkpoint_staging_path_cannot_be_metrics_destination(self):
+        for resume in (False, True):
+            with self.subTest(resume=resume), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with patch("plex_training.runner.select_device") as device, patch(
+                    "plex_training.runner.read_checkpoint"
+                ) as checkpoint:
+                    with self.assertRaisesRegex(ValueError, "including checkpoint staging"):
+                        run_training(
+                            train_source=SyntheticTokenSource(token_count=32), validation=None,
+                            device_name="cpu", minutes=0.1, step_limit=1,
+                            output_checkpoint=root / "model.pt", metrics_path=root / "model.pt.tmp",
+                            artifact_root=root, resume_from=root / "source.pt" if resume else None,
+                            config=tiny_test_config(), allow_tiny_config=True,
+                        )
+                device.assert_not_called()
+                checkpoint.assert_not_called()
+                self.assertEqual(list(root.iterdir()), [])
 
 
 if __name__ == "__main__":
