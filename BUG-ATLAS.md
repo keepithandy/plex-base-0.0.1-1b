@@ -5,6 +5,8 @@
 > [!TIP]
 > **Atlas status:** 🟢 **15 complete** · 🔴 **0 open**
 >
+> **Verification gaps:** 🟢 **1 complete** · 🔴 **0 open**
+>
 > **Priority mix:** 🔴 4 P1 · 🟠 7 P2 · 🔵 4 P3
 >
 > Each entry keeps the original failure mode, required regression coverage, resolution, and verification record together.
@@ -30,6 +32,14 @@
 | **B13** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/model.py` | Loss vocabulary defaults only on `None`; explicit values now require exact integer type and valid bounds. |
 | **B14** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows now require JSON objects before field access, with split/line diagnostics. |
 | **B15** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/checkpoint.py` | Checkpoint format version and step now require exact integer types before schema/range validation. |
+
+### Verification gap overview
+
+These entries track CI/evidence coverage separately from runtime defects.
+
+| ID | Priority | Status | Area | Summary |
+|---|---|---|---|---|
+| **G01** | **P2** | 🟢 **COMPLETE** | `.github/workflows/training-tests.yml` | P3 file-conditioned contract tests are explicitly included in the portable training CI suite. |
 
 ---
 
@@ -717,3 +727,38 @@ Verification run:
 - **1 warning**
 
 No model training authorization, research training, corpus promotion, checkpoint rewriting, or final-holdout access was performed for this fix.
+
+
+---
+
+# 🧪 Verification gaps
+
+## 🧪 G01 — P3 contract tests in CI
+
+**Priority:** P2  
+**Type:** Verification gap — not a runtime defect
+
+The P3-01 file-conditioned contract originally had a dedicated regression module at `training/tests/test_file_conditioned_contract.py`, but the explicit pytest list in `.github/workflows/training-tests.yml` did not include it. A training pull request could therefore pass the portable workflow without exercising the current file-conditioned contract tests.
+
+### Resolution
+
+🟢 **COMPLETE**
+
+This gap was already resolved before G01 was formally added to the Atlas. Commit `d49dc6fb2fd89fa85595547866fa59b8fe407928` — **Run P3 file-conditioned contract tests in CI** — added `training/tests/test_file_conditioned_contract.py` to the explicit pytest command.
+
+The current workflow still contains that module. Its pull-request trigger covers `training/**` and the workflow file itself, so changes in the training workspace execute the portable suite containing the P3 contract tests.
+
+Historical verification for the fix commit:
+
+- workflow: `training-tests`
+- run: **#104**
+- dedicated P3 module present in the executed pytest command
+- **207 passed**
+- **6 skipped**
+- **1 warning**
+
+Subsequent training CI runs have continued to execute `training/tests/test_file_conditioned_contract.py`, including the later B14 and B15 suites.
+
+The GitHub integration available for this audit cannot read the repository's branch-protection endpoint, so this entry does **not** claim that `training-tests` is configured as a repository-level required status check. It does establish that the workflow itself runs for training pull requests and that the P3 module is part of that workflow.
+
+No runtime code, training data, checkpoint, corpus, model configuration, or final-holdout state was changed for G01.
