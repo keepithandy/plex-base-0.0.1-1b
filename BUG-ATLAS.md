@@ -5,7 +5,7 @@
 > [!TIP]
 > **Atlas status:** 🟢 **15 complete** · 🔴 **0 open**
 >
-> **Verification gaps:** 🟢 **1 complete** · 🔴 **1 open**
+> **Verification gaps:** 🟢 **2 complete** · 🔴 **0 open**
 >
 > **Priority mix:** 🔴 4 P1 · 🟠 7 P2 · 🔵 4 P3
 >
@@ -40,7 +40,7 @@ These entries track CI/evidence coverage separately from runtime defects.
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
 | **G01** | **P2** | 🟢 **COMPLETE** | `.github/workflows/training-tests.yml` | P3 file-conditioned contract tests are explicitly included in the portable training CI suite. |
-| **G02** | **P2** | 🔴 **OPEN** | `.github/workflows/training-tests.yml` | Direct pushes to `master` that change training code or the workflow must trigger the portable training suite. |
+| **G02** | **P2** | 🟢 **COMPLETE** | `.github/workflows/training-tests.yml` | Relevant direct pushes to `master` now automatically trigger the portable training suite. |
 
 ---
 
@@ -774,21 +774,28 @@ The portable training workflow previously declared only `pull_request` and `work
 
 The repository has current standalone commits on `master`, so direct-sync coverage is relevant.
 
-### In progress
+### Resolution
 
-🔴 **OPEN**
+🟢 **COMPLETE**
 
-The proposed workflow adds a `push` trigger scoped to the `master` branch and mirrors the existing relevant path filter:
+The workflow now includes a `push` trigger scoped to the `master` branch and mirrors the relevant pull-request path filter:
 
 - `training/**`
 - `.github/workflows/training-tests.yml`
 
-This preserves automatic verification for direct training/workflow changes without running the training suite for unrelated documentation-only pushes.
+This means direct commits or syncs that change the training workspace or the training workflow automatically run the portable suite on `master`. Unrelated documentation-only pushes remain excluded.
 
-Required verification:
+Verification:
 
-- a pull request changing the workflow still runs the portable suite
-- the full suite remains green with the new trigger
-- after merge, the resulting `master` push automatically starts `training-tests`
-- the push-triggered run completes successfully
-- no claim is made about branch-protection enforcement unless independently observable
+- PR #144 changed the workflow and triggered `training-tests` through the existing pull-request event
+- PR-side run **#119** completed successfully
+- PR-side suite: **224 passed**, **9 skipped**, **1 warning**
+- merge commit `511a5aed8de859d008cfc296b2ba6142ed308540` landed on `master`
+- that merge automatically created `training-tests` run **#120**
+- run #120 recorded event **`push`**
+- push-side suite: **224 passed**, **9 skipped**, **1 warning**
+- the P3 file-conditioned contract module remained present in both executed pytest commands
+
+The connected GitHub integration still cannot read branch-protection settings, so this entry does not claim that `training-tests` is configured as a repository-level required status check.
+
+No runtime code, model configuration, training data, checkpoint, corpus, or final-holdout state was changed for G02.
