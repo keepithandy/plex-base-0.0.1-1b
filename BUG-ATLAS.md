@@ -1,11 +1,17 @@
-# Plex Nano — Bug Atlas
+# 🐛 Plex Nano — Bug Atlas
 
-This file tracks confirmed bugs being worked through before Phase 3 resumes.
+> **Fix tracker** · Confirmed defects and their regression evidence across the Plex training and file-conditioned coding workspaces.
 
-Status legend:
+> [!TIP]
+> **Atlas status:** 🟢 **15 complete** · 🔴 **0 open**
+>
+> **Priority mix:** 🔴 4 P1 · 🟠 7 P2 · 🔵 4 P3
+>
+> Each entry keeps the original failure mode, required regression coverage, resolution, and verification record together.
 
-- 🔴 **OPEN** — confirmed/reported and not yet fully verified as fixed
-- 🟢 **COMPLETE** — fix merged after regression coverage and CI
+## 🗂️ Issue overview
+
+**Status key:** 🔴 **OPEN** — confirmed and not fully verified as fixed · 🟢 **COMPLETE** — fix merged after regression coverage and CI
 
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
@@ -25,7 +31,9 @@ Status legend:
 | **B14** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/web_contamination.py` | Contamination JSONL rows now require JSON objects before field access, with split/line diagnostics. |
 | **B15** | **P3** | 🟢 **COMPLETE** | `training/src/plex_training/checkpoint.py` | Checkpoint format version and step now require exact integer types before schema/range validation. |
 
-## B01 — Answer-weighting dataset/index cardinality
+---
+
+## 🔧 B01 — Answer-weighting dataset/index cardinality
 
 **Priority:** P1  
 **Type:** Code defect / verification defect
@@ -60,7 +68,9 @@ Verification run:
 - **2 skipped**
 - **1 warning**
 
-## B02 — Contamination protection coverage
+---
+
+## 🔧 B02 — Contamination protection coverage
 
 **Priority:** P1  
 **Type:** Code defect / verification defect
@@ -104,7 +114,9 @@ Verification run:
 - **2 skipped**
 - **1 warning**
 
-## B03 — Interior shared-substring contamination detection
+---
+
+## 🔧 B03 — Interior shared-substring contamination detection
 
 **Priority:** P2  
 **Type:** Code defect / verification defect
@@ -137,7 +149,9 @@ Verification run:
 - **2 skipped**
 - **1 warning**
 
-## B04 — Contamination report input identity
+---
+
+## 🔧 B04 — Contamination report input identity
 
 **Priority:** P2  
 **Type:** Code defect / auditability defect
@@ -179,7 +193,9 @@ Verification run:
 
 Historical v1 reports remain untouched; new reports use `schemaVersion: 2` and `plex-web-contamination-report-v2`.
 
-## B05 — Resume artifact ownership
+---
+
+## 🔧 B05 — Resume artifact ownership
 
 **Priority:** P1  
 **Type:** Code defect / artifact-integrity defect
@@ -228,7 +244,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
-## B06 — Distinct metrics and checkpoint destinations
+---
+
+## 🔧 B06 — Distinct metrics and checkpoint destinations
 
 **Priority:** P1  
 **Type:** Code defect / artifact-contract defect
@@ -276,7 +294,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
-## B07 — Nonfinite training update guard
+---
+
+## 🔧 B07 — Nonfinite training update guard
 
 **Priority:** P2  
 **Type:** Code defect / training-integrity defect
@@ -319,7 +339,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
-## B08 — Oversized completion prompt truncation
+---
+
+## 🔧 B08 — Oversized completion prompt truncation
 
 **Priority:** P2  
 **Type:** Code defect / input-integrity defect
@@ -354,7 +376,9 @@ Verification run:
 - **4 skipped**
 - **1 warning**
 
-## B09 — Temporary checkpoint over-allocation
+---
+
+## 🔧 B09 — Temporary checkpoint over-allocation
 
 **Priority:** P2  
 **Type:** Code defect / storage-integrity defect
@@ -400,7 +424,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
-## B10 — P3 protected-input and path-alias collisions
+---
+
+## 🔧 B10 — P3 protected-input and path-alias collisions
 
 **Priority:** P2  
 **Type:** Code defect / artifact-integrity defect
@@ -450,7 +476,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
-## B11 — P3 paired candidate/review publication
+---
+
+## 🔧 B11 — P3 paired candidate/review publication
 
 **Priority:** P2  
 **Type:** Code defect / artifact-consistency defect
@@ -505,7 +533,9 @@ Publication now stages recovery copies of **both** existing outputs before commi
 
 Follow-up verification: **25 passed, 2 deselected** in the supplied-file contract suite. The new regression covers 16 interruption combinations, review rollback failure, and stale review recovery backups. The two frozen-tokenizer tests were excluded; no research model, training, or final holdout was opened. Original verification counts above remain historical evidence. Publication is recoverable, not a simultaneous two-file filesystem transaction; abrupt process termination requires inspecting the recorded recovery state.
 
-## B12 — Strict model dimension types
+---
+
+## 🔧 B12 — Strict model dimension types
 
 **Priority:** P3  
 **Type:** Code defect / configuration-validation defect
@@ -549,7 +579,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
 
-## B13 — Explicit loss-vocabulary validation
+---
+
+## 🔧 B13 — Explicit loss-vocabulary validation
 
 **Priority:** P3  
 **Type:** Code defect / objective-validation defect
@@ -592,7 +624,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
 
-## B14 — Contamination JSONL row object validation
+---
+
+## 🔧 B14 — Contamination JSONL row object validation
 
 **Priority:** P3  
 **Type:** Code defect / diagnostic-validation defect
@@ -637,7 +671,9 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, checkpoint modification, or final-holdout access was performed for this fix.
 
-## B15 — Exact checkpoint version/step types
+---
+
+## 🔧 B15 — Exact checkpoint version/step types
 
 **Priority:** P3  
 **Type:** Code defect / checkpoint-schema defect
