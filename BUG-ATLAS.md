@@ -5,7 +5,7 @@
 > [!TIP]
 > **Atlas status:** 🟢 **15 complete** · 🔴 **0 open**
 >
-> **Verification gaps:** 🟢 **1 complete** · 🔴 **0 open**
+> **Verification gaps:** 🟢 **1 complete** · 🔴 **1 open**
 >
 > **Priority mix:** 🔴 4 P1 · 🟠 7 P2 · 🔵 4 P3
 >
@@ -40,6 +40,7 @@ These entries track CI/evidence coverage separately from runtime defects.
 | ID | Priority | Status | Area | Summary |
 |---|---|---|---|---|
 | **G01** | **P2** | 🟢 **COMPLETE** | `.github/workflows/training-tests.yml` | P3 file-conditioned contract tests are explicitly included in the portable training CI suite. |
+| **G02** | **P2** | 🔴 **OPEN** | `.github/workflows/training-tests.yml` | Direct pushes to `master` that change training code or the workflow must trigger the portable training suite. |
 
 ---
 
@@ -762,3 +763,32 @@ Subsequent training CI runs have continued to execute `training/tests/test_file_
 The GitHub integration available for this audit cannot read the repository's branch-protection endpoint, so this entry does **not** claim that `training-tests` is configured as a repository-level required status check. It does establish that the workflow itself runs for training pull requests and that the P3 module is part of that workflow.
 
 No runtime code, training data, checkpoint, corpus, model configuration, or final-holdout state was changed for G01.
+
+
+## 🧪 G02 — Direct master push CI trigger
+
+**Priority:** P2  
+**Type:** Verification gap — not a runtime defect
+
+The portable training workflow previously declared only `pull_request` and `workflow_dispatch`. A direct commit or sync to `master` could therefore change training code without automatically running the portable training suite.
+
+The repository has current standalone commits on `master`, so direct-sync coverage is relevant.
+
+### In progress
+
+🔴 **OPEN**
+
+The proposed workflow adds a `push` trigger scoped to the `master` branch and mirrors the existing relevant path filter:
+
+- `training/**`
+- `.github/workflows/training-tests.yml`
+
+This preserves automatic verification for direct training/workflow changes without running the training suite for unrelated documentation-only pushes.
+
+Required verification:
+
+- a pull request changing the workflow still runs the portable suite
+- the full suite remains green with the new trigger
+- after merge, the resulting `master` push automatically starts `training-tests`
+- the push-triggered run completes successfully
+- no claim is made about branch-protection enforcement unless independently observable
