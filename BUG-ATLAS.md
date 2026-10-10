@@ -497,6 +497,14 @@ Verification run:
 
 No model training authorization, research training, corpus promotion, or final-holdout access was performed for this fix.
 
+### Follow-up completion review - 2026-10-10
+
+The original fix missed interruption immediately after a successful replacement: review publication could complete, then recovery restored only the candidate and removed the marker, silently leaving a mixed pair. B11 was reopened for this confirmed failure.
+
+Publication now stages recovery copies of **both** existing outputs before commit and records replacement intent **before** each syscall. Recovery restores both prior files (or removes outputs that did not previously exist), including interruptions immediately after a successful replacement. Failed recovery retains the marker and the remaining recovery copy; stale review backups also fail closed.
+
+Follow-up verification: **25 passed, 2 deselected** in the supplied-file contract suite. The new regression covers 16 interruption combinations, review rollback failure, and stale review recovery backups. The two frozen-tokenizer tests were excluded; no research model, training, or final holdout was opened. Original verification counts above remain historical evidence. Publication is recoverable, not a simultaneous two-file filesystem transaction; abrupt process termination requires inspecting the recorded recovery state.
+
 ## B12 — Strict model dimension types
 
 **Priority:** P3  

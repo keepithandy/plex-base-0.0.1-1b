@@ -172,6 +172,7 @@ def _publish_p3_pair(
     candidate_stage = candidate_path.with_name(candidate_path.name + ".p3tmp")
     review_stage = review_path.with_name(review_path.name + ".p3tmp")
     candidate_backup = candidate_path.with_name(candidate_path.name + ".p3bak")
+    review_backup = review_path.with_name(review_path.name + ".p3bak")
     transaction_marker = candidate_path.with_name(candidate_path.name + ".p3txn")
 
     _require_separate_p3_outputs(
@@ -181,21 +182,23 @@ def _publish_p3_pair(
             "candidate staging": candidate_stage,
             "review staging": review_stage,
             "candidate recovery backup": candidate_backup,
+            "review recovery backup": review_backup,
             "paired publication marker": transaction_marker,
         },
         protected_inputs={"contract": contract_path},
     )
     _require_overwritable_p3_output(candidate_path)
     _require_overwritable_p3_output(review_path)
-    for internal in (candidate_stage, review_stage, candidate_backup, transaction_marker):
+    for internal in (candidate_stage, review_stage, candidate_backup, review_backup, transaction_marker):
         if internal.exists() or internal.is_symlink():
             raise FileExistsError(
                 f"Refusing P3 publication with stale transaction artifact: {internal.name}"
             )
 
     candidate_existed = candidate_path.exists()
-    candidate_backup_created = False
-    candidate_published = False
+    review_existed = review_path.exists()
+    candidate_attempted = False
+    review_attempted = False
     publication_started = False
     marker_bytes = (
         json.dumps(
@@ -205,6 +208,7 @@ def _publish_p3_pair(
                 "candidate": str(candidate_path.resolve(strict=False)),
                 "review": str(review_path.resolve(strict=False)),
                 "candidateExisted": candidate_existed,
+                "reviewExisted": review_existed,
             },
             sort_keys=True,
         )
@@ -213,25 +217,37 @@ def _publish_p3_pair(
     try:
         _write_staged_p3_file(candidate_stage, candidate_bytes)
         _write_staged_p3_file(review_stage, review_bytes)
+        if candidate_existed:
+            _write_staged_p3_file(candidate_backup, candidate_path.read_bytes())
+        if review_existed:
+            _write_staged_p3_file(review_backup, review_path.read_bytes())
         _write_staged_p3_file(transaction_marker, marker_bytes)
         publication_started = True
 
         try:
-            if candidate_existed:
-                os.replace(candidate_path, candidate_backup)
-                candidate_backup_created = True
+            # Set intent before each syscall: an interruption can arrive after
+            # replacement succeeds but before Python executes the next statement.
+            candidate_attempted = True
             os.replace(candidate_stage, candidate_path)
-            candidate_published = True
+            review_attempted = True
             os.replace(review_stage, review_path)
         except BaseException:
             try:
-                if candidate_backup_created:
-                    os.replace(candidate_backup, candidate_path)
-                elif candidate_published:
-                    candidate_path.unlink(missing_ok=True)
+                if candidate_attempted:
+                    if candidate_existed:
+                        os.replace(candidate_backup, candidate_path)
+                    else:
+                        candidate_path.unlink(missing_ok=True)
+                if review_attempted:
+                    if review_existed:
+                        os.replace(review_backup, review_path)
+                    else:
+                        review_path.unlink(missing_ok=True)
+                for backup in (candidate_backup, review_backup):
+                    backup.unlink(missing_ok=True)
             except BaseException as rollback_exc:
                 raise RuntimeError(
-                    "P3 paired publication failed and candidate rollback also failed; "
+                    "P3 paired publication failed and pair rollback also failed; "
                     f"recovery marker remains at {transaction_marker}"
                 ) from rollback_exc
             try:
@@ -246,18 +262,19 @@ def _publish_p3_pair(
             # The pair is consistent; a visible marker makes the next
             # publication fail closed until the stale marker is inspected.
             pass
-        if candidate_backup_created:
+        for backup in (candidate_backup, review_backup):
             try:
-                candidate_backup.unlink(missing_ok=True)
+                backup.unlink(missing_ok=True)
             except OSError:
-                # The published pair is already consistent. A stale backup is
-                # intentionally left visible so the next run fails closed.
+                # Preserve visible recovery artifacts if cleanup fails.
                 pass
     finally:
         candidate_stage.unlink(missing_ok=True)
         review_stage.unlink(missing_ok=True)
         if not publication_started:
             transaction_marker.unlink(missing_ok=True)
+            candidate_backup.unlink(missing_ok=True)
+            review_backup.unlink(missing_ok=True)
 
 
 def score_file_edit(row, actual):
