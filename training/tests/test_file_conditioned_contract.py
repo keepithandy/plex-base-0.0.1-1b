@@ -197,6 +197,91 @@ class FileConditionedContractTests(unittest.TestCase):
             self.assertEqual(backup.read_bytes(), b"old-candidate")
             self.assertEqual(review.read_bytes(), b"old-review")
 
+    def test_generation_interruptions_restore_both_outputs(self) -> None:
+        # Exercise syscall failure and successful replacement followed immediately
+        # by interruption, with all combinations of pre-existing output files.
+        for candidate_exists in (False, True):
+            for review_exists in (False, True):
+                for target in ("candidate.jsonl", "review.json"):
+                    for after_replace in (False, True):
+                        with self.subTest(candidate_exists=candidate_exists,
+                                          review_exists=review_exists,
+                                          target=target, after_replace=after_replace):
+                            with tempfile.TemporaryDirectory() as temporary:
+                                root = Path(temporary)
+                                candidate = root / "candidate.jsonl"
+                                review = root / "review.json"
+                                if candidate_exists:
+                                    candidate.write_bytes(b"old-candidate")
+                                if review_exists:
+                                    review.write_bytes(b"old-review")
+                                real_replace = os.replace
+
+                                def interrupt(source, destination):
+                                    if Path(source).name == target + ".p3tmp":
+                                        if after_replace:
+                                            real_replace(source, destination)
+                                        raise KeyboardInterrupt("publication interruption")
+                                    return real_replace(source, destination)
+
+                                with patch("plex_training.file_conditioned_contract.os.replace",
+                                           side_effect=interrupt):
+                                    with self.assertRaises(KeyboardInterrupt):
+                                        generate_file_edit_candidate(candidate_path=candidate,
+                                                                     review_path=review,
+                                                                     contract_path=CONTRACT)
+                                self.assertEqual(candidate.exists(), candidate_exists)
+                                self.assertEqual(review.exists(), review_exists)
+                                if candidate_exists:
+                                    self.assertEqual(candidate.read_bytes(), b"old-candidate")
+                                if review_exists:
+                                    self.assertEqual(review.read_bytes(), b"old-review")
+                                self.assertEqual(set(root.iterdir()),
+                                                 {p for p in (candidate, review) if p.exists()})
+
+    def test_generation_review_rollback_failure_preserves_recovery_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate, review = root / "candidate.jsonl", root / "review.json"
+            candidate.write_bytes(b"old-candidate")
+            review.write_bytes(b"old-review")
+            backup = review.with_name(review.name + ".p3bak")
+            real_replace = os.replace
+
+            def interrupt_then_fail_recovery(source, destination):
+                if Path(source) == backup:
+                    raise OSError("review recovery failed")
+                real_replace(source, destination)
+                if Path(source) == review.with_name(review.name + ".p3tmp"):
+                    raise KeyboardInterrupt("after review replacement")
+
+            with patch("plex_training.file_conditioned_contract.os.replace",
+                       side_effect=interrupt_then_fail_recovery):
+                with self.assertRaisesRegex(RuntimeError, "recovery marker remains"):
+                    generate_file_edit_candidate(candidate_path=candidate, review_path=review,
+                                                 contract_path=CONTRACT)
+            self.assertEqual(candidate.read_bytes(), b"old-candidate")
+            self.assertEqual(backup.read_bytes(), b"old-review")
+            marker = candidate.with_name(candidate.name + ".p3txn")
+            self.assertTrue(json.loads(marker.read_text())["reviewExisted"])
+            with self.assertRaises(FileExistsError):
+                generate_file_edit_candidate(candidate_path=candidate, review_path=review,
+                                             contract_path=CONTRACT)
+            self.assertEqual(backup.read_bytes(), b"old-review")
+
+    def test_generation_stale_review_backup_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            candidate, review = root / "candidate.jsonl", root / "review.json"
+            backup = review.with_name(review.name + ".p3bak")
+            backup.write_bytes(b"protected-recovery")
+            with self.assertRaises(FileExistsError):
+                generate_file_edit_candidate(candidate_path=candidate, review_path=review,
+                                             contract_path=CONTRACT)
+            self.assertEqual(backup.read_bytes(), b"protected-recovery")
+            self.assertFalse(candidate.exists())
+            self.assertFalse(review.exists())
+
     def test_generation_stale_transaction_marker_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
