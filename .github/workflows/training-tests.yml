@@ -5,6 +5,12 @@ on:
     paths:
       - "training/**"
       - ".github/workflows/training-tests.yml"
+  push:
+    branches:
+      - master
+    paths:
+      - "training/**"
+      - ".github/workflows/training-tests.yml"
   workflow_dispatch:
 
 permissions:
